@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "license": "MPL-2.0",
+  "author": "Entirius",
+  "contributors": [
+    "Łukasz Ostrowski <l.ostrowski.x@gmail.com>",
+    "Michał Kloczkowski <michal@kloczkowski.pl>"
+  ],
   "engines": {
     "node": ">=20"
   },
