@@ -1,0 +1,18 @@
+{
+  "default": {
+    "languages": ["pl", "en"],
+    "default_language": "en",
+    "currencies": ["pln", "eur"],
+    "default_currency": "eur",
+    "channels": ["default-europe"],
+    "default_channel": "default-europe"
+  },
+  "uk": {
+    "languages": ["en"],
+    "default_language": "uk",
+    "currencies": ["uah"],
+    "default_currency": "uah",
+    "channels": ["default-local"],
+    "default_channel": "default-local"
+  }
+}
