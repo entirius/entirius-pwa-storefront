@@ -1,0 +1,1 @@
+export type ACTIVE_FILTER = [prefix_filter_idx: string, filter_idx: string];

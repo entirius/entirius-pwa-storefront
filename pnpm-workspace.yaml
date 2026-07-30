@@ -1,0 +1,14 @@
+packages:
+  - '.'
+
+allowBuilds:
+  msw: true
+  sharp: true
+  unrs-resolver: true
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver
+overrides:
+  "@types/react": "19.2.17"
+  "@types/react-dom": "19.2.3"
+  "zod@4.4.3": "4.1.13"

@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [master, develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # JSON config imports (@/_CONFIG/*) must resolve before the build typechecks
+      - run: cp -r _CONFIG.example _CONFIG
+      - run: pnpm build
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitleaks
+        run: |
+          V=v8.30.0  # keep equal to the gitleaks rev in .pre-commit-config.yaml
+          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/${V}/gitleaks_${V#v}_linux_x64.tar.gz" | sudo tar -xz -C /usr/local/bin gitleaks
+          gitleaks git --redact -v
