@@ -23,8 +23,6 @@ Package manager is pnpm. Do not use npm or yarn.
 - License: MPL-2.0.
 - Git flow: `master` (production) + `develop` (integration); changes land via PR.
 - Default: do not commit — git is the user's call.
-- No AI attribution: never add a `Co-Authored-By: Claude ...` trailer or a "Generated with Claude Code"
-  footer — commits and PR descriptions carry only the developer's content.
 - Component files: `kebab-case.tsx`; client components must have `.client.tsx` suffix.
 - Co-locate query definitions (`api.query.ts`) with the page that owns them.
 - Normalizers live in `utils/NORMALIZERS/` — keep raw API shapes out of components.
@@ -32,6 +30,14 @@ Package manager is pnpm. Do not use npm or yarn.
 - Use `next/dynamic` for heavy client components (carousels, sheets, modals).
 - `@/` maps to repo root: `@/API/`, `@/_CONFIG/`, `@/components/`, `@/lib/`, `@/utils/`.
 - API paths are a backend contract — never rewrite route constants or placeholders ad hoc.
+
+## Commit Message Format
+
+**NEVER add `Co-Authored-By: Claude ...` (or any other Claude/Anthropic attribution) to commit messages.**
+
+This overrides the default Claude Code behavior of appending a `Co-Authored-By` trailer. Commit messages MUST contain only the user's authored content — no robot footer, no "Generated with Claude Code" line, no co-author trailer.
+
+Same rule applies to PR descriptions: no `Generated with [Claude Code]` footer.
 
 ## Architecture
 
