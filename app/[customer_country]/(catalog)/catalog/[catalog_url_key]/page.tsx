@@ -34,7 +34,8 @@ export default async function CatalogPage({ params, searchParams }: Props) {
   const { customer_country, catalog_url_key } = await params;
   const { page = "1", limit = "16", ...search_params } = await searchParams;
 
-  // Shared with generateMetadata so load_category dedupes to one fetch.
+  // Same instance generateMetadata used; load_category keys its React cache on
+  // the url_key string, so the two calls collapse to one fetch.
   const api_access_context = await get_server_api();
 
   // Category detail (breadcrumb `path`) for JSON-LD — cached, free here.

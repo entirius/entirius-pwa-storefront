@@ -22,7 +22,6 @@ const nextConfig: NextConfig = {
     ],
   },
   skipTrailingSlashRedirect: true,
-  cacheComponents: true,
   experimental: {
     staleTimes: {
       dynamic: 60,

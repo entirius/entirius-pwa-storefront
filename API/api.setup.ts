@@ -497,7 +497,7 @@ export function create_fetch_engine(access: API_ACCESS) {
     _LOGGER({
       message: "REQUEST SUCCESSFUL => ",
       type: "success",
-      print: data,
+      print: null,
     });
 
     return [undefined, data, meta];

@@ -28,7 +28,8 @@ export default async function ProductPage({ params }: Props) {
   const api = await get_server_api();
 
   // Raw product (RAW price/media, not the display-normalized shape) for JSON-LD.
-  // Shares load_product's React cache with generateMetadata + the prefetch below.
+  // load_product keys its React cache on the url_key string, so this shares
+  // generateMetadata's fetch even though the options literal differs.
   const [, response] = await load_product(api, { product_url_key });
   const raw = response?.results?.[0];
   const jsonLd = raw
@@ -39,7 +40,9 @@ export default async function ProductPage({ params }: Props) {
     : null;
 
   return (
-    <PrefetchBoundary prefetches={[product_query(api, { product_url_key })]}>
+    <PrefetchBoundary
+      prefetches={[product_query(api, { product_url_key }, response)]}
+    >
       {jsonLd && <JsonLd data={jsonLd} />}
       <ProductClient product_url_key={product_url_key} />
     </PrefetchBoundary>
