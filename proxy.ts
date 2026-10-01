@@ -82,8 +82,12 @@ export default function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     {
-      source:
-        "/((?!api|_next/static|_next/image|_next/data|favicon.ico|robots.txt|sitemap.xml|.*\\..*).*)",
+      // `_next` is excluded whole, not per-subpath: it is Next's own namespace and
+      // includes the dev HMR endpoint (`_next/webpack-hmr` / `_next/turbopack-hmr`),
+      // which carries no file extension and so slipped past the `.*\..*` guard. Geo-
+      // rewriting it breaks the HMR connection and the dev client falls back to
+      // reloading the page in a loop.
+      source: "/((?!api|_next|favicon.ico|robots.txt|sitemap.xml|.*\\..*).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },
