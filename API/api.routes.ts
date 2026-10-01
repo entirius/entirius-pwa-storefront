@@ -19,13 +19,16 @@ export const API_CART_SHIPPING_SELECT_ROUTE =
   "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/shipping/";
 export const API_CART_PAYMENT_SELECT_ROUTE =
   "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/payment/";
+// POST places an order; GET a single order is this route + `{pretty_id}/`.
 export const API_CART_ORDERS_ROUTE = "/api/checkout/v2/__CHANNEL__/orders/";
-// Documented v2 list endpoint the orders query targets — currently 500s
-// server-side (unhandled exception), same as the other v2 GET-list routes.
+// v2 list. Responds 200 now, but it is NOT usable for "my orders": the rows are a
+// slim summary (total_gross/currency/item_count, no cart items, no addresses) and
+// it is not customer-scoped — it returns every order in the channel. Kept for the
+// DEBUG probe only; the orders list reads v1 below.
 export const API_CART_ORDERS_LIST_ROUTE =
   "/api/checkout/v2/__CHANNEL__/orders/list/";
-// v1 orders GET works today (same response shape) — exposed in the DEBUG probe
-// console alongside v2 so the difference is visible while v2 is broken.
+// v1 orders GET — customer-scoped and returns whole orders, so this is what the
+// orders list uses. Ignores ordering/page/page_size.
 export const API_CART_ORDERS_V1_ROUTE = "/api/checkout/v1/__CHANNEL__/orders/";
 // ----- AUTHENTICATION -----
 export const API_USER_LOGIN_ROUTE =
@@ -190,6 +193,23 @@ export const API_ROUTES_POLICY = {
     ],
   },
   [API_CART_ORDERS_LIST_ROUTE]: {
+    refresh_on: [401],
+    optional_refresh: true,
+    default_headers: [
+      ["x-api-key", "channel_checkout_key"],
+      ["Authorization", "access_token"],
+      { "Content-Type": "application/json" },
+    ],
+  },
+  // Policy-only key for the single-order detail `.../orders/{id}/`. Not a route
+  // constant: the id is concatenated onto API_CART_ORDERS_ROUTE at the call site,
+  // and this entry exists so that path still resolves to the checkout auth headers.
+  // (pick_policy anchors patterns with `(?:$|[/?#])`, so API_CART_ORDERS_ROUTE does
+  // NOT match a longer path — without this the request goes out unauthenticated.)
+  // NB: this key is longer than API_CART_ORDERS_LIST_ROUTE's and its `[^/]+` also
+  // matches `/orders/list/`, so longest-match hands the list route this policy too.
+  // The two are deliberately identical, so that is inert.
+  "/api/checkout/v2/__CHANNEL__/orders/__ORDER_ID__/": {
     refresh_on: [401],
     optional_refresh: true,
     default_headers: [

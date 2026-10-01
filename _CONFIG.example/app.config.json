@@ -1,6 +1,32 @@
 {
   "DEBUG_MODE": true,
   "API_BASE_URL": "http://localhost:8000",
+  "SITE_URL": "http://localhost:3100",
+  "SITE_NAME": "Entirius Store",
+  "SEO": {
+    "PRODUCT_META": [
+      ["title", ["meta_title", "name"]],
+      ["url_key", "url_key"]
+    ],
+    "PRODUCT_JSONLD": [
+      ["title", ["meta_title", "name"]],
+      ["sku", "sku"],
+      ["brand", ["brands.0.name", "brands.0"]],
+      ["price", ["price.final_gross", "price.gross"]],
+      ["currency", "price.currency"],
+      ["url_key", "url_key"],
+      ["rating", "review_rating"]
+    ],
+    "CATALOG_META": [
+      ["title", ["meta_title", "name"]],
+      ["url_key", "url_key"]
+    ],
+    "CATALOG_JSONLD": [
+      ["title", ["meta_title", "name"]],
+      ["url_key", "url_key"],
+      ["breadcrumbs", ["breadcrumbs", "path"]]
+    ]
+  },
   "MENU_CINFGURATION": {
     "TYPES": ["hamburger", "megamenu"],
     "CONFIG_QUERY": {

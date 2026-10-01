@@ -1,6 +1,10 @@
-// Normalizes the checkout/v2 `orders/list/` response into a stable Order shape.
-// The list endpoint may return a bare array, a `{ data: [] }` envelope, or a
-// DRF-style `{ results: [] }` page — unwrap all three defensively.
+// Normalizes checkout order responses into a stable Order shape.
+// Two sources feed this:
+//  - the v1 list (`{ data: [ ...whole orders ] }`) → NORM_ORDERS
+//  - the v2 detail (`{ pretty_id, status, created, order_body: { ...the rest } }`)
+//    → NORM_ORDER, which lifts `order_body` before normalizing.
+// List responses may be a bare array, `{ data: [] }` or a DRF `{ results: [] }`
+// page — unwrap all three defensively.
 
 export type OrderAddress = {
   firstname: string;
@@ -27,9 +31,24 @@ export type OrderItem = {
   name: string | null;
   quantity: number;
   price: string | null;
+  base_price: string | null;
+  special_percent: number | null;
   total_price: string | null;
   image_url: string | null;
   sub_items: OrderSubItem[];
+};
+
+export type OrderPaymentMethod = {
+  code: string | null;
+  name: string | null;
+  pay_code: string | null;
+};
+
+export type OrderShippingMethod = {
+  code: string | null;
+  name: string | null;
+  total_price: string | null;
+  normal_price: string | null;
 };
 
 export type Order = {
@@ -38,13 +57,18 @@ export type Order = {
   status: string;
   status_label: string;
   created: string;
+  updated: string;
+  comment: string | null;
   total: string;
   base_total: string;
   total_tax: string;
+  total_netto: string;
   currency_code: string;
   country_code: string;
   shipping_address: OrderAddress | null;
   billing_address: OrderAddress | null;
+  payment_methods: OrderPaymentMethod[];
+  shipping_method: OrderShippingMethod | null;
   items: OrderItem[];
 };
 
@@ -70,11 +94,15 @@ function norm_address(a: any): OrderAddress | null {
 
 function norm_item(i: any): OrderItem {
   const subs = Array.isArray(i?.sub_items) ? i.sub_items : [];
+  const special = Number(i?.special_percent);
   return {
     sku: str(i?.sku),
     name: str(i?.name),
     quantity: Number(i?.quantity ?? 1),
-    price: str(i?.price),
+    // The backend calls the per-unit price `unit_price`; there is no `price` key.
+    price: str(i?.unit_price ?? i?.price),
+    base_price: str(i?.base_unit_price),
+    special_percent: Number.isFinite(special) && special > 0 ? special : null,
     total_price: str(i?.total_price),
     image_url: str(i?.image_url),
     sub_items: subs.map((s: any) => ({
@@ -85,6 +113,27 @@ function norm_item(i: any): OrderItem {
   };
 }
 
+// `payment_method` is an array — an order can carry a voucher alongside the
+// actual method (e.g. voucher + banktransfer).
+function norm_payment_methods(p: any): OrderPaymentMethod[] {
+  const list = Array.isArray(p) ? p : p ? [p] : [];
+  return list.map((m: any) => ({
+    code: str(m?.code),
+    name: str(m?.name),
+    pay_code: str(m?.pay_code),
+  }));
+}
+
+function norm_shipping_method(s: any): OrderShippingMethod | null {
+  if (!s || typeof s !== "object") return null;
+  return {
+    code: str(s.code),
+    name: str(s.name),
+    total_price: str(s.total_price),
+    normal_price: str(s.normal_price),
+  };
+}
+
 function norm_order(o: any): Order {
   const items = Array.isArray(o?.cart?.items)
     ? o.cart.items
@@ -92,19 +141,25 @@ function norm_order(o: any): Order {
       ? o.items
       : [];
   return {
-    // v2 may expose `pretty_id`; v1 only had `id`. Prefer the human id.
+    // v2 may expose `pretty_id`; the legacy v1 client used `id`. Prefer the human id.
     id: str(o?.pretty_id ?? o?.id ?? o?.order_uuid) ?? "",
-    order_uuid: str(o?.order_uuid ?? o?.uuid ?? o?.id) ?? "",
+    // v1 calls the uuid `order_uuid`; the v2 detail/list call it `order_id`.
+    order_uuid: str(o?.order_uuid ?? o?.order_id ?? o?.uuid ?? o?.id) ?? "",
     status: str(o?.status) ?? "",
     status_label: str(o?.status_label) ?? "",
     created: str(o?.created) ?? "",
+    updated: str(o?.updated) ?? "",
+    comment: str(o?.comment),
     total: str(o?.total) ?? "0",
     base_total: str(o?.base_total) ?? "0",
     total_tax: str(o?.total_tax) ?? "0",
+    total_netto: str(o?.cart?.total_netto_price) ?? "0",
     currency_code: str(o?.currency_code) ?? "",
     country_code: str(o?.country_code) ?? "",
     shipping_address: norm_address(o?.addresses?.shipping_address),
     billing_address: norm_address(o?.addresses?.billing_address),
+    payment_methods: norm_payment_methods(o?.payment_method),
+    shipping_method: norm_shipping_method(o?.shipping_method),
     items: items.map(norm_item),
   };
 }
@@ -117,11 +172,26 @@ function NORM_ORDERS(resp: any): Order[] {
   return list.map(norm_order);
 }
 
-// status -> Tailwind pill classes.
+// Single order. The v2 detail response keeps only the header scalars at the top
+// level (pretty_id/status/created/updated) and nests everything else in
+// `order_body`, so flatten it — the outer spread keeps the top-level scalars
+// winning. `{ data }` is unwrapped so a v1 detail response works too.
+function NORM_ORDER(resp: any): Order {
+  const raw = resp?.order_body ? resp : (resp?.data ?? resp);
+  return norm_order({ ...(raw?.order_body ?? {}), ...raw });
+}
+
+// status -> Tailwind pill classes (ported from the legacy client).
 export const status_colors: Record<string, { bg: string; text: string }> = {
+  // Statuses this backend actually returns.
+  unpaid: { bg: "bg-yellow-100", text: "text-yellow-700" },
+  confirmed: { bg: "bg-green-100", text: "text-green-700" },
+  complete: { bg: "bg-green-100", text: "text-green-700" },
+  canceled: { bg: "bg-red-100", text: "text-red-700" },
+  returned: { bg: "bg-orange-100", text: "text-orange-700" },
+  // Carried over from the legacy client; not emitted by this backend.
   pending: { bg: "bg-yellow-100", text: "text-yellow-700" },
   processing: { bg: "bg-blue-100", text: "text-blue-700" },
-  confirmed: { bg: "bg-green-100", text: "text-green-700" },
   shipped: { bg: "bg-purple-100", text: "text-purple-700" },
   delivered: { bg: "bg-green-100", text: "text-green-700" },
   cancelled: { bg: "bg-red-100", text: "text-red-700" },
@@ -146,4 +216,4 @@ export function format_order_date(created: string): string {
   });
 }
 
-export { NORM_ORDERS };
+export { NORM_ORDERS, NORM_ORDER };

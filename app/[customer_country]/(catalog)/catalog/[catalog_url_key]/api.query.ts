@@ -2,6 +2,7 @@ import { cache } from "react";
 import {
   API_PRODUCTS_ROUTE,
   API_CATALOG_FILTERS_ROUTE,
+  API_CATEGORIES_ROUTE,
 } from "@/API/api.routes";
 import { QueryClient } from "@tanstack/react-query";
 import { NORM_PRODUCTS_DATA } from "@/utils/NORMALIZERS/product.normalizer";
@@ -153,6 +154,20 @@ export const load_catalog = cache(async (api: Api, options: any) => {
 // so the load_products will use the cached data from load_catalog
 // ------------------------------------------------------------
 // ------------------------------------------------------------
+// Category detail (name/description/breadcrumb `path`) for catalog SEO.
+// `categories/?url_key=X` returns `{ results: [category] }` (or a bare array);
+// returns the single raw category object, or undefined.
+export const load_category = cache(async (api: Api, options: { url_key: string }) => {
+  const [error, response] = await api.FETCH_METHOD(API_CATEGORIES_ROUTE, {
+    querys: { url_key: options.url_key },
+  });
+  if (error) return undefined;
+  const rows = Array.isArray(response)
+    ? response
+    : (response?.results ?? response?.data ?? []);
+  return rows?.[0];
+});
+
 export const load_products = cache(async (api: Api, options: any) => {
   const [error, response] = await load_catalog(api, options);
   if (error) return { error, response };

@@ -1,8 +1,9 @@
 import { Metadata } from "next";
 import { PrefetchBoundary } from "@/lib/prefetch_boundary";
-import { catalog_query } from "./api.query";
-import { create_api } from "@/API/api.context";
-import { make_server_access } from "@/API/access/api.server-access";
+import { catalog_query, load_category } from "./api.query";
+import { get_server_api } from "@/lib/seo/server-api";
+import { build_catalog_metadata, build_catalog_jsonld } from "@/lib/seo/build";
+import { JsonLd } from "@/lib/seo/json-ld";
 import { ListingClient } from "./_components/listing.client";
 
 interface Props {
@@ -18,29 +19,34 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  // const { catalog_url_key } = await params;
+  const { customer_country, catalog_url_key } = await params;
+  const api = await get_server_api();
+  const category = await load_category(api, { url_key: catalog_url_key });
+  if (!category) return { title: "Catalog" };
 
-  // const options = {
-  //   category_url_key: catalog_url_key,
-  //   limit: 16,
-  //   page: 1,
-  // };
-
-  // const [, data] = await load_catalog(catalog_url_key);
-
-  // return {
-  //   title: (data as any)?.name ?? "Catalog",
-  // };
-  return {
-    title: "Catalog",
-  };
+  return build_catalog_metadata(category, {
+    country: customer_country,
+    url_key: catalog_url_key,
+  });
 }
 
 export default async function CatalogPage({ params, searchParams }: Props) {
-  const { catalog_url_key } = await params;
+  const { customer_country, catalog_url_key } = await params;
   const { page = "1", limit = "16", ...search_params } = await searchParams;
 
-  const api_access_context = create_api(await make_server_access());
+  // Shared with generateMetadata so load_category dedupes to one fetch.
+  const api_access_context = await get_server_api();
+
+  // Category detail (breadcrumb `path`) for JSON-LD — cached, free here.
+  const category = await load_category(api_access_context, {
+    url_key: catalog_url_key,
+  });
+  const jsonLd = category
+    ? build_catalog_jsonld(category, {
+        country: customer_country,
+        url_key: catalog_url_key,
+      })
+    : null;
 
   // q_/s_/r_ params are passed to the backend as-is (prefix kept) — the v2
   // backend parses them directly, so no strip/nest is needed anymore.
@@ -64,6 +70,7 @@ export default async function CatalogPage({ params, searchParams }: Props) {
         // products_query(api_access_context, options),
       ]}
     >
+      {jsonLd && <JsonLd data={jsonLd} />}
       <ListingClient options={options} />
     </PrefetchBoundary>
   );
