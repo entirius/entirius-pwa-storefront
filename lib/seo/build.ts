@@ -175,21 +175,42 @@ export function build_catalog_jsonld(
     }),
   ];
 
-  const trail: any[] = Array.isArray(bag.breadcrumbs) ? bag.breadcrumbs : [];
-  if (trail.length) {
-    graph.push({
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: trail.map((c: any, i: number) => ({
-        "@type": "ListItem",
-        position: i + 1,
-        name: c?.name,
-        item: site_url(c?.url_key ? `/${ctx.country}/catalog/${c.url_key}` : undefined),
-      })),
-    });
-  }
+  const trail = build_breadcrumbs_jsonld(bag.breadcrumbs, ctx);
+  if (trail) graph.push(trail);
 
   return graph;
+}
+
+// ------------------------------------------------------------
+// BreadcrumbList from an API category trail ({ name, url_key }[]): category
+// `breadcrumbs`, or a product's `categories[0].path`. `current` appends the
+// page itself (a product) as the last item.
+// ------------------------------------------------------------
+type TrailNode = { name?: string; url_key?: string };
+
+export function build_breadcrumbs_jsonld(
+  path: unknown,
+  ctx: SEO_CONTEXT,
+  current?: { name?: string; url?: string },
+): Record<string, unknown> | null {
+  const nodes: TrailNode[] = Array.isArray(path) ? path : [];
+  const items: { name?: string; item?: string }[] = nodes.map((c) => ({
+    name: c?.name,
+    item: site_url(c?.url_key ? `/${ctx.country}/catalog/${c.url_key}` : undefined),
+  }));
+  if (current?.name) items.push({ name: current.name, item: current.url });
+  if (!items.length) return null;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((c, i) => prune({
+      "@type": "ListItem",
+      position: i + 1,
+      name: c.name,
+      item: c.item,
+    })),
+  };
 }
 
 // Drop undefined keys so the emitted JSON-LD stays clean.
