@@ -52,6 +52,7 @@ export function AccountSheet() {
           variant="ghost"
           size="icon"
           className="relative cursor-pointer text-foreground"
+          aria-label="Sign in"
         >
           <User />
         </Button>

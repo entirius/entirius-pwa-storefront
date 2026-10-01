@@ -66,6 +66,7 @@ export function HamburgerMenuSheet({ query }: { query: CONFIG_QUERY }) {
           variant="ghost"
           size="icon"
           className="relative cursor-pointer text-foreground"
+          aria-label="Menu"
         >
           <Menu />
         </Button>

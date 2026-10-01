@@ -22,7 +22,17 @@ export function WishlistSheet() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative cursor-pointer text-foreground">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative cursor-pointer text-foreground"
+          // The count joins the name only after mount, like the badge (no hydration mismatch).
+          aria-label={
+            mounted && count > 0
+              ? `Wishlist, ${count} ${count === 1 ? "item" : "items"}`
+              : "Wishlist"
+          }
+        >
           <Heart />
           {!mounted ? (
             <Spinner className="absolute -top-1 -right-1 size-3" />
