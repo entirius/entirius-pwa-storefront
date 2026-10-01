@@ -33,7 +33,8 @@ export function SearchSheet() {
 
   const access = useMemo(() => make_client_access(), []);
   const api = useMemo(() => create_api(access), [access]);
-  const currency = access.get("cr") ?? "";
+  // The `cr` cookie holds the ISO code lowercase; prices display it uppercase.
+  const currency = (access.get("cr") ?? "").toUpperCase();
 
   // Debounce the typed value (~300ms) before it drives the query.
   useEffect(() => {
