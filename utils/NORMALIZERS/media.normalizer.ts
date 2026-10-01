@@ -1,7 +1,19 @@
+import { API_BASE_URL } from "@/_CONFIG/app.config.json";
+
 const placeholder_width = 600;
 const placeholder_height = 600;
-//export const image_placeholder = `https://placehold.co/${placeholder_width}x${placeholder_height}/111/ddd/png`;
-export const image_placeholder = `https://picsum.photos/seed/picsum/${placeholder_width}/${placeholder_height}?grayscale`;
+export const image_placeholder = "/placeholder.svg";
+
+// ------------------------------------------------------------
+// The backend returns media paths relative to its own host
+// (`/media/image/...`). Left relative, next/image resolves them against the
+// storefront and fails. Absolute URLs (e.g. a CDN) pass through untouched.
+// ------------------------------------------------------------
+export function resolve_media_uri(source: unknown): string {
+  if (typeof source !== "string" || !source) return image_placeholder;
+  if (/^https?:\/\//.test(source)) return source;
+  return new URL(source, API_BASE_URL).toString();
+}
 
 // ------------------------------------------------------------
 // sort_by - sort by position, type, source_set
@@ -74,7 +86,7 @@ function NORM_MEDIA_DATA(
   return media.map((item: any) => {
     return item.source_set.map((n: any) => {
       return {
-        uri: n.source,
+        uri: resolve_media_uri(n.source),
         width: n.width,
         height: n.height,
       };
