@@ -1,6 +1,9 @@
 # Testing
 
-E2E runs on Playwright (`playwright.config.ts`, specs in `tests/e2e/`). Unit tests are not set up yet — when added, use Vitest, co-located with source.
+Two layers:
+
+- **Unit — Vitest** (`vitest.config.mts`): `pnpm test`. Pure logic (normalizers, query helpers, link resolution), `*.test.ts` next to the file it tests, no network. Runs in CI as the `test` job.
+- **E2E — Playwright** (`playwright.config.ts`, specs in `tests/e2e/`): `pnpm test:e2e`. Needs the live backend, so it runs locally, not in CI yet.
 
 ```bash
 pnpm test:e2e              # headless; reuses a running `pnpm dev`, starts one otherwise

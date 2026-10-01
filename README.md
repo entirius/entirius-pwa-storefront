@@ -57,6 +57,7 @@ replace `API_CHECKOUT_KEY` with the key issued by your backend for each channel.
 | `pnpm build` | Production build |
 | `pnpm start` | Serve the production build |
 | `pnpm lint` | ESLint (`eslint-config-next`) |
+| `pnpm test` | Vitest unit tests |
 | `pnpm test:e2e` | Playwright E2E against a live backend with the reference dataset (see [docs/testing.md](docs/testing.md)) |
 
 ## Architecture

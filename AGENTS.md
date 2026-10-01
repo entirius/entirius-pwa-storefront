@@ -10,6 +10,7 @@ cp -r _CONFIG.example _CONFIG   # once — the code imports the JSON config
 pnpm dev                        # :3100 (`--port N` overrides)
 pnpm build
 pnpm lint
+pnpm test                       # Vitest unit tests (*.test.ts next to the code)
 pnpm test:e2e                   # Playwright against a live backend — docs/testing.md
 ```
 
