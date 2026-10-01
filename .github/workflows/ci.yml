@@ -27,6 +27,26 @@ jobs:
       - run: cp -r _CONFIG.example _CONFIG
       - run: pnpm build
 
+  # Types + ESLint. Legacy errors are listed in eslint-suppressions.json, so
+  # only new ones fail; the warning count may not grow either.
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: cp -r _CONFIG.example _CONFIG
+      # Route types (e.g. RouteContext) that `next dev` / `next build` would generate.
+      - run: pnpm exec next typegen
+      - run: pnpm exec tsc --noEmit
+      - run: pnpm lint --max-warnings=5
+
   # MPL header in every source file — backstop for the local insert-license hook.
   license-headers:
     runs-on: ubuntu-latest
