@@ -9,10 +9,11 @@ Next.js 16 (App Router) e-commerce storefront for the Volkanos platform. React 1
 ```bash
 pnpm install           # Install dependencies
 cp -r _CONFIG.example _CONFIG   # Required once — JSON config is imported by the code
-pnpm dev               # Dev server (port 3000)
-pnpm dev --port 3001   # Dev server on custom port
+pnpm dev               # Dev server (port 3100)
+pnpm dev --port 3101   # Dev server on custom port
 pnpm build             # Production build
 pnpm lint              # ESLint
+pnpm test:e2e          # Playwright E2E (needs a running backend, see Testing)
 ```
 
 Package manager is pnpm. Do not use npm or yarn.
@@ -38,6 +39,23 @@ Package manager is pnpm. Do not use npm or yarn.
 This overrides the default Claude Code behavior of appending a `Co-Authored-By` trailer. Commit messages MUST contain only the user's authored content — no robot footer, no "Generated with Claude Code" line, no co-author trailer.
 
 Same rule applies to PR descriptions: no `Generated with [Claude Code]` footer.
+
+## Before Pushing
+
+Agents never push, open PRs or merge — they hand the operator the exact commands. Before that,
+review every outgoing commit (`git log origin/<branch>..HEAD`, full diff) against the Entirius
+Handbook (entirius-docs, `handbook/`) and the maintainers' internal standards (location in the
+local, untracked agent notes). Check at least:
+
+- English-only code, comments, docs, commit messages and branch names.
+- Git flow: `feature/<name>` from `develop`, lowercase, words separated by `-`.
+- Committer identity matches the org (`git log --format='%an <%ae>' origin/<branch>..HEAD`).
+- No AI attribution (see Commit Message Format).
+- `gitleaks git --log-opts="origin/<branch>..HEAD" --redact` is clean with the canonical
+  `.gitleaks.toml` — the history goes public, not just the final diff.
+- `pnpm lint` does not grow, `pnpm build` and `pnpm test:e2e` are green.
+
+Report the findings together with the push commands; a finding blocks the push until fixed.
 
 ## Architecture
 
@@ -110,6 +128,7 @@ cp -r _CONFIG.example _CONFIG
 # app.config.json      → set API_BASE_URL (Volkanos instance URL)
 # channels.config.json → set CHANNEL_LABEL and API_CHECKOUT_KEY per channel
 # countries.config.json → country → languages/currencies/channels mapping
+# brand/               → identity assets (favicon, optional logo), named in app.config.json BRAND
 ```
 
 Import configs directly: `import countries from "@/_CONFIG/countries.config.json"`. Config is type-checked at build time.
@@ -229,8 +248,9 @@ Two patterns:
 
 Tailwind CSS v4 with shadcn/ui ("new-york" style). Config in `components.json`.
 
-- CSS variables enabled (`cssVariables: true`) — colors defined as HSL in `app/globals.css`
-- Dark mode toggle in header — uses `class` strategy (Tailwind `dark:` prefix)
+- Colors, radii and fonts come from `@entirius/brand-tokens`. `app/globals.css` is the only file that maps `--brand-*` to semantic names (`background`, `card`, `primary`, `muted-foreground`, `positive`, `highlight`…).
+- Components use semantic classes only. `pnpm lint` rejects hex, `rgb()`/`hsl()`/`oklch()` and Tailwind palette classes (`bg-red-500`, `text-white`) in `.ts`/`.tsx`.
+- Dark only — no theme toggle; `<html class="dark">` is fixed.
 - Icons: `lucide-react`
 - Utility: `cn()` from `lib/utils.ts` (clsx + tailwind-merge)
 - Add shadcn components: `pnpm dlx shadcn add <component-name>`
@@ -239,8 +259,11 @@ Tailwind CSS v4 with shadcn/ui ("new-york" style). Config in `components.json`.
 
 | File | Key | Purpose |
 |------|-----|---------|
-| `app.config.json` | `API_BASE_URL` | Backend URL (e.g. `http://localhost:8000`) |
+| `app.config.json` | `API_BASE_URL` | Backend URL (template `http://localhost:8000`; the zeno local stack serves `:8100`) |
 | `app.config.json` | `DEBUG_MODE` | Enables `_LOGGER` console output and DEBUG-only dev tools |
+| `app.config.json` | `SITE_URL` | Public URL of the shop: canonical/Open Graph URLs, Playwright `baseURL` |
+| `app.config.json` | `SITE_NAME` | Shop name: header wordmark (when no logo), page titles, Open Graph |
+| `app.config.json` | `BRAND.LOGO` / `BRAND.LOGO_ALT` / `BRAND.FAVICON` | File names in `_CONFIG/brand/`, served by `app/brand/[file]` (only the listed names). `LOGO: null` shows the wordmark |
 | `channels.config.json` | `{channel}.CHANNEL_LABEL` | Channel display name |
 | `channels.config.json` | `{channel}.API_CHECKOUT_KEY` | Checkout API key per channel (`x-api-key`) |
 | `countries.config.json` | `{country}.default_language` | Default language for country |
@@ -249,11 +272,22 @@ Tailwind CSS v4 with shadcn/ui ("new-york" style). Config in `components.json`.
 
 ## Testing
 
-No test framework configured yet. When adding tests:
+E2E runs on Playwright (`playwright.config.ts`, specs in `tests/e2e/`). Unit tests are not set up yet — when added, use Vitest, co-located with source.
 
-- Use Playwright for E2E (Next.js recommended)
-- Use Vitest for unit tests
-- Place E2E tests in `tests/e2e/`, unit tests co-located with source
+```bash
+pnpm test:e2e              # headless; reuses a running `pnpm dev`, starts one otherwise
+pnpm test:e2e --headed     # watch the browser
+pnpm test:e2e --ui         # Playwright UI mode
+```
+
+- Uses the locally installed Google Chrome (`channel: "chrome"`) — no `playwright install` needed.
+- `baseURL` is `SITE_URL` from `_CONFIG/app.config.json`.
+- Tests hit a **live backend** with seeded data (the reference dataset of the `default-europe` channel). There are no API mocks; a missing or wrong backend fails every spec.
+- Enter pages through the proxy (`page.goto("/catalog/...")`), never by setting country cookies by hand — the proxy is part of what is tested.
+- A known gap is marked `test.fixme(...)` with the reason, not deleted.
+- `checkout-guest.spec.ts` places a real order, and every order reserves stock for good. After ~50 runs the test product (`ENT-C001`) is out of stock and every spec that adds it to the cart fails with "Out of stock" — reseed the backend, then recreate the local test account.
+- Failure screenshots and traces land in `test-results/` (gitignored); open a trace with `pnpm exec playwright show-trace <path>`.
+- `visual.spec.ts` compares home, catalog, PDP and cart with baselines in `tests/e2e/visual.spec.ts-snapshots/` (per OS, product photos masked). After an intended visual change: `pnpm test:e2e visual --update-snapshots=all`, then review the new PNGs in the diff. `contrast.spec.ts` checks WCAG AA of the semantic color pairs.
 
 ## Gotchas
 
@@ -261,6 +295,7 @@ No test framework configured yet. When adding tests:
 - Pass one `api` instance per request to all loaders — splitting into multiple instances breaks `React.cache()` deduplication and causes duplicate fetches.
 - Never give a `cache()`d loader an object argument. `cache()` compares arguments by reference, so `load_x(api, { url_key })` written at three call sites is three cache misses and three network calls — the shared `api` instance does not save you. Key on primitives; see React.cache() Deduplication above.
 - `_CONFIG/` must exist before `pnpm dev`/`pnpm build` — JSON imports fail at build time if missing.
+- Restart `pnpm dev` after adding a package that is an optional peer of `next` (e.g. `@playwright/test`). pnpm reinstalls `next` under a new `.pnpm/` path, and the running server then fails with `Cannot find module …/next/dist/compiled/jest-worker/processChild.js` and answers 500.
 - `API_ROUTES_POLICY` drives default query params and auth headers per route. Adding a new route without a policy entry means no auth headers or language params are injected automatically.
 - Filter prefix stripping (`q_`, `s_`, `r_`) happens in `page.tsx`, not in the store. The Zustand `filters.store.ts` initializes from `URLSearchParams` but does not strip prefixes — pages must parse before forwarding to API.
 - `ch_key` (channel checkout key) is deliberately non-HttpOnly — client components read it from `document.cookie`. `at`/`rt`/`uid` are HttpOnly and set only by the auth Server Actions; never re-emit them in the middleware.
@@ -272,3 +307,13 @@ Priority order for React/Next.js code:
 2. Bundle size — no barrel imports, `next/dynamic` for heavy components
 3. Server-side performance — `React.cache()` deduplication, minimize client serialization
 4. Re-render optimization — derive state during render, avoid unnecessary `memo`
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
