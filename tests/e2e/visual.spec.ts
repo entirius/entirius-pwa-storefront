@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 import { expect, test, type Page } from "@playwright/test";
 
 // Visual regression for the key screens. Baselines live next to this file
@@ -57,6 +61,9 @@ test("cart", async ({ page }) => {
   await expect(cart).toContainText("Flight Deck Command Chair");
   // Totals arrive from the backend cart sync; the shot waits for the final layout.
   await expect(cart).toContainText(/incl\. VAT/);
+  // Adding to cart can leave the (now long) product page scrolled a little;
+  // the shot is about the drawer, so pin the page behind it to the top.
+  await page.evaluate(() => window.scrollTo(0, 0));
   await settle(page);
   await expect(page).toHaveScreenshot("cart.png", { ...SHOT, mask: [page.locator("img")] });
 });
