@@ -4,9 +4,14 @@ export const API_PRICES_ROUTE = "/api/matrix/v2/__CHANNEL__/prices/";
 export const API_CATALOG_FILTERS_ROUTE = "/api/matrix/v2/__CHANNEL__/options/";
 export const API_STOCK_ROUTE = "/api/matrix/v2/__CHANNEL__/stock/";
 export const API_SEARCH_ROUTE = "/api/matrix/v2/__CHANNEL__/search/";
+// Lowest price in the 30 days before a reduction (EU Omnibus), batch: ?sku=A&sku=B.
+export const API_OMNIBUS_ROUTE = "/api/matrix/v2/__CHANNEL__/omnibus/";
 export const API_CART_ROUTE = "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/";
 export const API_CART_ITEMS_ROUTE =
   "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/items/";
+// PATCH { codes: [{ code }] } replaces the manual codes; { clear: true } drops them.
+export const API_CART_DISCOUNTS_ROUTE =
+  "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/discounts/";
 export const API_CART_ADDRESS_ROUTE =
   "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/addresses/";
 // LIST endpoints (GET) — currently 500 on the backend (guest path crashes).
@@ -89,6 +94,7 @@ export const API_ROUTES_POLICY = {
     ],
   },
   [API_PRICES_ROUTE]: { default_querys: ["currency", "country"] },
+  [API_OMNIBUS_ROUTE]: { default_querys: ["currency", "country"] },
   [API_CATALOG_FILTERS_ROUTE]: { default_querys: ["language"] },
   // Real-time stock (Auth Optional — auth headers intentionally skipped for now).
   [API_STOCK_ROUTE]: { default_querys: ["language"] },
@@ -118,6 +124,16 @@ export const API_ROUTES_POLICY = {
   },
   [API_CART_ITEMS_ROUTE]: {
     // v2 update path: PATCH /carts/{cart_id}/items/ (full-replace of the item set).
+    default_querys: ["language"],
+    refresh_on: [401],
+    optional_refresh: true,
+    default_headers: [
+      ["x-api-key", "channel_checkout_key"],
+      ["Authorization", "access_token"],
+      { "Content-Type": "application/json" },
+    ],
+  },
+  [API_CART_DISCOUNTS_ROUTE]: {
     default_querys: ["language"],
     refresh_on: [401],
     optional_refresh: true,

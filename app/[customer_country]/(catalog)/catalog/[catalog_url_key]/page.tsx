@@ -1,10 +1,16 @@
 import { Metadata } from "next";
 import { PrefetchBoundary } from "@/lib/prefetch_boundary";
-import { catalog_query, load_category } from "./api.query";
+import { catalog_query, load_catalog, load_category } from "./api.query";
+import { omnibus_prefetch, is_discounted } from "@/lib/omnibus/omnibus.query";
 import { get_server_api } from "@/lib/seo/server-api";
 import { build_catalog_metadata, build_catalog_jsonld } from "@/lib/seo/build";
 import { JsonLd } from "@/lib/seo/json-ld";
+import { SanitizeHTML } from "@/components/ui/sanitize-html";
 import { ListingClient } from "./_components/listing.client";
+import {
+  PageBreadcrumbs,
+  category_trail,
+} from "@/app/_components/layout/page-breadcrumbs";
 
 interface Props {
   params: Promise<{
@@ -64,14 +70,35 @@ export default async function CatalogPage({ params, searchParams }: Props) {
     ...filters,
   };
 
+  // Omnibus lines for the reduced prices on this page, in the server HTML. The
+  // product list is the same cached request the catalog prefetch makes.
+  const [, catalog_response] = await load_catalog(api_access_context, options);
+  const discounted_skus: string[] = (catalog_response?.results ?? [])
+    .filter((p: { price?: unknown }) => is_discounted(p.price))
+    .map((p: { sku: string }) => p.sku);
+
   return (
     <PrefetchBoundary
       prefetches={[
         catalog_query(api_access_context, options),
-        // products_query(api_access_context, options),
+        ...(discounted_skus.length
+          ? [omnibus_prefetch(api_access_context, discounted_skus)]
+          : []),
       ]}
     >
       {jsonLd && <JsonLd data={jsonLd} />}
+      {category && (
+        <header className="mb-6">
+          <PageBreadcrumbs trail={category_trail(category.breadcrumbs)} />
+          <h1 className="text-2xl leading-tight">{category.name}</h1>
+          {category.description && (
+            <SanitizeHTML
+              html={category.description}
+              className="mt-1 text-sm text-muted-foreground"
+            />
+          )}
+        </header>
+      )}
       <ListingClient options={options} />
     </PrefetchBoundary>
   );
