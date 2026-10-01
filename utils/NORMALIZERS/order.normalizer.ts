@@ -3,6 +3,7 @@
 //  - the v1 list (`{ data: [ ...whole orders ] }`) → NORM_ORDERS
 //  - the v2 detail (`{ pretty_id, status, created, order_body: { ...the rest } }`)
 //    → NORM_ORDER, which lifts `order_body` before normalizing.
+// NORM_PLACED_ORDER covers the separate POST /orders/ (create) response.
 // List responses may be a bare array, `{ data: [] }` or a DRF `{ results: [] }`
 // page — unwrap all three defensively.
 
@@ -181,20 +182,26 @@ function NORM_ORDER(resp: any): Order {
   return norm_order({ ...(raw?.order_body ?? {}), ...raw });
 }
 
-// status -> Tailwind pill classes (ported from the legacy client).
+// Status pills on the dark brand theme: status-coloured text on a 15 % tint of
+// the same token (WCAG AA 5.4–7.2:1). Classes must stay literal for Tailwind.
+const NOTICE = { bg: "bg-notice/15", text: "text-notice" };
+const POSITIVE = { bg: "bg-positive/15", text: "text-positive" };
+const NEGATIVE = { bg: "bg-destructive/15", text: "text-destructive" };
+const INFORMATIVE = { bg: "bg-informative/15", text: "text-informative" };
+
 export const status_colors: Record<string, { bg: string; text: string }> = {
   // Statuses this backend actually returns.
-  unpaid: { bg: "bg-yellow-100", text: "text-yellow-700" },
-  confirmed: { bg: "bg-green-100", text: "text-green-700" },
-  complete: { bg: "bg-green-100", text: "text-green-700" },
-  canceled: { bg: "bg-red-100", text: "text-red-700" },
-  returned: { bg: "bg-orange-100", text: "text-orange-700" },
+  unpaid: NOTICE,
+  confirmed: POSITIVE,
+  complete: POSITIVE,
+  canceled: NEGATIVE,
+  returned: NOTICE,
   // Carried over from the legacy client; not emitted by this backend.
-  pending: { bg: "bg-yellow-100", text: "text-yellow-700" },
-  processing: { bg: "bg-blue-100", text: "text-blue-700" },
-  shipped: { bg: "bg-purple-100", text: "text-purple-700" },
-  delivered: { bg: "bg-green-100", text: "text-green-700" },
-  cancelled: { bg: "bg-red-100", text: "text-red-700" },
+  pending: NOTICE,
+  processing: INFORMATIVE,
+  shipped: INFORMATIVE,
+  delivered: POSITIVE,
+  cancelled: NEGATIVE,
 };
 
 export function status_style(status: string): { bg: string; text: string } {
@@ -216,4 +223,29 @@ export function format_order_date(created: string): string {
   });
 }
 
-export { NORM_ORDERS, NORM_ORDER };
+// Response of POST /checkout/v2/{channel}/orders/ (201). `payment_error` is set when
+// the order was created but the payment provider failed to start. A split order
+// (channel splitting by a product attribute) lists every part's number.
+export type PlacedOrder = {
+  order_id: string;
+  pretty_id: string;
+  status: string;
+  redirect_url: string | null;
+  split_pretty_ids: string[];
+  payment_error: boolean;
+};
+
+function NORM_PLACED_ORDER(resp: unknown): PlacedOrder {
+  const r = (resp ?? {}) as Record<string, unknown>;
+  const split = r.split_orders_pretty_ids;
+  return {
+    order_id: str(r.order_id) ?? "",
+    pretty_id: str(r.order_pretty_id) ?? "",
+    status: str(r.order_status) ?? "",
+    redirect_url: str(r.redirect_url),
+    split_pretty_ids: Array.isArray(split) ? split.map(String) : [],
+    payment_error: r.payment_error === true,
+  };
+}
+
+export { NORM_ORDERS, NORM_ORDER, NORM_PLACED_ORDER };

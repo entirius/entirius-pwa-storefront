@@ -9,7 +9,6 @@ import {
   API_CART_SHIPPING_ROUTE,
   API_CART_SHIPPING_SELECT_ROUTE,
 } from "@/API/api.routes";
-import { DEBUG_MODE } from "@/_CONFIG/app.config.json";
 import {
   NORM_SHIPPING_METHODS,
   type Cart,
@@ -18,7 +17,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { DevProbeButton } from "./dev-probe-button";
 
 export function ShippingStep({
   cart,
@@ -86,11 +84,10 @@ export function ShippingStep({
       </div>
     );
   } else if (isError || !methods || methods.length === 0) {
-    // No methods → either the backend still errors for this address (only DE is
-    // served for now) or the address genuinely has none. Degrade gracefully.
+    // No methods for this address, or the request failed. Degrade gracefully.
     body = (
       <div className="rounded-lg border border-dashed p-8 text-center">
-        <h2 className="text-lg font-semibold">Shipping method</h2>
+        <h2 className="text-lg">Shipping method</h2>
         <p className="text-muted-foreground mx-auto mt-2 max-w-sm text-sm">
           No shipping methods are available for this address yet. Please check
           your address or try again later.
@@ -154,12 +151,6 @@ export function ShippingStep({
 
   return (
     <div className="flex flex-col gap-4">
-      {DEBUG_MODE && (
-        <DevProbeButton
-          label="GET shipping-methods"
-          route={API_CART_SHIPPING_ROUTE}
-        />
-      )}
       {body}
     </div>
   );

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { NORM_CART, type Cart } from "@/utils/NORMALIZERS/cart.normalizer";
+import type { PlacedOrder } from "@/utils/NORMALIZERS/order.normalizer";
 import { cart_to_address_form } from "@/utils/validation/address.schema";
 import { useCartSync } from "@/stores/use-cart-sync";
 import { CheckoutStepper, type CheckoutStep } from "./checkout-stepper";
@@ -55,7 +56,7 @@ export function CheckoutClient() {
   if (entries.length === 0) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-12">
-        <h1 className="mb-6 text-2xl font-bold">Checkout</h1>
+        <h1 className="mb-6 text-2xl">Checkout</h1>
         <p className="text-muted-foreground py-8 text-center">
           Your cart is empty.
         </p>
@@ -91,18 +92,26 @@ export function CheckoutClient() {
 
   // Order placed (no gateway redirect) → go to the dedicated success route, which
   // owns cart teardown so this page never flashes its empty-cart state on the way out.
-  const onPlaced = (orderId?: string) => {
+  // A split order passes every part's number (`ref` repeated).
+  const onPlaced = (order: PlacedOrder) => {
     const base =
       !country || country === "default"
         ? "/checkout/success"
         : `/${country}/checkout/success`;
-    router.push(orderId ? `${base}?ref=${encodeURIComponent(orderId)}` : base);
+    const params = new URLSearchParams();
+    const refs = order.split_pretty_ids.length
+      ? order.split_pretty_ids
+      : [order.pretty_id].filter(Boolean);
+    for (const ref of refs) params.append("ref", ref);
+    if (order.payment_error) params.set("payment", "failed");
+    const query = params.toString();
+    router.push(query ? `${base}?${query}` : base);
   };
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
       <div className="mb-8 flex items-center gap-3">
-        <h1 className="text-2xl font-bold">Checkout</h1>
+        <h1 className="text-2xl">Checkout</h1>
         {isFetching && <Spinner className="size-4" />}
       </div>
 
