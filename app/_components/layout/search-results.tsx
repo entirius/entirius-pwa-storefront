@@ -57,7 +57,7 @@ export function SearchResults({
 
       {categories.length > 0 && (
         <section className="flex flex-col gap-2">
-          <h3 className="px-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+          <h3 className="px-1 text-xs tracking-wide text-muted-foreground uppercase">
             Categories
           </h3>
           <div className="flex flex-col gap-1">
@@ -86,7 +86,7 @@ export function SearchResults({
 
       {products.length > 0 && (
         <section className="flex flex-col gap-2">
-          <h3 className="px-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+          <h3 className="px-1 text-xs tracking-wide text-muted-foreground uppercase">
             Products ({total})
           </h3>
           <div className="flex flex-col gap-2">

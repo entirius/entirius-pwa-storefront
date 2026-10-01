@@ -81,7 +81,7 @@ export function AddressList() {
               <ChevronLeft className="size-5" />
             </LinkDynamic>
           </Button>
-          <h1 className="text-2xl font-bold">Delivery addresses</h1>
+          <h1 className="text-2xl">Delivery addresses</h1>
         </div>
         <Button
           size="sm"

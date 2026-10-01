@@ -41,7 +41,7 @@ export function UserHandlerClient() {
 
       {status === "success" && (
         <>
-          <h1 className="mb-3 text-2xl font-bold">Verification complete</h1>
+          <h1 className="mb-3 text-2xl">Verification complete</h1>
           <p className="text-muted-foreground mb-6">
             Your account has been verified. You can now sign in.
           </p>
@@ -53,7 +53,7 @@ export function UserHandlerClient() {
 
       {status === "error" && (
         <>
-          <h1 className="mb-3 text-2xl font-bold">Verification failed</h1>
+          <h1 className="mb-3 text-2xl">Verification failed</h1>
           <p className="text-muted-foreground mb-6">
             Something went wrong verifying your account. The link may be invalid
             or expired.

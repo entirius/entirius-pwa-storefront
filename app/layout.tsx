@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Lexend_Deca } from "next/font/google";
 import "./globals.css";
 
 import { cookies } from "next/headers";
@@ -9,14 +9,18 @@ import { AuthProvider } from "@/providers/auth.provider";
 import { HeaderComponent } from "./_components/layout/header-component";
 import { Suspense } from "react";
 import { SITE_URL, SITE_NAME } from "@/lib/seo/config";
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+import { BRAND } from "@/_CONFIG/app.config.json";
+// Brand typefaces (styleguide §1). Both are variable fonts: one file each, no
+// weight list. Lexend Deca carries headings and the wordmark (300/400 only, never
+// bold); Inter carries the shop UI. Fallback metrics come from the brand tokens.
+const lexendDeca = Lexend_Deca({
+  variable: "--font-lexend-deca",
+  subsets: ["latin", "latin-ext"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin", "latin-ext"],
 });
 
 export const metadata: Metadata = {
@@ -26,6 +30,8 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description: `Shop at ${SITE_NAME}.`,
+  // Identity assets live in _CONFIG/brand/ (see app/brand/[file]/route.ts).
+  icons: BRAND.FAVICON ? { icon: `/brand/${BRAND.FAVICON}` } : undefined,
   openGraph: {
     siteName: SITE_NAME,
     type: "website",
@@ -41,9 +47,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    // Dark only — the Entirius brand has no light theme. The class keeps shadcn's
+    // dark: variants on for good.
+    <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${lexendDeca.variable} ${inter.variable} antialiased`}
       >
         <TanstackQueryProvider>
           {/* AuthGate reads the cookie inside Suspense so the dynamic read

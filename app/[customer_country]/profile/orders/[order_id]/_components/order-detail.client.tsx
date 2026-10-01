@@ -26,7 +26,7 @@ export function OrderDetail({ order_id }: { order_id: string }) {
             <ChevronLeft className="size-5" />
           </LinkDynamic>
         </Button>
-        <h1 className="text-2xl font-bold">Order #{order?.id ?? order_id}</h1>
+        <h1 className="text-2xl">Order #{order?.id ?? order_id}</h1>
         {order && (
           <div className={cn("ml-auto rounded-full px-3 py-1", style.bg)}>
             <span className={cn("text-xs font-bold", style.text)}>

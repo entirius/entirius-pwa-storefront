@@ -25,11 +25,11 @@ const heartVariants = cva(
         lg: "size-5",
       },
       isActive: {
-        true: "fill-red-500 text-red-500",
-        false: "fill-transparent text-current group-hover:text-red-400",
+        true: "fill-highlight text-highlight",
+        false: "fill-transparent text-current group-hover:text-highlight",
       },
       variant: {
-        default: "group-hover:text-red-300",
+        default: "group-hover:text-highlight",
         destructive: "",
         outline: "",
         secondary: "",

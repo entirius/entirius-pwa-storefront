@@ -26,7 +26,7 @@ export function OrdersList() {
             <ChevronLeft className="size-5" />
           </LinkDynamic>
         </Button>
-        <h1 className="text-2xl font-bold">My orders</h1>
+        <h1 className="text-2xl">My orders</h1>
       </div>
 
       {DEBUG_MODE && (

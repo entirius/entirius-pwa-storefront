@@ -42,7 +42,7 @@ export function ProfileClient() {
 
   return (
     <div className="flex flex-col gap-6 py-4">
-      <h1 className="text-2xl font-bold">My account</h1>
+      <h1 className="text-2xl">My account</h1>
 
       <section className="rounded-lg border border-border p-4">
         {editing && profile ? (

@@ -43,7 +43,6 @@ import {
   InputGroupText,
   InputGroupTextarea,
 } from "@/components/ui/input-group";
-import { ThemeToggle } from "@/app/_components/layout/theme-toggle";
 import { WishlistButton } from "@/components/ui/wishlist-button";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -373,21 +372,6 @@ export default function StylesheetsPage() {
           <WishlistButton variant="ghost" disabled />
           <WishlistButton variant="outline" disabled />
           <WishlistButton size="default" variant="outline" disabled />
-        </Row>
-      </Section>
-
-      {/* ── ThemeToggle (custom) ───────────────────────────────────────────── */}
-      <Section title="ThemeToggle (custom)">
-        <Row label="variants × sizes">
-          <ThemeToggle variant="ghost" size="icon-sm" />
-          <ThemeToggle variant="ghost" size="icon" />
-          <ThemeToggle variant="ghost" size="icon-lg" />
-          <ThemeToggle variant="outline" size="icon-sm" />
-          <ThemeToggle variant="outline" size="icon" />
-          <ThemeToggle variant="outline" size="icon-lg" />
-          <ThemeToggle variant="default" size="icon-sm" />
-          <ThemeToggle variant="default" size="icon" />
-          <ThemeToggle variant="default" size="icon-lg" />
         </Row>
       </Section>
       </div>

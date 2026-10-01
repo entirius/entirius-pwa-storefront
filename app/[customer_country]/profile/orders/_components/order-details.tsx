@@ -17,7 +17,7 @@ function SectionHeader({
       <div className="flex size-7 items-center justify-center rounded-lg bg-primary/10">
         {icon}
       </div>
-      <h3 className="text-sm font-semibold">{children}</h3>
+      <h3 className="text-sm">{children}</h3>
     </div>
   );
 }

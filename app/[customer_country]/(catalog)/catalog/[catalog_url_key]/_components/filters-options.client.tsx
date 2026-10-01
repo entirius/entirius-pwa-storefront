@@ -26,7 +26,7 @@ const FilterGroup = memo(function FilterGroup({
 }) {
   return (
     <div>
-      <h3 className="text-sm font-semibold">{filter.label}</h3>
+      <h3 className="text-sm">{filter.label}</h3>
       <div className="flex flex-col gap-2 mt-2">
         {filter.options?.map((option: any) => (
           <FilterItem
@@ -49,7 +49,7 @@ const SortGroup = memo(function SortGroup({
 }) {
   return (
     <div>
-      <h3 className="text-sm font-semibold">{filter.label}</h3>
+      <h3 className="text-sm">{filter.label}</h3>
       <div className="flex flex-col gap-2 mt-2">
         {filter.options?.map((option: any) => (
           <FilterSortItem
