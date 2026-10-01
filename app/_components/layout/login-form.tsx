@@ -39,7 +39,8 @@ export function LoginForm({
     // mismatch caused by eslint-config-next pulling a second zod@4 copy into the tree.
     resolver: zodResolver(login_schema as never),
     mode: "onBlur",
-    defaultValues: empty_login_defaults,
+    // DEBUG starts prefilled with the local test account; Clear empties it.
+    defaultValues: DEBUG_MODE ? dummy_login_defaults : empty_login_defaults,
   });
 
   const submit = form.handleSubmit((values) => {
@@ -62,9 +63,9 @@ export function LoginForm({
     <Form {...form}>
       <form onSubmit={submit} className="flex flex-col gap-4 p-4">
         {DEBUG_MODE && (
-          <div className="flex flex-col gap-2 rounded-md border border-amber-500/50 bg-amber-500/10 p-3 text-xs">
+          <div className="flex flex-col gap-2 rounded-md border border-notice/50 bg-notice/10 p-3 text-xs">
             <div className="flex items-center gap-2">
-              <span className="rounded bg-amber-500/20 px-1.5 py-0.5 font-semibold tracking-wide text-amber-700 uppercase dark:text-amber-400">
+              <span className="rounded bg-notice/20 px-1.5 py-0.5 font-semibold tracking-wide text-notice uppercase">
                 dev
               </span>
               <Button
@@ -84,7 +85,7 @@ export function LoginForm({
                 Clear
               </Button>
             </div>
-            <p className="text-amber-700/80 dark:text-amber-400/80">
+            <p className="text-notice/80">
               These tools are only visible because DEBUG_MODE is on.
             </p>
           </div>

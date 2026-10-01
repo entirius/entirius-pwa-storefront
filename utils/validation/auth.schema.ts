@@ -16,8 +16,9 @@ export const login_schema = z.object({
 
 export type LoginFormValues = z.infer<typeof login_schema>;
 
-// Login form defaults. `dummy_*` powers the DEBUG-only "Fill test data" tool
-// (mirrors the address step); `empty_*` is the real initial state / Clear target.
+// Login form defaults. `dummy_*` is the local test account: the initial state under
+// DEBUG_MODE and the "Fill test data" target. `empty_*` is the initial state otherwise
+// and the Clear target.
 export const empty_login_defaults: LoginFormValues = { email: "", password: "" };
 
 export const dummy_login_defaults: LoginFormValues = {
