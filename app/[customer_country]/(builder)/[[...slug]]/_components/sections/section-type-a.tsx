@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { SanitizeHTML } from "@/components/ui/sanitize-html";
 import ChildrenWrapper, { type ChildrenLayout } from "../children-wrapper";
 import CmsButton, { type CmsButtonData } from "../cms-button";
 
@@ -12,22 +13,22 @@ const section_dyes: Record<
   }
 > = {
   1: {
-    container_bg: "bg-leading",
-    title_color: "text-primary-foreground",
-    subtitle_color: "text-primary-foreground/70",
-    html_text_color: "#fafafa",
+    container_bg: "bg-gradient-backdrop",
+    title_color: "text-heading",
+    subtitle_color: "text-foreground",
+    html_text_color: "var(--foreground)",
   },
   2: {
-    container_bg: "bg-secondary border border-border",
-    title_color: "text-foreground",
-    subtitle_color: "text-leading",
-    html_text_color: "#71717a",
+    container_bg: "bg-gradient-card border border-border",
+    title_color: "text-heading",
+    subtitle_color: "text-link",
+    html_text_color: "var(--muted-foreground)",
   },
   3: {
     container_bg: "",
-    title_color: "text-leading",
+    title_color: "text-heading",
     subtitle_color: "text-muted-foreground",
-    html_text_color: "#71717a",
+    html_text_color: "var(--muted-foreground)",
   },
 };
 
@@ -113,10 +114,10 @@ export default function SectionTypeA({
       </div>
 
       {description && (
-        <div
+        <SanitizeHTML
+          html={description}
           className={cn("prose prose-sm max-w-none", variant_styles.description)}
           style={{ color: dye_styles.html_text_color }}
-          dangerouslySetInnerHTML={{ __html: description }}
         />
       )}
 

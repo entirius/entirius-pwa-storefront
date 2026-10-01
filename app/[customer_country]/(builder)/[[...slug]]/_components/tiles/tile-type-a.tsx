@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { SanitizeHTML } from "@/components/ui/sanitize-html";
 import CmsImage, {
   type CmsImagesSet,
   normalize_image_source,
@@ -18,18 +19,18 @@ const tile_dyes: Record<
   }
 > = {
   1: {
-    container_bg: "bg-card",
+    container_bg: "bg-gradient-card",
     content_bg: "",
-    title_color: "text-card-foreground",
+    title_color: "text-heading",
     subtitle_color: "text-muted-foreground",
-    html_text_color: "#71717a",
+    html_text_color: "var(--muted-foreground)",
   },
   2: {
-    container_bg: "bg-leading",
-    content_bg: "bg-gradient-to-t from-black/90 to-transparent",
-    title_color: "text-white",
-    subtitle_color: "text-white/80",
-    html_text_color: "#fff",
+    container_bg: "bg-card",
+    content_bg: "bg-gradient-to-t from-background/90 to-transparent",
+    title_color: "text-heading",
+    subtitle_color: "text-foreground",
+    html_text_color: "var(--heading)",
   },
 };
 
@@ -46,7 +47,7 @@ const tile_variants: Record<
   }
 > = {
   1: {
-    container: "overflow-hidden rounded-xl shadow-sm shadow-black/10",
+    container: "overflow-hidden rounded-xl shadow-sm",
     image: "rounded-t-xl",
     content: "p-2",
     title: "text-base font-semibold",
@@ -56,7 +57,7 @@ const tile_variants: Record<
   },
   2: {
     container:
-      "aspect-square w-full overflow-hidden rounded-xl shadow-sm shadow-black/10",
+      "aspect-square w-full overflow-hidden rounded-xl shadow-sm",
     image: "",
     content: "flex flex-col justify-end p-4",
     title: "text-base font-bold",
@@ -135,10 +136,10 @@ export default function TileTypeA({
             </h3>
           )}
           {description && (
-            <div
+            <SanitizeHTML
+              html={description}
               className="prose prose-sm max-w-none"
               style={{ color: dye_styles.html_text_color }}
-              dangerouslySetInnerHTML={{ __html: description }}
             />
           )}
           {buttons && buttons.length > 0 && (
@@ -179,10 +180,10 @@ export default function TileTypeA({
             </h3>
           )}
           {description && (
-            <div
+            <SanitizeHTML
+              html={description}
               className="prose prose-sm max-w-none"
               style={{ color: dye_styles.html_text_color }}
-              dangerouslySetInnerHTML={{ __html: description }}
             />
           )}
           {buttons && buttons.length > 0 && (
@@ -219,10 +220,10 @@ export default function TileTypeA({
           </h3>
         )}
         {description && (
-          <div
+          <SanitizeHTML
+            html={description}
             className="prose prose-sm max-w-none"
             style={{ color: dye_styles.html_text_color }}
-            dangerouslySetInnerHTML={{ __html: description }}
           />
         )}
         {buttons && buttons.length > 0 && (
