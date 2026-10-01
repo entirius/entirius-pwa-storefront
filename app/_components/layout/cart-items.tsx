@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { MediaImage } from "@/components/ui/media-image.client";
 import { X } from "lucide-react";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { LinkDynamic } from "@/lib/link-dynamic";
 import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
 import { useCartSync } from "@/stores/use-cart-sync";
 import { UnitPrice } from "./cart-price";
+import { DiscountCode } from "./discount-code.client";
 
 const num = (v: string | null | undefined) => {
   const n = parseFloat(String(v));
@@ -65,12 +66,12 @@ export function CartItems() {
           return (
             <div key={sku} className="flex gap-3">
               <div className="relative size-16 shrink-0 overflow-hidden rounded-md bg-muted">
-                <Image
+                <MediaImage
                   src={uri}
                   alt={item.name}
                   fill
                   sizes="64px"
-                  className="object-cover grayscale dark:brightness-20"
+                  className="object-cover"
                 />
               </div>
               <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -117,6 +118,10 @@ export function CartItems() {
         })}
       </div>
 
+      <div className="border-t pt-3">
+        <DiscountCode backend={backend} />
+      </div>
+
       <div className="flex flex-col gap-1 border-t pt-3 text-sm">
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-2 text-muted-foreground">
@@ -126,7 +131,7 @@ export function CartItems() {
           <span className="tabular-nums">{fmt(backend?.subtotal_gross)}</span>
         </div>
         {total_savings > 0.005 && (
-          <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-500">
+          <div className="flex items-center justify-between text-positive">
             <span>You save</span>
             <span className="tabular-nums">−{fmt(total_savings.toFixed(2))}</span>
           </div>
