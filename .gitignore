@@ -66,3 +66,9 @@ __FEATURES_IMPLEMENTATIONS/
 
 # Secret scanning (forbidden-names blocklist - local symlink, never committed)
 .gitleaks.toml
+
+# playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
