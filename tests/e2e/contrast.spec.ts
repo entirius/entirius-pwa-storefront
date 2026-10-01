@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 import { expect, test } from "@playwright/test";
 
 // WCAG 2.1 AA for the semantic color pairs the storefront actually uses. Colors are

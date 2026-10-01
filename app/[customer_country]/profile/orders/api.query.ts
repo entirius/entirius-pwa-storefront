@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
 import { API_CART_ORDERS_V1_ROUTE } from "@/API/api.routes";

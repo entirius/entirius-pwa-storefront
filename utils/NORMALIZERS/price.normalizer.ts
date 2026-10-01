@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 type Price = [string] | [string, string];
 // [0] = base price display string
 // [1] = special/final price (only present when has_special_price)

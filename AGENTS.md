@@ -21,7 +21,7 @@ Package manager is pnpm. Do not use npm or yarn.
 ## Conventions
 
 - English only: code, comments, UI copy, docs, commits, branches, PRs.
-- License: MPL-2.0.
+- License: MPL-2.0. Every source file starts with the MPL header (`.license-header.txt`); the `insert-license` pre-commit hook adds it and CI checks it.
 - Git flow: `master` (production) + `develop` (integration); changes land via PR.
 - Default: do not commit — git is the user's call.
 - Component files: `kebab-case.tsx`; client components must have `.client.tsx` suffix.

@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 // context/Api/API.config.ts
 import { API_BASE_URL } from "@/_CONFIG/app.config.json";
 import { _LOGGER } from "@/lib/logger";

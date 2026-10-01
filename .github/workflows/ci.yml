@@ -23,6 +23,17 @@ jobs:
       - run: cp -r _CONFIG.example _CONFIG
       - run: pnpm build
 
+  # MPL header in every source file — backstop for the local insert-license hook.
+  license-headers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pre-commit
+      - run: pre-commit run insert-license --all-files
+
   secret-scan:
     runs-on: ubuntu-latest
     steps:
