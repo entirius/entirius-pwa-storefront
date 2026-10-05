@@ -105,7 +105,7 @@ export function AddressList() {
           You have no saved addresses yet.
         </p>
       ) : (
-        <ul className="flex flex-col gap-3">
+        <ul aria-label="Saved addresses" className="flex flex-col gap-3">
           {addresses.map((a) => (
             <li
               key={a.address_id}
