@@ -16,6 +16,7 @@ import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
 import { make_client_access } from "@/API/access/api.client-access";
 import { create_api } from "@/API/api.context";
 import { useCartStore } from "@/stores/cart.store";
+import { useAddedToCart } from "@/stores/added-to-cart.store";
 import { product_query } from "../api.query";
 import { stock_query } from "../stock.query";
 import { ProductPrice } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-price.client";
@@ -40,6 +41,7 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
   const inStock = !!stock?.is_in_stock && max > 0;
 
   const add = useCartStore((s) => s.add);
+  const show_added = useAddedToCart((s) => s.show);
   const [qty, setQty] = useState(1);
 
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
@@ -169,7 +171,7 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
             size="lg"
             className="flex-1 rounded-full"
             disabled={!canBuy}
-            onClick={() =>
+            onClick={() => {
               add(
                 {
                   sku: product.sku,
@@ -180,8 +182,15 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
                 },
                 qty,
                 max
-              )
-            }
+              );
+              show_added({
+                sku: product.sku,
+                name: product.name,
+                quantity: qty,
+                price: product.price[product.price.length - 1] ?? null,
+                image: media[0]?.[0]?.uri ?? null,
+              });
+            }}
           >
             {/* Until stock answers the button stays "Add to cart" (disabled), so an
                 in-stock product never flashes "Out of stock". */}

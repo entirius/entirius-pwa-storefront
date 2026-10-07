@@ -26,17 +26,30 @@ test("every header button and link has an accessible name", async ({ page }) => 
   );
   expect(unnamed).toEqual([]);
 
-  for (const name of ["Search", "Wishlist", "Cart"]) {
+  for (const name of ["Search", "Wishlist"]) {
     await expect(header.getByRole("button", { name, exact: true })).toBeVisible();
   }
+  await expect(header.getByRole("link", { name: "Cart", exact: true })).toBeVisible();
 });
 
-test("cart button name carries the item count", async ({ page }) => {
+test("cart link name carries the item count and opens the cart page", async ({ page }) => {
   await page.goto("/product/flight-deck-command-chair");
   await page.getByRole("button", { name: "Add to cart" }).click();
 
-  const cart = page.locator("header").getByRole("button", { name: /^Cart, 1 item$/ });
+  const cart = page.locator("header").getByRole("link", { name: /^Cart, 1 item$/ });
   await expect(cart).toBeVisible();
   await cart.click();
-  await expect(page.getByRole("dialog")).toContainText("Flight Deck Command Chair");
+  await expect(page).toHaveURL(/\/cart$/);
+  await expect(page.getByRole("region", { name: "Items in your cart" })).toContainText("Flight Deck Command Chair");
+});
+
+test("adding to the cart shows a notice with the product and the way on", async ({ page }) => {
+  await page.goto("/product/flight-deck-command-chair");
+  await page.getByRole("button", { name: "Add to cart" }).click();
+  const notice = page.getByRole("status").filter({ hasText: "Added to your cart" });
+  await expect(notice).toContainText("Flight Deck Command Chair");
+  await expect(notice).toContainText("Cart: 1 item");
+  await notice.getByRole("link", { name: "View cart" }).click();
+  await expect(page).toHaveURL(/\/cart$/);
+  await expect(notice).toHaveCount(0);
 });

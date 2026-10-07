@@ -60,7 +60,7 @@ entirius-pwa-storefront/
 | `lib/auth-client.ts` | Client-side auth flows: login, signup, double-opt-in activation, logout |
 | `app/[customer_country]/.../{page}/api.query.ts` | Co-located query definitions (`queryKey`, `queryFn`) + `cache()`-wrapped loaders |
 | `stores/cart.store.ts` | Zustand cart (flat localStorage serialization) |
-| `stores/use-cart-sync.ts` | Shared create-or-patch cart sync (drawer + checkout dedupe to one backend call) |
+| `stores/use-cart-sync.ts` | Shared create-or-patch cart sync (cart page + checkout dedupe to one backend call) |
 | `stores/wishlist.store.ts` | Zustand wishlist with flat localStorage serialization (key `WL`) |
 | `utils/NORMALIZERS/` | `NORM_PRODUCTS_DATA`, `NORM_FILTERS_DATA`, `NORM_MEDIA_DATA`, cart/order/price normalizers |
 

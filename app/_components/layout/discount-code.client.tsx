@@ -46,7 +46,7 @@ export function DiscountCode({ backend }: { backend: Cart | null | undefined }) 
         return;
       }
       const cart = NORM_CART(response);
-      // Every cart query (drawer, checkout) shows the same backend cart.
+      // Every cart query (cart page, checkout) shows the same backend cart.
       query_client.setQueriesData({ queryKey: ["cart"] }, cart);
       if (added) {
         const ok = cart.discounts.some((d) => d.code === added && d.status === "valid");

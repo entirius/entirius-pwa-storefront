@@ -4,7 +4,8 @@
 
 import { NavigationComponent } from "./navigation-component";
 import { WishlistSheet } from "./wishlist-sheet";
-import { CartSheet } from "./cart-sheet";
+import { CartLink } from "./cart-link.client";
+import { AddedToCart } from "./added-to-cart.client";
 import { AccountNav } from "./account-nav";
 import { SearchSheet } from "./search-sheet";
 import { LinkDynamic } from "@/lib/link-dynamic";
@@ -22,10 +23,11 @@ export function HeaderComponent() {
           <NavigationComponent />
           <SearchSheet />
           <WishlistSheet />
-          <CartSheet />
+          <CartLink />
           <AccountNav />
         </div>
       </div>
+      <AddedToCart />
     </header>
   );
 }

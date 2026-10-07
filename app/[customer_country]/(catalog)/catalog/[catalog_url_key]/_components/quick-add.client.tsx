@@ -12,6 +12,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
 import { useCartStore } from "@/stores/cart.store";
+import { useAddedToCart } from "@/stores/added-to-cart.store";
 import type { Price } from "@/utils/NORMALIZERS/price.normalizer";
 import { stock_query } from "@/app/[customer_country]/(product)/product/[product_url_key]/stock.query";
 
@@ -29,6 +30,7 @@ export function QuickAdd({ item }: { item: QuickAddItem }) {
   const api = useMemo(() => create_api(make_client_access()), []);
   const query_client = useQueryClient();
   const add = useCartStore((s) => s.add);
+  const show_added = useAddedToCart((s) => s.show);
   const [state, setState] = useState<"idle" | "busy" | "added" | "none">("idle");
 
   const onClick = async (e: React.MouseEvent) => {
@@ -44,6 +46,13 @@ export function QuickAdd({ item }: { item: QuickAddItem }) {
         return;
       }
       add(item, 1, stock.quantity);
+      show_added({
+        sku: item.sku,
+        name: item.name,
+        quantity: 1,
+        price: item.price[item.price.length - 1] ?? null,
+        image: item.media[0]?.[0]?.uri ?? null,
+      });
       setState("added");
       setTimeout(() => setState("idle"), 1500);
     } catch {

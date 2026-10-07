@@ -4,7 +4,7 @@
 
 import { expect, test, type Page } from "@playwright/test";
 
-// Guest checkout end to end: PDP → cart drawer → address → shipping → payment →
+// Guest checkout end to end: PDP → cart page → address → shipping → payment →
 // review → a real order on the backend → success page. Every run places an order
 // in the seeded `default-europe` channel.
 //
@@ -36,10 +36,9 @@ async function fill_address(page: Page) {
 test("guest places an order with bank transfer", async ({ page, context }) => {
   await page.goto(PRODUCT.url);
   await page.getByRole("button", { name: "Add to cart" }).click();
-  await page.locator("header").getByRole("button", { name: /^Cart, 1 item$/ }).click();
-  const drawer = page.getByRole("dialog");
-  await expect(drawer).toContainText(PRODUCT.name);
-  await drawer.getByRole("link", { name: "Checkout" }).click();
+  await page.locator("header").getByRole("link", { name: /^Cart, 1 item$/ }).click();
+  await expect(page.getByRole("region", { name: "Items in your cart" })).toContainText(PRODUCT.name);
+  await page.getByRole("complementary", { name: "Order summary" }).getByRole("link", { name: "Go to checkout" }).click();
 
   await expect(page).toHaveURL(/\/checkout$/);
   await expect(page.getByRole("heading", { name: "Checkout" })).toBeVisible();
@@ -88,5 +87,5 @@ test("guest places an order with bank transfer", async ({ page, context }) => {
   await expect
     .poll(async () => (await context.cookies()).some((c) => c.name === "cid" && c.value))
     .toBe(false);
-  await expect(page.locator("header").getByRole("button", { name: /^Cart/ })).toHaveAccessibleName("Cart");
+  await expect(page.locator("header").getByRole("link", { name: /^Cart/ })).toHaveAccessibleName("Cart");
 });
