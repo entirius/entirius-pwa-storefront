@@ -9,26 +9,36 @@ import {
 } from "@/components/ui/accordion";
 import { SanitizeHTML } from "@/components/ui/sanitize-html";
 
-// One question/answer pair; `section-accordion` provides the Accordion root.
-// The CMS stores the pair as the tile's own title + description.
+type AccordionEntry = { label?: string; wysiwyg?: string };
+
+// Question/answer pairs; `section-accordion` provides the Accordion root.
+// The CMS editor saves them as `accordion_tile: [{label, wysiwyg}]` on one tile;
+// older content kept one pair per tile as its title + description.
 export default function TileAccordion({
   id,
   title,
   description,
+  accordion_tile,
 }: {
   id?: string;
   title?: string;
   description?: string;
+  accordion_tile?: AccordionEntry[];
 }) {
-  if (!title) return null;
-  return (
-    <AccordionItem value={id ?? title}>
-      <AccordionTrigger className="text-left">{title}</AccordionTrigger>
-      <AccordionContent>
-        {description && (
-          <SanitizeHTML html={description} className="text-sm text-muted-foreground" />
-        )}
-      </AccordionContent>
-    </AccordionItem>
+  const entries: AccordionEntry[] = accordion_tile?.length
+    ? accordion_tile
+    : [{ label: title, wysiwyg: description }];
+
+  return entries.map((entry, i) =>
+    entry.label ? (
+      <AccordionItem key={i} value={`${id ?? "faq"}-${i}-${entry.label}`}>
+        <AccordionTrigger className="text-left">{entry.label}</AccordionTrigger>
+        <AccordionContent>
+          {entry.wysiwyg && (
+            <SanitizeHTML html={entry.wysiwyg} className="text-sm text-muted-foreground" />
+          )}
+        </AccordionContent>
+      </AccordionItem>
+    ) : null,
   );
 }

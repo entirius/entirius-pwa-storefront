@@ -12,6 +12,14 @@ import SectionAccordion from "./sections/section-accordion";
 import TileHero from "./tiles/tile-hero";
 import TileTxtBtn from "./tiles/tile-txt-btn";
 import TileAccordion from "./tiles/tile-accordion";
+import SectionIconGrid from "./sections/section-icon-grid";
+import SectionBanner from "./sections/section-banner";
+import SectionImageText from "./sections/section-image-text";
+import SectionProductSliderViaSku from "./sections/section-product-slider-via-sku";
+import SectionProductSliderCategory from "./sections/section-product-slider-category.client";
+import TileTitleDescImg from "./tiles/tile-title-desc-img";
+import TileImage from "./tiles/tile-image";
+import TileProduct from "./tiles/tile-product.client";
 import type {
   CmsSectionComponent,
   CmsSectionData,
@@ -29,12 +37,18 @@ export const cms_components_map: Record<string, CmsSectionComponent> = {
   // Types the CMS editor (entirius-pwa-cms) produces — the zeno/Emporium seed.
   "section-hero-slider": SectionHeroSlider,
   "section-text": SectionText,
-  // No image field in the data yet; renders as a text section.
-  "section-image-text": SectionText,
+  "section-image-text": SectionImageText,
   "section-accordion": SectionAccordion,
+  "section-icon-grid": SectionIconGrid,
+  "section-banner": SectionBanner as CmsSectionComponent,
+  "section-product-slider-via-sku": SectionProductSliderViaSku,
+  "section-product-slider-category": SectionProductSliderCategory as CmsSectionComponent,
   "tile-hero": TileHero as CmsSectionComponent,
   "tile-txt-btn": TileTxtBtn as CmsSectionComponent,
   "tile-accordion": TileAccordion as CmsSectionComponent,
+  "tile-title-desc-img": TileTitleDescImg as CmsSectionComponent,
+  "tile-image": TileImage as CmsSectionComponent,
+  "tile-product": TileProduct as CmsSectionComponent,
 };
 
 export const render_cms_component = (

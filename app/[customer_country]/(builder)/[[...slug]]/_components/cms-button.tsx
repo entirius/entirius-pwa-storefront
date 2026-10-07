@@ -74,12 +74,19 @@ export default function CmsButton({ button }: { button: CmsButtonData }) {
   );
 }
 
-export function CmsButtons({ buttons }: { buttons?: CmsButtonData[] }) {
+export function CmsButtons({
+  buttons,
+  variant,
+}: {
+  buttons?: CmsButtonData[];
+  // Default look when the button carries no `dye` (the editor saves none).
+  variant?: CmsButtonDye;
+}) {
   if (!buttons?.length) return null;
   return (
     <div className="flex flex-wrap gap-2">
       {buttons.map((button, i) => (
-        <CmsButton key={`${i}-${button.url}`} button={button} />
+        <CmsButton key={`${i}-${button.url}`} button={{ dye: variant, ...button }} />
       ))}
     </div>
   );

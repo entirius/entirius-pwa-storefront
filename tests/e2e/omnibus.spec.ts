@@ -48,7 +48,9 @@ test("every reduced tile in the catalog has its Omnibus line, without browser re
 });
 
 test("search results batch the Omnibus lookup into one request", async ({ page }) => {
-  await page.goto("/");
+  // A page without products: the home page's product sections already hold the
+  // Omnibus prices of its sale items, which the search would then reuse.
+  await page.goto("/about");
   const calls: string[] = [];
   page.on("request", (r) => is_omnibus(r.url()) && calls.push(r.url()));
   await page.getByRole("button", { name: "Search" }).click();

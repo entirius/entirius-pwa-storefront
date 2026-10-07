@@ -51,6 +51,10 @@ export const API_USER_ADDRESSES_DEFAULTS_ROUTE =
 // ----- CMS / CONTENT -----
 export const API_CMS_STATIC_PAGE_ROUTE =
   "/api/contentdb/v1/published/static-page/";
+// Published layout extender of type `footer` — link columns edited in the CMS
+// navigation editor.
+export const API_CMS_FOOTER_ROUTE =
+  "/api/contentdb/v1/layout-extender-published/footer/";
 // ----- CMS / CONTENT -----
 
 
@@ -241,4 +245,5 @@ export const API_ROUTES_POLICY = {
     default_headers: [{ "Content-Type": "application/json" }],
   },
   [API_CMS_STATIC_PAGE_ROUTE]: {},
+  [API_CMS_FOOTER_ROUTE]: {},
 };

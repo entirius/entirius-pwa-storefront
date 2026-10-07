@@ -171,6 +171,16 @@
   [data-rich-text] a {
     @apply link;
   }
+  /* Headings and paragraphs an editor types into a description. */
+  [data-rich-text] h2 {
+    @apply mb-2 text-2xl;
+  }
+  [data-rich-text] h3 {
+    @apply mb-1 text-lg;
+  }
+  [data-rich-text] p + p {
+    @apply mt-2;
+  }
   h3,
   h4 {
     font-weight: var(--brand-font-weight-regular);

@@ -56,3 +56,74 @@ export const cms_products_query = (api: Api, url_keys: string[]) => ({
     });
   },
 });
+
+// ------------------------------------------------------------
+// CMS products by SKU (`tile-product.sku`) — one batch request; seeds
+// ["cms-product-sku", sku] for each tile.
+// ------------------------------------------------------------
+type ProductsResponse = { results?: unknown[] } | undefined;
+export type CmsProduct = ReturnType<typeof NORM_PRODUCTS_DATA>[number];
+
+const products_of = (response: ProductsResponse): CmsProduct[] =>
+  NORM_PRODUCTS_DATA(response?.results ?? []);
+
+export const cms_product_sku_key = (sku: string) => ["cms-product-sku", sku] as const;
+
+// Cached per request on a joined key (React.cache compares with Object.is), so
+// the page's Omnibus lookup and the prefetch share one call.
+const _load_products_by_sku = cache(async (api: Api, skus_key: string) =>
+  api.FETCH_METHOD(API_PRODUCTS_ROUTE, {
+    querys: { sku: skus_key.split("\n"), include: "full" },
+  }),
+);
+
+export const load_products_by_sku = async (api: Api, skus: string[]) => {
+  const [error, response] = await _load_products_by_sku(api, skus.join("\n"));
+  if (error) throw new Error(error.message);
+  return response as ProductsResponse;
+};
+
+export const cms_products_by_sku_query = (api: Api, skus: string[]) => ({
+  queryKey: ["cms-products-sku", skus],
+  queryFn: () => load_products_by_sku(api, skus),
+  seed: (result: unknown, queryClient: QueryClient) => {
+    products_of(result as ProductsResponse).forEach((product) => {
+      queryClient.setQueryData(cms_product_sku_key(product.sku), product);
+    });
+  },
+});
+
+export const cms_product_by_sku_query = (api: Api, sku: string) => ({
+  queryKey: cms_product_sku_key(sku),
+  queryFn: async (): Promise<CmsProduct | null> => {
+    const [error, response] = await api.FETCH_METHOD(API_PRODUCTS_ROUTE, {
+      querys: { sku, include: "full" },
+    });
+    if (error) throw new Error(error.message);
+    return products_of(response)[0] ?? null;
+  },
+});
+
+// ------------------------------------------------------------
+// CMS products of a category (`section-product-slider-category.custom_field`)
+// ------------------------------------------------------------
+export const CMS_CATEGORY_PRODUCTS_LIMIT = 8;
+
+const _load_category_products = cache(async (api: Api, category: string) =>
+  api.FETCH_METHOD(API_PRODUCTS_ROUTE, {
+    querys: { category, page_size: CMS_CATEGORY_PRODUCTS_LIMIT, include: "full" },
+  }),
+);
+
+// Raw API rows (the page reads their prices for Omnibus); the query normalizes.
+export const load_category_products = async (api: Api, category: string) => {
+  const [error, response] = await _load_category_products(api, category);
+  if (error) throw new Error(error.message);
+  return (response as ProductsResponse)?.results ?? [];
+};
+
+export const cms_category_products_query = (api: Api, category: string) => ({
+  queryKey: ["cms-category-products", category],
+  queryFn: async (): Promise<CmsProduct[]> =>
+    NORM_PRODUCTS_DATA(await load_category_products(api, category)),
+});

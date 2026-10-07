@@ -40,3 +40,25 @@ export function aggregate_url_keys(content?: CmsDocumentContent): string[] {
 
   return Array.from(url_keys_set);
 }
+
+// Values of one field across every section and tile of the given types —
+// `tile-product.sku` for the SKU batch, the category url_key of
+// `section-product-slider-category` for its listing.
+function collect(content: CmsDocumentContent | undefined, core_type: string, field: string) {
+  if (!content) return [];
+  const values = new Set<string>();
+  for (const item of [
+    ...Object.values(content.sections ?? {}),
+    ...Object.values(content.tiles ?? {}),
+  ]) {
+    const value = item.core_type === core_type ? item[field] : undefined;
+    if (typeof value === "string" && value.trim()) values.add(value.trim());
+  }
+  return Array.from(values);
+}
+
+export const aggregate_skus = (content?: CmsDocumentContent) =>
+  collect(content, "tile-product", "sku");
+
+export const aggregate_categories = (content?: CmsDocumentContent) =>
+  collect(content, "section-product-slider-category", "custom_field");

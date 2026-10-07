@@ -34,6 +34,7 @@ export default function TileHero({
   custom_buttons,
   tile_align = "left",
   dye = 1,
+  shape = "slide",
 }: {
   title?: string;
   description?: string;
@@ -41,6 +42,8 @@ export default function TileHero({
   custom_buttons?: CmsButtonData[];
   tile_align?: string;
   dye?: number;
+  // `banner` is the shorter `section-banner` strip.
+  shape?: "slide" | "banner";
 }) {
   const desktop = normalize_image_source(images_set, "desktop");
   const mobile = normalize_image_source(images_set, "mobile");
@@ -50,7 +53,14 @@ export default function TileHero({
   // is wide, a grid cell narrow.
   return (
     <div className="@container w-full">
-      <div className="relative isolate flex aspect-[4/5] w-full overflow-hidden rounded-md bg-muted @xl:aspect-[16/9] @5xl:aspect-[21/9]">
+      <div
+        className={cn(
+          "relative isolate flex w-full overflow-hidden rounded-md bg-muted",
+          shape === "banner"
+            ? "aspect-[4/3] @xl:aspect-[21/9] @5xl:aspect-[4/1]"
+            : "aspect-[4/5] @xl:aspect-[16/9] @5xl:aspect-[21/9]",
+        )}
+      >
         {mobile && (
           <MediaImage
             src={mobile.uri}
