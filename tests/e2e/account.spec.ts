@@ -60,6 +60,18 @@ test("login opens the profile, logout returns to the sign-in sheet", async ({ pa
   await expect(page.getByText(email)).toHaveCount(0);
 });
 
+test("profile edit: names are saved and survive a reload", async ({ page }) => {
+  await login(page, email);
+  await page.getByRole("button", { name: "Edit" }).click();
+  await page.getByLabel("First name").fill("Edith");
+  await page.getByLabel("Last name").fill("Profile");
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByText("Edith Profile")).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByText("Edith Profile")).toBeVisible();
+});
+
 test("address book: add, edit, set default, delete", async ({ page }) => {
   await login(page, email);
   await page.getByRole("link", { name: "Delivery addresses" }).click();

@@ -100,9 +100,6 @@ export function ProfileEditForm({
             Cancel
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground">
-          Note: the backend does not yet persist profile changes.
-        </p>
       </form>
     </Form>
   );
