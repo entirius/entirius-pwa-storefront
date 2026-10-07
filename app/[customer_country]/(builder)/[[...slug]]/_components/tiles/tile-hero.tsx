@@ -9,24 +9,20 @@ import { CmsButtons, type CmsButtonData } from "../cms-button";
 import { normalize_image_source, type CmsImagesSet } from "../cms-image";
 
 // `dye` is the editor's colour variant (1–5); the palette belongs to the
-// storefront and maps onto brand surfaces (styleguide §3). Text is always the
-// heading colour — every overlay ends in brand black under the copy.
-const hero_dyes: Record<number, { overlay: string; text: string }> = {
-  1: { overlay: "bg-gradient-fade", text: "text-heading" },
-  2: { overlay: "bg-gradient-backdrop opacity-85", text: "text-heading" },
-  3: { overlay: "bg-background/60", text: "text-heading" },
-  4: { overlay: "bg-card bg-gradient-card opacity-90", text: "text-heading" },
-  5: { overlay: "bg-gradient-to-t from-background/80 to-transparent", text: "text-heading" },
+// storefront and maps onto semantic surfaces. `primary` carries white text, the
+// others the theme's heading colour.
+const hero_dyes: Record<number, { card: string; media: string; text: string; muted: string }> = {
+  1: { card: "bg-card", media: "bg-accent", text: "text-heading", muted: "text-muted-foreground" },
+  2: { card: "bg-accent", media: "bg-card", text: "text-accent-foreground", muted: "text-accent-foreground" },
+  3: { card: "bg-secondary", media: "bg-accent", text: "text-heading", muted: "text-muted-foreground" },
+  4: { card: "bg-primary", media: "bg-primary", text: "text-primary-foreground", muted: "text-primary-foreground" },
+  5: { card: "bg-card", media: "bg-muted", text: "text-heading", muted: "text-muted-foreground" },
 };
 
-const align_classes: Record<string, string> = {
-  left: "items-start text-left",
-  center: "items-center text-center",
-  right: "items-end text-right",
-};
-
-// Hero tile: full-bleed slide inside `section-hero-slider`, a card inside a
-// grid section (e.g. `section-text` on product-showcase) — sized by its parent.
+// Hero tile: copy beside its image (the image side follows `tile_align`),
+// stacked when narrow. Sized by its parent via container queries — a slide in
+// `section-hero-slider`, a card inside a grid section, or the `section-banner`
+// strip (`shape="banner"`, always on the filled accent surface).
 export default function TileHero({
   title,
   description,
@@ -42,57 +38,68 @@ export default function TileHero({
   custom_buttons?: CmsButtonData[];
   tile_align?: string;
   dye?: number;
-  // `banner` is the shorter `section-banner` strip.
+  // `banner` is the `section-banner` strip.
   shape?: "slide" | "banner";
 }) {
   const desktop = normalize_image_source(images_set, "desktop");
   const mobile = normalize_image_source(images_set, "mobile");
-  const style = hero_dyes[dye] ?? hero_dyes[1];
+  const style = shape === "banner" ? hero_dyes[4] : (hero_dyes[dye] ?? hero_dyes[1]);
+  const image_first = tile_align === "right";
 
-  // Sized by the parent, not the viewport (container queries): a slider slide
-  // is wide, a grid cell narrow.
   return (
     <div className="@container w-full">
       <div
         className={cn(
-          "relative isolate flex w-full overflow-hidden rounded-md bg-muted",
-          shape === "banner"
-            ? "aspect-[4/3] @xl:aspect-[21/9] @5xl:aspect-[4/1]"
-            : "aspect-[4/5] @xl:aspect-[16/9] @5xl:aspect-[21/9]",
+          "grid w-full overflow-hidden rounded-4xl @3xl:grid-cols-2",
+          style.card,
         )}
       >
-        {mobile && (
-          <MediaImage
-            src={mobile.uri}
-            alt={mobile.alt}
-            fill
-            sizes="100vw"
-            className="-z-10 object-cover @xl:hidden"
-          />
-        )}
-        {desktop && (
-          <MediaImage
-            src={desktop.uri}
-            alt={desktop.alt}
-            fill
-            sizes="100vw"
-            className="-z-10 hidden object-cover @xl:block"
-          />
-        )}
-        <div className={cn("absolute inset-0 -z-10", style.overlay)} aria-hidden />
-
         <div
           className={cn(
-            "mt-auto flex w-full flex-col gap-3 p-6 @3xl:p-10",
-            align_classes[tile_align] ?? align_classes.left,
+            "flex flex-col justify-center gap-4 p-6 @md:p-8 @5xl:p-14",
+            image_first && "@3xl:order-2",
             style.text,
           )}
         >
-          {title && <h2 className="text-2xl @3xl:text-4xl">{title}</h2>}
-          {description && (
-            <SanitizeHTML html={description} className="max-w-xl text-sm @3xl:text-base" />
+          {title && (
+            <h2 className={cn("text-3xl leading-tight @5xl:text-5xl", style.text)}>{title}</h2>
           )}
-          <CmsButtons buttons={custom_buttons} />
+          {description && (
+            <SanitizeHTML html={description} className={cn("max-w-md @3xl:text-lg", style.muted)} />
+          )}
+          <div className="pt-2">
+            <CmsButtons
+              buttons={custom_buttons}
+              size="lg"
+              variant={shape === "banner" || dye === 4 ? "secondary" : "default"}
+            />
+          </div>
+        </div>
+        <div
+          className={cn(
+            "relative isolate min-h-56",
+            shape === "banner" ? "@3xl:min-h-72" : "@3xl:min-h-96",
+            style.media,
+          )}
+        >
+          {mobile && (
+            <MediaImage
+              src={mobile.uri}
+              alt={mobile.alt}
+              fill
+              sizes="100vw"
+              className="object-cover @3xl:hidden"
+            />
+          )}
+          {desktop && (
+            <MediaImage
+              src={desktop.uri}
+              alt={desktop.alt}
+              fill
+              sizes="50vw"
+              className="hidden object-cover @3xl:block"
+            />
+          )}
         </div>
       </div>
     </div>

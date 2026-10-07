@@ -8,9 +8,8 @@ import type { CmsButtonData } from "../cms-button";
 import type { CmsImagesSet } from "../cms-image";
 
 // Promo banner: one image with copy and a button, no tiles. `margin: false`
-// drops the vertical spacing; `full_width` bleeds out of <main>'s padding.
+// drops the vertical spacing; the strip is a rounded card, so `width` makes no difference.
 export default function SectionBanner({
-  width,
   margin,
   ...banner
 }: {
@@ -26,7 +25,7 @@ export default function SectionBanner({
   return (
     <section
       className={cn(
-        width === "full_width" ? "-mx-4" : "w-full",
+        "w-full",
         String(margin) !== "false" && "py-6",
       )}
     >

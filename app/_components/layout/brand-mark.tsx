@@ -25,7 +25,7 @@ export function BrandMark() {
           className="h-8 w-auto"
         />
       ) : (
-        <span className="font-brand text-2xl font-light tracking-brand text-heading">
+        <span className="font-brand text-2xl font-normal tracking-brand text-heading">
           {SITE_NAME}
         </span>
       )}

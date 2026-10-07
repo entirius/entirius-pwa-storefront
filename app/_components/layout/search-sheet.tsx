@@ -64,13 +64,16 @@ export function SearchSheet() {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetTrigger asChild>
+        {/* An icon on phones, a search field look-alike from md up; it opens the
+            search sheet either way. */}
         <Button
           variant="ghost"
           size="icon"
           aria-label="Search"
-          className="cursor-pointer text-foreground"
+          className="cursor-pointer text-foreground md:h-10 md:w-56 md:justify-start md:gap-2 md:rounded-full md:border md:border-border md:bg-background md:px-4 md:text-muted-foreground lg:w-72"
         >
           <Search />
+          <span className="hidden text-sm font-normal md:inline">Search products</span>
         </Button>
       </SheetTrigger>
       <SheetContent

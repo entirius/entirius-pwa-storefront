@@ -11,6 +11,7 @@ import { build_catalog_metadata, build_catalog_jsonld } from "@/lib/seo/build";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { SanitizeHTML } from "@/components/ui/sanitize-html";
 import { ListingClient } from "./_components/listing.client";
+import { LinkDynamic } from "@/lib/link-dynamic";
 import {
   PageBreadcrumbs,
   category_trail,
@@ -81,6 +82,10 @@ export default async function CatalogPage({ params, searchParams }: Props) {
     .filter((p: { price?: unknown }) => is_discounted(p.price))
     .map((p: { sku: string }) => p.sku);
 
+  // Direct children with a name and url_key, for the pills under the title.
+  const subcategories = ((category?.children ?? []) as { name?: string; url_key?: string }[])
+    .filter((c): c is { name: string; url_key: string } => Boolean(c.name && c.url_key));
+
   return (
     <PrefetchBoundary
       prefetches={[
@@ -92,15 +97,32 @@ export default async function CatalogPage({ params, searchParams }: Props) {
     >
       {jsonLd && <JsonLd data={jsonLd} />}
       {category && (
-        <header className="mb-6">
+        <header className="mb-6 flex flex-col gap-4">
           <PageBreadcrumbs trail={category_trail(category.breadcrumbs)} />
-          <h1 className="text-2xl leading-tight">{category.name}</h1>
-          {category.description && (
-            <SanitizeHTML
-              html={category.description}
-              className="mt-1 text-sm text-muted-foreground"
-            />
-          )}
+          <div className="flex flex-wrap items-end justify-between gap-4 rounded-4xl bg-card bg-gradient-backdrop p-6 md:p-10">
+            <div>
+              <h1 className="text-4xl leading-tight md:text-5xl">{category.name}</h1>
+              {category.description && (
+                <SanitizeHTML
+                  html={category.description}
+                  className="mt-1 text-muted-foreground md:text-lg"
+                />
+              )}
+            </div>
+            {subcategories.length > 0 && (
+              <nav aria-label="Subcategories" className="flex flex-wrap gap-2">
+                {subcategories.map((sub) => (
+                  <LinkDynamic
+                    key={sub.url_key}
+                    href={`/catalog/${sub.url_key}`}
+                    className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-heading transition-colors hover:bg-accent hover:text-accent-foreground"
+                  >
+                    {sub.name}
+                  </LinkDynamic>
+                ))}
+              </nav>
+            )}
+          </div>
         </header>
       )}
       <ListingClient options={options} />

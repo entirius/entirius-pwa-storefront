@@ -51,7 +51,13 @@ export function resolve_cms_href(type: CmsButtonType, url: string): string {
   }
 }
 
-export default function CmsButton({ button }: { button: CmsButtonData }) {
+export default function CmsButton({
+  button,
+  size = "sm",
+}: {
+  button: CmsButtonData;
+  size?: "sm" | "default" | "lg";
+}) {
   const { url, label, type, dye = "default" } = button;
   if (!label || !url) return null;
   const href = resolve_cms_href(type, url);
@@ -59,7 +65,7 @@ export default function CmsButton({ button }: { button: CmsButtonData }) {
 
   if (type === "external") {
     return (
-      <Button variant={variant} size="sm" asChild>
+      <Button variant={variant} size={size} className="rounded-full px-5" asChild>
         <a href={href} target="_blank" rel="noopener noreferrer">
           {label}
         </a>
@@ -68,7 +74,7 @@ export default function CmsButton({ button }: { button: CmsButtonData }) {
   }
 
   return (
-    <Button variant={variant} size="sm" asChild>
+    <Button variant={variant} size={size} className="rounded-full px-5" asChild>
       <LinkDynamic href={href}>{label}</LinkDynamic>
     </Button>
   );
@@ -77,16 +83,18 @@ export default function CmsButton({ button }: { button: CmsButtonData }) {
 export function CmsButtons({
   buttons,
   variant,
+  size,
 }: {
   buttons?: CmsButtonData[];
   // Default look when the button carries no `dye` (the editor saves none).
   variant?: CmsButtonDye;
+  size?: "sm" | "default" | "lg";
 }) {
   if (!buttons?.length) return null;
   return (
     <div className="flex flex-wrap gap-2">
       {buttons.map((button, i) => (
-        <CmsButton key={`${i}-${button.url}`} button={{ dye: variant, ...button }} />
+        <CmsButton key={`${i}-${button.url}`} button={{ dye: variant, ...button }} size={size} />
       ))}
     </div>
   );

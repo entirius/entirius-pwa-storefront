@@ -11,6 +11,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { WishlistButton } from "@/components/ui/wishlist-button";
 import { ProductPrice } from "./product-price.client";
 import { ProductBadges } from "./product-badges";
+import { QuickAdd } from "./quick-add.client";
 
 const PLACEHOLDER_MEDIA = [{ uri: image_placeholder, width: 600, height: 600 }];
 
@@ -34,16 +35,23 @@ export function ProductTile({
     media: Array.isArray(media) ? [media] : [[media]],
   };
 
-  return (
-    <LinkDynamic
-      href={`/product/${product.url_key}`}
-      className={
-        compact
-          ? "grid grid-cols-[5rem_1fr] gap-3 rounded-xl bg-card bg-gradient-card p-2 group relative"
-          : "flex h-full flex-col gap-3 rounded-3xl bg-card bg-gradient-card p-3 group relative transition-shadow hover:shadow-glow"
-      }
-    >
-      {compact ? (
+  const wishlist = (
+    <WishlistButton
+      sku={product.sku}
+      item={wishlistItem}
+      className={compact ? "absolute top-2 right-2" : "absolute top-2 right-2 z-10"}
+      variant={compact ? "ghost" : "secondary"}
+      size={compact ? "icon-xs" : "icon-sm"}
+      onClick={(e) => e.preventDefault()}
+    />
+  );
+
+  if (compact) {
+    return (
+      <LinkDynamic
+        href={`/product/${product.url_key}`}
+        className="grid grid-cols-[5rem_1fr] gap-3 rounded-xl bg-card bg-gradient-card p-2 group relative"
+      >
         <div className="size-20 rounded-md bg-muted overflow-hidden">
           <MediaImage
             src={firstMedia.uri}
@@ -53,46 +61,62 @@ export function ProductTile({
             className="object-cover size-full"
           />
         </div>
-      ) : (
-        <AspectRatio
-          ratio={1 / 1}
-          className="w-full rounded-2xl bg-muted overflow-hidden relative"
-        >
-          <MediaImage
-            src={firstMedia.uri}
-            alt={product.name}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-          <ProductBadges
-            badges={product.badges}
-            percent_off={product.percent_off}
-            className="absolute top-2.5 left-2.5 right-12"
-          />
-        </AspectRatio>
-      )}
+        <div className="min-w-0 self-center">
+          <h3 className="text-sm truncate">{product.name}</h3>
+          <div className="mt-0.5">
+            <ProductPrice price={product.price} sku={product.sku} compact />
+          </div>
+        </div>
+        {wishlist}
+      </LinkDynamic>
+    );
+  }
 
-      <div className={compact ? "min-w-0 self-center" : "flex flex-col flex-1 gap-1 px-1 pb-1"}>
-        <h3 className={compact ? "text-sm truncate" : "text-sm line-clamp-2 leading-snug"}>
-          {product.name}
-        </h3>
-        {!compact && product.description && (
+  // In stock and with a price: the "+" quick add. Out of stock or price on request
+  // leaves only the link to the product page.
+  const can_quick_add = product.purchasable && product.on_stock !== false;
+
+  return (
+    <LinkDynamic
+      href={`/product/${product.url_key}`}
+      className="flex h-full flex-col gap-3 rounded-3xl bg-card bg-gradient-card p-3 group relative transition-shadow hover:shadow-glow"
+    >
+      <AspectRatio ratio={1 / 1} className="w-full rounded-2xl bg-muted overflow-hidden relative">
+        {wishlist}
+        <MediaImage
+          src={firstMedia.uri}
+          alt={product.name}
+          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+          fill
+          className="object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+        <ProductBadges
+          badges={product.badges}
+          percent_off={product.percent_off}
+          className="absolute top-2.5 left-2.5 right-12"
+        />
+      </AspectRatio>
+
+      <div className="flex flex-1 flex-col gap-1 px-1">
+        <h3 className="text-base leading-snug line-clamp-2 text-heading">{product.name}</h3>
+        {product.description && (
           <p className="text-xs text-muted-foreground line-clamp-2">{product.description}</p>
         )}
-        <div className={compact ? "mt-0.5" : "mt-auto pt-2"}>
-          <ProductPrice price={product.price} sku={product.sku} compact={compact} />
-        </div>
       </div>
-
-      <WishlistButton
-        sku={product.sku}
-        item={wishlistItem}
-        className={compact ? "absolute top-2 right-2" : "absolute top-5 right-5"}
-        variant={compact ? "ghost" : "secondary"}
-        size={compact ? "icon-xs" : "icon-sm"}
-        onClick={(e) => e.preventDefault()}
-      />
+      <div className="flex items-end justify-between gap-2 px-1 pb-1">
+        <ProductPrice price={product.price} sku={product.sku} />
+        {can_quick_add && (
+          <QuickAdd
+            item={{
+              sku: product.sku,
+              name: product.name,
+              url_key: product.url_key,
+              price: product.price,
+              media: Array.isArray(media) ? [media] : [[media]],
+            }}
+          />
+        )}
+      </div>
     </LinkDynamic>
   );
 }

@@ -75,6 +75,20 @@ export type Order = {
   items: OrderItem[];
 };
 
+// The backend's status_label repeats the code ("unpaid"); customers read these.
+const STATUS_LABELS: Record<string, string> = {
+  unpaid: "Awaiting payment",
+  confirmed: "Confirmed",
+  complete: "Completed",
+  canceled: "Cancelled",
+  returned: "Returned",
+};
+
+export function status_label_for(status: string, label: string | null): string {
+  if (label && label !== status) return label;
+  return STATUS_LABELS[status] ?? (status ? status.charAt(0).toUpperCase() + status.slice(1) : "");
+}
+
 const str = (v: unknown): string | null =>
   v === null || v === undefined || v === "" ? null : String(v);
 
@@ -149,7 +163,7 @@ function norm_order(o: any): Order {
     // v1 calls the uuid `order_uuid`; the v2 detail/list call it `order_id`.
     order_uuid: str(o?.order_uuid ?? o?.order_id ?? o?.uuid ?? o?.id) ?? "",
     status: str(o?.status) ?? "",
-    status_label: str(o?.status_label) ?? "",
+    status_label: status_label_for(str(o?.status) ?? "", str(o?.status_label)),
     created: str(o?.created) ?? "",
     updated: str(o?.updated) ?? "",
     comment: str(o?.comment),
@@ -195,7 +209,7 @@ function NORM_ORDER_SUMMARIES(resp: unknown): OrderSummaryPage {
       id: str(o?.pretty_id) ?? "",
       order_uuid: str(o?.order_id) ?? "",
       status: str(o?.status) ?? "",
-      status_label: str(o?.status_label) ?? "",
+      status_label: status_label_for(str(o?.status) ?? "", str(o?.status_label)),
       created: str(o?.created) ?? "",
       total: str(o?.total_gross) ?? "0",
       currency_code: str(o?.currency) ?? "",
@@ -247,7 +261,8 @@ export function format_order_date(created: string): string {
   if (!created) return "";
   const d = new Date(created.replace(" ", "T"));
   if (Number.isNaN(d.getTime())) return created;
-  return d.toLocaleDateString(undefined, {
+  // The UI is English; the visitor's browser locale would mix languages.
+  return d.toLocaleDateString("en-GB", {
     year: "numeric",
     month: "short",
     day: "numeric",

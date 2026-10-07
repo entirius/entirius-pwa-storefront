@@ -19,8 +19,8 @@ export default function TileTitleDescImg({
 }) {
   const icon = normalize_image_source(images_set);
   return (
-    <div className="flex items-start gap-4 rounded-2xl bg-card bg-gradient-card p-5">
-      <div className="relative flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
+    <div className="flex items-center gap-4 rounded-3xl bg-card bg-gradient-card p-5">
+      <div className="relative flex size-12 shrink-0 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
         {icon ? (
           <MediaImage src={icon.uri} alt={icon.alt} fill sizes="48px" className="object-contain p-2" />
         ) : (
@@ -28,7 +28,7 @@ export default function TileTitleDescImg({
         )}
       </div>
       <div className="flex flex-col gap-1">
-        {title && <h3 className="text-base">{title}</h3>}
+        {title && <h3 className="text-lg">{title}</h3>}
         {description && (
           <SanitizeHTML html={description} className="text-sm text-muted-foreground" />
         )}

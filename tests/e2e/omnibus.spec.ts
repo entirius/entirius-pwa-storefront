@@ -20,13 +20,15 @@ test("reduced product shows the Omnibus price in the server HTML", async ({ requ
 
 test("reduced product page shows the Omnibus price", async ({ page }) => {
   await page.goto("/product/observation-deck-lounge-chair");
-  await expect(page.getByText(NOTE)).toBeVisible();
+  await expect(page.getByRole("region", { name: "Product details" }).getByText(NOTE)).toBeVisible();
 });
 
 test("regular price has no Omnibus line", async ({ page }) => {
   await page.goto("/product/flight-deck-command-chair");
-  await expect(page.getByText("549.00 EUR")).toBeVisible();
-  await expect(page.getByText(/Lowest/)).toHaveCount(0);
+  // Scoped to the product: the "More chairs" cards below have reductions of their own.
+  const details = page.getByRole("region", { name: "Product details" });
+  await expect(details.getByText("549.00 EUR")).toBeVisible();
+  await expect(details.getByText(/Lowest/)).toHaveCount(0);
 });
 
 test("every reduced tile in the catalog has its Omnibus line, without browser requests", async ({ page }) => {

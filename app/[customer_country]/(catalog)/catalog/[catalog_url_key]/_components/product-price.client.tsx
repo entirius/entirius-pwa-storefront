@@ -12,14 +12,17 @@ export function ProductPrice({
   price,
   sku,
   compact = false,
+  large = false,
 }: {
   price: Price;
   sku?: string;
   compact?: boolean;
+  // The product page's headline price.
+  large?: boolean;
 }) {
   return (
     <div>
-      <div className="flex items-center gap-1.5">
+      <div className={compact ? "flex items-center gap-1.5" : "flex flex-wrap items-baseline gap-x-2"}>
         {price.map((p, i) => (
           <span
             key={i}
@@ -31,10 +34,14 @@ export function ProductPrice({
                 : price.length > 1
                   ? compact
                     ? "text-[10px] text-muted-foreground line-through"
-                    : "text-xs text-muted-foreground line-through"
+                    : large
+                      ? "text-base text-muted-foreground line-through"
+                      : "text-xs text-muted-foreground line-through"
                   : compact
                     ? "text-xs font-semibold"
-                    : "text-sm font-semibold"
+                    : large
+                      ? "font-brand text-3xl text-heading"
+                      : "font-brand text-lg text-heading"
             }
           >
             {p}
