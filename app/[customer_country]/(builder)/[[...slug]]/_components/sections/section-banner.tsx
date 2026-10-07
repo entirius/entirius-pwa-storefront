@@ -26,7 +26,7 @@ export default function SectionBanner({
   return (
     <section
       className={cn(
-        width === "full_width" ? "-mx-4" : "mx-auto w-full max-w-6xl",
+        width === "full_width" ? "-mx-4" : "w-full",
         String(margin) !== "false" && "py-6",
       )}
     >

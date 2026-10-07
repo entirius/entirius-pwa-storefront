@@ -20,7 +20,7 @@ export default function SectionHeroSlider({
   if (!slides.length) return null;
   return (
     // full_width bleeds out of <main>'s padding (p-4).
-    <section className={cn(width === "full_width" ? "-mx-4 -mt-4" : "mx-auto w-full max-w-6xl")}>
+    <section className={cn(width === "full_width" ? "-mx-4 -mt-4" : "w-full")}>
       {slides.length === 1 ? slides[0] : <HeroCarousel>{slides}</HeroCarousel>}
     </section>
   );

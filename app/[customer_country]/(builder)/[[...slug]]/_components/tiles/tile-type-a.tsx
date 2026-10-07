@@ -23,7 +23,7 @@ const tile_dyes: Record<
   }
 > = {
   1: {
-    container_bg: "bg-gradient-card",
+    container_bg: "bg-card bg-gradient-card",
     content_bg: "",
     title_color: "text-heading",
     subtitle_color: "text-muted-foreground",

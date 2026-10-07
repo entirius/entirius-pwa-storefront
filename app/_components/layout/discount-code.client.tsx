@@ -98,7 +98,7 @@ export function DiscountCode({ backend }: { backend: Cart | null | undefined }) 
           {applied.map((code) => (
             <li
               key={code}
-              className="flex items-center gap-1 rounded-md bg-positive/15 py-0.5 pr-0.5 pl-2 text-xs text-positive"
+              className="flex items-center gap-1 rounded-md bg-positive-surface py-0.5 pr-0.5 pl-2 text-xs text-positive"
             >
               {code}
               <button

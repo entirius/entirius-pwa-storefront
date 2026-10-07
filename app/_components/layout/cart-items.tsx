@@ -48,13 +48,13 @@ export function CartItems() {
   return (
     <div className="flex flex-col gap-4 px-4 pb-4">
       {error && (
-        <p className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+        <p className="rounded-md border border-destructive/50 bg-destructive-surface px-3 py-2 text-xs text-destructive">
           Couldn’t sync with the server. Showing local items.
         </p>
       )}
 
       {backend && !validation_ok && backend.errors.length > 0 && (
-        <p className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+        <p className="rounded-md border border-destructive/50 bg-destructive-surface px-3 py-2 text-xs text-destructive">
           Some items need attention before checkout.
         </p>
       )}

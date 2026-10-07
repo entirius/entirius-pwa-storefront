@@ -217,10 +217,10 @@ function NORM_ORDER(resp: any): Order {
 
 // Status pills on the dark brand theme: status-coloured text on a 15 % tint of
 // the same token (WCAG AA 5.4–7.2:1). Classes must stay literal for Tailwind.
-const NOTICE = { bg: "bg-notice/15", text: "text-notice" };
-const POSITIVE = { bg: "bg-positive/15", text: "text-positive" };
-const NEGATIVE = { bg: "bg-destructive/15", text: "text-destructive" };
-const INFORMATIVE = { bg: "bg-informative/15", text: "text-informative" };
+const NOTICE = { bg: "bg-notice-surface", text: "text-notice" };
+const POSITIVE = { bg: "bg-positive-surface", text: "text-positive" };
+const NEGATIVE = { bg: "bg-destructive-surface", text: "text-destructive" };
+const INFORMATIVE = { bg: "bg-informative-surface", text: "text-informative" };
 
 export const status_colors: Record<string, { bg: string; text: string }> = {
   // Statuses this backend actually returns.

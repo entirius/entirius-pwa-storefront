@@ -19,7 +19,7 @@ export default function TileTitleDescImg({
 }) {
   const icon = normalize_image_source(images_set);
   return (
-    <div className="flex items-start gap-4 rounded-2xl bg-gradient-card p-5">
+    <div className="flex items-start gap-4 rounded-2xl bg-card bg-gradient-card p-5">
       <div className="relative flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
         {icon ? (
           <MediaImage src={icon.uri} alt={icon.alt} fill sizes="48px" className="object-contain p-2" />

@@ -26,7 +26,7 @@ pnpm only, never npm or yarn.
 - Files `kebab-case.tsx`; client components `*.client.tsx`. No barrel imports; `next/dynamic` for heavy client components. `@/` is the repo root.
 - API paths are a backend contract — never rewrite route constants or placeholders ad hoc.
 - `pnpm lint` stays green: legacy errors sit in `eslint-suppressions.json` and may only shrink (`pnpm exec eslint --prune-suppressions` after fixing one); never suppress new code.
-- Colors only through semantic tokens (`app/globals.css` maps `@entirius/brand-tokens`); lint rejects raw values. Dark only.
+- Colors only through semantic tokens (`app/globals.css` maps `@entirius/brand-tokens`); lint rejects raw values. Light theme by default, dark via `THEME` in `_CONFIG/app.config.json`.
 
 ## Architecture
 

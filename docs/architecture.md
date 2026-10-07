@@ -43,7 +43,7 @@ entirius-pwa-storefront/
 ├── types/                        # Shared TypeScript types
 ├── proxy.ts                      # Next.js middleware — geo routing + cookie injection
 └── _CONFIG.example/              # Committed config templates (copy to _CONFIG/)
-    ├── app.config.json           # API_BASE_URL, DEBUG_MODE
+    ├── app.config.json           # API_BASE_URL, DEBUG_MODE, THEME
     ├── channels.config.json      # Channel labels + checkout keys
     └── countries.config.json     # Country → language/currency/channel mapping
 ```
@@ -84,6 +84,7 @@ Import configs directly: `import countries from "@/_CONFIG/countries.config.json
 |------|-----|---------|
 | `app.config.json` | `API_BASE_URL` | Backend URL (template `http://localhost:8000`; the zeno local stack serves `:8100`) |
 | `app.config.json` | `DEBUG_MODE` | Enables `_LOGGER` console output and DEBUG-only dev tools |
+| `app.config.json` | `THEME` | `"light"` (default) or `"dark"`: which semantic colour set of `app/globals.css` applies |
 | `app.config.json` | `SITE_URL` | Public URL of the shop: canonical/Open Graph URLs, Playwright `baseURL` |
 | `app.config.json` | `SITE_NAME` | Shop name: header wordmark (when no logo), page titles, Open Graph |
 | `app.config.json` | `BRAND.LOGO` / `BRAND.LOGO_ALT` / `BRAND.FAVICON` | File names in `_CONFIG/brand/`, served by `app/brand/[file]` (only the listed names). `LOGO: null` shows the wordmark |

@@ -37,7 +37,7 @@ export function UnitPrice({
         {cur}
       </span>
       {on_sale && line.percent_off ? (
-        <span className="rounded bg-destructive/10 px-1 text-[10px] font-semibold text-destructive">
+        <span className="rounded bg-destructive-surface px-1 text-[10px] font-semibold text-destructive">
           −{line.percent_off}%
         </span>
       ) : null}

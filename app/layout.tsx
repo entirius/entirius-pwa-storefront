@@ -14,7 +14,7 @@ import { HeaderComponent } from "./_components/layout/header-component";
 import { FooterComponent } from "./_components/layout/footer-component";
 import { Suspense } from "react";
 import { SITE_URL, SITE_NAME } from "@/lib/seo/config";
-import { BRAND } from "@/_CONFIG/app.config.json";
+import { BRAND, THEME } from "@/_CONFIG/app.config.json";
 // Brand typefaces (styleguide §1). Both are variable fonts: one file each, no
 // weight list. Lexend Deca carries headings and the wordmark (300/400 only, never
 // bold); Inter carries the shop UI. Fallback metrics come from the brand tokens.
@@ -52,9 +52,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // Dark only — the Entirius brand has no light theme. The class keeps shadcn's
-    // dark: variants on for good.
-    <html lang="en" className="dark">
+    // Light by default; an instance sets THEME: "dark" in _CONFIG/app.config.json
+    // for the brand's dark set (app/globals.css), which also turns shadcn's dark:
+    // variants on.
+    <html lang="en" className={THEME === "dark" ? "dark" : undefined}>
       <body
         className={`${lexendDeca.variable} ${inter.variable} antialiased`}
       >
@@ -77,7 +78,7 @@ async function AuthGate({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider initial={isLoggedIn}>
       <HeaderComponent />
-      <main className="p-4">{children}</main>
+      <main className="mx-auto w-full max-w-7xl p-4">{children}</main>
       <FooterComponent />
     </AuthProvider>
   );

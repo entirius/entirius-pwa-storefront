@@ -13,16 +13,18 @@ import { SITE_NAME } from "@/_CONFIG/app.config.json";
 
 export function HeaderComponent() {
   return (
-    <header className="sticky top-0 z-10 flex justify-between items-center px-4 h-14 border-b border-border bg-background">
-      <LinkDynamic href="/" className="flex items-center" aria-label={`${SITE_NAME} — home`}>
-        <BrandMark />
-      </LinkDynamic>
-      <div className="flex items-center gap-2">
-        <NavigationComponent />
-        <SearchSheet />
-        <WishlistSheet />
-        <CartSheet />
-        <AccountNav />
+    <header className="sticky top-0 z-10 border-b border-border bg-card">
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4">
+        <LinkDynamic href="/" className="flex items-center" aria-label={`${SITE_NAME} — home`}>
+          <BrandMark />
+        </LinkDynamic>
+        <div className="flex items-center gap-2">
+          <NavigationComponent />
+          <SearchSheet />
+          <WishlistSheet />
+          <CartSheet />
+          <AccountNav />
+        </div>
       </div>
     </header>
   );

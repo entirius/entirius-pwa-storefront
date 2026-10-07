@@ -45,9 +45,9 @@ export function DevProbeButton({
   };
 
   return (
-    <div className="flex flex-col gap-2 rounded-md border border-notice/50 bg-notice/10 p-3 text-xs">
+    <div className="flex flex-col gap-2 rounded-md border border-notice/50 bg-notice-surface p-3 text-xs">
       <div className="flex items-center gap-2">
-        <span className="rounded bg-notice/20 px-1.5 py-0.5 font-semibold tracking-wide text-notice uppercase">
+        <span className="rounded bg-notice-surface px-1.5 py-0.5 font-semibold tracking-wide text-notice uppercase">
           dev
         </span>
         <Button

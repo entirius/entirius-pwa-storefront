@@ -15,7 +15,7 @@ const hero_dyes: Record<number, { overlay: string; text: string }> = {
   1: { overlay: "bg-gradient-fade", text: "text-heading" },
   2: { overlay: "bg-gradient-backdrop opacity-85", text: "text-heading" },
   3: { overlay: "bg-background/60", text: "text-heading" },
-  4: { overlay: "bg-gradient-card opacity-90", text: "text-heading" },
+  4: { overlay: "bg-card bg-gradient-card opacity-90", text: "text-heading" },
   5: { overlay: "bg-gradient-to-t from-background/80 to-transparent", text: "text-heading" },
 };
 

@@ -16,7 +16,7 @@ export default function TileTxtBtn({
   custom_buttons?: CmsButtonData[];
 }) {
   return (
-    <div className="flex h-full flex-col gap-3 rounded-2xl bg-gradient-card p-6">
+    <div className="flex h-full flex-col gap-3 rounded-2xl bg-card bg-gradient-card p-6">
       {title && <h3 className="text-lg">{title}</h3>}
       {description && (
         <SanitizeHTML html={description} className="text-sm text-muted-foreground" />

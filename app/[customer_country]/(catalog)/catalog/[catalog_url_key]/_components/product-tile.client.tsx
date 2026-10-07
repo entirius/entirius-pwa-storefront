@@ -39,8 +39,8 @@ export function ProductTile({
       href={`/product/${product.url_key}`}
       className={
         compact
-          ? "grid grid-cols-[5rem_1fr] gap-3 rounded-xl bg-gradient-card p-2 group relative"
-          : "flex h-full flex-col rounded-2xl bg-gradient-card group overflow-hidden relative transition-shadow hover:shadow-glow"
+          ? "grid grid-cols-[5rem_1fr] gap-3 rounded-xl bg-card bg-gradient-card p-2 group relative"
+          : "flex h-full flex-col gap-3 rounded-3xl bg-card bg-gradient-card p-3 group relative transition-shadow hover:shadow-glow"
       }
     >
       {compact ? (
@@ -56,7 +56,7 @@ export function ProductTile({
       ) : (
         <AspectRatio
           ratio={1 / 1}
-          className="w-full bg-muted overflow-hidden relative"
+          className="w-full rounded-2xl bg-muted overflow-hidden relative"
         >
           <MediaImage
             src={firstMedia.uri}
@@ -68,12 +68,12 @@ export function ProductTile({
           <ProductBadges
             badges={product.badges}
             percent_off={product.percent_off}
-            className="absolute top-2 left-2 right-12"
+            className="absolute top-2.5 left-2.5 right-12"
           />
         </AspectRatio>
       )}
 
-      <div className={compact ? "min-w-0 self-center" : "flex flex-col flex-1 gap-1 p-3"}>
+      <div className={compact ? "min-w-0 self-center" : "flex flex-col flex-1 gap-1 px-1 pb-1"}>
         <h3 className={compact ? "text-sm truncate" : "text-sm line-clamp-2 leading-snug"}>
           {product.name}
         </h3>
@@ -88,7 +88,7 @@ export function ProductTile({
       <WishlistButton
         sku={product.sku}
         item={wishlistItem}
-        className="absolute top-2 right-2"
+        className={compact ? "absolute top-2 right-2" : "absolute top-5 right-5"}
         variant={compact ? "ghost" : "secondary"}
         size={compact ? "icon-xs" : "icon-sm"}
         onClick={(e) => e.preventDefault()}

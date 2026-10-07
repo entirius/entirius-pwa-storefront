@@ -29,7 +29,7 @@ export function SectionShell({
     <section
       className={cn(
         "flex flex-col gap-4 py-6",
-        width === "full_width" ? "" : "mx-auto w-full max-w-6xl",
+        width === "full_width" ? "" : "w-full",
       )}
     >
       {(title || description || custom_buttons?.length) && (

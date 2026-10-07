@@ -35,7 +35,7 @@ export function CheckoutSuccessClient() {
           : `Thank you! Your order has been placed${refs[0] ? ` (ref ${refs[0]})` : ""}.`}
       </p>
       {payment_failed && (
-        <p className="mb-6 rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <p className="mb-6 rounded-md border border-destructive/50 bg-destructive-surface px-3 py-2 text-sm text-destructive">
           We couldn’t start the payment. Your order is saved — please contact us
           with the order number to complete it.
         </p>

@@ -36,7 +36,7 @@ export async function FooterComponent() {
   const columns = await load_footer();
   return (
     <footer className="mt-12 border-t border-border bg-background">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-10">
         {columns.length > 0 && (
           <nav aria-label="Footer" className="grid grid-cols-2 gap-8 md:grid-cols-4">
             {columns.map((column, i) => (
