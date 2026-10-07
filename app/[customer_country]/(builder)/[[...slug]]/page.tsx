@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 import { notFound } from "next/navigation";
 import { PrefetchBoundary } from "@/lib/prefetch_boundary";
 import { create_api } from "@/API/api.context";
@@ -28,8 +32,8 @@ export default async function BuilderPage({ params }: Props) {
   const api = create_api(await make_server_access());
   // ------------------------------------------------------------
   // Fetch CMS document first to extract product url_keys for batch prefetch.
-  // load_static_page is React.cache()-wrapped — the second call inside
-  // PrefetchBoundary.queryFn returns from cache with no additional request.
+  // load_static_page keys its React cache on the joined routes string, so the
+  // second call inside PrefetchBoundary.queryFn costs no additional request.
   // ------------------------------------------------------------
   const options = { routes };
   const [, cms_data] = await load_static_page(api, options);

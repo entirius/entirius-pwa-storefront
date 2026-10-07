@@ -1,12 +1,21 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 export const API_CATEGORIES_ROUTE = "/api/matrix/v2/__CHANNEL__/categories/";
 export const API_PRODUCTS_ROUTE = "/api/matrix/v2/__CHANNEL__/products/";
 export const API_PRICES_ROUTE = "/api/matrix/v2/__CHANNEL__/prices/";
 export const API_CATALOG_FILTERS_ROUTE = "/api/matrix/v2/__CHANNEL__/options/";
 export const API_STOCK_ROUTE = "/api/matrix/v2/__CHANNEL__/stock/";
 export const API_SEARCH_ROUTE = "/api/matrix/v2/__CHANNEL__/search/";
+// Lowest price in the 30 days before a reduction (EU Omnibus), batch: ?sku=A&sku=B.
+export const API_OMNIBUS_ROUTE = "/api/matrix/v2/__CHANNEL__/omnibus/";
 export const API_CART_ROUTE = "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/";
 export const API_CART_ITEMS_ROUTE =
   "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/items/";
+// PATCH { codes: [{ code }] } replaces the manual codes; { clear: true } drops them.
+export const API_CART_DISCOUNTS_ROUTE =
+  "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/discounts/";
 export const API_CART_ADDRESS_ROUTE =
   "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/addresses/";
 // LIST endpoints (GET) — currently 500 on the backend (guest path crashes).
@@ -19,14 +28,12 @@ export const API_CART_SHIPPING_SELECT_ROUTE =
   "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/shipping/";
 export const API_CART_PAYMENT_SELECT_ROUTE =
   "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/payment/";
+// POST places an order; GET a single order is this route + `{pretty_id}/`.
 export const API_CART_ORDERS_ROUTE = "/api/checkout/v2/__CHANNEL__/orders/";
-// Documented v2 list endpoint the orders query targets — currently 500s
-// server-side (unhandled exception), same as the other v2 GET-list routes.
+// v2 list — the customer's own orders (401 without a token), summary rows,
+// paginated with `page` / `page_size`.
 export const API_CART_ORDERS_LIST_ROUTE =
   "/api/checkout/v2/__CHANNEL__/orders/list/";
-// v1 orders GET works today (same response shape) — exposed in the DEBUG probe
-// console alongside v2 so the difference is visible while v2 is broken.
-export const API_CART_ORDERS_V1_ROUTE = "/api/checkout/v1/__CHANNEL__/orders/";
 // ----- AUTHENTICATION -----
 export const API_USER_LOGIN_ROUTE =
   "/api/accounts/v1/__CHANNEL__/customer/tokens/";
@@ -86,6 +93,7 @@ export const API_ROUTES_POLICY = {
     ],
   },
   [API_PRICES_ROUTE]: { default_querys: ["currency", "country"] },
+  [API_OMNIBUS_ROUTE]: { default_querys: ["currency", "country"] },
   [API_CATALOG_FILTERS_ROUTE]: { default_querys: ["language"] },
   // Real-time stock (Auth Optional — auth headers intentionally skipped for now).
   [API_STOCK_ROUTE]: { default_querys: ["language"] },
@@ -115,6 +123,16 @@ export const API_ROUTES_POLICY = {
   },
   [API_CART_ITEMS_ROUTE]: {
     // v2 update path: PATCH /carts/{cart_id}/items/ (full-replace of the item set).
+    default_querys: ["language"],
+    refresh_on: [401],
+    optional_refresh: true,
+    default_headers: [
+      ["x-api-key", "channel_checkout_key"],
+      ["Authorization", "access_token"],
+      { "Content-Type": "application/json" },
+    ],
+  },
+  [API_CART_DISCOUNTS_ROUTE]: {
     default_querys: ["language"],
     refresh_on: [401],
     optional_refresh: true,
@@ -198,7 +216,15 @@ export const API_ROUTES_POLICY = {
       { "Content-Type": "application/json" },
     ],
   },
-  [API_CART_ORDERS_V1_ROUTE]: {
+  // Policy-only key for the single-order detail `.../orders/{id}/`. Not a route
+  // constant: the id is concatenated onto API_CART_ORDERS_ROUTE at the call site,
+  // and this entry exists so that path still resolves to the checkout auth headers.
+  // (pick_policy anchors patterns with `(?:$|[/?#])`, so API_CART_ORDERS_ROUTE does
+  // NOT match a longer path — without this the request goes out unauthenticated.)
+  // NB: this key is longer than API_CART_ORDERS_LIST_ROUTE's and its `[^/]+` also
+  // matches `/orders/list/`, so longest-match hands the list route this policy too.
+  // The two are deliberately identical, so that is inert.
+  "/api/checkout/v2/__CHANNEL__/orders/__ORDER_ID__/": {
     refresh_on: [401],
     optional_refresh: true,
     default_headers: [

@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { useState } from "react";
@@ -81,7 +85,7 @@ export function AddressList() {
               <ChevronLeft className="size-5" />
             </LinkDynamic>
           </Button>
-          <h1 className="text-2xl font-bold">Delivery addresses</h1>
+          <h1 className="text-2xl">Delivery addresses</h1>
         </div>
         <Button
           size="sm"
@@ -101,7 +105,7 @@ export function AddressList() {
           You have no saved addresses yet.
         </p>
       ) : (
-        <ul className="flex flex-col gap-3">
+        <ul aria-label="Saved addresses" className="flex flex-col gap-3">
           {addresses.map((a) => (
             <li
               key={a.address_id}

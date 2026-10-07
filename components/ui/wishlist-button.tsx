@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import * as React from "react";
@@ -25,11 +29,11 @@ const heartVariants = cva(
         lg: "size-5",
       },
       isActive: {
-        true: "fill-red-500 text-red-500",
-        false: "fill-transparent text-current group-hover:text-red-400",
+        true: "fill-highlight text-highlight",
+        false: "fill-transparent text-current group-hover:text-highlight",
       },
       variant: {
-        default: "group-hover:text-red-300",
+        default: "group-hover:text-highlight",
         destructive: "",
         outline: "",
         secondary: "",

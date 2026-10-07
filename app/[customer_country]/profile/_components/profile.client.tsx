@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { useState } from "react";
@@ -42,7 +46,7 @@ export function ProfileClient() {
 
   return (
     <div className="flex flex-col gap-6 py-4">
-      <h1 className="text-2xl font-bold">My account</h1>
+      <h1 className="text-2xl">My account</h1>
 
       <section className="rounded-lg border border-border p-4">
         {editing && profile ? (

@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 import { cache } from "react";
 import { QueryClient } from "@tanstack/react-query";
 import { API_CMS_STATIC_PAGE_ROUTE, API_PRODUCTS_ROUTE } from "@/API/api.routes";
@@ -8,11 +12,17 @@ type Api = { FETCH_METHOD: (path: string, options?: any) => Promise<any> };
 // ------------------------------------------------------------
 // CMS static page
 // ------------------------------------------------------------
-export const load_static_page = cache(async (api: Api, options: { routes: string[] }) => {
+// Keyed on a joined string — React.cache() compares arguments with Object.is, so
+// both the options object and the routes array inside it would be fresh
+// references at every call site and never hit.
+const _load_static_page = cache(async (api: Api, routes_key: string) => {
   return api.FETCH_METHOD(API_CMS_STATIC_PAGE_ROUTE, {
-    querys: { routes: options.routes, limit: 1, page: 1 },
+    querys: { routes: routes_key.split(","), limit: 1, page: 1 },
   });
 });
+
+export const load_static_page = (api: Api, options: { routes: string[] }) =>
+  _load_static_page(api, options.routes.join(","));
 
 
 export const static_page_query = (api: Api, options: { routes: string[] }) => ({

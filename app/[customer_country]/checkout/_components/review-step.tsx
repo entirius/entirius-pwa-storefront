@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
@@ -5,11 +9,13 @@ import { useMemo, useState, useTransition } from "react";
 import { make_client_access } from "@/API/access/api.client-access";
 import { create_api } from "@/API/api.context";
 import { API_CART_ORDERS_ROUTE } from "@/API/api.routes";
-import { DEBUG_MODE } from "@/_CONFIG/app.config.json";
 import type { Cart, CartAddress } from "@/utils/NORMALIZERS/cart.normalizer";
+import {
+  NORM_PLACED_ORDER,
+  type PlacedOrder,
+} from "@/utils/NORMALIZERS/order.normalizer";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { DevProbeButton } from "./dev-probe-button";
 
 export function ReviewStep({
   cart,
@@ -20,7 +26,7 @@ export function ReviewStep({
   cart: Cart | null | undefined;
   currency: string;
   onBack: () => void;
-  onPlaced: (orderId?: string) => void;
+  onPlaced: (order: PlacedOrder) => void;
 }) {
   const access = useMemo(() => make_client_access(), []);
   const api = useMemo(() => create_api(access), [access]);
@@ -60,29 +66,19 @@ export function ReviewStep({
         );
         return;
       }
-      // The gateway URL's exact key is unconfirmed until POST /orders/ works — read
-      // it defensively (mostly present for online-payment methods).
-      const redirect_url = pick_redirect(response);
-      if (redirect_url) {
-        window.location.href = redirect_url;
+      // An online-payment method hands back its gateway; bank transfer and cash
+      // on delivery do not. The order exists either way, payment_error included.
+      const order = NORM_PLACED_ORDER(response);
+      if (order.redirect_url && !order.payment_error) {
+        window.location.href = order.redirect_url;
         return;
       }
-      const r = response as { order_pretty_id?: string; order_id?: string };
-      onPlaced(r?.order_pretty_id ?? r?.order_id);
+      onPlaced(order);
     });
   };
 
   return (
     <div className="flex flex-col gap-4">
-      {DEBUG_MODE && (
-        <DevProbeButton
-          label="POST order"
-          method="POST"
-          route={API_CART_ORDERS_ROUTE}
-          body={{ cart_id }}
-        />
-      )}
-
       <div className="grid gap-4 sm:grid-cols-2">
         {billing && <AddressCard title="Billing address" a={billing} />}
         {show_shipping && shipping && (
@@ -122,7 +118,7 @@ function AddressCard({ title, a }: { title: string; a: CartAddress }) {
   const phone = [a.dialling_code, a.telephone].filter(Boolean).join(" ");
   return (
     <section className="rounded-lg border p-4 text-sm">
-      <h3 className="text-muted-foreground mb-2 text-xs font-semibold uppercase">
+      <h3 className="text-muted-foreground mb-2 text-xs uppercase">
         {title}
       </h3>
       <div className="flex flex-col gap-0.5">
@@ -152,7 +148,7 @@ function InfoCard({
 }) {
   return (
     <section className="rounded-lg border p-4 text-sm">
-      <h3 className="text-muted-foreground mb-2 text-xs font-semibold uppercase">
+      <h3 className="text-muted-foreground mb-2 text-xs uppercase">
         {title}
       </h3>
       {name ? (
@@ -165,23 +161,6 @@ function InfoCard({
       )}
     </section>
   );
-}
-
-// The backend's gateway-redirect field name isn't confirmed yet (POST /orders/
-// still 500s), so accept the likely spellings and return the first non-empty URL.
-function pick_redirect(response: unknown): string | null {
-  const r = response as Record<string, unknown> | null | undefined;
-  if (!r) return null;
-  for (const k of [
-    "redirect_url",
-    "redirection_url",
-    "redirection__url",
-    "continue_url",
-  ]) {
-    const v = r[k];
-    if (typeof v === "string" && v) return v;
-  }
-  return null;
 }
 
 // Whether the shipping address meaningfully differs from billing (so it's worth

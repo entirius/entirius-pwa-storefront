@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { memo, useCallback, useEffect, useState } from "react";
@@ -57,7 +61,7 @@ const FilterRange = memo(function FilterRange({
   return (
     <div>
       <div className="flex justify-between items-center mb-3">
-        <h3 className="font-bold">{label}</h3>
+        <h3>{label}</h3>
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground tabular-nums">
             {local_value[0]} — {local_value[1]}

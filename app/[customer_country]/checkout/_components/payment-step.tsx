@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { useMemo, useState, useTransition, type ReactNode } from "react";
@@ -9,7 +13,6 @@ import {
   API_CART_PAYMENT_ROUTE,
   API_CART_PAYMENT_SELECT_ROUTE,
 } from "@/API/api.routes";
-import { DEBUG_MODE } from "@/_CONFIG/app.config.json";
 import {
   NORM_PAYMENT_METHODS,
   type Cart,
@@ -18,7 +21,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { DevProbeButton } from "./dev-probe-button";
 
 export function PaymentStep({
   cart,
@@ -86,10 +88,10 @@ export function PaymentStep({
       </div>
     );
   } else if (isError || !methods || methods.length === 0) {
-    // Payment-methods GET may still 500 on the backend — degrade gracefully.
+    // No methods, or the request failed. Degrade gracefully.
     body = (
       <div className="rounded-lg border border-dashed p-8 text-center">
-        <h2 className="text-lg font-semibold">Payment</h2>
+        <h2 className="text-lg">Payment</h2>
         <p className="text-muted-foreground mx-auto mt-2 max-w-sm text-sm">
           No payment methods are available yet. Please try again later.
         </p>
@@ -161,12 +163,6 @@ export function PaymentStep({
 
   return (
     <div className="flex flex-col gap-4">
-      {DEBUG_MODE && (
-        <DevProbeButton
-          label="GET payment-methods"
-          route={API_CART_PAYMENT_ROUTE}
-        />
-      )}
       {body}
     </div>
   );

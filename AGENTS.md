@@ -1,253 +1,53 @@
-# AGENTS.md -- entirius-pwa-storefront
+# AGENTS.md — entirius-pwa-storefront
 
-## Quick Reference
-
-Next.js 16 (App Router) e-commerce storefront for the Volkanos platform. React 19, TanStack Query v5, Zustand v5, Tailwind CSS v4, shadcn/ui. Consumes Matrix v2 (categories, products, prices, options, stock, search), Checkout v2 (carts, orders), Accounts v1 (customer, addresses) and ContentDB v1 (CMS pages).
+Next.js 16 (App Router) storefront for the Volkanos platform: React 19, TanStack Query 5, Zustand 5, Tailwind 4 + shadcn/ui, on Matrix v2, Checkout v2, Accounts v1 and ContentDB v1.
 
 ## Commands
 
 ```bash
-pnpm install           # Install dependencies
-cp -r _CONFIG.example _CONFIG   # Required once — JSON config is imported by the code
-pnpm dev               # Dev server (port 3000)
-pnpm dev --port 3001   # Dev server on custom port
-pnpm build             # Production build
-pnpm lint              # ESLint
+pnpm install
+cp -r _CONFIG.example _CONFIG   # once — the code imports the JSON config
+pnpm dev                        # :3100 (`--port N` overrides)
+pnpm build
+pnpm lint
+pnpm test                       # Vitest unit tests (*.test.ts next to the code)
+pnpm test:e2e                   # Playwright against a live backend — docs/testing.md
 ```
 
-Package manager is pnpm. Do not use npm or yarn.
+pnpm only, never npm or yarn.
 
 ## Conventions
 
 - English only: code, comments, UI copy, docs, commits, branches, PRs.
-- License: MPL-2.0.
-- Git flow: `master` (production) + `develop` (integration); changes land via PR.
-- Default: do not commit — git is the user's call.
-- Component files: `kebab-case.tsx`; client components must have `.client.tsx` suffix.
-- Co-locate query definitions (`api.query.ts`) with the page that owns them.
-- Normalizers live in `utils/NORMALIZERS/` — keep raw API shapes out of components.
-- No barrel imports (`index.ts`) — import directly to keep bundle splitting intact.
-- Use `next/dynamic` for heavy client components (carousels, sheets, modals).
-- `@/` maps to repo root: `@/API/`, `@/_CONFIG/`, `@/components/`, `@/lib/`, `@/utils/`.
+- MPL-2.0: every source file starts with the MPL header (`.license-header.txt`); the `insert-license` pre-commit hook adds it, CI checks it.
+- Git flow: `feature/<name>` from `develop` (lowercase, words joined by `-`), squash-merged into `develop` via PR. Do not commit unless asked.
+- **No AI attribution** in commits or PRs — no `Co-Authored-By: Claude …`, no "Generated with Claude Code" footer. This overrides the tool default.
+- Agents never push, open PRs or merge; they hand the operator the commands. Before that: review every outgoing commit against the Entirius Handbook, `gitleaks git --log-opts="origin/<base>..HEAD" --redact` clean, committer `<login>@entirius.com`, `pnpm lint` not growing, build and E2E green. A finding blocks the push.
+- Files `kebab-case.tsx`; client components `*.client.tsx`. No barrel imports; `next/dynamic` for heavy client components. `@/` is the repo root.
 - API paths are a backend contract — never rewrite route constants or placeholders ad hoc.
-
-## Commit Message Format
-
-**NEVER add `Co-Authored-By: Claude ...` (or any other Claude/Anthropic attribution) to commit messages.**
-
-This overrides the default Claude Code behavior of appending a `Co-Authored-By` trailer. Commit messages MUST contain only the user's authored content — no robot footer, no "Generated with Claude Code" line, no co-author trailer.
-
-Same rule applies to PR descriptions: no `Generated with [Claude Code]` footer.
+- `pnpm lint` stays green: legacy errors sit in `eslint-suppressions.json` and may only shrink (`pnpm exec eslint --prune-suppressions` after fixing one); never suppress new code.
+- Colors only through semantic tokens (`app/globals.css` maps `@entirius/brand-tokens`); lint rejects raw values. Dark only.
 
 ## Architecture
 
-```
-entirius-pwa-storefront/
-├── API/                          # Fetch engine (not Axios, not a generated client)
-│   ├── api.routes.ts             # Route constants + API_ROUTES_POLICY
-│   ├── api.setup.ts              # create_fetch_engine() — returns FETCH_METHOD
-│   ├── api.context.ts            # create_api(cookie_access) — wires access into engine
-│   ├── api.d.ts                  # COOKIE_ACCESS interface
-│   └── access/
-│       ├── api.server-access.ts  # make_server_access() — uses next/headers (RSC only)
-│       ├── api.client-access.ts  # make_client_access() — uses document.cookie
-│       └── api.static-access.ts  # static values for ISR/build-time fetches
-├── app/
-│   ├── layout.tsx                # Root layout (providers, fonts)
-│   ├── _components/layout/       # Header, navigation, search, cart/wishlist/account sheets
-│   └── [customer_country]/       # All routed pages live under the country segment
-│       ├── (builder)/[[...slug]] # CMS/builder pages (catch-all)
-│       ├── (catalog)/catalog/[catalog_url_key]/  # Listing page
-│       ├── (product)/product/[product_url_key]/  # PDP
-│       ├── checkout/             # Address → shipping → payment → review stepper
-│       ├── profile/              # Account: profile, addresses, orders
-│       └── user-handler/         # Double-opt-in activation landing
-├── components/ui/                # shadcn/ui components
-├── lib/
-│   ├── auth-client.ts            # Login/signup/activate/logout against Accounts
-│   ├── prefetch_boundary.tsx     # Server-side TanStack Query prefetch + hydration
-│   ├── link-dynamic.tsx          # Dynamic import wrapper
-│   ├── logger.ts                 # _LOGGER (respects DEBUG_MODE from config)
-│   └── utils.ts                  # cn() utility
-├── providers/
-│   ├── auth.provider.tsx         # Per-request logged-in flag (seeded server-side)
-│   └── Tanstack-query.provider.tsx
-├── stores/                       # Zustand cart + wishlist, cart query & sync hook
-├── utils/
-│   ├── NORMALIZERS/              # Data transformation (product, price, media, cart, order)
-│   ├── validation/               # Zod schemas (auth, address, customer address)
-│   └── cookies-setter.helper.ts  # Geo/Cloudflare cookie resolution (proxy.ts)
-├── types/                        # Shared TypeScript types
-├── proxy.ts                      # Next.js middleware — geo routing + cookie injection
-└── _CONFIG.example/              # Committed config templates (copy to _CONFIG/)
-    ├── app.config.json           # API_BASE_URL, DEBUG_MODE
-    ├── channels.config.json      # Channel labels + checkout keys
-    └── countries.config.json     # Country → language/currency/channel mapping
-```
+- `API/` — fetch engine: routes + `API_ROUTES_POLICY` (headers, default query params); returns `[error, data, meta]`. Never call `fetch()` directly.
+- `proxy.ts` — geo routing and session cookies; every page lives under `app/[customer_country]/`.
+- `app/[customer_country]/**/api.query.ts` — co-located queries and `React.cache()` loaders: one `api` per request, primitive cache keys.
+- `lib/` — `PrefetchBoundary` (server prefetch + hydration), `seo/`, `omnibus/`, auth client.
+- `utils/NORMALIZERS/` — API → view shapes; raw API data stays out of components.
+- `stores/` — Zustand cart and wishlist, cart sync with the backend.
+- `components/ui/` — shadcn/ui primitives.
+- `_CONFIG/` (gitignored, from `_CONFIG.example/`) — backend URL, channels, countries, brand assets.
+- `tests/e2e/` — Playwright specs.
 
-## File Map
+Read the guide for the area before changing it: [architecture and config](docs/architecture.md) · [patterns and gotchas](docs/patterns.md) · [testing](docs/testing.md) · [styling](docs/styling.md).
 
-| File | Purpose |
-|------|---------|
-| `API/api.routes.ts` | All route URL constants + `API_ROUTES_POLICY` (default query params, headers, token refresh per route) |
-| `API/api.setup.ts` | `create_fetch_engine(access)` — placeholder resolution, query string, auth headers, 401 refresh |
-| `API/api.context.ts` | `create_api(cookie_access)` — maps cookie keys to access methods, returns `{ FETCH_METHOD }` |
-| `proxy.ts` | Middleware: reads `ct` cookie or `cf-ipcountry`, rewrites URL to `/{country}/...`, sets session cookies |
-| `lib/prefetch_boundary.tsx` | `PrefetchBoundary` — server prefetches TanStack queries, dehydrates, wraps children in `HydrationBoundary` |
-| `lib/auth-client.ts` | Client-side auth flows: login, signup, double-opt-in activation, logout |
-| `app/[customer_country]/.../{page}/api.query.ts` | Co-located query definitions (`queryKey`, `queryFn`) + `cache()`-wrapped loaders |
-| `stores/cart.store.ts` | Zustand cart (flat localStorage serialization) |
-| `stores/use-cart-sync.ts` | Shared create-or-patch cart sync (drawer + checkout dedupe to one backend call) |
-| `stores/wishlist.store.ts` | Zustand wishlist with flat localStorage serialization (key `WL`) |
-| `utils/NORMALIZERS/` | `NORM_PRODUCTS_DATA`, `NORM_FILTERS_DATA`, `NORM_MEDIA_DATA`, cart/order/price normalizers |
+<!-- BEGIN:nextjs-agent-rules -->
 
-## Config System
+# This is NOT the Next.js you know
 
-`_CONFIG/` is gitignored. `_CONFIG.example/` is the committed template.
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
 
-```bash
-cp -r _CONFIG.example _CONFIG
-# app.config.json      → set API_BASE_URL (Volkanos instance URL)
-# channels.config.json → set CHANNEL_LABEL and API_CHECKOUT_KEY per channel
-# countries.config.json → country → languages/currencies/channels mapping
-```
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
-Import configs directly: `import countries from "@/_CONFIG/countries.config.json"`. Config is type-checked at build time.
-
-## Key Patterns
-
-### API Layer
-
-Returns `[error, data, meta]` tuples — always destructure, never throw on API errors.
-
-```ts
-const api = create_api(await make_server_access()); // RSC/Server Action
-const api = create_api(make_client_access());        // Client Component
-
-const [error, data] = await api.FETCH_METHOD(API_PRODUCTS_ROUTE, {
-  querys: { category_url_key: 'shoes', page: 1 }  // auto-converted to query string
-});
-```
-
-Route placeholders `__CHANNEL__`, `__USER_ID__`, `__CART_ID__` are resolved from cookies via the access adapter. Never call `fetch()` directly — always use `FETCH_METHOD`.
-
-### PrefetchBoundary
-
-Server Component prefetches TanStack Query data; Client Component reads it via `useQuery` with the same query key (no extra network request).
-
-```tsx
-// page.tsx (Server Component)
-const api = create_api(await make_server_access());
-return (
-  <PrefetchBoundary prefetches={[catalog_query(api, opts), products_query(api, opts)]}>
-    <ListingClient options={opts} />
-  </PrefetchBoundary>
-);
-
-// listing.client.tsx ("use client")
-const { data } = useQuery(catalog_query(make_client_access_api(), opts));
-```
-
-Use `seed` on a `PrefetchEntry` to pre-populate individual product cache entries from the list response (avoids redundant fetches on PDP navigation).
-
-### React.cache() Deduplication
-
-Wrap loaders in `React.cache()` (see `api.query.ts` files). Pass the **same** `api` instance to all loaders in a request — `cache()` keys on function identity + args, so duplicate `create_api()` calls break deduplication.
-
-### Filter URL Convention
-
-Search params use prefixes parsed in `page.tsx` before passing to `PrefetchBoundary`:
-- `q_color=red` → filter value
-- `s_price=asc` → sort
-- `r_price=10&r_price=500` → range
-
-The catalog page's `build_params()` helper strips prefixes before forwarding to the API.
-
-## Data Flow
-
-```
-proxy.ts (middleware)
-  → reads ct cookie / cf-ipcountry header
-  → rewrites URL to /{country}/...
-  → sets lg, cr, ch, ch_key, cid cookies (at/rt/uid are owned by the auth Server Actions)
-
-page.tsx (Server Component)
-  → make_server_access() reads next/headers cookies
-  → create_api(access) wires cookie values into fetch engine
-  → PrefetchBoundary runs queryFn server-side, dehydrates result
-
-HydrationBoundary (client)
-  → rehydrates TanStack Query cache
-  → useQuery() reads cache — no refetch on mount
-```
-
-## Geo Routing
-
-All pages live under `app/[customer_country]/`. The `ct` cookie (set by middleware from `cf-ipcountry` or existing cookie) determines the country segment. `countries.config.json` lists valid country keys. Unknown countries fall through to `default`.
-
-## Component Organization
-
-| Tier | Location | Purpose |
-|------|----------|---------|
-| shadcn/ui | `components/ui/` | Base primitives (Button, Input, Sheet, Carousel). Added via `pnpm dlx shadcn add <name>` |
-| Shared | `lib/` | Cross-page components (PrefetchBoundary, LinkDynamic) |
-| Layout | `app/_components/layout/` | Header, navigation, search, cart/wishlist/account sheets |
-| Page feature | `app/[customer_country]/.../_components/` | Co-located with owning page (filters, product tile, listing) |
-
-Client components use `.client.tsx` suffix. Server components have no suffix.
-
-## State Management
-
-Two patterns:
-
-- **Server state** — TanStack Query. All API data goes through `useQuery` with co-located query definitions (`api.query.ts`). Server-prefetched via `PrefetchBoundary`, hydrated on client.
-- **Client state** — Zustand:
-  - `stores/cart.store.ts` and `stores/wishlist.store.ts` — persisted to localStorage with flat serialization
-  - `app/.../catalog/.../_components/filters.store.ts` — co-located with catalog page, initializes from `URLSearchParams`
-
-## Theming / Styling
-
-Tailwind CSS v4 with shadcn/ui ("new-york" style). Config in `components.json`.
-
-- CSS variables enabled (`cssVariables: true`) — colors defined as HSL in `app/globals.css`
-- Dark mode toggle in header — uses `class` strategy (Tailwind `dark:` prefix)
-- Icons: `lucide-react`
-- Utility: `cn()` from `lib/utils.ts` (clsx + tailwind-merge)
-- Add shadcn components: `pnpm dlx shadcn add <component-name>`
-
-## Config Variables
-
-| File | Key | Purpose |
-|------|-----|---------|
-| `app.config.json` | `API_BASE_URL` | Backend URL (e.g. `http://localhost:8000`) |
-| `app.config.json` | `DEBUG_MODE` | Enables `_LOGGER` console output and DEBUG-only dev tools |
-| `channels.config.json` | `{channel}.CHANNEL_LABEL` | Channel display name |
-| `channels.config.json` | `{channel}.API_CHECKOUT_KEY` | Checkout API key per channel (`x-api-key`) |
-| `countries.config.json` | `{country}.default_language` | Default language for country |
-| `countries.config.json` | `{country}.default_currency` | Default currency for country |
-| `countries.config.json` | `{country}.default_channel` | Default channel for country |
-
-## Testing
-
-No test framework configured yet. When adding tests:
-
-- Use Playwright for E2E (Next.js recommended)
-- Use Vitest for unit tests
-- Place E2E tests in `tests/e2e/`, unit tests co-located with source
-
-## Gotchas
-
-- `make_server_access()` is async (awaits `cookies()`); `make_client_access()` is sync.
-- Pass one `api` instance per request to all loaders — splitting into multiple instances breaks `React.cache()` deduplication and causes duplicate fetches.
-- `_CONFIG/` must exist before `pnpm dev`/`pnpm build` — JSON imports fail at build time if missing.
-- `API_ROUTES_POLICY` drives default query params and auth headers per route. Adding a new route without a policy entry means no auth headers or language params are injected automatically.
-- Filter prefix stripping (`q_`, `s_`, `r_`) happens in `page.tsx`, not in the store. The Zustand `filters.store.ts` initializes from `URLSearchParams` but does not strip prefixes — pages must parse before forwarding to API.
-- `ch_key` (channel checkout key) is deliberately non-HttpOnly — client components read it from `document.cookie`. `at`/`rt`/`uid` are HttpOnly and set only by the auth Server Actions; never re-emit them in the middleware.
-
-## Coding Standards
-
-Priority order for React/Next.js code:
-1. Eliminate waterfalls — `Promise.all()` for independent fetches, defer awaits
-2. Bundle size — no barrel imports, `next/dynamic` for heavy components
-3. Server-side performance — `React.cache()` deduplication, minimize client serialization
-4. Re-render optimization — derive state during render, avoid unnecessary `memo`
+<!-- END:nextjs-agent-rules -->

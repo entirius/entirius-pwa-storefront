@@ -1,7 +1,12 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 import { cache } from "react";
 import {
   API_PRODUCTS_ROUTE,
   API_CATALOG_FILTERS_ROUTE,
+  API_CATEGORIES_ROUTE,
 } from "@/API/api.routes";
 import { QueryClient } from "@tanstack/react-query";
 import { NORM_PRODUCTS_DATA } from "@/utils/NORMALIZERS/product.normalizer";
@@ -115,7 +120,14 @@ export const filters_query = (api: Api, options: any) => ({
 // loader/fetcher function
 // ------------------------------------------------------------
 // ------------------------------------------------------------
-export const load_catalog = cache(async (api: Api, options: any) => {
+// React.cache() compares arguments with Object.is, so an options object is a
+// fresh reference at every call site and never hits. Serializing it with sorted
+// keys turns the cache key into a primitive, which makes the dedup hold no
+// matter how many places ask for the same page of the same catalog.
+const stable_key = (options: Record<string, unknown>) =>
+  JSON.stringify(Object.keys(options).sort().map((k) => [k, options[k]]));
+
+const _load_catalog = cache(async (api: Api, options_key: string) => {
   if (!api) throw new Error("API instance is not found");
   // ------------------------------------------------------------
   // ------------------------------------------------------------
@@ -126,34 +138,55 @@ export const load_catalog = cache(async (api: Api, options: any) => {
   // ?category=catalog_url_key&page_size=16&page=1
   // use on FETCH_METHOD as second parameter
   // ------------------------------------------------------------
+  const options = Object.fromEntries(JSON.parse(options_key));
   return api.FETCH_METHOD(API_PRODUCTS_ROUTE, {
     querys: { ...options, include: "full" },
   });
 });
 
+export const load_catalog = (api: Api, options: any) =>
+  _load_catalog(api, stable_key(options));
+
 // ------------------------------------------------------------
 // ------------------------------------------------------------
 // load products
-// note: products are loaded after catalog is loaded
-// due to load_catalog is cached load products wont trigger again
-// it will use the cached data from load_catalog
-// cool huh? ^^
+// Thin wrapper over load_catalog — it carries no cache() of its own, so the
+// dedup comes entirely from load_catalog's primitive key. Calling both for the
+// same options costs one request.
 // ------------------------------------------------------------
 // ------------------------------------------------------------
-// WARNING: DO NOT DUPLICATE API instance passed to load_catalog and load_products
-// F.e.
+// WARNING: DO NOT DUPLICATE the API instance passed to load_catalog and
+// load_products. The cache key is (api, stable_key(options)) — a second
+// create_api() is a different reference, so it misses the cache and fires a
+// second request. F.e.
 // const api_access_context = create_api(await make_server_access());
 // const api_access_context_2 = create_api(await make_server_access());
 // load_catalog(api_access_context, options);
-// load_products(api_access_context_2, options);
-// this will cause the load_products to use the cached data from load_catalog
-// instead of making a new request to the API
-// this is because the load_catalog is cached and the load_products is also cached
-// and the load_products is dependent on the load_catalog
-// so the load_products will use the cached data from load_catalog
+// load_products(api_access_context_2, options);  // <- extra network call
+// Use get_server_api() (lib/seo/server-api.ts) to get the one per-request
+// instance rather than constructing your own.
 // ------------------------------------------------------------
 // ------------------------------------------------------------
-export const load_products = cache(async (api: Api, options: any) => {
+// Category detail (name/description/breadcrumb `path`) for catalog SEO.
+// `categories/?url_key=X` returns `{ results: [category] }` (or a bare array);
+// returns the single raw category object, or undefined.
+// Keyed on the url_key string, not an options object — generateMetadata and the
+// page body each build their own literal, and only a primitive key dedupes them.
+const _load_category = cache(async (api: Api, url_key: string) => {
+  const [error, response] = await api.FETCH_METHOD(API_CATEGORIES_ROUTE, {
+    querys: { url_key },
+  });
+  if (error) return undefined;
+  const rows = Array.isArray(response)
+    ? response
+    : (response?.results ?? response?.data ?? []);
+  return rows?.[0];
+});
+
+export const load_category = (api: Api, options: { url_key: string }) =>
+  _load_category(api, options.url_key);
+
+export const load_products = async (api: Api, options: any) => {
   const [error, response] = await load_catalog(api, options);
   if (error) return { error, response };
   const { results, has_next_page, page, page_size } = response as {
@@ -163,4 +196,4 @@ export const load_products = cache(async (api: Api, options: any) => {
     page_size: number;
   };
   return { data: results, pagination: { has_next_page, page, page_size } };
-});
+};

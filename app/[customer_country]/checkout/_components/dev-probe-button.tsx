@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { useMemo, useState } from "react";
@@ -41,9 +45,9 @@ export function DevProbeButton({
   };
 
   return (
-    <div className="flex flex-col gap-2 rounded-md border border-amber-500/50 bg-amber-500/10 p-3 text-xs">
+    <div className="flex flex-col gap-2 rounded-md border border-notice/50 bg-notice/10 p-3 text-xs">
       <div className="flex items-center gap-2">
-        <span className="rounded bg-amber-500/20 px-1.5 py-0.5 font-semibold tracking-wide text-amber-700 uppercase dark:text-amber-400">
+        <span className="rounded bg-notice/20 px-1.5 py-0.5 font-semibold tracking-wide text-notice uppercase">
           dev
         </span>
         <Button
@@ -56,7 +60,7 @@ export function DevProbeButton({
           {pending ? <Spinner className="size-4" /> : label}
         </Button>
       </div>
-      <p className="text-amber-700/80 dark:text-amber-400/80">
+      <p className="text-notice/80">
         Debug-only — fires the request so you can inspect it in the Network tab.
       </p>
       {result && (

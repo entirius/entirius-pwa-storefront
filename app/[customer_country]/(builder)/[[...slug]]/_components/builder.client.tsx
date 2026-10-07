@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { useMemo } from "react";
@@ -43,6 +47,9 @@ export function BuilderClient({ routes }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
+      {/* CMS documents have no title field for the page heading; the document
+          name keeps one H1 per page for screen readers and SEO. */}
+      {document.name && <h1 className="sr-only">{document.name}</h1>}
       {render_cms_document(document.content as CmsDocumentContent)}
     </div>
   );

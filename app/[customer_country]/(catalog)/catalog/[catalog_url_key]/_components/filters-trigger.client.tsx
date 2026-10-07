@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { useSearchParams } from "next/navigation";
@@ -29,7 +33,7 @@ export function FiltersTriggerClient({ options }: { options: any }) {
           <div className="relative">
             <FilterIcon className="size-4" />
             {has_active && (
-              <span className="absolute -top-1 -right-1 size-2 rounded-full bg-red-500" />
+              <span className="absolute -top-1 -right-1 size-2 rounded-full bg-highlight" />
             )}
           </div>
           Filters

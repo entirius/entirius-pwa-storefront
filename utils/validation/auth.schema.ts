@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 import { z } from "zod";
 
 // Reusable field primitives. Later auth forms (signup/profile/address) extend these.
@@ -16,8 +20,9 @@ export const login_schema = z.object({
 
 export type LoginFormValues = z.infer<typeof login_schema>;
 
-// Login form defaults. `dummy_*` powers the DEBUG-only "Fill test data" tool
-// (mirrors the address step); `empty_*` is the real initial state / Clear target.
+// Login form defaults. `dummy_*` is the local test account: the initial state under
+// DEBUG_MODE and the "Fill test data" target. `empty_*` is the initial state otherwise
+// and the Clear target.
 export const empty_login_defaults: LoginFormValues = { email: "", password: "" };
 
 export const dummy_login_defaults: LoginFormValues = {

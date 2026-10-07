@@ -1,0 +1,181 @@
+{
+  "API/api.d.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "API/api.setup.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 14
+    },
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "app/[customer_country]/(builder)/[[...slug]]/_components/cms-renderer.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "app/[customer_country]/(builder)/[[...slug]]/_components/tiles/tile-type-b.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "app/[customer_country]/(builder)/[[...slug]]/api.query.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/filter-range.client.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/filters-options.client.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    }
+  },
+  "app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/filters-trigger.client.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/listing.client.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/pagination.client.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-tile.client.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "app/[customer_country]/(catalog)/catalog/[catalog_url_key]/api.query.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 16
+    }
+  },
+  "app/[customer_country]/(product)/product/[product_url_key]/_components/product.client.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "app/[customer_country]/(product)/product/[product_url_key]/api.query.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "app/[customer_country]/(product)/product/[product_url_key]/stock.query.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "app/[customer_country]/checkout/_components/checkout.client.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "app/_components/layout/api.query.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "app/_components/layout/cart-sheet.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "app/_components/layout/search.query.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "app/_components/layout/wishlist-sheet.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "components/ui/wishlist-button.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react/display-name": {
+      "count": 1
+    }
+  },
+  "lib/logger.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "lib/seo/build.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 13
+    }
+  },
+  "lib/seo/config.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "stores/cart.query.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "stores/use-cart-sync.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "types/cms.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "utils/NORMALIZERS/cart.normalizer.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 11
+    }
+  },
+  "utils/NORMALIZERS/category.normalizer.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "utils/NORMALIZERS/media.normalizer.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "utils/NORMALIZERS/order.normalizer.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    }
+  },
+  "utils/NORMALIZERS/price.normalizer.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "utils/NORMALIZERS/product.normalizer.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "utils/cookies-setter.helper.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  }
+}

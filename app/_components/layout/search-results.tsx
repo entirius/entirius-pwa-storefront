@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { Search, Tag } from "lucide-react";
@@ -57,7 +61,7 @@ export function SearchResults({
 
       {categories.length > 0 && (
         <section className="flex flex-col gap-2">
-          <h3 className="px-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+          <h3 className="px-1 text-xs tracking-wide text-muted-foreground uppercase">
             Categories
           </h3>
           <div className="flex flex-col gap-1">
@@ -86,7 +90,7 @@ export function SearchResults({
 
       {products.length > 0 && (
         <section className="flex flex-col gap-2">
-          <h3 className="px-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+          <h3 className="px-1 text-xs tracking-wide text-muted-foreground uppercase">
             Products ({total})
           </h3>
           <div className="flex flex-col gap-2">

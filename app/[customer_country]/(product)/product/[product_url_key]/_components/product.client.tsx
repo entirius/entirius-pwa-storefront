@@ -1,5 +1,9 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
-import Image from "next/image";
+import { MediaImage } from "@/components/ui/media-image.client";
 import { useMemo, useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext, type CarouselApi } from "@/components/ui/carousel";
@@ -15,6 +19,8 @@ import { useCartStore } from "@/stores/cart.store";
 import { product_query } from "../api.query";
 import { stock_query } from "../stock.query";
 import { ProductPrice } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-price.client";
+import { ProductSpecs } from "./product-specs";
+import { ProductBadges } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-badges";
 
 const PLACEHOLDER_MEDIA = [[{ uri: image_placeholder, width: 600, height: 600 }]];
 
@@ -25,7 +31,7 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
     product_query(api, { product_url_key })
   );
 
-  const { data: stock } = useQuery({
+  const { data: stock, isPending: stockPending } = useQuery({
     ...stock_query(api, { sku: product?.sku ?? "" }),
     enabled: !!product?.sku,
   });
@@ -51,6 +57,8 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
   if (isLoading) return <div>Loading...</div>;
   if (error || !product) return <div>Product not found</div>;
 
+  const canBuy = product.purchasable && inStock;
+
   const media = product.media?.length ? product.media : PLACEHOLDER_MEDIA;
 
   return (
@@ -64,12 +72,12 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
               return (
                 <CarouselItem key={i}>
                   <AspectRatio ratio={1} className="bg-muted overflow-hidden rounded-md">
-                    <Image
+                    <MediaImage
                       src={img.uri}
                       alt={`${product.name} – image ${i + 1}`}
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"
-                      className="object-cover grayscale dark:brightness-20"
+                      className="object-cover"
                     />
                   </AspectRatio>
                 </CarouselItem>
@@ -80,7 +88,7 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
             <>
               <CarouselPrevious className="left-2" />
               <CarouselNext className="right-2" />
-              <div className="absolute bottom-2 right-3 text-xs text-white bg-black/50 rounded px-1.5 py-0.5">
+              <div className="absolute bottom-2 right-3 text-xs text-heading bg-background/70 rounded px-1.5 py-0.5">
                 {current} / {total}
               </div>
             </>
@@ -91,11 +99,21 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
       {/* Product info */}
       <div className="flex flex-col gap-4">
         <div>
-          <p className="text-xs text-muted-foreground mb-1">{product.sku}</p>
-          <h1 className="text-2xl font-bold leading-tight">{product.name}</h1>
+          <p className="mb-1 font-mono text-xs text-muted-foreground">{product.sku}</p>
+          <ProductBadges
+            badges={product.badges}
+            percent_off={product.percent_off}
+            className="mb-2"
+          />
+          <h1 className="text-2xl leading-tight">{product.name}</h1>
+          {product.brands?.length > 0 && (
+            <p className="mt-1 text-sm text-muted-foreground">
+              {product.brands.map((b: { name: string }) => b.name).join(", ")}
+            </p>
+          )}
         </div>
 
-        <ProductPrice price={product.price} />
+        <ProductPrice price={product.price} sku={product.sku} />
 
         {product.description && (
           <>
@@ -112,14 +130,14 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
             value={qty}
             onChange={setQty}
             max={Math.max(max, 1)}
-            disabled={!inStock}
+            disabled={!canBuy}
           />
         </div>
 
         <div className="flex gap-2">
           <Button
             className="flex-1"
-            disabled={!inStock}
+            disabled={!canBuy}
             onClick={() =>
               add(
                 {
@@ -134,7 +152,13 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
               )
             }
           >
-            {inStock ? "Add to cart" : "Out of stock"}
+            {/* Until stock answers the button stays "Add to cart" (disabled), so an
+                in-stock product never flashes "Out of stock". */}
+            {!product.purchasable
+              ? "Not available online"
+              : inStock || stockPending
+                ? "Add to cart"
+                : "Out of stock"}
           </Button>
           <WishlistButton
             sku={product.sku}
@@ -150,6 +174,13 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
             size="icon-lg"
           />
         </div>
+
+        {product.specs?.length > 0 && (
+          <>
+            <hr className="border-border" />
+            <ProductSpecs groups={product.specs} />
+          </>
+        )}
       </div>
     </div>
   );

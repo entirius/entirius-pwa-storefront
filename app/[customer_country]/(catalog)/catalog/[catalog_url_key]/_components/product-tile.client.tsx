@@ -1,11 +1,16 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
-import Image from "next/image";
+import { MediaImage } from "@/components/ui/media-image.client";
 import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { WishlistButton } from "@/components/ui/wishlist-button";
 import { ProductPrice } from "./product-price.client";
+import { ProductBadges } from "./product-badges";
 
 const PLACEHOLDER_MEDIA = [{ uri: image_placeholder, width: 600, height: 600 }];
 
@@ -34,18 +39,18 @@ export function ProductTile({
       href={`/product/${product.url_key}`}
       className={
         compact
-          ? "grid grid-cols-[5rem_1fr] gap-3 rounded-md border border-border p-2 group relative"
-          : "flex h-full flex-col rounded-md border border-border group overflow-hidden relative transition-shadow hover:shadow-md"
+          ? "grid grid-cols-[5rem_1fr] gap-3 rounded-xl bg-gradient-card p-2 group relative"
+          : "flex h-full flex-col rounded-2xl bg-gradient-card group overflow-hidden relative transition-shadow hover:shadow-glow"
       }
     >
       {compact ? (
         <div className="size-20 rounded-md bg-muted overflow-hidden">
-          <Image
+          <MediaImage
             src={firstMedia.uri}
             alt={product.name}
             width={80}
             height={80}
-            className="object-cover size-full grayscale dark:brightness-20"
+            className="object-cover size-full"
           />
         </div>
       ) : (
@@ -53,25 +58,30 @@ export function ProductTile({
           ratio={1 / 1}
           className="w-full bg-muted overflow-hidden relative"
         >
-          <Image
+          <MediaImage
             src={firstMedia.uri}
             alt={product.name}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             fill
-            className="object-cover grayscale dark:brightness-20 group-hover:scale-105 transition-transform duration-300"
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+          <ProductBadges
+            badges={product.badges}
+            percent_off={product.percent_off}
+            className="absolute top-2 left-2 right-12"
           />
         </AspectRatio>
       )}
 
       <div className={compact ? "min-w-0 self-center" : "flex flex-col flex-1 gap-1 p-3"}>
-        <h3 className={compact ? "text-sm font-semibold truncate" : "text-sm font-medium line-clamp-2 leading-snug"}>
+        <h3 className={compact ? "text-sm truncate" : "text-sm line-clamp-2 leading-snug"}>
           {product.name}
         </h3>
         {!compact && product.description && (
           <p className="text-xs text-muted-foreground line-clamp-2">{product.description}</p>
         )}
         <div className={compact ? "mt-0.5" : "mt-auto pt-2"}>
-          <ProductPrice price={product.price} compact={compact} />
+          <ProductPrice price={product.price} sku={product.sku} compact={compact} />
         </div>
       </div>
 

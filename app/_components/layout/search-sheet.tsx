@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -33,7 +37,8 @@ export function SearchSheet() {
 
   const access = useMemo(() => make_client_access(), []);
   const api = useMemo(() => create_api(access), [access]);
-  const currency = access.get("cr") ?? "";
+  // The `cr` cookie holds the ISO code lowercase; prices display it uppercase.
+  const currency = (access.get("cr") ?? "").toUpperCase();
 
   // Debounce the typed value (~300ms) before it drives the query.
   useEffect(() => {

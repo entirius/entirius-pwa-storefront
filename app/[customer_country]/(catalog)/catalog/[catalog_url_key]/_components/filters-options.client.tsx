@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { memo, useCallback, useLayoutEffect, useMemo } from "react";
@@ -26,7 +30,7 @@ const FilterGroup = memo(function FilterGroup({
 }) {
   return (
     <div>
-      <h3 className="text-sm font-semibold">{filter.label}</h3>
+      <h3 className="text-sm">{filter.label}</h3>
       <div className="flex flex-col gap-2 mt-2">
         {filter.options?.map((option: any) => (
           <FilterItem
@@ -49,7 +53,7 @@ const SortGroup = memo(function SortGroup({
 }) {
   return (
     <div>
-      <h3 className="text-sm font-semibold">{filter.label}</h3>
+      <h3 className="text-sm">{filter.label}</h3>
       <div className="flex flex-col gap-2 mt-2">
         {filter.options?.map((option: any) => (
           <FilterSortItem

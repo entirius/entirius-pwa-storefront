@@ -22,7 +22,8 @@ resolves country, language, currency and sales channel into cookies before the p
 
 - Node.js 20+
 - pnpm 10+ (`corepack enable` or `npm i -g pnpm`)
-- A running Volkanos backend reachable over HTTP (default `http://localhost:8000`)
+- A running Volkanos backend reachable over HTTP. The template points at `http://localhost:8000`; the
+  zeno local stack publishes the API on `http://localhost:8100` — set `API_BASE_URL` to match
 
 ## Quick Start
 
@@ -35,13 +36,13 @@ pnpm install
 pnpm dev
 ```
 
-Open `http://localhost:3000`. Unknown countries fall through to the `default` segment.
+Open `http://localhost:3100`. Unknown countries fall through to the `default` segment.
 
 ## Configuration
 
 | File | Keys |
 |---|---|
-| `_CONFIG/app.config.json` | `API_BASE_URL` (backend URL), `DEBUG_MODE` (enables `_LOGGER` output) |
+| `_CONFIG/app.config.json` | `API_BASE_URL` (backend URL), `SITE_URL` (public URL of the shop, also the E2E `baseURL`), `SITE_NAME`, `BRAND` (assets in `_CONFIG/brand/`), `DEBUG_MODE` (enables `_LOGGER` output and dev tools) |
 | `_CONFIG/channels.config.json` | per channel: `CHANNEL_LABEL`, `API_CHECKOUT_KEY` (checkout `x-api-key`) |
 | `_CONFIG/countries.config.json` | per country: languages, currencies, channels + defaults |
 
@@ -52,10 +53,12 @@ replace `API_CHECKOUT_KEY` with the key issued by your backend for each channel.
 
 | Command | Description |
 |---|---|
-| `pnpm dev` | Dev server on port 3000 |
+| `pnpm dev` | Dev server on port 3100 |
 | `pnpm build` | Production build |
 | `pnpm start` | Serve the production build |
 | `pnpm lint` | ESLint (`eslint-config-next`) |
+| `pnpm test` | Vitest unit tests |
+| `pnpm test:e2e` | Playwright E2E against a live backend with the reference dataset (see [docs/testing.md](docs/testing.md)) |
 
 ## Architecture
 
@@ -77,7 +80,7 @@ utils/                  NORMALIZERS (API → view shapes), Zod schemas, cookie h
 proxy.ts                Middleware: geo routing + session cookie injection
 ```
 
-Details for contributors and coding agents → [AGENTS.md](AGENTS.md).
+Details for contributors and coding agents → [AGENTS.md](AGENTS.md) and [docs/](docs/).
 
 ## License
 

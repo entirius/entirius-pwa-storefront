@@ -1,9 +1,14 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
-import Image from "next/image";
+import { MediaImage } from "@/components/ui/media-image.client";
 import { cn } from "@/lib/utils";
 import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
 import { UnitPrice } from "@/app/_components/layout/cart-price";
+import { DiscountCode } from "@/app/_components/layout/discount-code.client";
 import type { Cart } from "@/utils/NORMALIZERS/cart.normalizer";
 import type { CartItem } from "@/stores/cart.store";
 
@@ -32,7 +37,7 @@ export function CheckoutSummary({
 
   return (
     <section className="rounded-lg border p-4">
-      <h2 className="mb-3 text-sm font-semibold text-muted-foreground">
+      <h2 className="mb-3 text-sm text-muted-foreground">
         Order summary
       </h2>
       <div className="flex flex-col divide-y">
@@ -46,12 +51,12 @@ export function CheckoutSummary({
           return (
             <div key={sku} className="flex gap-3 py-3">
               <div className="relative size-16 shrink-0 overflow-hidden rounded-md bg-muted">
-                <Image
+                <MediaImage
                   src={uri}
                   alt={item.name}
                   fill
                   sizes="64px"
-                  className="object-cover grayscale dark:brightness-20"
+                  className="object-cover"
                 />
               </div>
               <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -76,6 +81,10 @@ export function CheckoutSummary({
             </div>
           );
         })}
+      </div>
+
+      <div className="mt-4 border-t pt-4">
+        <DiscountCode backend={backend} />
       </div>
 
       <div className="mt-4 flex flex-col gap-2 border-t pt-4 text-sm">
@@ -125,7 +134,7 @@ function Row({
   value: string;
   accent?: boolean;
 }) {
-  const accent_cls = "text-emerald-600 dark:text-emerald-500";
+  const accent_cls = "text-positive";
   return (
     <div className="flex items-center justify-between">
       <span className={accent ? accent_cls : "text-muted-foreground"}>

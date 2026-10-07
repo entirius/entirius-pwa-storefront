@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -22,7 +26,17 @@ export function CartSheet() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative cursor-pointer text-foreground">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative cursor-pointer text-foreground"
+          // The count joins the name only after mount, like the badge (no hydration mismatch).
+          aria-label={
+            mounted && count > 0
+              ? `Cart, ${count} ${count === 1 ? "item" : "items"}`
+              : "Cart"
+          }
+        >
           <ShoppingBag />
           {!mounted ? (
             <Spinner className="absolute -top-1 -right-1 size-3" />
