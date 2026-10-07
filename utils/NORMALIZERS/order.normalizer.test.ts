@@ -3,7 +3,12 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { describe, expect, it } from "vitest";
-import { NORM_ORDER_SUMMARIES, NORM_PLACED_ORDER, status_style } from "./order.normalizer";
+import {
+  NORM_ORDER_SUMMARIES,
+  NORM_PLACED_ORDER,
+  status_label_for,
+  status_style,
+} from "./order.normalizer";
 
 describe("NORM_ORDER_SUMMARIES", () => {
   it("reads a v2 orders/list/ page", () => {
@@ -30,7 +35,7 @@ describe("NORM_ORDER_SUMMARIES", () => {
           id: "0200000013",
           order_uuid: "6435143b-2655-4a30-b25b-a3cafe4d9877",
           status: "unpaid",
-          status_label: "unpaid",
+          status_label: "Awaiting payment",
           created: "2026-10-07T11:12:00.479163Z",
           total: "549.00",
           currency_code: "EUR",
@@ -86,6 +91,14 @@ describe("NORM_PLACED_ORDER", () => {
 
   it("survives an empty body", () => {
     expect(NORM_PLACED_ORDER(undefined)).toMatchObject({ pretty_id: "", redirect_url: null, split_pretty_ids: [], payment_error: false });
+  });
+});
+
+describe("status_label_for", () => {
+  it("names the backend's bare status codes and keeps a real label", () => {
+    expect(status_label_for("unpaid", "unpaid")).toBe("Awaiting payment");
+    expect(status_label_for("canceled", null)).toBe("Cancelled");
+    expect(status_label_for("shipped", "Out for delivery")).toBe("Out for delivery");
   });
 });
 

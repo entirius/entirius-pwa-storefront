@@ -22,14 +22,15 @@ test("catalog tiles never show an empty price", async ({ page }) => {
 test("range-priced product shows its lowest price and cannot be bought", async ({ page }) => {
   await page.goto("/product/captains-living-room-set");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await expect(page.getByText(/^From \d+(\.\d+)? EUR$/).first()).toBeVisible();
+  const details = page.getByRole("region", { name: "Product details" });
+  await expect(details.getByText(/^From \d+(\.\d+)? EUR$/)).toBeVisible();
   await expect(page.getByRole("button", { name: "Not available online" })).toBeDisabled();
 });
 
 test("product without a price shows price on request and cannot be bought", async ({ page }) => {
   await page.goto("/product/chief-engineers-custom-throne");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await expect(page.getByText("Price on request")).toBeVisible();
+  await expect(page.getByRole("region", { name: "Product details" }).getByText("Price on request")).toBeVisible();
   await expect(page.getByRole("button", { name: "Not available online" })).toBeDisabled();
 });
 

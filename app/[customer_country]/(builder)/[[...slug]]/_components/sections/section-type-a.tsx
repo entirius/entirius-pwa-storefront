@@ -23,7 +23,7 @@ const section_dyes: Record<
     html_text_color: "var(--foreground)",
   },
   2: {
-    container_bg: "bg-gradient-card border border-border",
+    container_bg: "bg-card bg-gradient-card border border-border",
     title_color: "text-heading",
     subtitle_color: "text-link",
     html_text_color: "var(--muted-foreground)",

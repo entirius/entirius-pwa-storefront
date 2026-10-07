@@ -16,11 +16,13 @@ import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
 import { make_client_access } from "@/API/access/api.client-access";
 import { create_api } from "@/API/api.context";
 import { useCartStore } from "@/stores/cart.store";
+import { useAddedToCart } from "@/stores/added-to-cart.store";
 import { product_query } from "../api.query";
 import { stock_query } from "../stock.query";
 import { ProductPrice } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-price.client";
 import { ProductSpecs } from "./product-specs";
 import { ProductBadges } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-badges";
+import { MoreFromCategory } from "./more-from-category.client";
 
 const PLACEHOLDER_MEDIA = [[{ uri: image_placeholder, width: 600, height: 600 }]];
 
@@ -39,6 +41,7 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
   const inStock = !!stock?.is_in_stock && max > 0;
 
   const add = useCartStore((s) => s.add);
+  const show_added = useAddedToCart((s) => s.show);
   const [qty, setQty] = useState(1);
 
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
@@ -61,17 +64,20 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
 
   const media = product.media?.length ? product.media : PLACEHOLDER_MEDIA;
 
+  const category = (product.categories as { name?: string; url_key?: string }[] | undefined)?.[0];
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div className="flex flex-col gap-10">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:items-start">
       {/* Carousel */}
-      <div className="md:sticky md:top-24 md:self-start">
+      <div className="rounded-4xl bg-card p-3 md:sticky md:top-24 md:self-start">
         <Carousel setApi={setCarouselApi} className="relative">
           <CarouselContent>
             {media.map((variants: any[], i: number) => {
               const img = variants[0];
               return (
                 <CarouselItem key={i}>
-                  <AspectRatio ratio={1} className="bg-muted overflow-hidden rounded-md">
+                  <AspectRatio ratio={1} className="bg-muted overflow-hidden rounded-3xl">
                     <MediaImage
                       src={img.uri}
                       alt={`${product.name} – image ${i + 1}`}
@@ -94,51 +100,78 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
             </>
           )}
         </Carousel>
+        {media.length > 1 && (
+          <div className="mt-3 grid grid-cols-4 gap-3 sm:grid-cols-5">
+            {media.map((variants: { uri: string }[], i: number) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`Show image ${i + 1}`}
+                aria-current={current === i + 1 ? "true" : undefined}
+                onClick={() => carouselApi?.scrollTo(i)}
+                className={
+                  current === i + 1
+                    ? "relative aspect-square overflow-hidden rounded-2xl bg-muted ring-2 ring-primary"
+                    : "relative aspect-square overflow-hidden rounded-2xl bg-muted ring-1 ring-border hover:ring-primary"
+                }
+              >
+                <MediaImage src={variants[0].uri} alt="" fill sizes="96px" className="object-cover" />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Product info */}
-      <div className="flex flex-col gap-4">
-        <div>
-          <p className="mb-1 font-mono text-xs text-muted-foreground">{product.sku}</p>
-          <ProductBadges
-            badges={product.badges}
-            percent_off={product.percent_off}
-            className="mb-2"
-          />
-          <h1 className="text-2xl leading-tight">{product.name}</h1>
-          {product.brands?.length > 0 && (
-            <p className="mt-1 text-sm text-muted-foreground">
-              {product.brands.map((b: { name: string }) => b.name).join(", ")}
-            </p>
+      <section aria-label="Product details" className="flex flex-col gap-5 rounded-4xl bg-card p-6 md:p-8">
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">
+            {product.brands?.length > 0 ? (
+              <span>{product.brands.map((b: { name: string }) => b.name).join(", ")}</span>
+            ) : (
+              <span />
+            )}
+            <span className="font-mono text-xs">{product.sku}</span>
+          </div>
+          <ProductBadges badges={product.badges} percent_off={product.percent_off} />
+          <h1 className="text-3xl leading-tight md:text-4xl">{product.name}</h1>
+        </div>
+
+        <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
+          <ProductPrice price={product.price} sku={product.sku} large />
+          {product.purchasable && (
+            <span className="pb-1.5 text-sm text-muted-foreground">incl. VAT</span>
           )}
         </div>
 
-        <ProductPrice price={product.price} sku={product.sku} />
-
         {product.description && (
-          <>
-            <hr className="border-border" />
-            <SanitizeHTML html={product.description} className="text-sm text-muted-foreground" />
-          </>
+          <SanitizeHTML html={product.description} className="text-muted-foreground" />
         )}
 
-        <hr className="border-border" />
+        {product.purchasable && !stockPending && (
+          <p className="flex items-center gap-2 text-sm">
+            <span
+              aria-hidden
+              className={inStock ? "size-2 rounded-full bg-positive" : "size-2 rounded-full bg-muted-foreground"}
+            />
+            {inStock ? "In stock" : "Out of stock"}
+          </p>
+        )}
 
-        <div className="flex items-center gap-3 mt-4">
-          <span className="text-sm text-muted-foreground">Quantity</span>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="sr-only">Quantity</span>
           <QuantityStepper
+            size="lg"
             value={qty}
             onChange={setQty}
             max={Math.max(max, 1)}
             disabled={!canBuy}
           />
-        </div>
-
-        <div className="flex gap-2">
           <Button
-            className="flex-1"
+            size="lg"
+            className="flex-1 rounded-full"
             disabled={!canBuy}
-            onClick={() =>
+            onClick={() => {
               add(
                 {
                   sku: product.sku,
@@ -149,8 +182,15 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
                 },
                 qty,
                 max
-              )
-            }
+              );
+              show_added({
+                sku: product.sku,
+                name: product.name,
+                quantity: qty,
+                price: product.price[product.price.length - 1] ?? null,
+                image: media[0]?.[0]?.uri ?? null,
+              });
+            }}
           >
             {/* Until stock answers the button stays "Add to cart" (disabled), so an
                 in-stock product never flashes "Out of stock". */}
@@ -172,16 +212,25 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
             }}
             variant="outline"
             size="icon-lg"
+            className="rounded-full"
           />
         </div>
+      </section>
+    </div>
 
-        {product.specs?.length > 0 && (
-          <>
-            <hr className="border-border" />
-            <ProductSpecs groups={product.specs} />
-          </>
-        )}
-      </div>
+      {product.specs?.length > 0 && (
+        <div className="rounded-4xl bg-card p-6 md:p-10">
+          <ProductSpecs groups={product.specs} />
+        </div>
+      )}
+
+      {category?.url_key && (
+        <MoreFromCategory
+          category={category.url_key}
+          name={category.name ?? "this category"}
+          exclude_sku={product.sku}
+        />
+      )}
     </div>
   );
 }

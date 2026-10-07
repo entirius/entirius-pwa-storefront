@@ -11,7 +11,8 @@ import { expect, test } from "@playwright/test";
 
 test("product page shows the labels and the percentage off", async ({ page }) => {
   await page.goto("/product/zero-g-recliner");
-  const labels = page.getByRole("list", { name: "Product labels" });
+  // The product's own labels; the "More chairs" cards below carry theirs.
+  const labels = page.getByRole("region", { name: "Product details" }).getByRole("list", { name: "Product labels" });
   await expect(labels.getByRole("listitem")).toHaveText(["−17%", "Crew Favorite"]);
 });
 

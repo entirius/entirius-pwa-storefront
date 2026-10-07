@@ -144,11 +144,11 @@ test("cart requests carry the customer token after login", async ({ page }) => {
   await login(page, email);
   await page.goto("/product/docking-bay-chair");
   await page.getByRole("button", { name: "Add to cart" }).click();
-  // The backend cart syncs while the drawer is open.
+  // The cart page syncs the backend cart.
   const cart_call = page.waitForResponse(
     (r) => r.url().includes("/api/checkout/v2/") && r.url().includes("/carts/"),
   );
-  await page.locator("header").getByRole("button", { name: /^Cart, 1 item$/ }).click();
+  await page.locator("header").getByRole("link", { name: /^Cart, 1 item$/ }).click();
   const res = await cart_call;
   expect(res.ok()).toBe(true);
   expect(res.request().headers()["authorization"]).toMatch(/^Bearer \S+$/);
@@ -160,8 +160,8 @@ test("an order placed while logged in shows in my orders and its detail", async 
   await login(page, email);
   await page.goto("/product/flight-deck-command-chair");
   await page.getByRole("button", { name: "Add to cart" }).click();
-  await page.locator("header").getByRole("button", { name: /^Cart, 1 item$/ }).click();
-  await page.getByRole("dialog").getByRole("link", { name: "Checkout" }).click();
+  await page.locator("header").getByRole("link", { name: /^Cart, 1 item$/ }).click();
+  await page.getByRole("complementary", { name: "Order summary" }).getByRole("link", { name: "Go to checkout" }).click();
   await expect(page).toHaveURL(/\/checkout$/);
 
   const form = page.locator("form");

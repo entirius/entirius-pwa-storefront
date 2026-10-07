@@ -9,6 +9,7 @@ import { API_CMS_FOOTER_ROUTE } from "@/API/api.routes";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { NORM_FOOTER, type FooterLink } from "@/utils/NORMALIZERS/footer.normalizer";
 import { SITE_NAME } from "@/_CONFIG/app.config.json";
+import { BrandMark } from "./brand-mark";
 
 // One request per render, whatever renders the footer.
 const load_footer = cache(async () => {
@@ -35,13 +36,21 @@ function FooterLinkItem({ link }: { link: FooterLink }) {
 export async function FooterComponent() {
   const columns = await load_footer();
   return (
-    <footer className="mt-12 border-t border-border bg-background">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10">
+    <footer className="mt-16 border-t border-border bg-card">
+      <div className="mx-auto grid w-full max-w-7xl grid-cols-2 gap-8 px-4 py-12 md:grid-cols-4">
+        <div className="col-span-2 flex flex-col gap-3 md:col-span-1">
+          <BrandMark />
+          <p className="max-w-xs text-sm text-muted-foreground">
+            Prices include VAT.
+          </p>
+        </div>
         {columns.length > 0 && (
-          <nav aria-label="Footer" className="grid grid-cols-2 gap-8 md:grid-cols-4">
+          <nav aria-label="Footer" className="col-span-2 grid grid-cols-2 gap-8 md:col-span-3 md:grid-cols-3">
             {columns.map((column, i) => (
               <div key={`${i}-${column.heading}`} className="flex flex-col gap-3">
-                {column.heading && <h2 className="text-sm text-heading">{column.heading}</h2>}
+                {column.heading && (
+                  <h2 className="text-base text-heading">{column.heading}</h2>
+                )}
                 <ul className="flex flex-col gap-2">
                   {column.links.map((link) => (
                     <li key={`${link.href}-${link.label}`}>
@@ -53,7 +62,9 @@ export async function FooterComponent() {
             ))}
           </nav>
         )}
-        <p className="text-xs text-muted-foreground">
+      </div>
+      <div className="border-t border-border">
+        <p className="mx-auto w-full max-w-7xl px-4 py-4 text-xs text-muted-foreground">
           © {new Date().getFullYear()} {SITE_NAME}
         </p>
       </div>

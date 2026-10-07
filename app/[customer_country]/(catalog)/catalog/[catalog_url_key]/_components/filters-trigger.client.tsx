@@ -29,7 +29,7 @@ export function FiltersTriggerClient({ options }: { options: any }) {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" className="rounded-full lg:hidden">
           <div className="relative">
             <FilterIcon className="size-4" />
             {has_active && (
@@ -39,12 +39,15 @@ export function FiltersTriggerClient({ options }: { options: any }) {
           Filters
         </Button>
       </SheetTrigger>
-      <SheetContent side="right">
-        <SheetHeader>
+      <SheetContent side="right" className="overflow-y-auto bg-card">
+        {/* The panel carries its own visible "Filters" heading. */}
+        <SheetHeader className="sr-only">
           <SheetTitle>Filters</SheetTitle>
           <SheetDescription>Narrow down the results</SheetDescription>
         </SheetHeader>
-        <FiltersOptionsClient options={options} />
+        <div className="p-4">
+          <FiltersOptionsClient options={options} in_sheet />
+        </div>
       </SheetContent>
     </Sheet>
   );

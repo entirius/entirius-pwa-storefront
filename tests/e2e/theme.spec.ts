@@ -5,14 +5,15 @@
 import { expect, test } from "@playwright/test";
 
 // The storefront wears @entirius/brand-tokens through the semantic layer in
-// app/globals.css: dark only, no theme toggle. Expected values are the brand
-// tokens of the pinned package version (black #0D0A09, accent-fill #0E7C86).
+// app/globals.css: the light set by default (THEME in _CONFIG/app.config.json picks
+// the dark one), no theme toggle. Expected values are the brand tokens of the
+// pinned package version (light.neutral-100 #F4F5F7, accent-fill #0E7C86).
 
-test("pages use the dark brand theme from the tokens", async ({ page }) => {
+test("pages use the light brand theme from the tokens", async ({ page }) => {
   await page.goto("/product/flight-deck-command-chair");
 
-  await expect(page.locator("html")).toHaveClass(/\bdark\b/);
-  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(13, 10, 9)");
+  await expect(page.locator("html")).not.toHaveClass(/\bdark\b/);
+  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(244, 245, 247)");
 
   // Primary button: filled accent surface with white text (WCAG AA 4.95:1).
   const add = page.getByRole("button", { name: "Add to cart" });
@@ -40,12 +41,13 @@ test("brand typefaces: Lexend Deca headings (light, never bold), Inter UI", asyn
   expect(weights.filter((w) => Number(w) > 400)).toEqual([]);
 });
 
-test("cards sit on the brand card gradient, active wishlist heart is accent", async ({ page }) => {
+test("cards are flat white surfaces, active wishlist heart is accent", async ({ page }) => {
   await page.goto("/catalog/chairs");
   const tile = page.locator('a[href^="/product/"]').first();
-  await expect(tile).toHaveCSS("background-image", /linear-gradient/);
+  await expect(tile).toHaveCSS("background-color", "rgb(255, 255, 255)");
+  await expect(tile).toHaveCSS("background-image", "none");
 
   const heart = tile.getByRole("button").first();
   await heart.click();
-  await expect(heart.locator("svg")).toHaveCSS("color", "rgb(0, 172, 193)");
+  await expect(heart.locator("svg")).toHaveCSS("color", "rgb(14, 124, 134)");
 });

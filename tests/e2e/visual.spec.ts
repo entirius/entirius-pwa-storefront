@@ -56,14 +56,10 @@ test("product page", async ({ page }) => {
 test("cart", async ({ page }) => {
   await page.goto("/product/flight-deck-command-chair");
   await page.getByRole("button", { name: "Add to cart" }).click();
-  await page.locator("header").getByRole("button", { name: /^Cart, 1 item$/ }).click();
-  const cart = page.getByRole("dialog");
-  await expect(cart).toContainText("Flight Deck Command Chair");
+  await page.locator("header").getByRole("link", { name: /^Cart, 1 item$/ }).click();
+  await expect(page.getByRole("region", { name: "Items in your cart" })).toContainText("Flight Deck Command Chair");
   // Totals arrive from the backend cart sync; the shot waits for the final layout.
-  await expect(cart).toContainText(/incl\. VAT/);
-  // Adding to cart can leave the (now long) product page scrolled a little;
-  // the shot is about the drawer, so pin the page behind it to the top.
-  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect(page.getByRole("complementary", { name: "Order summary" })).toContainText(/incl\. VAT/);
   await settle(page);
   await expect(page).toHaveScreenshot("cart.png", { ...SHOT, mask: [page.locator("img")] });
 });

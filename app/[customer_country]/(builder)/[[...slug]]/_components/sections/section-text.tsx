@@ -28,16 +28,16 @@ export function SectionShell({
   return (
     <section
       className={cn(
-        "flex flex-col gap-4 py-6",
-        width === "full_width" ? "" : "mx-auto w-full max-w-6xl",
+        "flex flex-col gap-6 py-8",
+        width === "full_width" ? "" : "w-full",
       )}
     >
       {(title || description || custom_buttons?.length) && (
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div className="flex flex-col gap-1">
-            {title && <h2 className="text-2xl">{title}</h2>}
+            {title && <h2 className="text-3xl md:text-4xl">{title}</h2>}
             {description && (
-              <SanitizeHTML html={description} className="text-sm text-muted-foreground" />
+              <SanitizeHTML html={description} className="text-muted-foreground" />
             )}
           </div>
           <CmsButtons buttons={custom_buttons} variant="outline" />

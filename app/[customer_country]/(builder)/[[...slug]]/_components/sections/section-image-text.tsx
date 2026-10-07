@@ -22,7 +22,7 @@ export default function SectionImageText({
     <section
       className={cn(
         "grid grid-cols-1 items-center gap-6 md:grid-cols-2",
-        width === "full_width" ? "" : "mx-auto w-full max-w-6xl",
+        width === "full_width" ? "" : "w-full",
         String(margin) !== "false" && "py-6",
       )}
     >

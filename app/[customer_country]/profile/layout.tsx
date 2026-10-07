@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/providers/auth.provider";
+import { AccountMenu } from "./_components/account-menu.client";
 
 // Auth guard for the whole /profile section. Auth state is seeded server-side
 // (AuthProvider), so a logged-in hard load passes without a flash; a logged-out
@@ -26,5 +27,12 @@ export default function ProfileLayout({
 
   if (!isLoggedIn) return null;
 
-  return <div className="mx-auto w-full max-w-2xl">{children}</div>;
+  return (
+    <div className="grid w-full gap-6 py-4 md:grid-cols-[15rem_minmax(0,1fr)] md:items-start">
+      <div className="md:sticky md:top-24">
+        <AccountMenu />
+      </div>
+      <div className="min-w-0">{children}</div>
+    </div>
+  );
 }

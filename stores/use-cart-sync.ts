@@ -12,10 +12,10 @@ import { useCartStore } from "@/stores/cart.store";
 import { cart_query } from "@/stores/cart.query";
 import { useAuth } from "@/providers/auth.provider";
 
-// Shared create-or-patch sync for the cart. Both the header drawer and the
-// checkout page run this — the queryKey is derived from the local items, so
-// TanStack dedupes to a single backend call (and a single `cid`) when both are
-// mounted at once. `enabled` lets the drawer sync only while it's open.
+// Shared create-or-patch sync for the cart. The cart page and the checkout page
+// run this — the queryKey is derived from the local items, so TanStack dedupes to
+// a single backend call (and a single `cid`) across them. `enabled` lets a caller
+// hold the sync off.
 export function useCartSync(enabled = true) {
   const access = useMemo(() => make_client_access(), []);
   const api = useMemo(() => create_api(access), [access]);

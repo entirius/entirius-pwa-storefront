@@ -9,7 +9,7 @@ export default function TileImage({ images_set }: { images_set?: CmsImagesSet })
     <CmsImage
       images_set={images_set}
       aspect_ratio={4 / 3}
-      className="rounded-2xl bg-muted"
+      className="rounded-4xl bg-muted"
     />
   );
 }

@@ -29,9 +29,9 @@ const FilterGroup = memo(function FilterGroup({
   filter: any;
 }) {
   return (
-    <div>
-      <h3 className="text-sm">{filter.label}</h3>
-      <div className="flex flex-col gap-2 mt-2">
+    <div className="flex flex-col gap-2 border-t border-border pt-4">
+      <h3 className="text-base">{filter.label}</h3>
+      <div className="-mx-2 flex flex-col">
         {filter.options?.map((option: any) => (
           <FilterItem
             key={option.idx}
@@ -52,9 +52,9 @@ const SortGroup = memo(function SortGroup({
   filter: any;
 }) {
   return (
-    <div>
-      <h3 className="text-sm">{filter.label}</h3>
-      <div className="flex flex-col gap-2 mt-2">
+    <div className="flex flex-col gap-3">
+      <h3 className="text-base">{filter.label}</h3>
+      <div className="flex flex-col gap-2">
         {filter.options?.map((option: any) => (
           <FilterSortItem
             key={option.idx}
@@ -69,7 +69,15 @@ const SortGroup = memo(function SortGroup({
 
 // ------------------------------------------------------------
 
-export function FiltersOptionsClient({ options }: { options: any }) {
+export function FiltersOptionsClient({
+  options,
+  in_sheet = false,
+}: {
+  options: any;
+  // In the sheet the dialog title names the panel; the visible line is not a
+  // second heading.
+  in_sheet?: boolean;
+}) {
   const router = useRouter();
   const search_params = useSearchParams();
 
@@ -111,6 +119,19 @@ export function FiltersOptionsClient({ options }: { options: any }) {
     router.push(`?${params.toString()}`);
   }, [router, search_params]);
 
+  const has_applied = FILTER_PREFIXES.some((p) =>
+    Array.from(search_params.keys()).some((k) => k.startsWith(p)),
+  );
+
+  const handle_clear = useCallback(() => {
+    const params = new URLSearchParams(search_params.toString());
+    Array.from(params.keys())
+      .filter((k) => FILTER_PREFIXES.some((p) => k.startsWith(p)))
+      .forEach((k) => params.delete(k));
+    useFiltersStore.getState().clear();
+    router.push(`?${params.toString()}`);
+  }, [router, search_params]);
+
   const query_options = useMemo(
     () => ({ ...filters_query(api, options), refetchOnWindowFocus: false }),
     [api, options],
@@ -131,7 +152,19 @@ export function FiltersOptionsClient({ options }: { options: any }) {
   if (!has_sort && !has_range && !has_query) return null;
 
   return (
-    <div className="flex flex-col gap-4 p-4 overflow-y-auto">
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center justify-between gap-2">
+        {in_sheet ? (
+          <p aria-hidden className="font-brand text-xl text-heading">Filters</p>
+        ) : (
+          <h2 className="text-xl">Filters</h2>
+        )}
+        {(has_applied || has_pending) && (
+          <Button variant="link" size="sm" className="h-auto px-0" onClick={handle_clear}>
+            Clear all
+          </Button>
+        )}
+      </div>
       {isFetching && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Spinner className="size-3" />
@@ -146,12 +179,11 @@ export function FiltersOptionsClient({ options }: { options: any }) {
               filter={filter}
             />
           ))}
-          <hr className="border-border" />
         </div>
       )}
 
       {has_range && (
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-5 border-t border-border pt-4">
           {Object.entries(r_).map(([filter_idx, filter]: any) => (
             <FilterRange
               key={filter_idx}
@@ -161,7 +193,6 @@ export function FiltersOptionsClient({ options }: { options: any }) {
               max={Math.ceil(parseFloat(filter.max_value))}
             />
           ))}
-          <hr className="border-border" />
         </div>
       )}
 
@@ -174,13 +205,16 @@ export function FiltersOptionsClient({ options }: { options: any }) {
           />
         ))}
 
-      <Button
-        className="w-full mt-2 sticky bottom-4"
-        disabled={!has_pending}
-        onClick={handle_apply}
-      >
-        Apply ({active_filters_count + active_ranges_count})
-      </Button>
+      <div className="sticky bottom-0 bg-card pt-3 pb-1">
+        <Button
+          className="w-full rounded-full"
+          size="lg"
+          disabled={!has_pending}
+          onClick={handle_apply}
+        >
+          Apply ({active_filters_count + active_ranges_count})
+        </Button>
+      </div>
     </div>
   );
 }

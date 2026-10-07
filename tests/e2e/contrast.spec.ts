@@ -29,11 +29,12 @@ const PAIRS: Record<string, Pair> = {
   "notice text on page": { fg: "notice", bg: "background", min: TEXT },
   "informative text on page": { fg: "informative", bg: "background", min: TEXT },
   "destructive text on page": { fg: "destructive", bg: "background", min: TEXT },
-  // Order status badges: `bg-X/15 text-X` on the page (utils/NORMALIZERS/order.normalizer.ts).
-  "positive status badge": { fg: "positive", bg: "positive", bg_alpha: 0.15, min: TEXT },
-  "notice status badge": { fg: "notice", bg: "notice", bg_alpha: 0.15, min: TEXT },
-  "informative status badge": { fg: "informative", bg: "informative", bg_alpha: 0.15, min: TEXT },
-  "destructive status badge": { fg: "destructive", bg: "destructive", bg_alpha: 0.15, min: TEXT },
+  // Status badges, notes and error boxes: `bg-X-surface text-X` on the page
+  // (order statuses, discount chips, form errors).
+  "positive status badge": { fg: "positive", bg: "positive-surface", min: TEXT },
+  "notice status badge": { fg: "notice", bg: "notice-surface", min: TEXT },
+  "informative status badge": { fg: "informative", bg: "informative-surface", min: TEXT },
+  "destructive status badge": { fg: "destructive", bg: "destructive-surface", min: TEXT },
   // Product labels (product-badges.tsx); sale/bestseller reuse the button pairs above.
   "new label": { fg: "background", bg: "informative", min: TEXT },
   "neutral label": { fg: "foreground", bg: "muted", min: TEXT },
@@ -75,8 +76,11 @@ type RGBA = [number, number, number, number];
 
 function parse(css: string): RGBA {
   const m = css.match(/^rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?\)$/);
-  if (!m) throw new Error(`Unsupported computed color: ${css}`);
-  return [Number(m[1]), Number(m[2]), Number(m[3]), m[4] === undefined ? 1 : Number(m[4])];
+  if (m) return [Number(m[1]), Number(m[2]), Number(m[3]), m[4] === undefined ? 1 : Number(m[4])];
+  // color-mix() resolves to `color(srgb r g b / a)` with 0–1 channels.
+  const c = css.match(/^color\(srgb ([\d.]+) ([\d.]+) ([\d.]+)(?: \/ ([\d.]+))?\)$/);
+  if (c) return [Number(c[1]) * 255, Number(c[2]) * 255, Number(c[3]) * 255, c[4] === undefined ? 1 : Number(c[4])];
+  throw new Error(`Unsupported computed color: ${css}`);
 }
 
 function with_alpha([r, g, b, a]: RGBA, alpha?: number): RGBA {

@@ -56,6 +56,11 @@
   --color-positive: var(--positive);
   --color-notice: var(--notice);
   --color-informative: var(--informative);
+  /* Backgrounds for status text: badges, notes, error boxes. */
+  --color-positive-surface: var(--positive-surface);
+  --color-notice-surface: var(--notice-surface);
+  --color-informative-surface: var(--informative-surface);
+  --color-destructive-surface: var(--destructive-surface);
   /* Radius scale = the brand scale (px on purpose, see the package README). */
   --radius-sm: var(--brand-radius-base);
   --radius-md: var(--brand-radius-lg);
@@ -69,12 +74,79 @@
 :root {
   /* Semantic layer: shadcn variables -> @entirius/brand-tokens. The only place in
      the storefront that names brand values; components use the semantic names
-     (bg-background, text-primary...). A client theme overrides this block, not the
-     components. Dark only (the brand has no light theme): no light set, no toggle.
-     Contrast (WCAG AA) checked for every text/background pair below. */
-  color-scheme: dark;
+     (bg-background, text-primary...). A client theme overrides these blocks, not
+     the components. Light is the default; `THEME: "dark"` in _CONFIG/app.config.json
+     puts `dark` on <html> and the second block applies. Contrast (WCAG AA) for every
+     text/background pair is checked by tests/e2e/contrast.spec.ts. */
+  color-scheme: light;
 
   --radius: var(--brand-radius-lg);
+
+  /* Light theme: the package's light.neutral greys and light.tint backgrounds. */
+  --background: var(--brand-light-neutral-100);
+  --foreground: var(--brand-light-neutral-800);
+  --heading: var(--brand-light-neutral-900);
+
+  --card: var(--brand-white);
+  --card-foreground: var(--brand-light-neutral-900);
+  --popover: var(--brand-white);
+  --popover-foreground: var(--brand-light-neutral-900);
+
+  /* Filled accent surface carries white text (4.95:1). */
+  --primary: var(--brand-accent-fill);
+  --primary-foreground: var(--brand-on-accent-fill);
+  --secondary: var(--brand-light-neutral-150);
+  --secondary-foreground: var(--brand-light-neutral-900);
+  --muted: var(--brand-light-neutral-150);
+  --muted-foreground: var(--brand-light-neutral-600);
+  /* shadcn "accent" = hover/selected surface: the primary tint, whose only AA text
+     colour is tertiary-200 (package README). */
+  --accent: var(--brand-light-tint-primary);
+  --accent-foreground: var(--brand-tertiary-200);
+  --destructive: var(--brand-light-negative-600);
+
+  --border: var(--brand-light-neutral-300);
+  --input: var(--brand-light-basic-400); /* form control boundary, 3:1 */
+  --ring: var(--brand-accent-fill);
+  --link: var(--brand-tertiary-200);
+  --highlight: var(--brand-accent-fill);
+  --glass-hover: var(--brand-light-neutral-200);
+
+  --positive: var(--brand-light-positive-600);
+  --notice: var(--brand-light-notice-600);
+  --informative: var(--brand-light-informative-600);
+  /* The package's light tints: status text keeps AA (4.7-4.9:1) on them. */
+  --positive-surface: var(--brand-light-tint-positive);
+  --notice-surface: var(--brand-light-tint-notice);
+  --informative-surface: var(--brand-light-tint-informative);
+  --destructive-surface: var(--brand-light-tint-negative);
+
+  --chart-1: var(--brand-accent-fill);
+  --chart-2: var(--brand-light-positive-600);
+  --chart-3: var(--brand-light-informative-600);
+  --chart-4: var(--brand-light-notice-600);
+  --chart-5: var(--brand-light-negative-600);
+
+  --sidebar: var(--brand-white);
+  --sidebar-foreground: var(--brand-light-neutral-800);
+  --sidebar-primary: var(--brand-accent-fill);
+  --sidebar-primary-foreground: var(--brand-on-accent-fill);
+  --sidebar-accent: var(--brand-light-tint-primary);
+  --sidebar-accent-foreground: var(--brand-tertiary-200);
+  --sidebar-border: var(--brand-light-neutral-300);
+  --sidebar-ring: var(--brand-accent-fill);
+
+  /* Surfaces behind the bg-gradient-* utilities: flat cards, scrims fading to the
+     page, a faint accent wash for backdrops. */
+  --surface-card: none;
+  --surface-fade: linear-gradient(to bottom, transparent 25%, var(--background) 72%);
+  --surface-backdrop: linear-gradient(185deg, var(--brand-white) 55%, var(--brand-light-tint-primary) 160%);
+  --surface-glow: 0 12px 32px -12px color-mix(in srgb, var(--brand-light-neutral-900) 18%, transparent);
+}
+
+.dark {
+  /* Dark theme: the brand's own (black ground, gradient cards). */
+  color-scheme: dark;
 
   --background: var(--brand-black);
   --foreground: var(--brand-basic-900); /* body text, 12.1:1 on black */
@@ -85,28 +157,30 @@
   --popover: var(--brand-basic-200);
   --popover-foreground: var(--brand-basic-950);
 
-  /* Filled accent surface carries white text (4.95:1); never white on --brand-accent. */
   --primary: var(--brand-accent-fill);
   --primary-foreground: var(--brand-on-accent-fill);
   --secondary: var(--brand-glass);
   --secondary-foreground: var(--brand-basic-950);
   --muted: var(--brand-basic-300);
   --muted-foreground: var(--brand-basic-750); /* 5.0-5.9:1; basic-700 fails AA as text */
-  /* shadcn "accent" = hover/selected surface, not the brand accent colour. */
   --accent: var(--brand-glass-tint);
   --accent-foreground: var(--brand-basic-950);
   --destructive: var(--brand-negative-100);
 
-  --border: var(--brand-hairline); /* dividers, panel borders */
-  --input: var(--brand-basic-700); /* form control boundary, 3.8:1 */
+  --border: var(--brand-hairline);
+  --input: var(--brand-basic-700); /* 3.8:1 */
   --ring: var(--brand-accent);
   --link: var(--brand-accent); /* 7.2:1 */
-  --highlight: var(--brand-accent); /* active indicators: wishlist heart, selected state */
+  --highlight: var(--brand-accent);
   --glass-hover: var(--brand-glass-hover);
 
   --positive: var(--brand-positive-100);
   --notice: var(--brand-notice-200);
   --informative: var(--brand-informative-100);
+  --positive-surface: color-mix(in srgb, var(--positive) 15%, transparent);
+  --notice-surface: color-mix(in srgb, var(--notice) 15%, transparent);
+  --informative-surface: color-mix(in srgb, var(--informative) 15%, transparent);
+  --destructive-surface: color-mix(in srgb, var(--destructive) 15%, transparent);
 
   --chart-1: var(--brand-accent);
   --chart-2: var(--brand-positive-100);
@@ -122,20 +196,26 @@
   --sidebar-accent-foreground: var(--brand-basic-950);
   --sidebar-border: var(--brand-hairline);
   --sidebar-ring: var(--brand-accent);
+
+  --surface-card: var(--brand-gradient-card);
+  --surface-fade: var(--brand-gradient-fade);
+  --surface-backdrop: var(--brand-gradient-backdrop);
+  --surface-glow: var(--brand-glow);
 }
 
-/* Brand surfaces (styleguide §3, §6): cards on gradient-card, scrims fading to black. */
+/* Brand surfaces (styleguide §3, §6), per theme: dark cards sit on gradient-card,
+   light ones are flat. */
 @utility bg-gradient-card {
-  background-image: var(--brand-gradient-card);
+  background-image: var(--surface-card);
 }
 @utility bg-gradient-fade {
-  background-image: var(--brand-gradient-fade);
+  background-image: var(--surface-fade);
 }
 @utility bg-gradient-backdrop {
-  background-image: var(--brand-gradient-backdrop);
+  background-image: var(--surface-backdrop);
 }
 @utility shadow-glow {
-  box-shadow: var(--brand-glow);
+  box-shadow: var(--surface-glow);
 }
 
 /* Link (styleguide §6): accent, underline 3 px below, basic-950 on hover. */

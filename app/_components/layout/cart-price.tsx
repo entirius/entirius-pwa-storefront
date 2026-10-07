@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import type { CartLine } from "@/utils/NORMALIZERS/cart.normalizer";
 
 // Per-unit price. When a special/sale price applies, strikes the list price and
-// accents the charged price + a "−N%" badge. Shared by the drawer and checkout so
+// accents the charged price + a "−N%" badge. Shared by the cart page and checkout so
 // the "changed price" reads the same in both.
 export function UnitPrice({
   line,
@@ -37,7 +37,7 @@ export function UnitPrice({
         {cur}
       </span>
       {on_sale && line.percent_off ? (
-        <span className="rounded bg-destructive/10 px-1 text-[10px] font-semibold text-destructive">
+        <span className="rounded bg-destructive-surface px-1 text-[10px] font-semibold text-destructive">
           −{line.percent_off}%
         </span>
       ) : null}
