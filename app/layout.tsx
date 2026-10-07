@@ -11,6 +11,7 @@ import { cookies } from "next/headers";
 import { TanstackQueryProvider } from "@/providers/Tanstack-query.provider";
 import { AuthProvider } from "@/providers/auth.provider";
 import { HeaderComponent } from "./_components/layout/header-component";
+import { FooterComponent } from "./_components/layout/footer-component";
 import { Suspense } from "react";
 import { SITE_URL, SITE_NAME } from "@/lib/seo/config";
 import { BRAND } from "@/_CONFIG/app.config.json";
@@ -77,6 +78,7 @@ async function AuthGate({ children }: { children: React.ReactNode }) {
     <AuthProvider initial={isLoggedIn}>
       <HeaderComponent />
       <main className="p-4">{children}</main>
+      <FooterComponent />
     </AuthProvider>
   );
 }

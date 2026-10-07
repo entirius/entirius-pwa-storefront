@@ -10,7 +10,7 @@ import { expect, test } from "@playwright/test";
 
 test("home page renders CMS content", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByText("Welcome to Entirius").first()).toBeVisible();
+  await expect(page.getByText("Seats built for long shifts").first()).toBeVisible();
 });
 
 test("catalog lists products and links to the product page", async ({ page }) => {

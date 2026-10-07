@@ -5,9 +5,9 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { SanitizeHTML } from "@/components/ui/sanitize-html";
+import { CmsButtons, type CmsButtonData } from "../cms-button";
 
-// Title + description + a grid of tiles. Also renders `section-image-text`
-// until it carries its own image (the seed has none).
+// Title + description + a grid of tiles.
 export const grid_for = (count: number) =>
   count >= 3 ? "md:grid-cols-2 lg:grid-cols-3" : count === 2 ? "md:grid-cols-2" : "";
 
@@ -15,11 +15,14 @@ export function SectionShell({
   title,
   description,
   width,
+  custom_buttons,
   children,
 }: {
   title?: string;
   description?: string;
   width?: string;
+  // Header-level links, e.g. "All chairs" next to a product section.
+  custom_buttons?: CmsButtonData[];
   children?: React.ReactNode;
 }) {
   return (
@@ -29,12 +32,15 @@ export function SectionShell({
         width === "full_width" ? "" : "mx-auto w-full max-w-6xl",
       )}
     >
-      {(title || description) && (
-        <header className="flex flex-col gap-1">
-          {title && <h2 className="text-2xl">{title}</h2>}
-          {description && (
-            <SanitizeHTML html={description} className="text-sm text-muted-foreground" />
-          )}
+      {(title || description || custom_buttons?.length) && (
+        <header className="flex flex-wrap items-end justify-between gap-3">
+          <div className="flex flex-col gap-1">
+            {title && <h2 className="text-2xl">{title}</h2>}
+            {description && (
+              <SanitizeHTML html={description} className="text-sm text-muted-foreground" />
+            )}
+          </div>
+          <CmsButtons buttons={custom_buttons} variant="outline" />
         </header>
       )}
       {children}

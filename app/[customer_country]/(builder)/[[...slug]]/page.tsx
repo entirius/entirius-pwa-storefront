@@ -10,8 +10,17 @@ import {
   load_static_page,
   static_page_query,
   cms_products_query,
+  cms_products_by_sku_query,
+  cms_category_products_query,
+  load_products_by_sku,
+  load_category_products,
 } from "./api.query";
-import { aggregate_url_keys } from "./_components/cms-product-aggregation.config";
+import { omnibus_prefetch, is_discounted } from "@/lib/omnibus/omnibus.query";
+import {
+  aggregate_categories,
+  aggregate_skus,
+  aggregate_url_keys,
+} from "./_components/cms-product-aggregation.config";
 import { BuilderClient } from "./_components/builder.client";
 
 interface Props {
@@ -42,10 +51,29 @@ export default async function BuilderPage({ params }: Props) {
   if (!document) notFound();
 
   const url_keys = aggregate_url_keys(document.content);
+  const skus = aggregate_skus(document.content);
+  const categories = aggregate_categories(document.content);
+
+  // Omnibus lines for the reduced prices in CMS product sections, in the server
+  // HTML like the catalog's. The product requests are the cached ones the
+  // prefetches below make; a failed one simply leaves its section to the client.
+  const cms_products = await Promise.all([
+    skus.length
+      ? load_products_by_sku(api, skus).then((r) => r?.results ?? []).catch(() => [])
+      : [],
+    ...categories.map((category) => load_category_products(api, category).catch(() => [])),
+  ]);
+  const discounted_skus = cms_products
+    .flat()
+    .filter((p) => is_discounted((p as { price?: unknown }).price))
+    .map((p) => (p as { sku: string }).sku);
 
   const prefetches = [
     static_page_query(api, options),
     ...(url_keys.length ? [cms_products_query(api, url_keys)] : []),
+    ...(skus.length ? [cms_products_by_sku_query(api, skus)] : []),
+    ...categories.map((category) => cms_category_products_query(api, category)),
+    ...(discounted_skus.length ? [omnibus_prefetch(api, discounted_skus)] : []),
   ];
 
   return (
