@@ -2,14 +2,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-// Normalizes checkout order responses into a stable Order shape.
-// Two sources feed this:
-//  - the v1 list (`{ data: [ ...whole orders ] }`) → NORM_ORDERS
-//  - the v2 detail (`{ pretty_id, status, created, order_body: { ...the rest } }`)
+// Normalizes checkout v2 order responses:
+//  - the list (`{ count, next, previous, results: [ ...summary rows ] }`)
+//    → NORM_ORDER_SUMMARIES, one page of OrderSummary for the orders list;
+//  - the detail (`{ pretty_id, status, created, order_body: { ...the rest } }`)
 //    → NORM_ORDER, which lifts `order_body` before normalizing.
 // NORM_PLACED_ORDER covers the separate POST /orders/ (create) response.
-// List responses may be a bare array, `{ data: [] }` or a DRF `{ results: [] }`
-// page — unwrap all three defensively.
 
 export type OrderAddress = {
   firstname: string;
@@ -169,12 +167,43 @@ function norm_order(o: any): Order {
   };
 }
 
-function NORM_ORDERS(resp: any): Order[] {
-  const list = Array.isArray(resp)
-    ? resp
-    : (resp?.data ?? resp?.results ?? []);
-  if (!Array.isArray(list)) return [];
-  return list.map(norm_order);
+// A row of the v2 list: the order header only — no items, no addresses.
+export type OrderSummary = {
+  id: string;
+  order_uuid: string;
+  status: string;
+  status_label: string;
+  created: string;
+  total: string;
+  currency_code: string;
+  item_count: number;
+};
+
+export type OrderSummaryPage = {
+  orders: OrderSummary[];
+  count: number;
+  has_next: boolean;
+};
+
+function NORM_ORDER_SUMMARIES(resp: unknown): OrderSummaryPage {
+  const body = (resp ?? {}) as { count?: unknown; next?: unknown; results?: unknown };
+  const rows = Array.isArray(body.results)
+    ? (body.results as Record<string, unknown>[])
+    : [];
+  return {
+    orders: rows.map((o) => ({
+      id: str(o?.pretty_id) ?? "",
+      order_uuid: str(o?.order_id) ?? "",
+      status: str(o?.status) ?? "",
+      status_label: str(o?.status_label) ?? "",
+      created: str(o?.created) ?? "",
+      total: str(o?.total_gross) ?? "0",
+      currency_code: str(o?.currency) ?? "",
+      item_count: Number(o?.item_count ?? 0),
+    })),
+    count: Number(body.count ?? rows.length),
+    has_next: Boolean(body.next),
+  };
 }
 
 // Single order. The v2 detail response keeps only the header scalars at the top
@@ -212,7 +241,7 @@ export function status_style(status: string): { bg: string; text: string } {
   return status_colors[status] ?? { bg: "bg-muted", text: "text-foreground" };
 }
 
-// Backend sends "2026-07-21 10:50" (space-separated, not ISO). Parse defensively
+// v2 sends ISO with a zone ("2026-10-07T11:12:00Z" / "+00:00"). Parse defensively
 // and fall back to the raw string if the engine can't read it.
 export function format_order_date(created: string): string {
   if (!created) return "";
@@ -252,4 +281,4 @@ function NORM_PLACED_ORDER(resp: unknown): PlacedOrder {
   };
 }
 
-export { NORM_ORDERS, NORM_ORDER, NORM_PLACED_ORDER };
+export { NORM_ORDER_SUMMARIES, NORM_ORDER, NORM_PLACED_ORDER };

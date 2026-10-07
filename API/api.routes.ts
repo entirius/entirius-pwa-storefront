@@ -30,15 +30,10 @@ export const API_CART_PAYMENT_SELECT_ROUTE =
   "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/payment/";
 // POST places an order; GET a single order is this route + `{pretty_id}/`.
 export const API_CART_ORDERS_ROUTE = "/api/checkout/v2/__CHANNEL__/orders/";
-// v2 list. Responds 200 now, but it is NOT usable for "my orders": the rows are a
-// slim summary (total_gross/currency/item_count, no cart items, no addresses) and
-// it is not customer-scoped — it returns every order in the channel. Kept for the
-// DEBUG probe only; the orders list reads v1 below.
+// v2 list — the customer's own orders (401 without a token), summary rows,
+// paginated with `page` / `page_size`.
 export const API_CART_ORDERS_LIST_ROUTE =
   "/api/checkout/v2/__CHANNEL__/orders/list/";
-// v1 orders GET — customer-scoped and returns whole orders, so this is what the
-// orders list uses. Ignores ordering/page/page_size.
-export const API_CART_ORDERS_V1_ROUTE = "/api/checkout/v1/__CHANNEL__/orders/";
 // ----- AUTHENTICATION -----
 export const API_USER_LOGIN_ROUTE =
   "/api/accounts/v1/__CHANNEL__/customer/tokens/";
@@ -230,15 +225,6 @@ export const API_ROUTES_POLICY = {
   // matches `/orders/list/`, so longest-match hands the list route this policy too.
   // The two are deliberately identical, so that is inert.
   "/api/checkout/v2/__CHANNEL__/orders/__ORDER_ID__/": {
-    refresh_on: [401],
-    optional_refresh: true,
-    default_headers: [
-      ["x-api-key", "channel_checkout_key"],
-      ["Authorization", "access_token"],
-      { "Content-Type": "application/json" },
-    ],
-  },
-  [API_CART_ORDERS_V1_ROUTE]: {
     refresh_on: [401],
     optional_refresh: true,
     default_headers: [

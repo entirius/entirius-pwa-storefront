@@ -4,23 +4,22 @@
 
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { ChevronLeft } from "lucide-react";
 
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { DEBUG_MODE } from "@/_CONFIG/app.config.json";
-import {
-  API_CART_ORDERS_LIST_ROUTE,
-  API_CART_ORDERS_V1_ROUTE,
-} from "@/API/api.routes";
+import { API_CART_ORDERS_LIST_ROUTE } from "@/API/api.routes";
 import { DevProbeButton } from "@/app/[customer_country]/checkout/_components/dev-probe-button";
 import { orders_query } from "../api.query";
 import { OrderCard } from "./order-card";
 
 export function OrdersList() {
-  const { data: orders, isLoading, isError } = useQuery(orders_query());
+  const { data, isLoading, isError, hasNextPage, fetchNextPage, isFetchingNextPage } =
+    useInfiniteQuery(orders_query());
+  const orders = data?.pages.flatMap((page) => page.orders);
 
   return (
     <div className="flex flex-col gap-6 py-4">
@@ -34,16 +33,10 @@ export function OrdersList() {
       </div>
 
       {DEBUG_MODE && (
-        <div className="flex flex-col gap-2">
-          <DevProbeButton
-            label="GET orders/list/ (v2)"
-            route={API_CART_ORDERS_LIST_ROUTE}
-          />
-          <DevProbeButton
-            label="GET orders/ (v1)"
-            route={API_CART_ORDERS_V1_ROUTE}
-          />
-        </div>
+        <DevProbeButton
+          label="GET orders/list/ (v2)"
+          route={API_CART_ORDERS_LIST_ROUTE}
+        />
       )}
 
       {isLoading ? (
@@ -57,13 +50,25 @@ export function OrdersList() {
           You haven&apos;t placed any orders yet.
         </p>
       ) : (
-        <ul className="flex flex-col gap-3">
-          {orders.map((order) => (
-            <li key={order.order_uuid || order.id}>
-              <OrderCard order={order} />
-            </li>
-          ))}
-        </ul>
+        <>
+          <ul className="flex flex-col gap-3">
+            {orders.map((order) => (
+              <li key={order.order_uuid || order.id}>
+                <OrderCard order={order} />
+              </li>
+            ))}
+          </ul>
+          {hasNextPage && (
+            <Button
+              variant="outline"
+              className="self-center"
+              disabled={isFetchingNextPage}
+              onClick={() => fetchNextPage()}
+            >
+              {isFetchingNextPage ? <Spinner className="size-4" /> : "Load more"}
+            </Button>
+          )}
+        </>
       )}
     </div>
   );

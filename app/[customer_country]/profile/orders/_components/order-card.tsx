@@ -11,15 +11,15 @@ import { LinkDynamic } from "@/lib/link-dynamic";
 import {
   format_order_date,
   status_style,
-  type Order,
+  type OrderSummary,
 } from "@/utils/NORMALIZERS/order.normalizer";
 
-export function OrderCard({ order }: { order: Order }) {
+export function OrderCard({ order }: { order: OrderSummary }) {
   const style = status_style(order.status);
 
   const formatted_date = format_order_date(order.created);
 
-  const items_count = order.items.length;
+  const items_count = order.item_count;
   const items_text = `${items_count} ${items_count === 1 ? "item" : "items"}`;
 
   return (

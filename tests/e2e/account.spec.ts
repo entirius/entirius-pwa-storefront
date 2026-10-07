@@ -153,3 +153,59 @@ test("cart requests carry the customer token after login", async ({ page }) => {
   expect(res.ok()).toBe(true);
   expect(res.request().headers()["authorization"]).toMatch(/^Bearer \S+$/);
 });
+
+// Places an order: never run alongside another order-placing spec in the same
+// instant (the backend numbers orders without a lock — see checkout-guest.spec.ts).
+test("an order placed while logged in shows in my orders and its detail", async ({ page }) => {
+  await login(page, email);
+  await page.goto("/product/flight-deck-command-chair");
+  await page.getByRole("button", { name: "Add to cart" }).click();
+  await page.locator("header").getByRole("button", { name: /^Cart, 1 item$/ }).click();
+  await page.getByRole("dialog").getByRole("link", { name: "Checkout" }).click();
+  await expect(page).toHaveURL(/\/checkout$/);
+
+  const form = page.locator("form");
+  await form.getByLabel("Email").fill(email);
+  await form.getByLabel("First name").fill("Olga");
+  await form.getByLabel("Last name").fill("Orders");
+  await form.getByLabel("Street and number").fill("Zamowien 3");
+  await form.getByLabel("Postal code").fill("00-001");
+  await form.getByLabel("City").fill("Warsaw");
+  await form.getByRole("combobox", { name: "Country" }).click();
+  await page.getByRole("option", { name: "Poland" }).click();
+  await form.getByLabel("Phone number").fill("600100200");
+  const to_shipping = page.getByRole("button", { name: "Continue to shipping" });
+  await expect(to_shipping).toBeEnabled();
+  await to_shipping.click();
+  await page.getByRole("radiogroup").getByRole("radio").first().click();
+  await page.getByRole("button", { name: "Continue to payment" }).click();
+  await page.getByRole("radiogroup").getByText(/bank transfer/i).click();
+  await page.getByRole("button", { name: "Continue to review" }).click();
+
+  const placed = page.waitForResponse(
+    (r) => r.request().method() === "POST" && /\/orders\/?(\?|$)/.test(r.url()),
+  );
+  await page.getByRole("button", { name: "Place order" }).click();
+  const response = await placed;
+  expect(response.status()).toBe(201);
+  const ref: string = (await response.json()).order_pretty_id;
+  await expect(page).toHaveURL(`/checkout/success?ref=${ref}`);
+
+  // My orders → the order card → its detail; both read checkout v2.
+  await page.goto("/profile/orders");
+  await expect(page.getByRole("heading", { name: "My orders" })).toBeVisible();
+  const card = page.getByRole("link", { name: new RegExp(`#${ref}`) });
+  await expect(card).toContainText("1 item");
+
+  await card.click();
+  await expect(page).toHaveURL(`/profile/orders/${ref}`);
+  await expect(page.getByRole("heading", { name: `Order #${ref}` })).toBeVisible();
+  await expect(page.getByText("Flight Deck Command Chair")).toBeVisible();
+  await expect(page.getByText("Olga Orders").first()).toBeVisible();
+
+  // Same time on the card and the detail (v1 used to send a zone-less UTC time,
+  // which the list showed hours off).
+  const placed_at = (await page.getByText(/^Placed /).innerText()).replace(/^Placed /, "");
+  await page.goBack();
+  await expect(card).toContainText(placed_at);
+});

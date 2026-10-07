@@ -160,7 +160,7 @@
   },
   "utils/NORMALIZERS/order.normalizer.ts": {
     "@typescript-eslint/no-explicit-any": {
-      "count": 9
+      "count": 8
     }
   },
   "utils/NORMALIZERS/price.normalizer.ts": {
