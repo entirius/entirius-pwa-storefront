@@ -72,6 +72,8 @@ const map_filters = (res: any) => {
         options: [...(f.values ?? [])].sort(by_position).map((v: any) => ({
           idx: String(v.idx),
           label: v.label,
+          // Products in the current listing with this value; null when unknown.
+          count: typeof v.count === "number" ? v.count : null,
         })),
       },
     ]),

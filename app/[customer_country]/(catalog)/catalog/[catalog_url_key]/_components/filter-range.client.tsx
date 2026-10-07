@@ -61,16 +61,14 @@ const FilterRange = memo(function FilterRange({
   return (
     <div>
       <div className="flex justify-between items-center mb-3">
-        <h3>{label}</h3>
+        <h3 className="text-base">{label}</h3>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground tabular-nums">
-            {local_value[0]} — {local_value[1]}
-          </span>
           {is_modified && (
             <Button
               variant="ghost"
               size="xs"
-              className="h-5 px-1.5 text-xs text-muted-foreground hover:text-destructive"
+              aria-label={`Reset ${label}`}
+              className="h-6 px-1.5 text-xs text-muted-foreground hover:text-destructive"
               onClick={handle_reset}
             >
               <X className="size-3" />
@@ -86,9 +84,15 @@ const FilterRange = memo(function FilterRange({
         onValueChange={handle_change}
         onValueCommit={handle_commit}
       />
-      <div className="flex justify-between text-xs text-muted-foreground mt-2">
-        <span>{min}</span>
-        <span>{max}</span>
+      <div className="mt-3 grid grid-cols-2 gap-2 text-sm tabular-nums">
+        <span className="rounded-xl border border-border px-3 py-2">
+          <span className="block text-xs text-muted-foreground">From</span>
+          {local_value[0]}
+        </span>
+        <span className="rounded-xl border border-border px-3 py-2">
+          <span className="block text-xs text-muted-foreground">To</span>
+          {local_value[1]}
+        </span>
       </div>
     </div>
   );
