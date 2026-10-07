@@ -14,6 +14,7 @@ export function QuantityStepper({
   min = 1,
   max,
   disabled = false,
+  size = "sm",
   className,
 }: {
   value: number;
@@ -21,16 +22,26 @@ export function QuantityStepper({
   min?: number;
   max: number;
   disabled?: boolean;
+  // `lg`: one pill matching a large button (product page); `sm`: compact (cart).
+  size?: "sm" | "lg";
   className?: string;
 }) {
   const clamp = (n: number) => Math.min(Math.max(n, min), max);
+  const large = size === "lg";
 
   return (
-    <div className={cn("flex items-center gap-1", className)}>
+    <div
+      className={cn(
+        "flex items-center",
+        large ? "h-10 rounded-full border border-border bg-card" : "gap-1",
+        className,
+      )}
+    >
       <Button
         type="button"
-        variant="outline"
-        size="icon-sm"
+        variant={large ? "ghost" : "outline"}
+        size={large ? "icon-lg" : "icon-sm"}
+        className={cn(large && "rounded-full")}
         aria-label="Decrease quantity"
         disabled={disabled || value <= min}
         onClick={() => onChange(clamp(value - 1))}
@@ -39,14 +50,15 @@ export function QuantityStepper({
       </Button>
       <span
         aria-live="polite"
-        className="min-w-8 text-center text-sm tabular-nums"
+        className={cn("min-w-8 text-center tabular-nums", large ? "font-semibold" : "text-sm")}
       >
         {value}
       </span>
       <Button
         type="button"
-        variant="outline"
-        size="icon-sm"
+        variant={large ? "ghost" : "outline"}
+        size={large ? "icon-lg" : "icon-sm"}
+        className={cn(large && "rounded-full")}
         aria-label="Increase quantity"
         disabled={disabled || value >= max}
         onClick={() => onChange(clamp(value + 1))}

@@ -66,7 +66,7 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
 
   return (
     <div className="flex flex-col gap-10">
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:items-start">
       {/* Carousel */}
       <div className="rounded-4xl bg-card p-3 md:sticky md:top-24 md:self-start">
         <Carousel setApi={setCarouselApi} className="relative">
@@ -98,6 +98,26 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
             </>
           )}
         </Carousel>
+        {media.length > 1 && (
+          <div className="mt-3 grid grid-cols-4 gap-3 sm:grid-cols-5">
+            {media.map((variants: { uri: string }[], i: number) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`Show image ${i + 1}`}
+                aria-current={current === i + 1 ? "true" : undefined}
+                onClick={() => carouselApi?.scrollTo(i)}
+                className={
+                  current === i + 1
+                    ? "relative aspect-square overflow-hidden rounded-2xl bg-muted ring-2 ring-primary"
+                    : "relative aspect-square overflow-hidden rounded-2xl bg-muted ring-1 ring-border hover:ring-primary"
+                }
+              >
+                <MediaImage src={variants[0].uri} alt="" fill sizes="96px" className="object-cover" />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Product info */}
@@ -115,7 +135,12 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
           <h1 className="text-3xl leading-tight md:text-4xl">{product.name}</h1>
         </div>
 
-        <ProductPrice price={product.price} sku={product.sku} large />
+        <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
+          <ProductPrice price={product.price} sku={product.sku} large />
+          {product.purchasable && (
+            <span className="pb-1.5 text-sm text-muted-foreground">incl. VAT</span>
+          )}
+        </div>
 
         {product.description && (
           <SanitizeHTML html={product.description} className="text-muted-foreground" />
@@ -134,6 +159,7 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
         <div className="flex flex-wrap items-center gap-3">
           <span className="sr-only">Quantity</span>
           <QuantityStepper
+            size="lg"
             value={qty}
             onChange={setQty}
             max={Math.max(max, 1)}
