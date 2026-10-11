@@ -20,7 +20,7 @@ import {
 } from "@/API/api.routes";
 import type { Order } from "@/utils/NORMALIZERS/order.normalizer";
 import { DevProbeButton } from "@/app/[customer_country]/checkout/_components/dev-probe-button";
-import { orders_query } from "../api.query";
+import { order_query, orders_query } from "../api.query";
 import { OrderCard } from "./order-card";
 import { OrderDetails } from "./order-details";
 import { useI18n } from "@/providers/i18n.provider";
@@ -29,6 +29,10 @@ export function OrdersList() {
   const { t } = useI18n();
   const { data: orders, isLoading, isError } = useQuery(orders_query());
   const [selected, setSelected] = useState<Order | null>(null);
+  const { data: details } = useQuery({
+    ...order_query(selected?.order_uuid ?? ""),
+    enabled: Boolean(selected?.order_uuid),
+  });
 
   return (
     <div className="flex flex-col gap-6 py-4">
@@ -89,7 +93,8 @@ export function OrdersList() {
             </SheetTitle>
           </SheetHeader>
           <div className="p-4">
-            {selected && <OrderDetails order={selected} />}
+            {selected && !details && <Spinner className="size-5" />}
+            {selected && details && <OrderDetails order={details} />}
           </div>
         </SheetContent>
       </Sheet>
