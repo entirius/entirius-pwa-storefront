@@ -38,9 +38,14 @@ export default function CmsButton({ button }: { button: CmsButtonData }) {
   const variant = dye === "leading" ? "default" : dye;
 
   if (type === "external") {
+    // A bare "#fragment" is an in-page link (for example the cookie preferences marker): same tab.
+    const new_tab = !url.startsWith("#");
     return (
       <Button variant={variant} size="sm" asChild>
-        <a href={href} target="_blank" rel="noopener noreferrer">
+        <a
+          href={href}
+          {...(new_tab && { target: "_blank", rel: "noopener noreferrer" })}
+        >
           {label}
         </a>
       </Button>

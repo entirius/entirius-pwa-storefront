@@ -153,3 +153,9 @@ html.dark {
   .cms-rich-text > :first-child { margin-top: 0; }
   .cms-rich-text > :last-child { margin-bottom: 0; }
 }
+
+/* Links that reopen the cookie preferences (href ending with #cookie-consents, for example in a CMS
+   footer) stay hidden until a banner runs: consent-banner.ts sets the attribute. */
+html:not([data-consent-ready]) a[href$="#cookie-consents"] {
+  display: none;
+}

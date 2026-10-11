@@ -12,6 +12,7 @@ import { I18nProvider } from "@/providers/i18n.provider";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 import { HeaderComponent } from "./_components/layout/header-component";
 import { LayoutSlot } from "./_components/layout-slots/layout-slot";
+import { CookieConsent } from "./_components/cookie-consent/cookie-consent.client";
 import { Suspense } from "react";
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -54,6 +55,7 @@ async function LocalizedDocument({ children }: { children: React.ReactNode }) {
             <AuthGate>{children}</AuthGate>
           </TanstackQueryProvider>
         </I18nProvider>
+        <CookieConsent />
       </body>
     </html>
   );

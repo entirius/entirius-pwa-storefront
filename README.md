@@ -47,6 +47,10 @@ Open `http://localhost:3000`. Unknown countries fall through to the `default` se
 | `_CONFIG/brand.config.ts` | shop `name` and `description` (page metadata), `logo` (header) |
 | `_CONFIG/theme.css` | client theme: overrides the values of the theme variables of `app/globals.css` (colours, `--radius`, `--font-family-sans`); empty = default look |
 
+The cookie banner needs no config: when the backend has a published banner for the channel (django-agreements
+2.2.0 or newer), the storefront shows it, with every text from the backend; otherwise nothing is loaded. A link with
+`href="#cookie-consents"` anywhere in the content reopens the preferences. Details in [AGENTS.md](AGENTS.md).
+
 The template ships the two channels of the reference dataset (`default-europe`, `default-local`);
 replace `API_CHECKOUT_KEY` with the key issued by your backend for each channel.
 
