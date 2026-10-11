@@ -97,7 +97,7 @@ export function Megamenu({ query }: { query: CONFIG_QUERY }) {
         {mainItems.map((item) =>
           item.has_children ? (
             <NavigationMenuItem key={item.id ?? item.url_key}>
-              <NavigationMenuTrigger className="capitalize">
+              <NavigationMenuTrigger>
                 {item.name}
               </NavigationMenuTrigger>
               <NavigationMenuContent>
@@ -108,7 +108,7 @@ export function Megamenu({ query }: { query: CONFIG_QUERY }) {
             <NavigationMenuItem key={item.id ?? item.url_key}>
               <NavigationMenuLink
                 asChild
-                className={navigationMenuTriggerStyle() + " capitalize"}
+                className={navigationMenuTriggerStyle()}
               >
                 <LinkDynamic href={`/catalog/${item.url_key}`}>
                   {item.name}
