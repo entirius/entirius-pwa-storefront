@@ -97,7 +97,7 @@ function norm_order(o: any): Order {
       : [];
   return {
     // v2 may expose `pretty_id`; v1 only had `id`. Prefer the human id.
-    id: str(o?.pretty_id ?? o?.id ?? o?.order_uuid) ?? "",
+    id: str(o?.pretty_id ?? o?.id ?? o?.order_id ?? o?.order_uuid) ?? "",
     order_uuid: str(o?.order_id ?? o?.order_uuid ?? o?.uuid ?? o?.id) ?? "",
     status: str(o?.status) ?? "",
     status_label: str(o?.status_label) ?? "",
