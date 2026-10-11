@@ -20,4 +20,12 @@ export interface CmsDocumentContent {
   document_configs?: Record<string, any>;
 }
 
+// A published contentdb page, as the static-page endpoint returns it.
+export interface CmsPage {
+  language: string;
+  routes: string[];
+  meta?: { title?: string; description?: string };
+  content: CmsDocumentContent;
+}
+
 export type CmsSectionComponent = ComponentType<CmsSectionBaseProps>;

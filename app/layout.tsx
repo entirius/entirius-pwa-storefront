@@ -11,6 +11,7 @@ import { AuthProvider } from "@/providers/auth.provider";
 import { I18nProvider } from "@/providers/i18n.provider";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 import { HeaderComponent } from "./_components/layout/header-component";
+import { LayoutSlot } from "./_components/layout-slots/layout-slot";
 import { Suspense } from "react";
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,7 +47,7 @@ async function LocalizedDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang={language}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} flex min-h-screen flex-col antialiased`}
       >
         <I18nProvider language={language} messages={messages}>
           <TanstackQueryProvider>
@@ -59,13 +60,16 @@ async function LocalizedDocument({ children }: { children: React.ReactNode }) {
 }
 
 // Seeds the client AuthProvider from the readable `at` cookie (SSR-correct, no
-// hydration flash), and wraps both the header and the page so both share context.
+// hydration flash), and wraps the header, the page and the layout slots so all share context.
 async function AuthGate({ children }: { children: React.ReactNode }) {
   const isLoggedIn = Boolean((await cookies()).get("at")?.value);
   return (
     <AuthProvider initial={isLoggedIn}>
+      <LayoutSlot name="announcement" />
       <HeaderComponent />
-      <main className="p-4">{children}</main>
+      <main className="flex-1 p-4">{children}</main>
+      <LayoutSlot name="before-footer" />
+      <LayoutSlot name="footer" />
     </AuthProvider>
   );
 }
