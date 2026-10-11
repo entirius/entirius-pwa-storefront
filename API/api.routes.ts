@@ -46,6 +46,12 @@ export const API_CMS_STATIC_PAGE_ROUTE =
   "/api/contentdb/v1/published/static-page/";
 export const API_CMS_ROUTES_ROUTE = "/api/contentdb/v1/routes/";
 // ----- CMS / CONTENT -----
+// ----- COOKIE CONSENT (django-agreements >= 2.2.0) -----
+export const API_COOKIE_BANNER_ROUTE =
+  "/api/agreements/v2/__CHANNEL__/cookie-banner/";
+export const API_COOKIE_CONSENTS_ROUTE =
+  "/api/agreements/v2/__CHANNEL__/cookie-consents/";
+// ----- COOKIE CONSENT -----
 
 
 // ------------------------------------------------------------
@@ -87,6 +93,10 @@ export const API_ROUTES_POLICY = {
     ],
   },
   [API_PRICES_ROUTE]: { default_querys: ["currency", "country"] },
+  [API_COOKIE_BANNER_ROUTE]: { default_querys: ["language"] },
+  [API_COOKIE_CONSENTS_ROUTE]: {
+    default_headers: [{ "Content-Type": "application/json" }],
+  },
   [API_CATALOG_FILTERS_ROUTE]: { default_querys: ["language"] },
   // Real-time stock (Auth Optional — auth headers intentionally skipped for now).
   [API_STOCK_ROUTE]: { default_querys: ["language"] },
