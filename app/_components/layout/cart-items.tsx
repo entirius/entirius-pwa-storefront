@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { SheetClose } from "@/components/ui/sheet";
 import { LinkDynamic } from "@/lib/link-dynamic";
+import { resolve_media_url } from "@/utils/media-url";
 import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
 import { useCartSync } from "@/stores/use-cart-sync";
 import { UnitPrice } from "./cart-price";
@@ -56,7 +57,8 @@ export function CartItems() {
 
       <div className="flex flex-col gap-3 overflow-y-auto">
         {entries.map(([sku, item]) => {
-          const uri = item.media?.[0]?.[0]?.uri ?? image_placeholder;
+          // A cart kept in the browser may still hold the path the API returned.
+          const uri = resolve_media_url(item.media?.[0]?.[0]?.uri ?? image_placeholder);
           const line = backend?.lines[sku];
           const flagged = line?.is_limited || backend?.error_skus.has(sku);
           const line_total = line

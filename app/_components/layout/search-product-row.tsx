@@ -3,6 +3,7 @@
 import Image from "next/image";
 
 import { LinkDynamic } from "@/lib/link-dynamic";
+import { resolve_media_url } from "@/utils/media-url";
 import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
 
 // --- Local normalization (search results are a "lite" shape; see search-feature.md) ---
@@ -19,7 +20,7 @@ function resolve_image(main_image: unknown): string {
     if (!set.length) return image_placeholder;
     // Prefer a ~320px thumb, else the first available source.
     const pick = set.find((s) => s.width === 320) ?? set[0];
-    return pick?.source ?? image_placeholder;
+    return pick?.source ? resolve_media_url(pick.source) : image_placeholder;
   } catch {
     return image_placeholder;
   }

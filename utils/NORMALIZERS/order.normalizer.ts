@@ -2,6 +2,8 @@
 // The list endpoint may return a bare array, a `{ data: [] }` envelope, or a
 // DRF-style `{ results: [] }` page — unwrap all three defensively.
 
+import { resolve_media_url } from "@/utils/media-url";
+
 export type OrderAddress = {
   firstname: string;
   lastname: string;
@@ -76,7 +78,7 @@ function norm_item(i: any): OrderItem {
     quantity: Number(i?.quantity ?? 1),
     price: str(i?.price),
     total_price: str(i?.total_price),
-    image_url: str(i?.image_url),
+    image_url: resolve_media_url(str(i?.image_url)) || null,
     sub_items: subs.map((s: any) => ({
       sku: str(s?.sku),
       quantity: Number(s?.quantity ?? 1),

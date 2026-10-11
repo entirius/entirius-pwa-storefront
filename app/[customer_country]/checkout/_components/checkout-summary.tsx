@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { resolve_media_url } from "@/utils/media-url";
 import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
 import { UnitPrice } from "@/app/_components/layout/cart-price";
 import type { Cart } from "@/utils/NORMALIZERS/cart.normalizer";
@@ -37,7 +38,8 @@ export function CheckoutSummary({
       </h2>
       <div className="flex flex-col divide-y">
         {entries.map(([sku, item]) => {
-          const uri = item.media?.[0]?.[0]?.uri ?? image_placeholder;
+          // A cart kept in the browser may still hold the path the API returned.
+          const uri = resolve_media_url(item.media?.[0]?.[0]?.uri ?? image_placeholder);
           const line = backend?.lines[sku];
           const flagged = line?.is_limited || backend?.error_skus.has(sku);
           const line_total = line
