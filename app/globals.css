@@ -34,6 +34,7 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  --color-leading: var(--leading);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -57,6 +58,8 @@
   --popover-foreground: oklch(0.13 0.028 261.692);
   --primary: oklch(0.21 0.034 264.665);
   --primary-foreground: oklch(0.985 0.002 247.839);
+  /* Leading colour of CMS sections and tiles (bg-leading, text-leading); white text sits on it, so keep it dark. */
+  --leading: var(--primary);
   --secondary: oklch(0.967 0.003 264.542);
   --secondary-foreground: oklch(0.21 0.034 264.665);
   --muted: oklch(0.967 0.003 264.542);
@@ -123,4 +126,30 @@ html.dark {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Rich text written in the CMS (descriptions of sections and tiles). The defaults sit in a layer, so any
+   rule a client puts in theme.css wins without a specificity fight. */
+@layer components {
+  .cms-rich-text :is(h1, h2, h3, h4) {
+    margin: 1.25em 0 0.5em;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+  .cms-rich-text h1 { font-size: 1.5em; }
+  .cms-rich-text h2 { font-size: 1.25em; }
+  .cms-rich-text h3 { font-size: 1.1em; }
+  .cms-rich-text p,
+  .cms-rich-text ul,
+  .cms-rich-text ol {
+    margin: 0 0 0.75em;
+  }
+  .cms-rich-text ul { padding-left: 1.25em; list-style: disc; }
+  .cms-rich-text ol { padding-left: 1.25em; list-style: decimal; }
+  .cms-rich-text a {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .cms-rich-text > :first-child { margin-top: 0; }
+  .cms-rich-text > :last-child { margin-bottom: 0; }
 }
