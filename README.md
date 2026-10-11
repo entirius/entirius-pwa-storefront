@@ -44,6 +44,8 @@ Open `http://localhost:3000`. Unknown countries fall through to the `default` se
 | `_CONFIG/app.config.json` | `API_BASE_URL` (backend URL), `DEBUG_MODE` (enables `_LOGGER` output) |
 | `_CONFIG/channels.config.json` | per channel: `CHANNEL_LABEL`, `API_CHECKOUT_KEY` (checkout `x-api-key`) |
 | `_CONFIG/countries.config.json` | per country: languages, currencies, channels + defaults |
+| `_CONFIG/brand.config.ts` | shop `name` and `description` (page metadata), `logo` (header) |
+| `_CONFIG/theme.css` | client theme: overrides the values of the theme variables of `app/globals.css` (colours, `--radius`, `--font-family-sans`); empty = default look |
 
 The template ships the two channels of the reference dataset (`default-europe`, `default-local`);
 replace `API_CHECKOUT_KEY` with the key issued by your backend for each channel.

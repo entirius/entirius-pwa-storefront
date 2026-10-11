@@ -110,6 +110,8 @@ cp -r _CONFIG.example _CONFIG
 # app.config.json      → set API_BASE_URL (Volkanos instance URL)
 # channels.config.json → set CHANNEL_LABEL and API_CHECKOUT_KEY per channel
 # countries.config.json → country → languages/currencies/channels mapping
+# brand.config.ts     → shop name, description, logo
+# theme.css           → values of the theme variables from app/globals.css (loaded after it in app/layout.tsx)
 ```
 
 Import configs directly: `import countries from "@/_CONFIG/countries.config.json"`. Config is type-checked at build time.
