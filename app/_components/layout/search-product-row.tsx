@@ -86,6 +86,7 @@ export type SearchProduct = {
   is_range?: boolean;
   range_from?: number | string | null;
   special_price_range_from?: number | string | null;
+  on_stock?: boolean;
 };
 
 export function SearchProductRow({
@@ -105,6 +106,8 @@ export function SearchProductRow({
     <LinkDynamic
       href={product_href(product)}
       onClick={onNavigate}
+      data-product-tile
+      data-stock={product.on_stock === false ? "out" : "in"}
       className="grid grid-cols-[5rem_1fr] gap-3 rounded-md border border-border p-2 transition-colors hover:bg-accent"
     >
       <div className="size-20 overflow-hidden rounded-md bg-muted">
@@ -133,6 +136,11 @@ export function SearchProductRow({
           )}
         </div>
         {special && product.sku && <OmnibusNote sku={product.sku} compact />}
+        {product.on_stock === false && (
+          <span data-sold-out-label className="mt-0.5 block text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+            {i18n.t("product.sold_out")}
+          </span>
+        )}
       </div>
     </LinkDynamic>
   );

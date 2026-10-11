@@ -6,12 +6,14 @@
 
 import { MediaImage } from "@/components/ui/media-image.client";
 import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
+import { cn } from "@/lib/utils";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { WishlistButton } from "@/components/ui/wishlist-button";
 import { ProductPrice } from "./product-price.client";
 import { ProductBadges } from "./product-badges";
 import { QuickAdd } from "./quick-add.client";
+import { useI18n } from "@/providers/i18n.provider";
 
 const PLACEHOLDER_MEDIA = [{ uri: image_placeholder, width: 600, height: 600 }];
 
@@ -30,6 +32,9 @@ export function ProductTile({
   product: any;
   variant?: "default" | "compact";
 }) {
+  const { t } = useI18n();
+  // Only an explicit `false` counts as sold out: items without the field (wishlist) stay neutral.
+  const sold_out = product?.on_stock === false;
   const media = product?.media?.[0] ?? PLACEHOLDER_MEDIA;
   const firstMedia = Array.isArray(media) ? media[0] : media;
   const compact = variant === "compact";
@@ -58,6 +63,8 @@ export function ProductTile({
     return (
       <LinkDynamic
         href={`/product/${product.url_key}`}
+        data-product-tile
+        data-stock={sold_out ? "out" : "in"}
         className="grid grid-cols-[5rem_1fr] gap-3 rounded-xl bg-card bg-gradient-card p-2 group relative"
       >
         <div className="size-20 rounded-md bg-muted overflow-hidden">
@@ -75,6 +82,14 @@ export function ProductTile({
             <ProductPrice price={product.price} sku={product.sku} compact />
           </div>
         </div>
+        {sold_out && (
+          <span
+            data-sold-out-label
+            className="absolute bottom-2 right-2 z-[1] rounded-sm bg-background/90 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-foreground"
+          >
+            {t("product.sold_out")}
+          </span>
+        )}
         {wishlist}
       </LinkDynamic>
     );
@@ -87,6 +102,8 @@ export function ProductTile({
   return (
     <LinkDynamic
       href={`/product/${product.url_key}`}
+      data-product-tile
+      data-stock={sold_out ? "out" : "in"}
       className="flex h-full flex-col gap-3 rounded-3xl bg-card bg-gradient-card p-3 group relative transition-shadow hover:shadow-glow"
     >
       <AspectRatio ratio={1 / 1} className="w-full rounded-2xl bg-muted overflow-hidden relative">
@@ -98,6 +115,14 @@ export function ProductTile({
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-300"
         />
+        {sold_out && (
+          <span
+            data-sold-out-label
+            className="absolute bottom-2.5 left-2.5 z-[1] rounded-sm bg-background/90 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-foreground"
+          >
+            {t("product.sold_out")}
+          </span>
+        )}
         <ProductBadges
           badges={product.badges}
           percent_off={product.percent_off}

@@ -35,6 +35,8 @@ export const en = {
   "header.account": "Account",
   "header.sign_in": "Sign in",
   "header.home": "{name} — home",
+  "header.language": "Language",
+  "header.currency": "Currency",
 
   // cart drawer
   "cart.title": "Cart",
@@ -159,6 +161,7 @@ export const en = {
   // product page
   "product.add_to_cart": "Add to cart",
   "product.out_of_stock": "Out of stock",
+  "product.sold_out": "Sold out",
   "product.quantity": "Quantity",
   "product.not_found": "Product not found",
   "product.image": "{name} – image {number}",

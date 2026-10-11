@@ -26,6 +26,7 @@ export interface CmsDocumentContent {
 
 // A published contentdb page, as the static-page endpoint returns it.
 export interface CmsPage {
+  name?: string;
   language: string;
   routes: string[];
   meta?: { title?: string; description?: string };

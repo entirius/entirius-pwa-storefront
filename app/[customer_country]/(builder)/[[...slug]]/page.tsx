@@ -10,6 +10,7 @@ import { create_api } from "@/API/api.context";
 import { make_server_access } from "@/API/access/api.server-access";
 import {
   load_static_page,
+  pick_static_page,
   static_page_query,
   cms_products_query,
   cms_products_by_sku_query,
@@ -24,6 +25,7 @@ import {
   aggregate_url_keys,
 } from "./_components/cms-product-aggregation.config";
 import { BuilderClient } from "./_components/builder.client";
+import { get_i18n } from "@/lib/i18n/i18n.server";
 import { LAYOUT_ROUTE_PREFIX } from "@/app/_components/layout-slots/api.query";
 
 interface Props {
@@ -48,7 +50,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const [, cms_data] = await load_static_page(await get_api(), {
     routes: slug?.[0] ? [slug[0]] : ["home"],
   });
-  const meta = cms_data?.data?.[0]?.meta;
+  const { language } = await get_i18n();
+  const meta = pick_static_page(cms_data?.data, language)?.meta;
   return {
     ...(meta?.title && { title: meta.title }),
     ...(meta?.description && { description: meta.description }),
@@ -68,9 +71,10 @@ export default async function BuilderPage({ params }: Props) {
   // load_static_page keys its React cache on the joined routes string, so the
   // second call inside PrefetchBoundary.queryFn costs no additional request.
   // ------------------------------------------------------------
-  const options = { routes };
+  const { language } = await get_i18n();
+  const options = { routes, language };
   const [, cms_data] = await load_static_page(api, options);
-  const document = cms_data?.data?.[0] ?? null;
+  const document = pick_static_page(cms_data?.data, language);
 
   if (!document) notFound();
 

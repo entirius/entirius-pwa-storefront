@@ -3,6 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { HamburgerMenuSheet } from "./hamburger-menu-sheet";
+import { LocaleSwitch } from "./locale-switch";
 import { Megamenu } from "./megamenu";
 import {
   CONFIG_QUERY,
@@ -11,21 +12,21 @@ import {
   MOBILE_MENU_TYPE,
 } from "./menu-config";
 
-function renderType(type: MENU_TYPE) {
+function renderType(type: MENU_TYPE, footer?: React.ReactNode) {
   switch (type) {
     case MENU_TYPE.MEGAMENU:
       return <Megamenu query={CONFIG_QUERY} />;
     case MENU_TYPE.HAMBURGER:
-      return <HamburgerMenuSheet query={CONFIG_QUERY} />;
+      return <HamburgerMenuSheet query={CONFIG_QUERY} footer={footer} />;
     default:
-      return <HamburgerMenuSheet query={CONFIG_QUERY} />;
+      return <HamburgerMenuSheet query={CONFIG_QUERY} footer={footer} />;
   }
 }
 
 export function MenuTypeRenderer() {
   return (
     <>
-      <div className="md:hidden">{renderType(MOBILE_MENU_TYPE)}</div>
+      <div className="md:hidden">{renderType(MOBILE_MENU_TYPE, <LocaleSwitch className="flex px-4 pb-4" />)}</div>
       <div className="hidden md:flex items-center">
         {renderType(DESKTOP_MENU_TYPE)}
       </div>

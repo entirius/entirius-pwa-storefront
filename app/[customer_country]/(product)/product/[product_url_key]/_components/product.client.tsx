@@ -49,6 +49,9 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
   const max = configurable ? configurable.max : (stock?.quantity ?? 0);
   const inStock = configurable ? configurable.in_stock : !!stock?.is_in_stock && max > 0;
 
+  // Stock arrives after the product: no attribute until it is known.
+  const stock_known = !!configurable || stock !== undefined;
+
   const add = useCartStore((s) => s.add);
   const show_added = useAddedToCart((s) => s.show);
   const [qty, setQty] = useState(1);
@@ -85,7 +88,11 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
   const category = (product.categories as { name?: string; url_key?: string }[] | undefined)?.[0];
 
   return (
-    <div className="flex flex-col gap-10">
+    <div
+      className="flex flex-col gap-10"
+      data-product-page
+      data-stock={stock_known ? (inStock ? "in" : "out") : undefined}
+    >
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:items-start">
       {/* Carousel */}
       <div className="rounded-4xl bg-card p-3 md:sticky md:top-24 md:self-start">

@@ -32,6 +32,8 @@ export const pl: Record<MessageKey, Message> = {
   "header.account": "Konto",
   "header.sign_in": "Zaloguj się",
   "header.home": "{name} — strona główna",
+  "header.language": "Język",
+  "header.currency": "Waluta",
 
   // cart drawer
   "cart.title": "Koszyk",
@@ -165,6 +167,7 @@ export const pl: Record<MessageKey, Message> = {
   // product page
   "product.add_to_cart": "Dodaj do koszyka",
   "product.out_of_stock": "Brak w magazynie",
+  "product.sold_out": "Wyprzedane",
   "product.quantity": "Ilość",
   "product.not_found": "Nie znaleziono produktu",
   "product.image": "{name} - zdjęcie {number}",

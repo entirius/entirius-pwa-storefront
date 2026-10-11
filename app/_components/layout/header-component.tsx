@@ -3,6 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { NavigationComponent } from "./navigation-component";
+import { LocaleSwitch } from "./locale-switch";
 import { WishlistSheet } from "./wishlist-sheet";
 import { CartLink } from "./cart-link.client";
 import { AddedToCart } from "./added-to-cart.client";
@@ -27,6 +28,7 @@ export async function HeaderComponent() {
           <WishlistSheet />
           <CartLink />
           <AccountNav />
+          <LocaleSwitch className="hidden md:flex" />
         </div>
       </div>
       <AddedToCart />

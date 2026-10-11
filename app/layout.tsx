@@ -15,6 +15,7 @@ import { I18nProvider } from "@/providers/i18n.provider";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 import { HeaderComponent } from "./_components/layout/header-component";
 import { LayoutSlot } from "./_components/layout-slots/layout-slot";
+import { ScrollToTop } from "./_components/scroll-to-top.client";
 import { CookieConsent } from "./_components/cookie-consent/cookie-consent.client";
 import { FooterComponent } from "./_components/layout/footer-component";
 import { Suspense } from "react";
@@ -80,6 +81,7 @@ export default async function RootLayout({
             </Suspense>
           </TanstackQueryProvider>
         </I18nProvider>
+        <ScrollToTop />
         <CookieConsent />
       </body>
     </html>
