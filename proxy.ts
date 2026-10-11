@@ -81,13 +81,8 @@ export default function proxy(request: NextRequest) {
 // ------------------------------ ---- - ----- -- - - - --
 export const config = {
   matcher: [
-    {
-      source:
-        "/((?!api|_next/static|_next/image|_next/data|favicon.ico|robots.txt|sitemap.xml|.*\\..*).*)",
-      missing: [
-        { type: "header", key: "next-router-prefetch" },
-        { type: "header", key: "purpose", value: "prefetch" },
-      ],
-    },
+    // Prefetch requests are rewritten too: without the country segment the router would cache the tree of
+    // another route (/catalog/x read as country "catalog"), and the page it then shows never loads.
+    "/((?!api|_next/static|_next/image|_next/data|favicon.ico|robots.txt|sitemap.xml|.*\\..*).*)",
   ],
 };
