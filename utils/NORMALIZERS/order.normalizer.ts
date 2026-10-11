@@ -133,11 +133,11 @@ export function status_style(status: string): { bg: string; text: string } {
 
 // Backend sends "2026-07-21 10:50" (space-separated, not ISO). Parse defensively
 // and fall back to the raw string if the engine can't read it.
-export function format_order_date(created: string): string {
+export function format_order_date(created: string, language: string): string {
   if (!created) return "";
   const d = new Date(created.replace(" ", "T"));
   if (Number.isNaN(d.getTime())) return created;
-  return d.toLocaleDateString(undefined, {
+  return d.toLocaleDateString(language, {
     year: "numeric",
     month: "short",
     day: "numeric",

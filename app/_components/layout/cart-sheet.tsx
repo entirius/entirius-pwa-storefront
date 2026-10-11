@@ -13,8 +13,10 @@ import { CartItems } from "./cart-items";
 import { ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { useI18n } from "@/providers/i18n.provider";
 
 export function CartSheet() {
+  const { t } = useI18n();
   const count = useCartStore((s) => s.count());
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -22,7 +24,7 @@ export function CartSheet() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative cursor-pointer text-foreground">
+        <Button variant="ghost" size="icon" aria-label={t("header.cart")} className="relative cursor-pointer text-foreground">
           <ShoppingBag />
           {!mounted ? (
             <Spinner className="absolute -top-1 -right-1 size-3" />
@@ -35,7 +37,7 @@ export function CartSheet() {
       </SheetTrigger>
       <SheetContent side="right" aria-describedby={undefined}>
         <SheetHeader>
-          <SheetTitle>Cart</SheetTitle>
+          <SheetTitle>{t("cart.title")}</SheetTitle>
         </SheetHeader>
         <CartItems />
       </SheetContent>

@@ -3,6 +3,7 @@
 import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/providers/i18n.provider";
 
 export function QuantityStepper({
   value,
@@ -19,6 +20,7 @@ export function QuantityStepper({
   disabled?: boolean;
   className?: string;
 }) {
+  const { t } = useI18n();
   const clamp = (n: number) => Math.min(Math.max(n, min), max);
 
   return (
@@ -27,7 +29,7 @@ export function QuantityStepper({
         type="button"
         variant="outline"
         size="icon-sm"
-        aria-label="Decrease quantity"
+        aria-label={t("cart.decrease")}
         disabled={disabled || value <= min}
         onClick={() => onChange(clamp(value - 1))}
       >
@@ -43,7 +45,7 @@ export function QuantityStepper({
         type="button"
         variant="outline"
         size="icon-sm"
-        aria-label="Increase quantity"
+        aria-label={t("cart.increase")}
         disabled={disabled || value >= max}
         onClick={() => onChange(clamp(value + 1))}
       >

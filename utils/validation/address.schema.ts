@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { email_field } from "./auth.schema";
+import { msg, type MessageKey } from "@/lib/i18n/translate";
 import type { Cart, CartAddress } from "@/utils/NORMALIZERS/cart.normalizer";
 
 // Checkout address step. Backend contract (checkout/v2, live-probed):
@@ -9,21 +10,21 @@ import type { Cart, CartAddress } from "@/utils/NORMALIZERS/cart.normalizer";
 //  - billing_address needs those + email; optional requested_invoice -> company,tax_id.
 // Phone kept to a simple digit check for now (libphonenumber-js deferred).
 
-const req = (label: string) => z.string().trim().min(1, `${label} is required`);
+const req = (message: MessageKey) => z.string().trim().min(1, message);
 const phone_field = z
   .string()
   .trim()
-  .min(1, "Phone number is required")
-  .regex(/^[0-9()\s-]{4,}$/, "Enter a valid phone number");
+  .min(1, msg("validation.phone_required"))
+  .regex(/^[0-9()\s-]{4,}$/, msg("validation.phone_invalid"));
 
 const address_fields = {
-  firstname: req("First name"),
-  lastname: req("Last name"),
-  street: req("Street"),
-  city: req("City"),
-  postcode: req("Postal code"),
-  country_code: req("Country"),
-  dialling_code: req("Dialling code"),
+  firstname: req("validation.firstname_required"),
+  lastname: req("validation.lastname_required"),
+  street: req("validation.street_required"),
+  city: req("validation.city_required"),
+  postcode: req("validation.postcode_required"),
+  country_code: req("validation.country_required"),
+  dialling_code: req("validation.dialling_code_required"),
   telephone: phone_field,
 };
 
@@ -40,15 +41,15 @@ const loose_address = z.object({
   telephone: z.string(),
 });
 
-const SHIP_LABELS: Record<string, string> = {
-  firstname: "First name",
-  lastname: "Last name",
-  street: "Street",
-  city: "City",
-  postcode: "Postal code",
-  country_code: "Country",
-  dialling_code: "Dialling code",
-  telephone: "Phone number",
+const SHIP_REQUIRED: Record<string, MessageKey> = {
+  firstname: "validation.firstname_required",
+  lastname: "validation.lastname_required",
+  street: "validation.street_required",
+  city: "validation.city_required",
+  postcode: "validation.postcode_required",
+  country_code: "validation.country_required",
+  dialling_code: "validation.dialling_code_required",
+  telephone: "validation.phone_required",
 };
 
 export const address_schema = z
@@ -63,17 +64,17 @@ export const address_schema = z
   .superRefine((v, ctx) => {
     if (v.requested_invoice) {
       if (!v.company.trim())
-        ctx.addIssue({ path: ["company"], code: "custom", message: "Company is required" });
+        ctx.addIssue({ path: ["company"], code: "custom", message: msg("validation.company_required") });
       if (!v.tax_id.trim())
-        ctx.addIssue({ path: ["tax_id"], code: "custom", message: "Tax ID is required" });
+        ctx.addIssue({ path: ["tax_id"], code: "custom", message: msg("validation.tax_id_required") });
     }
     if (v.ship_to_different) {
-      for (const key of Object.keys(SHIP_LABELS)) {
+      for (const [key, message] of Object.entries(SHIP_REQUIRED)) {
         if (!String((v.shipping as Record<string, string>)[key] ?? "").trim())
           ctx.addIssue({
             path: ["shipping", key],
             code: "custom",
-            message: `${SHIP_LABELS[key]} is required`,
+            message,
           });
       }
     }
@@ -81,15 +82,16 @@ export const address_schema = z
 
 export type AddressFormValues = z.infer<typeof address_schema>;
 
-// Country → default dialling code. Small curated set (this channel ships EU + UK).
+// Country → default dialling code. Small curated set (this channel ships EU + UK); the country name
+// is shown in the active language by i18n.country(code).
 export const COUNTRY_OPTIONS = [
-  { code: "PL", name: "Poland", dialling_code: "+48" },
-  { code: "DE", name: "Germany", dialling_code: "+49" },
-  { code: "FR", name: "France", dialling_code: "+33" },
-  { code: "ES", name: "Spain", dialling_code: "+34" },
-  { code: "IT", name: "Italy", dialling_code: "+39" },
-  { code: "NL", name: "Netherlands", dialling_code: "+31" },
-  { code: "GB", name: "United Kingdom", dialling_code: "+44" },
+  { code: "PL", dialling_code: "+48" },
+  { code: "DE", dialling_code: "+49" },
+  { code: "FR", dialling_code: "+33" },
+  { code: "ES", dialling_code: "+34" },
+  { code: "IT", dialling_code: "+39" },
+  { code: "NL", dialling_code: "+31" },
+  { code: "GB", dialling_code: "+44" },
 ] as const;
 
 export const DIALLING_OPTIONS = COUNTRY_OPTIONS.map((c) => c.dialling_code);

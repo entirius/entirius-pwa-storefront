@@ -4,6 +4,7 @@ import { CreditCard, Package, Receipt, Truck } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { Order } from "@/utils/NORMALIZERS/order.normalizer";
+import { useI18n } from "@/providers/i18n.provider";
 
 function SectionHeader({
   icon,
@@ -23,6 +24,7 @@ function SectionHeader({
 }
 
 export function OrderDetails({ order }: { order: Order }) {
+  const { t, price, country } = useI18n();
   const items = order.items;
   const shipping = order.shipping_address;
   const billing = order.billing_address;
@@ -34,7 +36,7 @@ export function OrderDetails({ order }: { order: Order }) {
       {items.length > 0 && (
         <section>
           <SectionHeader icon={<Package className="size-3.5 text-primary" />}>
-            Items ({items.length})
+            {t("orders.items_heading", { count: items.length })}
           </SectionHeader>
           <div className="overflow-hidden rounded-xl border border-border bg-card">
             {items.map((item, idx) => (
@@ -48,14 +50,14 @@ export function OrderDetails({ order }: { order: Order }) {
                 <div className="flex items-center justify-between">
                   <div className="flex-1 pr-3">
                     <p className="line-clamp-2 text-sm font-bold">
-                      {item.name || item.sku || "Product"}
+                      {item.name || item.sku || t("orders.product")}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Qty: {item.quantity}
+                      {t("orders.quantity", { count: item.quantity })}
                     </p>
                   </div>
                   <span className="text-sm font-bold">
-                    {item.total_price ?? item.price ?? "-"} {order.currency_code}
+                    {price(item.total_price ?? item.price, order.currency_code)}
                   </span>
                 </div>
                 {item.sub_items.length > 0 && (
@@ -85,7 +87,7 @@ export function OrderDetails({ order }: { order: Order }) {
       {shipping && (
         <section>
           <SectionHeader icon={<Truck className="size-3.5 text-primary" />}>
-            Shipping address
+            {t("checkout.shipping_address")}
           </SectionHeader>
           <div className="rounded-xl border border-border bg-card px-5 py-3">
             <p className="text-sm font-bold">
@@ -95,12 +97,13 @@ export function OrderDetails({ order }: { order: Order }) {
               {shipping.street}
             </p>
             <p className="text-sm text-muted-foreground">
-              {shipping.postcode} {shipping.city}, {shipping.country_code}
+              {shipping.postcode} {shipping.city}, {country(shipping.country_code)}
             </p>
             {shipping.telephone && (
               <p className="mt-1 text-xs text-muted-foreground">
-                Tel: {shipping.dialling_code}
-                {shipping.telephone}
+                {t("orders.phone", {
+                  value: `${shipping.dialling_code}${shipping.telephone}`,
+                })}
               </p>
             )}
             {shipping.email && (
@@ -114,7 +117,7 @@ export function OrderDetails({ order }: { order: Order }) {
       {show_billing && billing && (
         <section>
           <SectionHeader icon={<CreditCard className="size-3.5 text-primary" />}>
-            Billing address
+            {t("checkout.billing_address")}
           </SectionHeader>
           <div className="rounded-xl border border-border bg-card px-5 py-3">
             <p className="text-sm font-bold">
@@ -125,11 +128,11 @@ export function OrderDetails({ order }: { order: Order }) {
             )}
             <p className="mt-1 text-sm text-muted-foreground">{billing.street}</p>
             <p className="text-sm text-muted-foreground">
-              {billing.postcode} {billing.city}, {billing.country_code}
+              {billing.postcode} {billing.city}, {country(billing.country_code)}
             </p>
             {billing.tax_id && (
               <p className="mt-1 text-xs font-bold text-muted-foreground">
-                NIP: {billing.tax_id}
+                {t("address.tax_id_line", { value: billing.tax_id })}
               </p>
             )}
           </div>
@@ -139,26 +142,26 @@ export function OrderDetails({ order }: { order: Order }) {
       {/* Summary */}
       <section>
         <SectionHeader icon={<Receipt className="size-3.5 text-primary" />}>
-          Summary
+          {t("orders.summary")}
         </SectionHeader>
         <div className="rounded-xl border border-border bg-card px-5 py-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Subtotal</span>
+            <span className="text-sm text-muted-foreground">{t("orders.subtotal")}</span>
             <span className="text-sm">
-              {order.base_total} {order.currency_code}
+              {price(order.base_total, order.currency_code)}
             </span>
           </div>
           <div className="mt-2 flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Tax</span>
+            <span className="text-sm text-muted-foreground">{t("orders.tax")}</span>
             <span className="text-sm">
-              {order.total_tax} {order.currency_code}
+              {price(order.total_tax, order.currency_code)}
             </span>
           </div>
           <div className="my-3 border-t border-border" />
           <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold">Total</span>
+            <span className="text-sm font-semibold">{t("orders.total")}</span>
             <span className="text-lg font-bold text-primary">
-              {order.total} {order.currency_code}
+              {price(order.total, order.currency_code)}
             </span>
           </div>
         </div>

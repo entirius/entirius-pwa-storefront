@@ -12,6 +12,7 @@ import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
 import { make_client_access } from "@/API/access/api.client-access";
 import { create_api } from "@/API/api.context";
 import { useCartStore } from "@/stores/cart.store";
+import { useI18n } from "@/providers/i18n.provider";
 import { product_query } from "../api.query";
 import { stock_query } from "../stock.query";
 import { ProductPrice } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-price.client";
@@ -20,6 +21,7 @@ const PLACEHOLDER_MEDIA = [[{ uri: image_placeholder, width: 600, height: 600 }]
 
 
 export function ProductClient({ product_url_key }: { product_url_key: string }) {
+  const { t } = useI18n();
   const api = useMemo(() => create_api(make_client_access()), []);
   const { data: product, isLoading, error } = useQuery(
     product_query(api, { product_url_key })
@@ -48,8 +50,8 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
     return () => { carouselApi.off("select", onSelect); };
   }, [carouselApi]);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error || !product) return <div>Product not found</div>;
+  if (isLoading) return <div>{t("common.loading")}</div>;
+  if (error || !product) return <div>{t("product.not_found")}</div>;
 
   const media = product.media?.length ? product.media : PLACEHOLDER_MEDIA;
 
@@ -66,7 +68,7 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
                   <AspectRatio ratio={1} className="bg-muted overflow-hidden rounded-md">
                     <Image
                       src={img.uri}
-                      alt={`${product.name} – image ${i + 1}`}
+                      alt={t("product.image", { name: product.name, number: i + 1 })}
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"
                       className="object-cover grayscale dark:brightness-20"
@@ -107,7 +109,7 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
         <hr className="border-border" />
 
         <div className="flex items-center gap-3 mt-4">
-          <span className="text-sm text-muted-foreground">Quantity</span>
+          <span className="text-sm text-muted-foreground">{t("product.quantity")}</span>
           <QuantityStepper
             value={qty}
             onChange={setQty}
@@ -134,7 +136,7 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
               )
             }
           >
-            {inStock ? "Add to cart" : "Out of stock"}
+            {inStock ? t("product.add_to_cart") : t("product.out_of_stock")}
           </Button>
           <WishlistButton
             sku={product.sku}

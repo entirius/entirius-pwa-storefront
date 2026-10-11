@@ -36,6 +36,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { useI18n } from "@/providers/i18n.provider";
 
 export function AddressFormSheet({
   open,
@@ -50,6 +51,7 @@ export function AddressFormSheet({
   title: string;
   onSubmit: (body: ReturnType<typeof to_customer_address_body>) => Promise<void>;
 }) {
+  const { t, country } = useI18n();
   const [pending, startTransition] = useTransition();
   const form = useForm<CustomerAddressFormValues>({
     resolver: zodResolver(customer_address_schema as never),
@@ -65,7 +67,7 @@ export function AddressFormSheet({
         await onSubmit(to_customer_address_body(values));
         onOpenChange(false);
       } catch {
-        form.setError("root", { message: "Could not save the address. Please try again." });
+        form.setError("root", { message: t("profile.address_failed") });
       }
     });
   });
@@ -79,19 +81,19 @@ export function AddressFormSheet({
         <Form {...form}>
           <form onSubmit={submit} className="flex flex-col gap-4 p-4">
             <div className="grid gap-4 sm:grid-cols-2">
-              <TextField control={form.control} name="firstname" label="First name" autoComplete="given-name" />
-              <TextField control={form.control} name="lastname" label="Last name" autoComplete="family-name" />
+              <TextField control={form.control} name="firstname" label={t("address.firstname")} autoComplete="given-name" />
+              <TextField control={form.control} name="lastname" label={t("address.lastname")} autoComplete="family-name" />
             </div>
-            <TextField control={form.control} name="street" label="Street and number" autoComplete="street-address" />
+            <TextField control={form.control} name="street" label={t("address.street")} autoComplete="street-address" />
             <div className="grid gap-4 sm:grid-cols-2">
-              <TextField control={form.control} name="postcode" label="Postal code" autoComplete="postal-code" />
-              <TextField control={form.control} name="city" label="City" autoComplete="address-level2" />
+              <TextField control={form.control} name="postcode" label={t("address.postcode")} autoComplete="postal-code" />
+              <TextField control={form.control} name="city" label={t("address.city")} autoComplete="address-level2" />
             </div>
             <SelectField
               control={form.control}
               name="country_code"
-              label="Country"
-              options={COUNTRY_OPTIONS.map((c) => ({ value: c.code, label: c.name }))}
+              label={t("address.country")}
+              options={COUNTRY_OPTIONS.map((c) => ({ value: c.code, label: country(c.code) }))}
               onSelect={(code) => {
                 const opt = COUNTRY_OPTIONS.find((c) => c.code === code);
                 if (opt) form.setValue("dialling_code", opt.dialling_code);
@@ -101,10 +103,10 @@ export function AddressFormSheet({
               <SelectField
                 control={form.control}
                 name="dialling_code"
-                label="Code"
+                label={t("address.dialling_code")}
                 options={DIALLING_OPTIONS.map((d) => ({ value: d, label: d }))}
               />
-              <TextField control={form.control} name="telephone" label="Phone number" type="tel" autoComplete="tel-national" />
+              <TextField control={form.control} name="telephone" label={t("address.phone")} type="tel" autoComplete="tel-national" />
             </div>
 
             <FormField
@@ -116,15 +118,15 @@ export function AddressFormSheet({
                     <FormControl>
                       <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
-                    <FormLabel className="text-sm font-normal">Company address (invoice)</FormLabel>
+                    <FormLabel className="text-sm font-normal">{t("profile.company_address")}</FormLabel>
                   </div>
                 </FormItem>
               )}
             />
             {is_company && (
               <div className="grid gap-4 sm:grid-cols-2">
-                <TextField control={form.control} name="company" label="Company" autoComplete="organization" />
-                <TextField control={form.control} name="tax_id" label="Tax ID" />
+                <TextField control={form.control} name="company" label={t("address.company")} autoComplete="organization" />
+                <TextField control={form.control} name="tax_id" label={t("address.tax_id")} />
               </div>
             )}
 
@@ -132,7 +134,7 @@ export function AddressFormSheet({
               <p className="text-sm text-destructive">{form.formState.errors.root.message}</p>
             )}
             <Button type="submit" disabled={pending}>
-              {pending ? <Spinner className="size-4" /> : "Save address"}
+              {pending ? <Spinner className="size-4" /> : t("profile.save_address")}
             </Button>
           </form>
         </Form>

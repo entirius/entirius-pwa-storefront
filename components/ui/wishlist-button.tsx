@@ -7,6 +7,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useWishlistStore } from "@/stores/wishlist.store";
+import { useI18n } from "@/providers/i18n.provider";
 
 // ─── variants ────────────────────────────────────────────────────────────────
 
@@ -83,6 +84,7 @@ const WishlistButton = React.forwardRef<HTMLButtonElement, WishlistButtonProps>(
     },
     ref
   ) => {
+    const { t } = useI18n();
     const [mounted, setMounted] = React.useState(false);
     React.useEffect(() => setMounted(true), []);
 
@@ -101,7 +103,7 @@ const WishlistButton = React.forwardRef<HTMLButtonElement, WishlistButtonProps>(
       <Button
         ref={ref}
         data-active={isActive}
-        aria-label={ariaLabel ?? (isActive ? "Remove from wishlist" : "Add to wishlist")}
+        aria-label={ariaLabel ?? (isActive ? t("wishlist.remove") : t("wishlist.add"))}
         aria-pressed={isActive}
         variant={variant ?? "ghost"}
         size={size ?? "icon"}
@@ -115,7 +117,7 @@ const WishlistButton = React.forwardRef<HTMLButtonElement, WishlistButtonProps>(
           )}
         />
         {!isIconOnly && (
-          <span>{label ?? (isActive ? "Saved" : "Save")}</span>
+          <span>{label ?? (isActive ? t("wishlist.saved") : t("wishlist.save"))}</span>
         )}
       </Button>
     );

@@ -8,6 +8,8 @@ import { cookies } from "next/headers";
 
 import { TanstackQueryProvider } from "@/providers/Tanstack-query.provider";
 import { AuthProvider } from "@/providers/auth.provider";
+import { I18nProvider } from "@/providers/i18n.provider";
+import { get_i18n } from "@/lib/i18n/i18n.server";
 import { HeaderComponent } from "./_components/layout/header-component";
 import { Suspense } from "react";
 const geistSans = Geist({
@@ -30,18 +32,27 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // <html lang> follows the language cookie, which is runtime data: Next 16 (cacheComponents)
+  // requires it behind a Suspense boundary.
   return (
-    <html lang="en">
+    <Suspense>
+      <LocalizedDocument>{children}</LocalizedDocument>
+    </Suspense>
+  );
+}
+
+async function LocalizedDocument({ children }: { children: React.ReactNode }) {
+  const { language, messages } = await get_i18n();
+  return (
+    <html lang={language}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <TanstackQueryProvider>
-          {/* AuthGate reads the cookie inside Suspense so the dynamic read
-              doesn't block the static shell (Next 16 blocking-route rule). */}
-          <Suspense fallback={<div>Loading...</div>}>
+        <I18nProvider language={language} messages={messages}>
+          <TanstackQueryProvider>
             <AuthGate>{children}</AuthGate>
-          </Suspense>
-        </TanstackQueryProvider>
+          </TanstackQueryProvider>
+        </I18nProvider>
       </body>
     </html>
   );

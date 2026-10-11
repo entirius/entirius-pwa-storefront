@@ -4,6 +4,7 @@ import { Sun, Moon } from "lucide-react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/providers/i18n.provider";
 
 const themeToggleVariants = cva("", {
   variants: {
@@ -29,6 +30,7 @@ type ThemeToggleProps = VariantProps<typeof themeToggleVariants> & {
 };
 
 export function ThemeToggle({ variant = "ghost", size = "icon", className }: ThemeToggleProps) {
+  const { t } = useI18n();
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
@@ -51,7 +53,8 @@ export function ThemeToggle({ variant = "ghost", size = "icon", className }: The
       onClick={toggle}
       variant={variant}
       size={size}
-      aria-label="Toggle theme"
+      aria-label={t("header.toggle_theme")}
+      data-theme-toggle
       className={cn(className, "text-foreground")}
     >
       {dark ? <Sun className="size-5" /> : <Moon className="size-5" />}

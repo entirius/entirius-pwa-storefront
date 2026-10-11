@@ -8,6 +8,7 @@ import {
   status_style,
   type Order,
 } from "@/utils/NORMALIZERS/order.normalizer";
+import { useI18n } from "@/providers/i18n.provider";
 
 type OrderCardProps = {
   order: Order;
@@ -16,12 +17,12 @@ type OrderCardProps = {
 };
 
 export function OrderCard({ order, is_selected, on_select }: OrderCardProps) {
+  const { t, price, language } = useI18n();
   const style = status_style(order.status);
 
-  const formatted_date = format_order_date(order.created);
+  const formatted_date = format_order_date(order.created, language);
 
-  const items_count = order.items.length;
-  const items_text = `${items_count} ${items_count === 1 ? "item" : "items"}`;
+  const items_text = t("orders.items", { count: order.items.length });
 
   return (
     <button
@@ -63,7 +64,7 @@ export function OrderCard({ order, is_selected, on_select }: OrderCardProps) {
             </div>
           </div>
           <span className="text-base font-bold">
-            {order.total} {order.currency_code}
+            {price(order.total, order.currency_code)}
           </span>
         </div>
 
@@ -86,7 +87,7 @@ export function OrderCard({ order, is_selected, on_select }: OrderCardProps) {
               is_selected && "text-primary-foreground",
             )}
           >
-            {is_selected ? "Viewing details" : "View details"}
+            {is_selected ? t("orders.viewing") : t("orders.view")}
           </span>
         </div>
       </div>

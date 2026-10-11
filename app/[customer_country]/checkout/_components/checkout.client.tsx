@@ -14,10 +14,12 @@ import { AddressStep } from "./address-step";
 import { ShippingStep } from "./shipping-step";
 import { PaymentStep } from "./payment-step";
 import { ReviewStep } from "./review-step";
+import { useI18n } from "@/providers/i18n.provider";
 
 const LOCKED: Set<CheckoutStep> = new Set();
 
 export function CheckoutClient() {
+  const { t } = useI18n();
   const { mounted, backend, isFetching, error, items, currency } = useCartSync();
   const entries = Object.entries(items);
   const router = useRouter();
@@ -55,13 +57,13 @@ export function CheckoutClient() {
   if (entries.length === 0) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-12">
-        <h1 className="mb-6 text-2xl font-bold">Checkout</h1>
+        <h1 className="mb-6 text-2xl font-bold">{t("checkout.title")}</h1>
         <p className="text-muted-foreground py-8 text-center">
-          Your cart is empty.
+          {t("checkout.empty")}
         </p>
         <div className="flex justify-center">
           <Button asChild variant="outline">
-            <LinkDynamic href="/">Continue shopping</LinkDynamic>
+            <LinkDynamic href="/">{t("common.continue_shopping")}</LinkDynamic>
           </Button>
         </div>
       </div>
@@ -102,7 +104,7 @@ export function CheckoutClient() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
       <div className="mb-8 flex items-center gap-3">
-        <h1 className="text-2xl font-bold">Checkout</h1>
+        <h1 className="text-2xl font-bold">{t("checkout.title")}</h1>
         {isFetching && <Spinner className="size-4" />}
       </div>
 
@@ -117,12 +119,12 @@ export function CheckoutClient() {
         <div className="min-w-0">
           {error && (
             <p className="mb-4 rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              Couldn’t sync your cart with the server. Showing local items.
+              {t("checkout.sync_error")}
             </p>
           )}
           {backend && !validation_ok && backend.errors.length > 0 && (
             <div className="mb-4 rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              <p className="font-medium">Some items need attention:</p>
+              <p className="font-medium">{t("checkout.items_attention")}</p>
               <ul className="mt-1 list-disc pl-5">
                 {backend.errors.map((e, i) => (
                   <li key={i}>{e.message}</li>

@@ -7,6 +7,7 @@ import { API_PRODUCTS_ROUTE } from "@/API/api.routes";
 import { NORM_PRODUCTS_DATA } from "@/utils/NORMALIZERS/product.normalizer";
 import { ProductTile } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-tile.client";
 import type { CmsSectionBaseProps } from "@/types/cms.types";
+import { useI18n } from "@/providers/i18n.provider";
 
 interface TileTypeBProps extends CmsSectionBaseProps {
   url_key?: string;
@@ -27,6 +28,7 @@ function TileShell({ children }: { children?: React.ReactNode }) {
 }
 
 export default function TileTypeB({ url_key }: TileTypeBProps) {
+  const { t } = useI18n();
   const { data: product, isLoading, error } = useQuery({
     queryKey: ["product", url_key],
     queryFn: async () => {
@@ -43,7 +45,7 @@ export default function TileTypeB({ url_key }: TileTypeBProps) {
   if (!url_key) {
     return (
       <TileShell>
-        <p className="text-xs text-muted-foreground">Missing url_key</p>
+        <p className="text-xs text-muted-foreground">{t("cms.missing_url_key")}</p>
       </TileShell>
     );
   }
@@ -59,7 +61,7 @@ export default function TileTypeB({ url_key }: TileTypeBProps) {
   if (error || !product) {
     return (
       <TileShell>
-        <p className="text-xs text-muted-foreground">Product unavailable</p>
+        <p className="text-xs text-muted-foreground">{t("cms.product_unavailable")}</p>
         <p className="mt-1 text-[10px] text-muted-foreground">{url_key}</p>
       </TileShell>
     );
