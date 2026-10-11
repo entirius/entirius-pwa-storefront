@@ -1,5 +1,9 @@
 export const API_CATEGORIES_ROUTE = "/api/matrix/v2/__CHANNEL__/categories/";
 export const API_PRODUCTS_ROUTE = "/api/matrix/v2/__CHANNEL__/products/";
+// Option axes + variant list of a configurable product. The caller fills __URL_KEY__ before
+// FETCH_METHOD (the engine resolves only cookie-backed placeholders); see variants_query.
+export const API_PRODUCT_VARIANTS_ROUTE =
+  "/api/matrix/v2/__CHANNEL__/products/__URL_KEY__/variants/";
 export const API_PRICES_ROUTE = "/api/matrix/v2/__CHANNEL__/prices/";
 export const API_CATALOG_FILTERS_ROUTE = "/api/matrix/v2/__CHANNEL__/options/";
 export const API_STOCK_ROUTE = "/api/matrix/v2/__CHANNEL__/stock/";
@@ -65,6 +69,7 @@ export const API_COOKIE_CONSENTS_ROUTE =
 export const API_ROUTES_POLICY = {
   [API_CATEGORIES_ROUTE]: { default_querys: ["language"] },
   [API_PRODUCTS_ROUTE]: { default_querys: ["language", "currency", "country"] },
+  [API_PRODUCT_VARIANTS_ROUTE]: { default_querys: ["language", "currency", "country"] },
   [API_SEARCH_ROUTE]: { default_querys: ["language", "currency", "country"] },
   [API_USER_PROFILE_ROUTE]: {
     refresh_on: [401],
