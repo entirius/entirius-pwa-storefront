@@ -3,6 +3,7 @@
 import { memo, useCallback } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/providers/i18n.provider";
 import { useFiltersStore, to_filter_key } from "./filters.store";
 
 type FilterSortItemProps = {
@@ -18,6 +19,7 @@ const FilterSortItem = memo(function FilterSortItem({
   option_idx,
   label,
 }: FilterSortItemProps) {
+  const { t } = useI18n();
   const sort_key = `s_${option_idx}`;
 
   const { is_asc, is_desc, sort_toggle } = useFiltersStore(
@@ -46,14 +48,14 @@ const FilterSortItem = memo(function FilterSortItem({
         size="xs"
         onClick={toggle_asc}
       >
-        ASC ↑
+        {t("catalog.sort_asc")}
       </Button>
       <Button
         variant={is_desc ? "default" : "outline"}
         size="xs"
         onClick={toggle_desc}
       >
-        DESC ↓
+        {t("catalog.sort_desc")}
       </Button>
     </div>
   );

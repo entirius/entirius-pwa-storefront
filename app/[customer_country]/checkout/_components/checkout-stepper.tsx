@@ -2,15 +2,17 @@
 
 import { Check, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { msg } from "@/lib/i18n/translate";
+import { useI18n } from "@/providers/i18n.provider";
 
 export type CheckoutStep = "address" | "shipping" | "payment" | "review";
 
-export const CHECKOUT_STEPS: { id: CheckoutStep; label: string }[] = [
-  { id: "address", label: "Address" },
-  { id: "shipping", label: "Shipping" },
-  { id: "payment", label: "Payment" },
-  { id: "review", label: "Review" },
-];
+export const CHECKOUT_STEPS = [
+  { id: "address", label: msg("checkout.step_address") },
+  { id: "shipping", label: msg("checkout.step_shipping") },
+  { id: "payment", label: msg("checkout.step_payment") },
+  { id: "review", label: msg("checkout.step_review") },
+] as const;
 
 export function CheckoutStepper({
   current,
@@ -23,6 +25,7 @@ export function CheckoutStepper({
   locked: Set<CheckoutStep>;
   onStep?: (step: CheckoutStep) => void;
 }) {
+  const { t } = useI18n();
   return (
     <ol className="flex items-center gap-2">
       {CHECKOUT_STEPS.map((step, i) => {
@@ -64,7 +67,7 @@ export function CheckoutStepper({
                   is_current ? "font-medium text-foreground" : "text-muted-foreground",
                 )}
               >
-                {step.label}
+                {t(step.label)}
               </span>
             </button>
             {i < CHECKOUT_STEPS.length - 1 && (

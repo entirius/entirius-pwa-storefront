@@ -4,6 +4,7 @@ import { catalog_query } from "./api.query";
 import { create_api } from "@/API/api.context";
 import { make_server_access } from "@/API/access/api.server-access";
 import { ListingClient } from "./_components/listing.client";
+import { get_i18n } from "@/lib/i18n/i18n.server";
 
 interface Props {
   params: Promise<{
@@ -32,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   //   title: (data as any)?.name ?? "Catalog",
   // };
   return {
-    title: "Catalog",
+    title: (await get_i18n()).t("catalog.title"),
   };
 }
 

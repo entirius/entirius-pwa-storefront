@@ -36,6 +36,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Spinner } from "@/components/ui/spinner";
+import { useI18n } from "@/providers/i18n.provider";
 
 // Backend validation field ("billing_address.email") → RHF form path ("billing.email").
 // company/tax_id live at the form root (sent inside billing_address only when invoiced).
@@ -61,6 +62,7 @@ export function AddressStep({
   initial?: AddressFormValues | null;
   onSaved: (cart: unknown) => void;
 }) {
+  const { t } = useI18n();
   const access = useMemo(() => make_client_access(), []);
   const api = useMemo(() => create_api(access), [access]);
   const [pending, startTransition] = useTransition();
@@ -99,7 +101,7 @@ export function AddressStep({
           }
         } else {
           form.setError("root", {
-            message: error.message || "Couldn’t save your address.",
+            message: error.message || t("checkout.address_failed"),
           });
         }
         return;
@@ -142,12 +144,12 @@ export function AddressStep({
 
         <fieldset className="flex flex-col gap-4">
           <legend className="mb-2 text-sm font-semibold text-muted-foreground">
-            Billing details
+            {t("checkout.billing_details")}
           </legend>
           <TextField
             control={form.control}
             name="billing.email"
-            label="Email"
+            label={t("address.email")}
             type="email"
             autoComplete="email"
           />
@@ -166,15 +168,15 @@ export function AddressStep({
                     onCheckedChange={field.onChange}
                   />
                 </FormControl>
-                <span className="text-sm">Request a VAT invoice</span>
+                <span className="text-sm">{t("checkout.request_invoice")}</span>
               </label>
             </FormItem>
           )}
         />
         {requested_invoice && (
           <div className="grid gap-4 sm:grid-cols-2">
-            <TextField control={form.control} name="company" label="Company" />
-            <TextField control={form.control} name="tax_id" label="Tax ID" />
+            <TextField control={form.control} name="company" label={t("address.company")} />
+            <TextField control={form.control} name="tax_id" label={t("address.tax_id")} />
           </div>
         )}
 
@@ -190,7 +192,7 @@ export function AddressStep({
                     onCheckedChange={field.onChange}
                   />
                 </FormControl>
-                <span className="text-sm">Ship to a different address</span>
+                <span className="text-sm">{t("checkout.ship_to_different")}</span>
               </label>
             </FormItem>
           )}
@@ -198,7 +200,7 @@ export function AddressStep({
         {ship_to_different && (
           <fieldset className="flex flex-col gap-4">
             <legend className="mb-2 text-sm font-semibold text-muted-foreground">
-              Shipping address
+              {t("checkout.shipping_address")}
             </legend>
             <AddressFields control={form.control} prefix="shipping" form={form} />
           </fieldset>
@@ -211,10 +213,10 @@ export function AddressStep({
         )}
 
         {!cartReady && (
-          <p className="text-xs text-muted-foreground">Preparing your cart…</p>
+          <p className="text-xs text-muted-foreground">{t("checkout.preparing")}</p>
         )}
         <Button type="submit" disabled={pending || !cartReady} className="w-full sm:w-auto">
-          {pending ? <Spinner className="size-4" /> : "Continue to shipping"}
+          {pending ? <Spinner className="size-4" /> : t("checkout.to_shipping")}
         </Button>
       </form>
     </Form>
@@ -232,6 +234,7 @@ function AddressFields({
   prefix: "billing" | "shipping";
   form: ReturnType<typeof useForm<AddressFormValues>>;
 }) {
+  const { t, country } = useI18n();
   const onCountry = (code: string) => {
     const opt = COUNTRY_OPTIONS.find((c) => c.code === code);
     if (opt)
@@ -244,29 +247,29 @@ function AddressFields({
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2">
-        <TextField control={control} name={`${prefix}.firstname` as Path<AddressFormValues>} label="First name" autoComplete="given-name" />
-        <TextField control={control} name={`${prefix}.lastname` as Path<AddressFormValues>} label="Last name" autoComplete="family-name" />
+        <TextField control={control} name={`${prefix}.firstname` as Path<AddressFormValues>} label={t("address.firstname")} autoComplete="given-name" />
+        <TextField control={control} name={`${prefix}.lastname` as Path<AddressFormValues>} label={t("address.lastname")} autoComplete="family-name" />
       </div>
-      <TextField control={control} name={`${prefix}.street` as Path<AddressFormValues>} label="Street and number" autoComplete="street-address" />
+      <TextField control={control} name={`${prefix}.street` as Path<AddressFormValues>} label={t("address.street")} autoComplete="street-address" />
       <div className="grid gap-4 sm:grid-cols-2">
-        <TextField control={control} name={`${prefix}.postcode` as Path<AddressFormValues>} label="Postal code" autoComplete="postal-code" />
-        <TextField control={control} name={`${prefix}.city` as Path<AddressFormValues>} label="City" autoComplete="address-level2" />
+        <TextField control={control} name={`${prefix}.postcode` as Path<AddressFormValues>} label={t("address.postcode")} autoComplete="postal-code" />
+        <TextField control={control} name={`${prefix}.city` as Path<AddressFormValues>} label={t("address.city")} autoComplete="address-level2" />
       </div>
       <SelectField
         control={control}
         name={`${prefix}.country_code` as Path<AddressFormValues>}
-        label="Country"
-        options={COUNTRY_OPTIONS.map((c) => ({ value: c.code, label: c.name }))}
+        label={t("address.country")}
+        options={COUNTRY_OPTIONS.map((c) => ({ value: c.code, label: country(c.code) }))}
         onSelect={onCountry}
       />
       <div className="grid gap-4 sm:grid-cols-[7rem_1fr]">
         <SelectField
           control={control}
           name={`${prefix}.dialling_code` as Path<AddressFormValues>}
-          label="Code"
+          label={t("address.dialling_code")}
           options={DIALLING_OPTIONS.map((d) => ({ value: d, label: d }))}
         />
-        <TextField control={control} name={`${prefix}.telephone` as Path<AddressFormValues>} label="Phone number" type="tel" autoComplete="tel-national" />
+        <TextField control={control} name={`${prefix}.telephone` as Path<AddressFormValues>} label={t("address.phone")} type="tel" autoComplete="tel-national" />
       </div>
     </>
   );

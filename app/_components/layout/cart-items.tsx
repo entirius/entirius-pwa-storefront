@@ -10,6 +10,7 @@ import { LinkDynamic } from "@/lib/link-dynamic";
 import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
 import { useCartSync } from "@/stores/use-cart-sync";
 import { UnitPrice } from "./cart-price";
+import { useI18n } from "@/providers/i18n.provider";
 
 const num = (v: string | null | undefined) => {
   const n = parseFloat(String(v));
@@ -23,18 +24,18 @@ const num = (v: string | null | undefined) => {
 const SOFT_MAX = 99;
 
 export function CartItems() {
+  const { t, price } = useI18n();
   const { backend, isFetching, error, items, setQty, remove } = useCartSync();
   const entries = Object.entries(items);
 
   if (entries.length === 0) {
     return (
-      <p className="text-muted-foreground text-center py-8">Your cart is empty</p>
+      <p className="text-muted-foreground text-center py-8">{t("cart.empty")}</p>
     );
   }
 
   const currency_label = backend?.currency || "";
-  const fmt = (v: string | null | undefined) =>
-    v == null ? "—" : `${v} ${currency_label}`.trim();
+  const fmt = (v: string | number | null | undefined) => price(v, currency_label);
   const validation_ok = backend?.validation_status === "valid";
   // Combined savings for the compact drawer: special-price + code discounts.
   const total_savings =
@@ -44,13 +45,13 @@ export function CartItems() {
     <div className="flex flex-col gap-4 px-4 pb-4">
       {error && (
         <p className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-          Couldn’t sync with the server. Showing local items.
+          {t("cart.sync_error")}
         </p>
       )}
 
       {backend && !validation_ok && backend.errors.length > 0 && (
         <p className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-          Some items need attention before checkout.
+          {t("cart.needs_attention")}
         </p>
       )}
 
@@ -61,7 +62,7 @@ export function CartItems() {
           const flagged = line?.is_limited || backend?.error_skus.has(sku);
           const line_total = line
             ? fmt(line.final_total_gross)
-            : (item.price[item.price.length - 1] ?? "—");
+            : price(item.price?.final_gross ?? item.price?.gross, item.price?.currency);
           return (
             <div key={sku} className="flex gap-3">
               <div className="relative size-16 shrink-0 overflow-hidden rounded-md bg-muted">
@@ -85,8 +86,8 @@ export function CartItems() {
                 {flagged && (
                   <p className="text-xs text-destructive">
                     {line?.status === "out_of_stock"
-                      ? "Out of stock"
-                      : "Limited availability"}
+                      ? t("product.out_of_stock")
+                      : t("cart.limited")}
                   </p>
                 )}
                 <div className="mt-auto flex items-center justify-between gap-2">
@@ -104,7 +105,7 @@ export function CartItems() {
                       type="button"
                       variant="ghost"
                       size="icon-sm"
-                      aria-label={`Remove ${item.name}`}
+                      aria-label={t("cart.remove", { name: item.name })}
                       onClick={() => remove(sku)}
                     >
                       <X />
@@ -120,31 +121,31 @@ export function CartItems() {
       <div className="flex flex-col gap-1 border-t pt-3 text-sm">
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-2 text-muted-foreground">
-            Subtotal
+            {t("cart.subtotal")}
             {isFetching && <Spinner className="size-3" />}
           </span>
           <span className="tabular-nums">{fmt(backend?.subtotal_gross)}</span>
         </div>
         {total_savings > 0.005 && (
           <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-500">
-            <span>You save</span>
-            <span className="tabular-nums">−{fmt(total_savings.toFixed(2))}</span>
+            <span>{t("cart.you_save")}</span>
+            <span className="tabular-nums">−{fmt(total_savings)}</span>
           </div>
         )}
         <div className="mt-1 flex items-center justify-between border-t pt-2 text-base font-semibold">
-          <span>Total</span>
+          <span>{t("cart.total")}</span>
           <span className="tabular-nums">{fmt(backend?.total_gross)}</span>
         </div>
         {backend?.total_tax && (
           <p className="text-right text-xs text-muted-foreground">
-            incl. VAT {fmt(backend.total_tax)}
+            {t("cart.incl_vat", { amount: fmt(backend.total_tax) })}
           </p>
         )}
       </div>
 
       <SheetClose asChild>
         <Button className="w-full" disabled={entries.length === 0} asChild>
-          <LinkDynamic href="/checkout">Checkout</LinkDynamic>
+          <LinkDynamic href="/checkout">{t("cart.checkout")}</LinkDynamic>
         </Button>
       </SheetClose>
     </div>

@@ -1,3 +1,5 @@
+"use client"
+
 import * as React from "react"
 import {
   ChevronLeftIcon,
@@ -7,12 +9,14 @@ import {
 
 import { cn } from "@/lib/utils"
 import { buttonVariants, type Button } from "@/components/ui/button"
+import { useI18n } from "@/providers/i18n.provider"
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
+  const { t } = useI18n()
   return (
     <nav
       role="navigation"
-      aria-label="pagination"
+      aria-label={t("catalog.pagination")}
       data-slot="pagination"
       className={cn("mx-auto flex w-full justify-center", className)}
       {...props}
@@ -69,15 +73,16 @@ function PaginationPrevious({
   className,
   ...props
 }: React.ComponentProps<typeof PaginationLink>) {
+  const { t } = useI18n()
   return (
     <PaginationLink
-      aria-label="Go to previous page"
+      aria-label={t("catalog.previous_page")}
       size="default"
       className={cn("gap-1 px-2.5 sm:pl-2.5", className)}
       {...props}
     >
       <ChevronLeftIcon />
-      <span className="hidden sm:block">Previous</span>
+      <span className="hidden sm:block">{t("catalog.previous")}</span>
     </PaginationLink>
   )
 }
@@ -86,14 +91,15 @@ function PaginationNext({
   className,
   ...props
 }: React.ComponentProps<typeof PaginationLink>) {
+  const { t } = useI18n()
   return (
     <PaginationLink
-      aria-label="Go to next page"
+      aria-label={t("catalog.next_page")}
       size="default"
       className={cn("gap-1 px-2.5 sm:pr-2.5", className)}
       {...props}
     >
-      <span className="hidden sm:block">Next</span>
+      <span className="hidden sm:block">{t("catalog.next")}</span>
       <ChevronRightIcon />
     </PaginationLink>
   )
@@ -103,6 +109,7 @@ function PaginationEllipsis({
   className,
   ...props
 }: React.ComponentProps<"span">) {
+  const { t } = useI18n()
   return (
     <span
       aria-hidden
@@ -111,7 +118,7 @@ function PaginationEllipsis({
       {...props}
     >
       <MoreHorizontalIcon className="size-4" />
-      <span className="sr-only">More pages</span>
+      <span className="sr-only">{t("catalog.more_pages")}</span>
     </span>
   )
 }

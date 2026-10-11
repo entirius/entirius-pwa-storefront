@@ -7,12 +7,14 @@ import { make_client_access } from "@/API/access/api.client-access";
 import { static_page_query } from "../api.query";
 import { render_cms_document } from "./cms-renderer";
 import type { CmsDocumentContent } from "@/types/cms.types";
+import { useI18n } from "@/providers/i18n.provider";
 
 interface Props {
   routes: string[];
 }
 
 export function BuilderClient({ routes }: Props) {
+  const { t } = useI18n();
   const api = useMemo(() => create_api(make_client_access()), []);
   const { data, isLoading, error } = useQuery(static_page_query(api, { routes }));
 
@@ -30,7 +32,7 @@ export function BuilderClient({ routes }: Props) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-2">
         <p className="text-sm font-medium text-destructive">
-          Error loading page
+          {t("page.loading_error")}
         </p>
         <p className="text-xs text-muted-foreground">
           {(error as Error).message}
