@@ -22,7 +22,7 @@ export function OrderCard({ order, is_selected, on_select }: OrderCardProps) {
 
   const formatted_date = format_order_date(order.created, language);
 
-  const items_text = t("orders.items", { count: order.items.length });
+  const items_text = t("orders.items", { count: order.item_count });
 
   return (
     <button

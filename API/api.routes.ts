@@ -28,6 +28,9 @@ export const API_CART_ORDERS_ROUTE = "/api/checkout/v2/__CHANNEL__/orders/";
 // server-side (unhandled exception), same as the other v2 GET-list routes.
 export const API_CART_ORDERS_LIST_ROUTE =
   "/api/checkout/v2/__CHANNEL__/orders/list/";
+// One order with its cart, addresses and totals. The caller fills __ORDER_ID__ before FETCH_METHOD.
+export const API_CART_ORDER_ROUTE =
+  "/api/checkout/v2/__CHANNEL__/orders/__ORDER_ID__/";
 // v1 orders GET works today (same response shape) — exposed in the DEBUG probe
 // console alongside v2 so the difference is visible while v2 is broken.
 export const API_CART_ORDERS_V1_ROUTE = "/api/checkout/v1/__CHANNEL__/orders/";
@@ -206,6 +209,15 @@ export const API_ROUTES_POLICY = {
     ],
   },
   [API_CART_ORDERS_LIST_ROUTE]: {
+    refresh_on: [401],
+    optional_refresh: true,
+    default_headers: [
+      ["x-api-key", "channel_checkout_key"],
+      ["Authorization", "access_token"],
+      { "Content-Type": "application/json" },
+    ],
+  },
+  [API_CART_ORDER_ROUTE]: {
     refresh_on: [401],
     optional_refresh: true,
     default_headers: [
