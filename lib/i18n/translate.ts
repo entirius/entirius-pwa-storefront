@@ -38,8 +38,14 @@ export function create_i18n(language: string, messages: Messages) {
       Object.hasOwn(messages, value) ? t(value as MessageKey) : value,
     price: (amount: string | number | null | undefined, currency?: string | null) =>
       format_price(amount, currency, language),
-    country: (code: string) =>
-      new Intl.DisplayNames([language], { type: "region" }).of(code) ?? code,
+    // An empty or unknown code is printed as it is: Intl.DisplayNames throws on it.
+    country: (code: string) => {
+      try {
+        return new Intl.DisplayNames([language], { type: "region" }).of(code) ?? code;
+      } catch {
+        return code;
+      }
+    },
   };
 }
 
