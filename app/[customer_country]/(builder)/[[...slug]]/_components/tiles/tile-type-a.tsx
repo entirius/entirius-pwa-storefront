@@ -136,7 +136,7 @@ export default function TileTypeA({
           )}
           {description && (
             <div
-              className="prose prose-sm max-w-none"
+              className="cms-rich-text text-sm"
               style={{ color: dye_styles.html_text_color }}
               dangerouslySetInnerHTML={{ __html: description }}
             />
@@ -180,7 +180,7 @@ export default function TileTypeA({
           )}
           {description && (
             <div
-              className="prose prose-sm max-w-none"
+              className="cms-rich-text text-sm"
               style={{ color: dye_styles.html_text_color }}
               dangerouslySetInnerHTML={{ __html: description }}
             />
@@ -220,7 +220,7 @@ export default function TileTypeA({
         )}
         {description && (
           <div
-            className="prose prose-sm max-w-none"
+            className="cms-rich-text text-sm"
             style={{ color: dye_styles.html_text_color }}
             dangerouslySetInnerHTML={{ __html: description }}
           />

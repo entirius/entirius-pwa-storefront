@@ -1,3 +1,5 @@
+import { cache } from "react";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PrefetchBoundary } from "@/lib/prefetch_boundary";
 import { create_api } from "@/API/api.context";
@@ -17,15 +19,34 @@ interface Props {
   }>;
 }
 
+// One api instance per request, shared by generateMetadata and the page so the page is fetched once.
+const get_api = cache(async () => create_api(await make_server_access()));
+
+// Not CMS pages: slugs with dots are browser-internal paths (e.g. Chrome DevTools .json).
+const is_page_route = (slug?: string[]) => !slug?.some((s) => s.includes("."));
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  if (!is_page_route(slug)) return {};
+
+  const [, cms_data] = await load_static_page(await get_api(), {
+    routes: slug?.[0] ? [slug[0]] : ["home"],
+  });
+  const meta = cms_data?.data?.[0]?.meta;
+  return {
+    ...(meta?.title && { title: meta.title }),
+    ...(meta?.description && { description: meta.description }),
+  };
+}
+
 export default async function BuilderPage({ params }: Props) {
   const { slug } = await params;
 
-  // Guard: slugs with dots are browser-internal paths (e.g. Chrome DevTools .json), not CMS pages
-  if (slug?.some((s) => s.includes("."))) notFound();
+  if (!is_page_route(slug)) notFound();
 
   const routes = slug?.[0] ? [slug[0]] : ["home"];
 
-  const api = create_api(await make_server_access());
+  const api = await get_api();
   // ------------------------------------------------------------
   // Fetch CMS document first to extract product url_keys for batch prefetch.
   // load_static_page is React.cache()-wrapped — the second call inside
