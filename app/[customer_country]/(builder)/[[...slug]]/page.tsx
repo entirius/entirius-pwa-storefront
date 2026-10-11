@@ -11,6 +11,7 @@ import {
 } from "./api.query";
 import { aggregate_url_keys } from "./_components/cms-product-aggregation.config";
 import { BuilderClient } from "./_components/builder.client";
+import { LAYOUT_ROUTE_PREFIX } from "@/app/_components/layout-slots/api.query";
 
 interface Props {
   params: Promise<{
@@ -22,8 +23,10 @@ interface Props {
 // One api instance per request, shared by generateMetadata and the page so the page is fetched once.
 const get_api = cache(async () => create_api(await make_server_access()));
 
-// Not CMS pages: slugs with dots are browser-internal paths (e.g. Chrome DevTools .json).
-const is_page_route = (slug?: string[]) => !slug?.some((s) => s.includes("."));
+// Not CMS pages: slugs with dots are browser-internal paths (e.g. Chrome DevTools .json), and routes
+// with the layout prefix hold layout slots (the footer), which are not reachable as pages.
+const is_page_route = (slug?: string[]) =>
+  !slug?.some((s) => s.includes(".")) && !slug?.[0]?.startsWith(LAYOUT_ROUTE_PREFIX);
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
