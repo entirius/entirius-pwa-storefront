@@ -113,6 +113,11 @@ Two patterns:
 - **Server state** — TanStack Query. All API data goes through `useQuery` with co-located query definitions (`api.query.ts`). Server-prefetched via `PrefetchBoundary`, hydrated on client.
 - **Client state** — Zustand:
   - `stores/cart.store.ts` and `stores/wishlist.store.ts` — persisted to localStorage with flat serialization
+  - The local cart is the source of truth; the cart page and checkout sync it to the backend (`stores/cart.query.ts`).
+    Only a cart created (POST) with the customer's token belongs to the account. On login `merge_cart_on_login()`
+    (`stores/cart-login.ts`) adds the account's saved cart (`carts/latest/`) to the local one (a shared SKU gets the
+    sum), adopts its `cart_id` and closes the guest cart; on logout the cart leaves the device and comes back with
+    the next login.
   - `app/.../catalog/.../_components/filters.store.ts` — co-located with catalog page, initializes from `URLSearchParams`
 
 ## Coding Standards

@@ -2,45 +2,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
-import app_config from "../../_CONFIG/app.config.json";
+import { expect, test } from "@playwright/test";
+import { create_account, login } from "./support/account";
 
 // Logged-in customer: login, profile, address book, token refresh, logout.
 // Every run creates a fresh, active account through the accounts API (signup +
 // the same activation call /user-handler makes), so no fixed credentials exist.
-
-const ACCOUNTS = `${app_config.API_BASE_URL}/api/accounts/v1/default-europe/customer`;
-const PASSWORD = "E2e-Account-2026!";
-
-async function create_account(request: APIRequestContext): Promise<string> {
-  const email = `e2e-account-${Date.now()}@example.com`;
-  const signup = await request.post(`${ACCOUNTS}/signup/`, {
-    data: {
-      email,
-      password: PASSWORD,
-      agreements: { email: true, condition: true, newsletter: false },
-      language: "en",
-    },
-  });
-  expect(signup.ok(), await signup.text()).toBe(true);
-  const { uid, confirmation_key } = (await signup.json()).data;
-  const activate = await request.post(`${ACCOUNTS}/signup/${uid}/`, {
-    params: { key: confirmation_key },
-  });
-  expect(activate.ok(), await activate.text()).toBe(true);
-  return email;
-}
-
-async function login(page: Page, email: string) {
-  await page.goto("/");
-  await page.locator("header").getByRole("button", { name: "Sign in" }).click();
-  const sheet = page.getByRole("dialog");
-  await sheet.getByLabel("Email").fill(email);
-  await sheet.getByLabel("Password").fill(PASSWORD);
-  await sheet.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(page).toHaveURL(/\/profile$/);
-  await expect(page.getByRole("heading", { name: "My account" })).toBeVisible();
-}
 
 test.describe.configure({ mode: "serial" });
 
@@ -152,6 +119,12 @@ test("cart requests carry the customer token after login", async ({ page }) => {
   const res = await cart_call;
   expect(res.ok()).toBe(true);
   expect(res.request().headers()["authorization"]).toMatch(/^Bearer \S+$/);
+
+  // The cart now belongs to the account and would come back at the next login:
+  // empty it, so the order test below starts from an empty cart.
+  const closed = page.waitForResponse((r) => r.request().method() === "DELETE" && r.url().includes("/carts/"));
+  await page.getByRole("region", { name: "Items in your cart" }).getByRole("button", { name: /^Remove/ }).click();
+  expect((await closed).ok()).toBe(true);
 });
 
 // Places an order: never run alongside another order-placing spec in the same

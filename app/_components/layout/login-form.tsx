@@ -14,6 +14,7 @@ import {
   dummy_login_defaults,
   type LoginFormValues,
 } from "@/utils/validation/auth.schema";
+import { merge_cart_on_login } from "@/stores/cart-login";
 import { client_login } from "@/lib/auth-client";
 import {
   Form,
@@ -61,6 +62,8 @@ export function LoginForm({
         });
         return;
       }
+      // Before the app flips to logged in, so the cart sync starts from the merged cart.
+      await merge_cart_on_login();
       onSuccess();
     });
   });

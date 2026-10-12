@@ -9,6 +9,7 @@ import { LayoutGrid, LogOut, MapPin, Package } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { client_logout } from "@/lib/auth-client";
+import { clear_cart_on_logout } from "@/stores/cart-login";
 import { useAuth } from "@/providers/auth.provider";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import type { MessageKey } from "@/lib/i18n/translate";
@@ -32,6 +33,7 @@ export function AccountMenu() {
 
   const logout = () => {
     client_logout();
+    clear_cart_on_logout();
     setLoggedIn(false);
     const country = params?.customer_country as string | undefined;
     router.push(!country || country === "default" ? "/" : `/${country}`);

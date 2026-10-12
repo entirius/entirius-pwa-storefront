@@ -15,6 +15,8 @@ export const API_SEARCH_ROUTE = "/api/matrix/v2/__CHANNEL__/search/";
 // Lowest price in the 30 days before a reduction (EU Omnibus), batch: ?sku=A&sku=B.
 export const API_OMNIBUS_ROUTE = "/api/matrix/v2/__CHANNEL__/omnibus/";
 export const API_CART_ROUTE = "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/";
+// The logged-in customer's most recent open cart (404 when there is none).
+export const API_CART_LATEST_ROUTE = "/api/checkout/v2/__CHANNEL__/carts/latest/";
 export const API_CART_ITEMS_ROUTE =
   "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/items/";
 // PATCH { codes: [{ code }] } replaces the manual codes; { clear: true } drops them.
@@ -139,6 +141,14 @@ export const API_ROUTES_POLICY = {
       ["x-api-key", "channel_checkout_key"],
       ["Authorization", "access_token"],
       { "Content-Type": "application/json" },
+    ],
+  },
+  [API_CART_LATEST_ROUTE]: {
+    default_querys: ["language"],
+    refresh_on: [401],
+    default_headers: [
+      ["x-api-key", "channel_checkout_key"],
+      ["Authorization", "access_token"],
     ],
   },
   [API_CART_ITEMS_ROUTE]: {

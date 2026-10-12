@@ -30,7 +30,8 @@ export function useCartSync(enabled = true) {
 
   // Re-key the cart on login/logout. `isLoggedIn` (flipped client-side on login)
   // re-renders this hook so the fresh `uid` cookie is read and the query refetches
-  // — that refetch carries the bearer token, binding the cart to the customer.
+  // with the bearer token. The customer's cart itself is settled before that, in
+  // merge_cart_on_login() (stores/cart-login.ts).
   const { isLoggedIn } = useAuth();
   const authId = isLoggedIn ? (access.get("uid") ?? null) : null;
 

@@ -496,7 +496,8 @@ export function create_fetch_engine(access: API_ACCESS) {
       return [err, undefined, meta];
     }
 
-    const data = (await res.json()) as T;
+    // 204 No Content (DELETE) has no body: parsing it would throw past the [error, data] contract.
+    const data = (res.status === 204 ? undefined : await res.json()) as T;
 
     _LOGGER({
       message: "REQUEST SUCCESSFUL => ",
