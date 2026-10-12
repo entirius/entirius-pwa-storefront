@@ -12,10 +12,12 @@ import {
 import { FiltersOptionsClient } from "./filters-options.client";
 import { FilterIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/providers/i18n.provider";
 
 const FILTER_PREFIXES = ["q_", "s_", "r_"];
 
 export function FiltersTriggerClient({ options }: { options: any }) {
+  const { t } = useI18n();
   const search_params = useSearchParams();
 
   const has_active = FILTER_PREFIXES.some((p) =>
@@ -32,13 +34,13 @@ export function FiltersTriggerClient({ options }: { options: any }) {
               <span className="absolute -top-1 -right-1 size-2 rounded-full bg-red-500" />
             )}
           </div>
-          Filters
+          {t("catalog.filters")}
         </Button>
       </SheetTrigger>
       <SheetContent side="right">
         <SheetHeader>
-          <SheetTitle>Filters</SheetTitle>
-          <SheetDescription>Narrow down the results</SheetDescription>
+          <SheetTitle>{t("catalog.filters")}</SheetTitle>
+          <SheetDescription>{t("catalog.filters_hint")}</SheetDescription>
         </SheetHeader>
         <FiltersOptionsClient options={options} />
       </SheetContent>

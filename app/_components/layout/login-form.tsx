@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { DEBUG_MODE } from "@/_CONFIG/app.config.json";
+import { useI18n } from "@/providers/i18n.provider";
 
 export function LoginForm({
   onSuccess,
@@ -33,6 +34,7 @@ export function LoginForm({
   onSwitchToRegister: () => void;
   notice?: string | null;
 }) {
+  const { t } = useI18n();
   const [pending, startTransition] = useTransition();
   const form = useForm<LoginFormValues>({
     // zodResolver is correct at runtime; the cast bridges a nominal zod type-brand
@@ -49,8 +51,8 @@ export function LoginForm({
         form.setError("root", {
           message:
             res.error === "invalid_credentials"
-              ? "Incorrect email or password."
-              : "Something went wrong. Please try again.",
+              ? t("auth.invalid_credentials")
+              : t("common.try_again"),
         });
         return;
       }
@@ -99,7 +101,7 @@ export function LoginForm({
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>{t("auth.email")}</FormLabel>
               <FormControl>
                 <Input type="email" autoComplete="email" {...field} />
               </FormControl>
@@ -112,7 +114,7 @@ export function LoginForm({
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>{t("auth.password")}</FormLabel>
               <FormControl>
                 <Input
                   type="password"
@@ -130,15 +132,15 @@ export function LoginForm({
           </p>
         )}
         <Button type="submit" disabled={pending}>
-          {pending ? <Spinner className="size-4" /> : "Sign in"}
+          {pending ? <Spinner className="size-4" /> : t("auth.sign_in")}
         </Button>
         <button
           type="button"
           onClick={onSwitchToRegister}
           className="text-sm text-muted-foreground hover:text-foreground"
         >
-          Don&apos;t have an account?{" "}
-          <span className="underline">Register</span>
+          {t("auth.no_account")}{" "}
+          <span className="underline">{t("auth.register")}</span>
         </button>
       </form>
     </Form>

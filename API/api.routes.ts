@@ -1,5 +1,9 @@
 export const API_CATEGORIES_ROUTE = "/api/matrix/v2/__CHANNEL__/categories/";
 export const API_PRODUCTS_ROUTE = "/api/matrix/v2/__CHANNEL__/products/";
+// Option axes + variant list of a configurable product. The caller fills __URL_KEY__ before
+// FETCH_METHOD (the engine resolves only cookie-backed placeholders); see variants_query.
+export const API_PRODUCT_VARIANTS_ROUTE =
+  "/api/matrix/v2/__CHANNEL__/products/__URL_KEY__/variants/";
 export const API_PRICES_ROUTE = "/api/matrix/v2/__CHANNEL__/prices/";
 export const API_CATALOG_FILTERS_ROUTE = "/api/matrix/v2/__CHANNEL__/options/";
 export const API_STOCK_ROUTE = "/api/matrix/v2/__CHANNEL__/stock/";
@@ -24,6 +28,9 @@ export const API_CART_ORDERS_ROUTE = "/api/checkout/v2/__CHANNEL__/orders/";
 // server-side (unhandled exception), same as the other v2 GET-list routes.
 export const API_CART_ORDERS_LIST_ROUTE =
   "/api/checkout/v2/__CHANNEL__/orders/list/";
+// One order with its cart, addresses and totals. The caller fills __ORDER_ID__ before FETCH_METHOD.
+export const API_CART_ORDER_ROUTE =
+  "/api/checkout/v2/__CHANNEL__/orders/__ORDER_ID__/";
 // v1 orders GET works today (same response shape) — exposed in the DEBUG probe
 // console alongside v2 so the difference is visible while v2 is broken.
 export const API_CART_ORDERS_V1_ROUTE = "/api/checkout/v1/__CHANNEL__/orders/";
@@ -44,7 +51,14 @@ export const API_USER_ADDRESSES_DEFAULTS_ROUTE =
 // ----- CMS / CONTENT -----
 export const API_CMS_STATIC_PAGE_ROUTE =
   "/api/contentdb/v1/published/static-page/";
+export const API_CMS_ROUTES_ROUTE = "/api/contentdb/v1/routes/";
 // ----- CMS / CONTENT -----
+// ----- COOKIE CONSENT (django-agreements >= 2.2.0) -----
+export const API_COOKIE_BANNER_ROUTE =
+  "/api/agreements/v2/__CHANNEL__/cookie-banner/";
+export const API_COOKIE_CONSENTS_ROUTE =
+  "/api/agreements/v2/__CHANNEL__/cookie-consents/";
+// ----- COOKIE CONSENT -----
 
 
 // ------------------------------------------------------------
@@ -58,6 +72,7 @@ export const API_CMS_STATIC_PAGE_ROUTE =
 export const API_ROUTES_POLICY = {
   [API_CATEGORIES_ROUTE]: { default_querys: ["language"] },
   [API_PRODUCTS_ROUTE]: { default_querys: ["language", "currency", "country"] },
+  [API_PRODUCT_VARIANTS_ROUTE]: { default_querys: ["language", "currency", "country"] },
   [API_SEARCH_ROUTE]: { default_querys: ["language", "currency", "country"] },
   [API_USER_PROFILE_ROUTE]: {
     refresh_on: [401],
@@ -86,6 +101,10 @@ export const API_ROUTES_POLICY = {
     ],
   },
   [API_PRICES_ROUTE]: { default_querys: ["currency", "country"] },
+  [API_COOKIE_BANNER_ROUTE]: { default_querys: ["language"] },
+  [API_COOKIE_CONSENTS_ROUTE]: {
+    default_headers: [{ "Content-Type": "application/json" }],
+  },
   [API_CATALOG_FILTERS_ROUTE]: { default_querys: ["language"] },
   // Real-time stock (Auth Optional — auth headers intentionally skipped for now).
   [API_STOCK_ROUTE]: { default_querys: ["language"] },
@@ -198,6 +217,15 @@ export const API_ROUTES_POLICY = {
       { "Content-Type": "application/json" },
     ],
   },
+  [API_CART_ORDER_ROUTE]: {
+    refresh_on: [401],
+    optional_refresh: true,
+    default_headers: [
+      ["x-api-key", "channel_checkout_key"],
+      ["Authorization", "access_token"],
+      { "Content-Type": "application/json" },
+    ],
+  },
   [API_CART_ORDERS_V1_ROUTE]: {
     refresh_on: [401],
     optional_refresh: true,
@@ -215,4 +243,5 @@ export const API_ROUTES_POLICY = {
     default_headers: [{ "Content-Type": "application/json" }],
   },
   [API_CMS_STATIC_PAGE_ROUTE]: {},
+  [API_CMS_ROUTES_ROUTE]: {},
 };

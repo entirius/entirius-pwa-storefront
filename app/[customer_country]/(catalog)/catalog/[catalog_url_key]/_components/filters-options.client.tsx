@@ -12,6 +12,7 @@ import { FilterItem } from "./filter-item.client";
 import { FilterSortItem } from "./filter-sort-item.client";
 import { FilterRange } from "./filter-range.client";
 import { useFiltersStore } from "./filters.store";
+import { useI18n } from "@/providers/i18n.provider";
 
 const FILTER_PREFIXES = ["q_", "s_", "r_"];
 
@@ -47,9 +48,10 @@ const SortGroup = memo(function SortGroup({
 }: {
   filter: any;
 }) {
+  const { t } = useI18n();
   return (
     <div>
-      <h3 className="text-sm font-semibold">{filter.label}</h3>
+      <h3 className="text-sm font-semibold">{t("catalog.sort")}</h3>
       <div className="flex flex-col gap-2 mt-2">
         {filter.options?.map((option: any) => (
           <FilterSortItem
@@ -66,6 +68,7 @@ const SortGroup = memo(function SortGroup({
 // ------------------------------------------------------------
 
 export function FiltersOptionsClient({ options }: { options: any }) {
+  const { t } = useI18n();
   const router = useRouter();
   const search_params = useSearchParams();
 
@@ -116,7 +119,7 @@ export function FiltersOptionsClient({ options }: { options: any }) {
 
   if (isLoading) return <Spinner className="size-6 mx-auto mt-4" />;
   if (!response || isError)
-    return <p className="text-sm text-destructive p-4">Failed to load filters</p>;
+    return <p className="text-sm text-destructive p-4">{t("catalog.filters_failed")}</p>;
 
   const { q_, s_, r_ } = response.data ?? {};
 
@@ -131,7 +134,7 @@ export function FiltersOptionsClient({ options }: { options: any }) {
       {isFetching && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Spinner className="size-3" />
-          <span>Updating…</span>
+          <span>{t("catalog.updating")}</span>
         </div>
       )}
       {has_sort && (
@@ -175,7 +178,7 @@ export function FiltersOptionsClient({ options }: { options: any }) {
         disabled={!has_pending}
         onClick={handle_apply}
       >
-        Apply ({active_filters_count + active_ranges_count})
+        {t("catalog.apply", { count: active_filters_count + active_ranges_count })}
       </Button>
     </div>
   );

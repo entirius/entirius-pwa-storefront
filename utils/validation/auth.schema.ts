@@ -1,13 +1,15 @@
 import { z } from "zod";
+import { msg } from "@/lib/i18n/translate";
 
+// Messages are catalogue keys (msg()); <FormMessage> turns them into text in the active language.
 // Reusable field primitives. Later auth forms (signup/profile/address) extend these.
 // Country-aware zip/phone validation (via libphonenumber-js) will plug in here when those steps land.
 export const email_field = z
   .string()
-  .min(1, "Email is required")
-  .email("Enter a valid email address");
+  .min(1, msg("validation.email_required"))
+  .email(msg("validation.email_invalid"));
 
-export const password_field = z.string().min(1, "Password is required");
+export const password_field = z.string().min(1, msg("validation.password_required"));
 
 export const login_schema = z.object({
   email: email_field,
@@ -29,28 +31,28 @@ export const dummy_login_defaults: LoginFormValues = {
 // hit surprise server rejections: ≥8 chars, upper + lower, ≥2 digits, ≥2 specials.
 export const register_password_field = z
   .string()
-  .min(8, "At least 8 characters")
-  .refine((v) => /[A-Z]/.test(v), "Add an uppercase letter")
-  .refine((v) => /[a-z]/.test(v), "Add a lowercase letter")
-  .refine((v) => (v.match(/\d/g) ?? []).length >= 2, "Add at least two digits")
+  .min(8, msg("validation.password_min"))
+  .refine((v) => /[A-Z]/.test(v), msg("validation.password_upper"))
+  .refine((v) => /[a-z]/.test(v), msg("validation.password_lower"))
+  .refine((v) => (v.match(/\d/g) ?? []).length >= 2, msg("validation.password_digits"))
   .refine(
     (v) => (v.match(/[^A-Za-z0-9]/g) ?? []).length >= 2,
-    "Add at least two special characters",
+    msg("validation.password_special"),
   );
 
 export const register_schema = z
   .object({
     email: email_field,
     password: register_password_field,
-    confirm_password: z.string().min(1, "Confirm your password"),
-    consent_terms: z.boolean().refine((v) => v === true, "You must accept the terms"),
+    confirm_password: z.string().min(1, msg("validation.confirm_required")),
+    consent_terms: z.boolean().refine((v) => v === true, msg("validation.terms_required")),
     consent_data: z
       .boolean()
-      .refine((v) => v === true, "Required to create an account"),
+      .refine((v) => v === true, msg("validation.data_consent_required")),
   })
   .refine((v) => v.password === v.confirm_password, {
     path: ["confirm_password"],
-    message: "Passwords do not match",
+    message: msg("validation.passwords_mismatch"),
   });
 
 export type RegisterFormValues = z.infer<typeof register_schema>;

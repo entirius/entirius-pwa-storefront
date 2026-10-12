@@ -9,6 +9,14 @@ import { ProductPrice } from "./product-price.client";
 
 const PLACEHOLDER_MEDIA = [{ uri: image_placeholder, width: 600, height: 600 }];
 
+// The description is HTML (the product page sanitizes and renders it); the tile shows it as plain text.
+const plain_text = (html: string) =>
+  html
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;|\u00a0/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
 export function ProductTile({
   product,
   variant = "default",
@@ -68,7 +76,7 @@ export function ProductTile({
           {product.name}
         </h3>
         {!compact && product.description && (
-          <p className="text-xs text-muted-foreground line-clamp-2">{product.description}</p>
+          <p className="text-xs text-muted-foreground line-clamp-2">{plain_text(product.description)}</p>
         )}
         <div className={compact ? "mt-0.5" : "mt-auto pt-2"}>
           <ProductPrice price={product.price} compact={compact} />

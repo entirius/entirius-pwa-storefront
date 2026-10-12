@@ -12,25 +12,32 @@ import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
 import { make_client_access } from "@/API/access/api.client-access";
 import { create_api } from "@/API/api.context";
 import { useCartStore } from "@/stores/cart.store";
+import { useI18n } from "@/providers/i18n.provider";
 import { product_query } from "../api.query";
 import { stock_query } from "../stock.query";
+import { useProductVariants } from "./use-product-variants";
+import { VariantPicker, VariantPrice } from "./variant-picker.client";
 import { ProductPrice } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-price.client";
 
 const PLACEHOLDER_MEDIA = [[{ uri: image_placeholder, width: 600, height: 600 }]];
 
 
 export function ProductClient({ product_url_key }: { product_url_key: string }) {
+  const { t } = useI18n();
   const api = useMemo(() => create_api(make_client_access()), []);
   const { data: product, isLoading, error } = useQuery(
     product_query(api, { product_url_key })
   );
 
+  // Configurable product: variant choice, price, stock and cart line (null for other types).
+  const configurable = useProductVariants(api, product, product_url_key);
+
   const { data: stock } = useQuery({
     ...stock_query(api, { sku: product?.sku ?? "" }),
-    enabled: !!product?.sku,
+    enabled: !!product?.sku && !configurable,
   });
-  const max = stock?.quantity ?? 0;
-  const inStock = !!stock?.is_in_stock && max > 0;
+  const max = configurable ? configurable.max : (stock?.quantity ?? 0);
+  const inStock = configurable ? configurable.in_stock : (!!stock?.is_in_stock && max > 0);
 
   const add = useCartStore((s) => s.add);
   const [qty, setQty] = useState(1);
@@ -48,10 +55,10 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
     return () => { carouselApi.off("select", onSelect); };
   }, [carouselApi]);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error || !product) return <div>Product not found</div>;
+  if (isLoading) return <div>{t("common.loading")}</div>;
+  if (error || !product) return <div>{t("product.not_found")}</div>;
 
-  const media = product.media?.length ? product.media : PLACEHOLDER_MEDIA;
+  const media = configurable?.media ?? (product.media?.length ? product.media : PLACEHOLDER_MEDIA);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -66,7 +73,7 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
                   <AspectRatio ratio={1} className="bg-muted overflow-hidden rounded-md">
                     <Image
                       src={img.uri}
-                      alt={`${product.name} – image ${i + 1}`}
+                      alt={t("product.image", { name: product.name, number: i + 1 })}
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"
                       className="object-cover grayscale dark:brightness-20"
@@ -95,7 +102,12 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
           <h1 className="text-2xl font-bold leading-tight">{product.name}</h1>
         </div>
 
-        <ProductPrice price={product.price} />
+        {configurable ? (
+          <VariantPrice price={configurable.price} from={configurable.price_from} />
+        ) : (
+          <ProductPrice price={product.price} />
+        )}
+        {configurable && <VariantPicker {...configurable} />}
 
         {product.description && (
           <>
@@ -107,9 +119,9 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
         <hr className="border-border" />
 
         <div className="flex items-center gap-3 mt-4">
-          <span className="text-sm text-muted-foreground">Quantity</span>
+          <span className="text-sm text-muted-foreground">{t("product.quantity")}</span>
           <QuantityStepper
-            value={qty}
+            value={Math.min(qty, Math.max(max, 1))}
             onChange={setQty}
             max={Math.max(max, 1)}
             disabled={!inStock}
@@ -128,13 +140,14 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
                   url_key: product_url_key,
                   price: product.price,
                   media,
+                  ...configurable?.buy,
                 },
                 qty,
                 max
               )
             }
           >
-            {inStock ? "Add to cart" : "Out of stock"}
+            {configurable?.cta ?? (inStock ? t("product.add_to_cart") : t("product.out_of_stock"))}
           </Button>
           <WishlistButton
             sku={product.sku}

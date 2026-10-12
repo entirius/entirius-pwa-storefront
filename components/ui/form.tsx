@@ -14,6 +14,7 @@ import {
 
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/providers/i18n.provider";
 
 const Form = FormProvider;
 
@@ -135,7 +136,9 @@ function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
 
 function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
   const { error, formMessageId } = useFormField();
-  const body = error ? String(error?.message ?? "") : props.children;
+  const { text } = useI18n();
+  // Validation messages are catalogue keys; backend messages pass through unchanged.
+  const body = error ? text(String(error?.message ?? "")) : props.children;
 
   if (!body) {
     return null;

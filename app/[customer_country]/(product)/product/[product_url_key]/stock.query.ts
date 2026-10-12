@@ -24,4 +24,19 @@ export const load_stock = cache(async (api: Api, options: { sku: string }) => {
   return api.FETCH_METHOD(API_STOCK_ROUTE, { querys: { sku: options.sku } });
 });
 
+// Real-time stock of several SKUs in one call (variants of a configurable product).
+// SKUs missing from the response are out of stock.
+export const stocks_query = (api: Api, options: { skus: string[] }) => ({
+  queryKey: ["stocks", options.skus],
+  staleTime: 0,
+  refetchOnMount: true,
+  queryFn: async (): Promise<Record<string, Stock>> => {
+    const [error, response] = await api.FETCH_METHOD(API_STOCK_ROUTE, {
+      querys: { sku: options.skus },
+    });
+    if (error) throw new Error(error.message);
+    return response?.data ?? response ?? {};
+  },
+});
+
 export type { Stock };

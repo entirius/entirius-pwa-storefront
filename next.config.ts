@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // The API returns media paths without a host: serve them from the backend when no reverse proxy does.
+  async rewrites() {
+    return [{ source: "/media/:path*", destination: `${API_BASE_URL}/media/:path*` }];
+  },
   skipTrailingSlashRedirect: true,
   cacheComponents: true,
   experimental: {

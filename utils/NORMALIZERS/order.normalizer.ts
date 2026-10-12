@@ -47,6 +47,7 @@ export type Order = {
   country_code: string;
   shipping_address: OrderAddress | null;
   billing_address: OrderAddress | null;
+  item_count: number;
   items: OrderItem[];
 };
 
@@ -87,29 +88,35 @@ function norm_item(i: any): OrderItem {
   };
 }
 
+// The list row (orders/list/) is flat: order_id, total_gross, currency, item_count, no items. The detail
+// (orders/<order_id>/) keeps the cart, the addresses and the totals under `order_body`.
 function norm_order(o: any): Order {
-  const items = Array.isArray(o?.cart?.items)
-    ? o.cart.items
+  const body = o?.order_body ?? o;
+  const items = Array.isArray(body?.cart?.items)
+    ? body.cart.items
     : Array.isArray(o?.items)
       ? o.items
       : [];
   return {
     // v2 may expose `pretty_id`; v1 only had `id`. Prefer the human id.
-    id: str(o?.pretty_id ?? o?.id ?? o?.order_uuid) ?? "",
-    order_uuid: str(o?.order_uuid ?? o?.uuid ?? o?.id) ?? "",
+    id: str(o?.pretty_id ?? o?.id ?? o?.order_id ?? o?.order_uuid) ?? "",
+    order_uuid: str(o?.order_id ?? o?.order_uuid ?? o?.uuid ?? o?.id) ?? "",
     status: str(o?.status) ?? "",
     status_label: str(o?.status_label) ?? "",
     created: str(o?.created) ?? "",
-    total: str(o?.total) ?? "0",
-    base_total: str(o?.base_total) ?? "0",
-    total_tax: str(o?.total_tax) ?? "0",
-    currency_code: str(o?.currency_code) ?? "",
-    country_code: str(o?.country_code) ?? "",
-    shipping_address: norm_address(o?.addresses?.shipping_address),
-    billing_address: norm_address(o?.addresses?.billing_address),
+    total: str(o?.total_gross ?? body?.total) ?? "0",
+    base_total: str(body?.cart?.total_price ?? body?.base_total) ?? "0",
+    total_tax: str(body?.total_tax) ?? "0",
+    currency_code: str(o?.currency ?? body?.currency_code) ?? "",
+    country_code: str(body?.country_code) ?? "",
+    shipping_address: norm_address(body?.addresses?.shipping_address),
+    billing_address: norm_address(body?.addresses?.billing_address),
+    item_count: Number(o?.item_count ?? items.length),
     items: items.map(norm_item),
   };
 }
+
+const NORM_ORDER = norm_order;
 
 function NORM_ORDERS(resp: any): Order[] {
   const list = Array.isArray(resp)
@@ -135,11 +142,11 @@ export function status_style(status: string): { bg: string; text: string } {
 
 // Backend sends "2026-07-21 10:50" (space-separated, not ISO). Parse defensively
 // and fall back to the raw string if the engine can't read it.
-export function format_order_date(created: string): string {
+export function format_order_date(created: string, language: string): string {
   if (!created) return "";
   const d = new Date(created.replace(" ", "T"));
   if (Number.isNaN(d.getTime())) return created;
-  return d.toLocaleDateString(undefined, {
+  return d.toLocaleDateString(language, {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -148,4 +155,4 @@ export function format_order_date(created: string): string {
   });
 }
 
-export { NORM_ORDERS };
+export { NORM_ORDER, NORM_ORDERS };

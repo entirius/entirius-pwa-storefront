@@ -5,6 +5,16 @@ import Image from "next/image";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { resolve_media_url } from "@/utils/media-url";
 import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
+import { useI18n } from "@/providers/i18n.provider";
+import { VARIANT_PARAM } from "@/app/[customer_country]/(product)/product/[product_url_key]/_components/variant-selection";
+
+// A variant has no page of its own: link to its parent's page with the variant chosen.
+function product_href(product: { sku?: string; url_key?: string | null; parent_url_key?: string | null }): string {
+  if (product.url_key) return `/product/${product.url_key}`;
+  if (!product.parent_url_key) return "#";
+  const variant = product.sku ? `?${VARIANT_PARAM}=${encodeURIComponent(product.sku)}` : "";
+  return `/product/${product.parent_url_key}${variant}`;
+}
 
 // --- Local normalization (search results are a "lite" shape; see search-feature.md) ---
 
@@ -26,30 +36,12 @@ function resolve_image(main_image: unknown): string {
   }
 }
 
-// Prices are flat numbers with no currency on the item. Build a display pair:
-// [base] or [base, special] when discounted.
-function format_price(
-  product: {
-    gross?: number | string | null;
-    final_gross?: number | string | null;
-    has_special_price?: boolean;
-  },
-  currency: string,
-): { base: string | null; special: string | null } {
-  const fmt = (v: number | string | null | undefined) =>
-    v === null || v === undefined || v === "" ? null : `${v} ${currency}`.trim();
-  const base = fmt(product.gross);
-  const special =
-    product.has_special_price && product.final_gross != null
-      ? fmt(product.final_gross)
-      : null;
-  return { base, special };
-}
-
 export type SearchProduct = {
   sku?: string;
   name?: string;
-  url_key?: string;
+  url_key?: string | null;
+  // Set on a variant of a configurable product (its own url_key is null).
+  parent_url_key?: string | null;
   main_image?: unknown;
   gross?: number | string | null;
   final_gross?: number | string | null;
@@ -65,19 +57,24 @@ export function SearchProductRow({
   currency: string;
   onNavigate: () => void;
 }) {
+  const { t, price } = useI18n();
   const src = resolve_image(product.main_image);
-  const { base, special } = format_price(product, currency);
+  // Prices are flat numbers with no currency on the item: the active currency is passed in.
+  const special =
+    product.has_special_price && product.final_gross != null
+      ? price(product.final_gross, currency)
+      : null;
 
   return (
     <LinkDynamic
-      href={`/product/${product.url_key}`}
+      href={product_href(product)}
       onClick={onNavigate}
       className="grid grid-cols-[5rem_1fr] gap-3 rounded-md border border-border p-2 transition-colors hover:bg-accent"
     >
       <div className="size-20 overflow-hidden rounded-md bg-muted">
         <Image
           src={src}
-          alt={product.name ?? "Product"}
+          alt={product.name ?? t("search.product_fallback")}
           width={80}
           height={80}
           className="size-full object-cover grayscale dark:brightness-20"
@@ -89,14 +86,14 @@ export function SearchProductRow({
           {special ? (
             <>
               <span className="text-[10px] text-muted-foreground line-through">
-                {base}
+                {price(product.gross, currency)}
               </span>
               <span className="text-xs font-semibold text-destructive">
                 {special}
               </span>
             </>
           ) : (
-            <span className="text-xs font-semibold">{base ?? "—"}</span>
+            <span className="text-xs font-semibold">{price(product.gross, currency)}</span>
           )}
         </div>
       </div>

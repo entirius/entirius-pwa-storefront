@@ -1,14 +1,20 @@
-type Price = [string] | [string, string];
-// [0] = base price display string
-// [1] = special/final price (only present when has_special_price)
+// Amounts stay raw strings; the text is made at render time by i18n.price(amount, currency), so the
+// active language decides the separators and the currency symbol.
+type Price = {
+  gross: string;
+  currency: string;
+  // Only present when a special price applies.
+  final_gross?: string;
+};
 
-function NORM_PRICE_DATA(price: any): Price {
-  if (!price) return ["—"];
-  const base = `${price.gross} ${price.currency}`;
-  if (price.has_special_price && price.final_gross) {
-    return [base, `${price.final_gross} ${price.currency}`];
-  }
-  return [base];
+function NORM_PRICE_DATA(price: any): Price | null {
+  if (!price) return null;
+  const { gross, currency, final_gross, has_special_price } = price;
+  return {
+    gross,
+    currency,
+    ...(has_special_price && final_gross ? { final_gross } : {}),
+  };
 }
 
 export { NORM_PRICE_DATA };

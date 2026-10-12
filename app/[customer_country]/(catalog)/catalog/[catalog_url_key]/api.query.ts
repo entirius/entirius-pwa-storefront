@@ -85,7 +85,6 @@ const map_filters = (res: any) => {
   const s_ = sort.length
     ? {
         s_order_by: {
-          label: "Sort",
           options: [...sort]
             .sort(by_position)
             .map((s: any) => ({ idx: s.idx, label: s.label })),

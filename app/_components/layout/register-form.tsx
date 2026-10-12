@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Spinner } from "@/components/ui/spinner";
+import { useI18n } from "@/providers/i18n.provider";
 
 export function RegisterForm({
   onSwitchToLogin,
@@ -29,6 +30,7 @@ export function RegisterForm({
   onSwitchToLogin: () => void;
   onRegistered: () => void;
 }) {
+  const { t, text } = useI18n();
   const [pending, startTransition] = useTransition();
   const form = useForm<RegisterFormValues>({
     // Same nominal zod type-brand cast as login-form (duplicate zod@4 in the tree).
@@ -47,7 +49,7 @@ export function RegisterForm({
     startTransition(async () => {
       const res = await client_register(values);
       if (!res.ok) {
-        form.setError(res.field, { message: res.message });
+        form.setError(res.field, { message: text(res.message) });
         return;
       }
       onRegistered();
@@ -62,7 +64,7 @@ export function RegisterForm({
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>{t("auth.email")}</FormLabel>
               <FormControl>
                 <Input type="email" autoComplete="email" {...field} />
               </FormControl>
@@ -75,7 +77,7 @@ export function RegisterForm({
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>{t("auth.password")}</FormLabel>
               <FormControl>
                 <Input type="password" autoComplete="new-password" {...field} />
               </FormControl>
@@ -88,7 +90,7 @@ export function RegisterForm({
           name="confirm_password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Confirm password</FormLabel>
+              <FormLabel>{t("auth.confirm_password")}</FormLabel>
               <FormControl>
                 <Input type="password" autoComplete="new-password" {...field} />
               </FormControl>
@@ -109,7 +111,7 @@ export function RegisterForm({
                   />
                 </FormControl>
                 <FormLabel className="text-sm font-normal leading-snug">
-                  I accept the terms of service and privacy policy.
+                  {t("auth.accept_terms")}
                 </FormLabel>
               </div>
               <FormMessage />
@@ -129,7 +131,7 @@ export function RegisterForm({
                   />
                 </FormControl>
                 <FormLabel className="text-sm font-normal leading-snug">
-                  I consent to the processing of my personal data.
+                  {t("auth.consent_data")}
                 </FormLabel>
               </div>
               <FormMessage />
@@ -142,14 +144,15 @@ export function RegisterForm({
           </p>
         )}
         <Button type="submit" disabled={pending}>
-          {pending ? <Spinner className="size-4" /> : "Create account"}
+          {pending ? <Spinner className="size-4" /> : t("auth.create_account")}
         </Button>
         <button
           type="button"
           onClick={onSwitchToLogin}
           className="text-sm text-muted-foreground hover:text-foreground"
         >
-          Already have an account? <span className="underline">Sign in</span>
+          {t("auth.have_account")}{" "}
+          <span className="underline">{t("auth.sign_in")}</span>
         </button>
       </form>
     </Form>

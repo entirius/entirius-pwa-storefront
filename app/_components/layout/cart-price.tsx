@@ -1,4 +1,7 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/providers/i18n.provider";
 import type { CartLine } from "@/utils/NORMALIZERS/cart.normalizer";
 
 // Per-unit price. When a special/sale price applies, strikes the list price and
@@ -13,8 +16,8 @@ export function UnitPrice({
   currency: string;
   className?: string;
 }) {
+  const { price } = useI18n();
   if (!line?.final_unit_gross) return null;
-  const cur = currency ? ` ${currency}` : "";
   const on_sale =
     line.has_special_price &&
     !!line.unit_gross &&
@@ -24,13 +27,11 @@ export function UnitPrice({
     <span className={cn("inline-flex flex-wrap items-center gap-1.5", className)}>
       {on_sale && (
         <s className="text-muted-foreground/70">
-          {line.unit_gross}
-          {cur}
+          {price(line.unit_gross, currency)}
         </s>
       )}
       <span className={on_sale ? "font-medium text-destructive" : undefined}>
-        {line.final_unit_gross}
-        {cur}
+        {price(line.final_unit_gross, currency)}
       </span>
       {on_sale && line.percent_off ? (
         <span className="rounded bg-destructive/10 px-1 text-[10px] font-semibold text-destructive">

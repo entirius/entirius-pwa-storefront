@@ -12,8 +12,10 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { profile_query } from "../api.query";
 import { ProfileEditForm } from "./profile-edit-form";
+import { useI18n } from "@/providers/i18n.provider";
 
 export function ProfileClient() {
+  const { t } = useI18n();
   const { setLoggedIn } = useAuth();
   const router = useRouter();
   const params = useParams();
@@ -42,7 +44,7 @@ export function ProfileClient() {
 
   return (
     <div className="flex flex-col gap-6 py-4">
-      <h1 className="text-2xl font-bold">My account</h1>
+      <h1 className="text-2xl font-bold">{t("profile.title")}</h1>
 
       <section className="rounded-lg border border-border p-4">
         {editing && profile ? (
@@ -63,7 +65,7 @@ export function ProfileClient() {
               </p>
             </div>
             <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
-              Edit
+              {t("common.edit")}
             </Button>
           </div>
         )}
@@ -73,17 +75,17 @@ export function ProfileClient() {
         <MenuLink
           href="/profile/addresses"
           icon={<MapPin className="size-4" />}
-          label="Delivery addresses"
+          label={t("profile.addresses")}
         />
         <MenuLink
           href="/profile/orders"
           icon={<Package className="size-4" />}
-          label="My orders"
+          label={t("profile.orders")}
         />
       </nav>
 
       <Button variant="outline" onClick={logout}>
-        Log out
+        {t("profile.log_out")}
       </Button>
     </div>
   );

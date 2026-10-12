@@ -13,8 +13,10 @@ import { WishlistItems } from "./wishlist-items";
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { useI18n } from "@/providers/i18n.provider";
 
 export function WishlistSheet() {
+  const { t } = useI18n();
   const count = useWishlistStore((s) => s.count());
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -22,7 +24,7 @@ export function WishlistSheet() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative cursor-pointer text-foreground">
+        <Button variant="ghost" size="icon" aria-label={t("header.wishlist")} className="relative cursor-pointer text-foreground">
           <Heart />
           {!mounted ? (
             <Spinner className="absolute -top-1 -right-1 size-3" />
@@ -35,7 +37,7 @@ export function WishlistSheet() {
       </SheetTrigger>
       <SheetContent side="right" aria-describedby={undefined}>
         <SheetHeader>
-          <SheetTitle>Wishlist</SheetTitle>
+          <SheetTitle>{t("wishlist.title")}</SheetTitle>
         </SheetHeader>
         <WishlistItems />
       </SheetContent>

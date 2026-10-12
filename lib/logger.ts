@@ -1,6 +1,4 @@
-// import { DEBUG } from '@/config/app-pref.config.json';
-
-const DEBUG_MODE = true;
+import { DEBUG_MODE } from '@/_CONFIG/app.config.json';
 
 
 const ANSI_COLORS = {
@@ -20,7 +18,8 @@ type LOGGER_ARGS = {
 };
 
 export const _LOGGER = ({ type = 'info', message, print }: LOGGER_ARGS) => {
-  if (!DEBUG_MODE) return;
+  // Errors and warnings are always logged; requests, responses and notes only in debug mode.
+  if (!DEBUG_MODE && (type === 'info' || type === 'success')) return;
   console.log(
     `${ANSI_COLORS[type]}-------------- --- --- -- - - -- - - ---- - --- - --  - - - - -- ---  - - -   -  -${ANSI_COLORS.reset}`
   );
