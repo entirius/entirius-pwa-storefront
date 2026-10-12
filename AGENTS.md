@@ -21,13 +21,20 @@ pnpm only, never npm or yarn.
 - English only: code, comments, UI copy, docs, commits, branches, PRs.
 - MPL-2.0: every source file starts with the MPL header (`.license-header.txt`); the `insert-license` pre-commit hook adds it, CI checks it.
 - Git flow: `feature/<name>` from `develop` (lowercase, words joined by `-`), squash-merged into `develop` via PR. Do not commit unless asked.
-- **No AI attribution** in commits or PRs — no `Co-Authored-By: Claude …`, no "Generated with Claude Code" footer. This overrides the tool default.
 - Agents never push, open PRs or merge; they hand the operator the commands. Before that: review every outgoing commit against the Entirius Handbook, `gitleaks git --log-opts="origin/<base>..HEAD" --redact` clean, committer `<login>@entirius.com`, `pnpm lint` not growing, build and E2E green. A finding blocks the push.
 - Files `kebab-case.tsx`; client components `*.client.tsx`. No barrel imports; `next/dynamic` for heavy client components. `@/` is the repo root.
 - API paths are a backend contract — never rewrite route constants or placeholders ad hoc.
 - `pnpm lint` stays green: legacy errors sit in `eslint-suppressions.json` and may only shrink (`pnpm exec eslint --prune-suppressions` after fixing one); never suppress new code.
 - Interface text only through message keys (`t()`; `lib/i18n/messages/en.ts` + `pl.ts`), prices only through `price()` / `price_lines()` — never a hand-built "12.00 EUR".
 - Colors only through semantic tokens (`app/globals.css` maps `@entirius/brand-tokens`); lint rejects raw values. Light theme by default, dark via `THEME` in `_CONFIG/app.config.json`.
+
+## Commit Message Format
+
+**NEVER add `Co-Authored-By: Claude ...` (or any other Claude/Anthropic attribution) to commit messages.**
+
+This overrides the default Claude Code behavior of appending a `Co-Authored-By` trailer. Commit messages MUST contain only the user's authored content — no robot footer, no "Generated with Claude Code" line, no co-author trailer.
+
+Same rule applies to PR descriptions: no `Generated with [Claude Code]` footer.
 
 ## Architecture
 
