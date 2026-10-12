@@ -12,6 +12,9 @@ const BASE_URL = app_config.SITE_URL;
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: false,
+  // The local backend is Django's dev server (one process): with Playwright's default (half the CPUs)
+  // the specs' cart, login and order calls queue up and time out. `--workers=N` still overrides.
+  workers: 2,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["html", { open: "never" }], ["list"]] : "list",
