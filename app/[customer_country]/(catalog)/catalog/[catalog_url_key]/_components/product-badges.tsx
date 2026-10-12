@@ -3,6 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/providers/i18n.provider";
 
 export type ProductBadge = { idx: string; name: string };
 
@@ -26,6 +27,7 @@ export function ProductBadges({
   percent_off?: string | number | null;
   className?: string;
 }) {
+  const { t } = useI18n();
   const percent = Math.round(Number(percent_off));
   const labels = [
     ...(percent > 0 ? [{ key: "percent", text: `−${percent}%`, style: STYLE.sale }] : []),
@@ -37,7 +39,7 @@ export function ProductBadges({
   ];
   if (!labels.length) return null;
   return (
-    <ul className={cn("flex flex-wrap gap-1", className)} aria-label="Product labels">
+    <ul className={cn("flex flex-wrap gap-1", className)} aria-label={t("catalog.product_labels")}>
       {labels.map((l) => (
         <li
           key={l.key}

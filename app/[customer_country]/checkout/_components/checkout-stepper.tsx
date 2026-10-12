@@ -7,14 +7,16 @@
 import { Check, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LinkDynamic } from "@/lib/link-dynamic";
+import type { MessageKey } from "@/lib/i18n/translate";
+import { useI18n } from "@/providers/i18n.provider";
 
 export type CheckoutStep = "address" | "shipping" | "payment" | "review";
 
-export const CHECKOUT_STEPS: { id: CheckoutStep; label: string }[] = [
-  { id: "address", label: "Address" },
-  { id: "shipping", label: "Shipping" },
-  { id: "payment", label: "Payment" },
-  { id: "review", label: "Review" },
+export const CHECKOUT_STEPS: { id: CheckoutStep; label: MessageKey }[] = [
+  { id: "address", label: "checkout.step_address" },
+  { id: "shipping", label: "checkout.step_shipping" },
+  { id: "payment", label: "checkout.step_payment" },
+  { id: "review", label: "checkout.step_review" },
 ];
 
 const pill = "flex h-9 items-center gap-2 rounded-full border px-3 text-sm";
@@ -33,21 +35,22 @@ export function CheckoutStepper({
   locked: Set<CheckoutStep>;
   onStep?: (step: CheckoutStep) => void;
 }) {
+  const { t } = useI18n();
   const on_cart = current === "cart";
   return (
-    <ol aria-label="Order steps" className="flex flex-wrap items-center gap-2">
+    <ol aria-label={t("checkout.steps")} className="flex flex-wrap items-center gap-2">
       <li>
         {on_cart ? (
           <span aria-current="step" className={cn(pill, "border-primary bg-primary text-primary-foreground")}>
             <span className={cn(badge, "bg-primary-foreground/20")}>1</span>
-            Cart
+            {t("cart.title")}
           </span>
         ) : (
           <LinkDynamic href="/cart" className={cn(pill, "border-border bg-card text-heading hover:bg-accent")}>
             <span className={cn(badge, "bg-accent text-accent-foreground")}>
               <Check className="size-3.5" aria-hidden />
             </span>
-            Cart
+            {t("cart.title")}
           </LinkDynamic>
         )}
       </li>
@@ -85,7 +88,7 @@ export function CheckoutStepper({
                   i + 2
                 )}
               </span>
-              <span className={cn(!is_current && "hidden sm:inline")}>{step.label}</span>
+              <span className={cn(!is_current && "hidden sm:inline")}>{t(step.label)}</span>
             </button>
           </li>
         );

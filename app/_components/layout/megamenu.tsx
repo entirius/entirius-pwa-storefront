@@ -20,6 +20,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { useI18n } from "@/providers/i18n.provider";
 
 function useApi() {
   return useMemo(() => create_api(make_client_access()), []);
@@ -78,6 +79,7 @@ function MegamenuPanel({ mainKey }: { mainKey: string }) {
 }
 
 export function Megamenu({ query }: { query: CONFIG_QUERY }) {
+  const { t } = useI18n();
   const api = useApi();
   // Top-level request uses the shared CONFIG_QUERY; deeper levels load lazily.
   const { data, isLoading, isError, error } = useQuery({
@@ -89,7 +91,7 @@ export function Megamenu({ query }: { query: CONFIG_QUERY }) {
   if (isError)
     return (
       <span className="text-sm text-destructive">
-        Error: {(error as Error)?.message}
+        {t("common.error", { message: (error as Error)?.message })}
       </span>
     );
 

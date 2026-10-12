@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { format_order_date, status_style } from "@/utils/NORMALIZERS/order.normalizer";
+import { useI18n } from "@/providers/i18n.provider";
 import { profile_query } from "../api.query";
 import { orders_query } from "../orders/api.query";
 import { addresses_query, defaults_query } from "../addresses/api.query";
@@ -21,6 +22,7 @@ import { ProfileEditForm } from "./profile-edit-form";
 // Account overview: details (editable), the latest order, the default address.
 export function ProfileClient() {
   const queryClient = useQueryClient();
+  const { t } = useI18n();
   const [editing, setEditing] = useState(false);
   const { data: profile, isLoading } = useQuery(profile_query());
 
@@ -37,9 +39,9 @@ export function ProfileClient() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-4xl">My account</h1>
+        <h1 className="text-4xl">{t("profile.title")}</h1>
         <p className="mt-1 text-muted-foreground">
-          Your orders, addresses and account details in one place.
+          {t("profile.intro")}
         </p>
       </div>
 
@@ -48,7 +50,7 @@ export function ProfileClient() {
       <div className="grid gap-6 lg:grid-cols-2">
         <section aria-labelledby="account-details" className="flex flex-col gap-4 rounded-3xl bg-card p-6">
           <h2 id="account-details" className="text-xl">
-            Account details
+            {t("profile.account_details")}
           </h2>
           {editing && profile ? (
             <ProfileEditForm
@@ -71,7 +73,7 @@ export function ProfileClient() {
                 className="self-start rounded-full"
                 onClick={() => setEditing(true)}
               >
-                Edit
+                {t("common.edit")}
               </Button>
             </>
           )}
@@ -83,6 +85,8 @@ export function ProfileClient() {
 }
 
 function LatestOrder() {
+  const i18n = useI18n();
+  const { t } = i18n;
   const { data, isLoading } = useInfiniteQuery(orders_query());
   const order = data?.pages[0]?.orders[0];
   const style = order ? status_style(order.status) : null;
@@ -90,29 +94,29 @@ function LatestOrder() {
   return (
     <section aria-labelledby="latest-order" className="flex flex-col gap-4 rounded-3xl bg-card p-6">
       <h2 id="latest-order" className="text-xl">
-        Latest order
+        {t("profile.latest_order")}
       </h2>
       {isLoading ? (
         <Spinner className="size-5" />
       ) : !order || !style ? (
-        <p className="text-sm text-muted-foreground">You haven&apos;t placed any orders yet.</p>
+        <p className="text-sm text-muted-foreground">{t("orders.none")}</p>
       ) : (
         <LinkDynamic
           href={`/profile/orders/${order.id}`}
           className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-2xl border border-border p-4 transition-colors hover:bg-muted"
         >
           <div className="min-w-48 flex-1">
-            <p className="font-semibold text-heading">Order {order.id}</p>
+            <p className="font-semibold text-heading">{t("profile.order_number", { id: order.id })}</p>
             <p className="text-sm text-muted-foreground">
-              {format_order_date(order.created)} · {order.item_count}{" "}
-              {order.item_count === 1 ? "item" : "items"}
+              {format_order_date(order.created, i18n.language)} ·{" "}
+              {t("orders.items", { count: order.item_count })}
             </p>
           </div>
           <span className={cn("rounded-full px-3 py-1 text-xs font-bold", style.bg, style.text)}>
-            {order.status_label || order.status}
+            {i18n.text(order.status_label)}
           </span>
           <span className="font-brand text-xl text-heading">
-            {order.total} {order.currency_code}
+            {i18n.price(order.total, order.currency_code)}
           </span>
           <ChevronRight className="size-5 text-muted-foreground" aria-hidden />
         </LinkDynamic>
@@ -122,6 +126,7 @@ function LatestOrder() {
 }
 
 function DefaultAddress() {
+  const { t } = useI18n();
   const { data: addresses, isLoading } = useQuery(addresses_query());
   const { data: defaults } = useQuery(defaults_query());
   const address =
@@ -130,7 +135,7 @@ function DefaultAddress() {
   return (
     <section aria-labelledby="default-address" className="flex flex-col gap-4 rounded-3xl bg-card p-6">
       <h2 id="default-address" className="text-xl">
-        Default address
+        {t("profile.default_address")}
       </h2>
       {isLoading ? (
         <Spinner className="size-5" />
@@ -147,10 +152,10 @@ function DefaultAddress() {
           </span>
         </address>
       ) : (
-        <p className="text-sm text-muted-foreground">No saved addresses yet.</p>
+        <p className="text-sm text-muted-foreground">{t("profile.no_saved_addresses")}</p>
       )}
       <LinkDynamic href="/profile/addresses" className="link mt-auto text-sm font-semibold">
-        Manage addresses{addresses?.length ? ` (${addresses.length})` : ""}
+        {t("profile.manage_addresses")}{addresses?.length ? ` (${addresses.length})` : ""}
       </LinkDynamic>
     </section>
   );

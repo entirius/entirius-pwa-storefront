@@ -10,6 +10,7 @@ import { X } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { useFiltersStore } from "./filters.store";
+import { useI18n } from "@/providers/i18n.provider";
 
 type FilterRangeProps = {
   filter_idx: string;
@@ -24,6 +25,7 @@ const FilterRange = memo(function FilterRange({
   min,
   max,
 }: FilterRangeProps) {
+  const { t } = useI18n();
   const { stored_value, range_set, range_clear } = useFiltersStore(
     useShallow((s) => ({
       stored_value: s.active_ranges[filter_idx] ?? null,
@@ -67,7 +69,7 @@ const FilterRange = memo(function FilterRange({
             <Button
               variant="ghost"
               size="xs"
-              aria-label={`Reset ${label}`}
+              aria-label={t("catalog.reset_filter", { label })}
               className="h-6 px-1.5 text-xs text-muted-foreground hover:text-destructive"
               onClick={handle_reset}
             >
@@ -86,11 +88,11 @@ const FilterRange = memo(function FilterRange({
       />
       <div className="mt-3 grid grid-cols-2 gap-2 text-sm tabular-nums">
         <span className="rounded-xl border border-border px-3 py-2">
-          <span className="block text-xs text-muted-foreground">From</span>
+          <span className="block text-xs text-muted-foreground">{t("catalog.range_from")}</span>
           {local_value[0]}
         </span>
         <span className="rounded-xl border border-border px-3 py-2">
-          <span className="block text-xs text-muted-foreground">To</span>
+          <span className="block text-xs text-muted-foreground">{t("catalog.range_to")}</span>
           {local_value[1]}
         </span>
       </div>

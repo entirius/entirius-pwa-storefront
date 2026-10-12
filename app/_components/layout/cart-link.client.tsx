@@ -11,12 +11,14 @@ import { cn } from "@/lib/utils";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { Spinner } from "@/components/ui/spinner";
 import { useCartStore } from "@/stores/cart.store";
+import { useI18n } from "@/providers/i18n.provider";
 
 // Header cart icon: a link to the cart page with the item count.
 export function CartLink() {
   const count = useCartStore((s) => s.count());
   const pathname = usePathname() ?? "";
   const mounted = useHydrated();
+  const { t } = useI18n();
   const on_cart = /\/cart$/.test(pathname);
 
   return (
@@ -25,7 +27,7 @@ export function CartLink() {
       aria-current={on_cart ? "page" : undefined}
       // The count joins the name only after mount, like the badge (no hydration mismatch).
       aria-label={
-        mounted && count > 0 ? `Cart, ${count} ${count === 1 ? "item" : "items"}` : "Cart"
+        mounted && count > 0 ? t("cart.link_label", { count }) : t("header.cart")
       }
       className={cn(
         "relative inline-flex size-9 items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent hover:text-accent-foreground [&_svg]:size-4",

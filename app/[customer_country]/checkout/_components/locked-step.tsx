@@ -6,6 +6,7 @@
 
 import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/providers/i18n.provider";
 
 // Placeholder for the Shipping / Payment / Review steps. Their backend endpoints
 // (GET shipping-methods / payment-methods lists, POST orders) currently 500 —
@@ -17,17 +18,17 @@ export function LockedStep({
   title: string;
   onBack?: () => void;
 }) {
+  const { t } = useI18n();
   return (
     <div className="rounded-lg border border-dashed p-8 text-center">
       <Lock className="mx-auto mb-3 size-6 text-muted-foreground" />
       <h2 className="text-lg">{title}</h2>
       <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
-        This step isn’t available yet — the shipping &amp; payment service is
-        temporarily unavailable. Your address has been saved.
+        {t("checkout.step_unavailable")}
       </p>
       {onBack && (
         <Button variant="outline" className="mt-4" onClick={onBack}>
-          Back to address
+          {t("checkout.back_to_address")}
         </Button>
       )}
     </div>

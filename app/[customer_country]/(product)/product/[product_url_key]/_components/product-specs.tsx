@@ -3,10 +3,12 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import type { SpecGroup } from "@/utils/NORMALIZERS/product.normalizer";
+import { useI18n } from "@/providers/i18n.provider";
 
 // Product parameters from the PIM (see NORM_SPEC_GROUPS). Ungrouped attributes
 // go under the section heading itself.
 export function ProductSpecs({ groups }: { groups: SpecGroup[] }) {
+  const { t } = useI18n();
   if (!groups.length) return null;
   return (
     <section
@@ -14,7 +16,7 @@ export function ProductSpecs({ groups }: { groups: SpecGroup[] }) {
       className="grid gap-6 md:grid-cols-[minmax(12rem,1fr)_3fr]"
     >
       <h2 id="product-specs" className="text-2xl md:text-3xl">
-        Specifications
+        {t("product.specifications")}
       </h2>
       <div className="flex flex-col gap-6">
         {groups.map((group, i) => (

@@ -9,13 +9,13 @@ import { expect, test } from "@playwright/test";
 // observation-deck-lounge-chair (689.00 → 499.00), flight-deck-command-chair
 // (regular price).
 
-const NOTE = /^Lowest price in the 30 days before the discount: \d+\.\d{2} EUR$/;
-const NOTE_COMPACT = /^Lowest 30-day price: \d+\.\d{2} EUR$/;
+const NOTE = /^Lowest price in the 30 days before the discount: €\d+\.\d{2}$/;
+const NOTE_COMPACT = /^Lowest 30-day price: €\d+\.\d{2}$/;
 const is_omnibus = (url: string) => /\/omnibus\/\?/.test(url);
 
 test("reduced product shows the Omnibus price in the server HTML", async ({ request }) => {
   const html = await (await request.get("/product/observation-deck-lounge-chair")).text();
-  expect(html).toMatch(/Lowest price in the 30 days before the discount: \d+\.\d{2} EUR/);
+  expect(html).toMatch(/Lowest price in the 30 days before the discount: €\d+\.\d{2}/);
 });
 
 test("reduced product page shows the Omnibus price", async ({ page }) => {
@@ -27,7 +27,7 @@ test("regular price has no Omnibus line", async ({ page }) => {
   await page.goto("/product/flight-deck-command-chair");
   // Scoped to the product: the "More chairs" cards below have reductions of their own.
   const details = page.getByRole("region", { name: "Product details" });
-  await expect(details.getByText("549.00 EUR")).toBeVisible();
+  await expect(details.getByText("€549.00")).toBeVisible();
   await expect(details.getByText(/Lowest/)).toHaveCount(0);
 });
 

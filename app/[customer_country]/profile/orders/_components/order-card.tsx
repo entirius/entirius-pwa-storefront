@@ -13,14 +13,16 @@ import {
   status_style,
   type OrderSummary,
 } from "@/utils/NORMALIZERS/order.normalizer";
+import { useI18n } from "@/providers/i18n.provider";
 
 export function OrderCard({ order }: { order: OrderSummary }) {
+  const i18n = useI18n();
+  const { t } = i18n;
   const style = status_style(order.status);
 
-  const formatted_date = format_order_date(order.created);
+  const formatted_date = format_order_date(order.created, i18n.language);
 
-  const items_count = order.item_count;
-  const items_text = `${items_count} ${items_count === 1 ? "item" : "items"}`;
+  const items_text = t("orders.items", { count: order.item_count });
 
   return (
     <LinkDynamic
@@ -38,7 +40,7 @@ export function OrderCard({ order }: { order: OrderSummary }) {
           </div>
           <div className={cn("rounded-full px-3 py-1", style.bg)}>
             <span className={cn("text-xs font-bold", style.text)}>
-              {order.status_label || order.status}
+              {i18n.text(order.status_label)}
             </span>
           </div>
         </div>
@@ -58,14 +60,14 @@ export function OrderCard({ order }: { order: OrderSummary }) {
             </div>
           </div>
           <span className="text-base font-bold">
-            {order.total} {order.currency_code}
+            {i18n.price(order.total, order.currency_code)}
           </span>
         </div>
 
         {/* View details */}
         <div className="mt-3 flex items-center justify-center gap-2 rounded-lg bg-muted py-2">
           <Eye className="size-3.5 text-foreground" />
-          <span className="text-sm font-bold">View details</span>
+          <span className="text-sm font-bold">{t("orders.view")}</span>
         </div>
       </div>
     </LinkDynamic>

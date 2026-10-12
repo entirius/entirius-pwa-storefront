@@ -15,8 +15,10 @@ import { API_CART_ORDERS_LIST_ROUTE } from "@/API/api.routes";
 import { DevProbeButton } from "@/app/[customer_country]/checkout/_components/dev-probe-button";
 import { orders_query } from "../api.query";
 import { OrderCard } from "./order-card";
+import { useI18n } from "@/providers/i18n.provider";
 
 export function OrdersList() {
+  const { t } = useI18n();
   const { data, isLoading, isError, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useInfiniteQuery(orders_query());
   const orders = data?.pages.flatMap((page) => page.orders);
@@ -25,11 +27,11 @@ export function OrdersList() {
     <div className="flex flex-col gap-6 py-4">
       <div className="flex items-center gap-2">
         <Button asChild variant="ghost" size="icon">
-          <LinkDynamic href="/profile" aria-label="Back to account">
+          <LinkDynamic href="/profile" aria-label={t("profile.back")}>
             <ChevronLeft className="size-5" />
           </LinkDynamic>
         </Button>
-        <h1 className="text-2xl">My orders</h1>
+        <h1 className="text-2xl">{t("orders.title")}</h1>
       </div>
 
       {DEBUG_MODE && (
@@ -43,11 +45,11 @@ export function OrdersList() {
         <Spinner className="size-5" />
       ) : isError ? (
         <p className="text-sm text-muted-foreground">
-          We couldn&apos;t load your orders. Please try again later.
+          {t("orders.load_failed")}
         </p>
       ) : !orders?.length ? (
         <p className="text-sm text-muted-foreground">
-          You haven&apos;t placed any orders yet.
+          {t("orders.none")}
         </p>
       ) : (
         <>
@@ -65,7 +67,7 @@ export function OrdersList() {
               disabled={isFetchingNextPage}
               onClick={() => fetchNextPage()}
             >
-              {isFetchingNextPage ? <Spinner className="size-4" /> : "Load more"}
+              {isFetchingNextPage ? <Spinner className="size-4" /> : t("orders.load_more")}
             </Button>
           )}
         </>

@@ -16,6 +16,7 @@ import { FilterItem } from "./filter-item.client";
 import { FilterSortItem } from "./filter-sort-item.client";
 import { FilterRange } from "./filter-range.client";
 import { useFiltersStore } from "./filters.store";
+import { useI18n } from "@/providers/i18n.provider";
 
 const FILTER_PREFIXES = ["q_", "s_", "r_"];
 
@@ -51,9 +52,10 @@ const SortGroup = memo(function SortGroup({
 }: {
   filter: any;
 }) {
+  const { t } = useI18n();
   return (
     <div className="flex flex-col gap-3">
-      <h3 className="text-base">{filter.label}</h3>
+      <h3 className="text-base">{t("catalog.sort")}</h3>
       <div className="flex flex-col gap-2">
         {filter.options?.map((option: any) => (
           <FilterSortItem
@@ -80,6 +82,7 @@ export function FiltersOptionsClient({
 }) {
   const router = useRouter();
   const search_params = useSearchParams();
+  const { t } = useI18n();
 
   const api = useMemo(() => create_api(make_client_access()), []);
 
@@ -141,7 +144,7 @@ export function FiltersOptionsClient({
 
   if (isLoading) return <Spinner className="size-6 mx-auto mt-4" />;
   if (!response || isError)
-    return <p className="text-sm text-destructive p-4">Failed to load filters</p>;
+    return <p className="text-sm text-destructive p-4">{t("catalog.filters_failed")}</p>;
 
   const { q_, s_, r_ } = response.data ?? {};
 
@@ -155,20 +158,20 @@ export function FiltersOptionsClient({
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between gap-2">
         {in_sheet ? (
-          <p aria-hidden className="font-brand text-xl text-heading">Filters</p>
+          <p aria-hidden className="font-brand text-xl text-heading">{t("catalog.filters")}</p>
         ) : (
-          <h2 className="text-xl">Filters</h2>
+          <h2 className="text-xl">{t("catalog.filters")}</h2>
         )}
         {(has_applied || has_pending) && (
           <Button variant="link" size="sm" className="h-auto px-0" onClick={handle_clear}>
-            Clear all
+            {t("catalog.clear_all")}
           </Button>
         )}
       </div>
       {isFetching && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Spinner className="size-3" />
-          <span>Updating…</span>
+          <span>{t("catalog.updating")}</span>
         </div>
       )}
       {has_sort && (
@@ -212,7 +215,7 @@ export function FiltersOptionsClient({
           disabled={!has_pending}
           onClick={handle_apply}
         >
-          Apply ({active_filters_count + active_ranges_count})
+          {t("catalog.apply", { count: active_filters_count + active_ranges_count })}
         </Button>
       </div>
     </div>

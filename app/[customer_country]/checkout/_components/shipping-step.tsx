@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useI18n } from "@/providers/i18n.provider";
 
 export function ShippingStep({
   cart,
@@ -33,6 +34,8 @@ export function ShippingStep({
   onSaved: (cart: unknown) => void;
   onBack: () => void;
 }) {
+  const i18n = useI18n();
+  const { t } = i18n;
   const access = useMemo(() => make_client_access(), []);
   const api = useMemo(() => create_api(access), [access]);
   const [pending, startTransition] = useTransition();
@@ -47,7 +50,7 @@ export function ShippingStep({
   const currency_label = cart?.currency || currency;
   const fmt = (v: string | null) => {
     if (v == null) return null;
-    return parseFloat(v) === 0 ? "Free" : `${v} ${currency_label}`.trim();
+    return parseFloat(v) === 0 ? t("common.free") : i18n.price(v, currency_label);
   };
 
   const {
@@ -73,7 +76,7 @@ export function ShippingStep({
         { method: "PATCH", body: JSON.stringify({ code: selected }) },
       );
       if (error) {
-        setSaveError(error.message || "Couldn’t select that shipping method.");
+        setSaveError(error.message || t("checkout.shipping_failed"));
         return;
       }
       onSaved(response);
@@ -91,13 +94,12 @@ export function ShippingStep({
     // No methods for this address, or the request failed. Degrade gracefully.
     body = (
       <div className="rounded-lg border border-dashed p-8 text-center">
-        <h2 className="text-lg">Shipping method</h2>
+        <h2 className="text-lg">{t("checkout.shipping_method")}</h2>
         <p className="text-muted-foreground mx-auto mt-2 max-w-sm text-sm">
-          No shipping methods are available for this address yet. Please check
-          your address or try again later.
+          {t("checkout.no_shipping")}
         </p>
         <Button variant="outline" className="mt-4" onClick={onBack}>
-          Back to address
+          {t("checkout.back_to_address")}
         </Button>
       </div>
     );
@@ -143,10 +145,10 @@ export function ShippingStep({
 
         <div className="flex gap-3">
           <Button variant="outline" onClick={onBack} disabled={pending}>
-            Back
+            {t("common.back")}
           </Button>
           <Button onClick={submit} disabled={pending || !selected}>
-            {pending ? <Spinner className="size-4" /> : "Continue to payment"}
+            {pending ? <Spinner className="size-4" /> : t("checkout.to_payment")}
           </Button>
         </div>
       </div>

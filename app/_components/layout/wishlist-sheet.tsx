@@ -17,8 +17,10 @@ import { WishlistItems } from "./wishlist-items";
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { useI18n } from "@/providers/i18n.provider";
 
 export function WishlistSheet() {
+  const { t } = useI18n();
   const count = useWishlistStore((s) => s.count());
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -33,8 +35,8 @@ export function WishlistSheet() {
           // The count joins the name only after mount, like the badge (no hydration mismatch).
           aria-label={
             mounted && count > 0
-              ? `Wishlist, ${count} ${count === 1 ? "item" : "items"}`
-              : "Wishlist"
+              ? t("wishlist.label_count", { count })
+              : t("header.wishlist")
           }
         >
           <Heart />
@@ -49,7 +51,7 @@ export function WishlistSheet() {
       </SheetTrigger>
       <SheetContent side="right" aria-describedby={undefined}>
         <SheetHeader>
-          <SheetTitle>Wishlist</SheetTitle>
+          <SheetTitle>{t("wishlist.title")}</SheetTitle>
         </SheetHeader>
         <WishlistItems />
       </SheetContent>

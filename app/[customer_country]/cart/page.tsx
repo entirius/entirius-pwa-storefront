@@ -3,12 +3,16 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import type { Metadata } from "next";
+import { get_i18n } from "@/lib/i18n/i18n.server";
 import { CartPageClient } from "./_components/cart-page.client";
 
-export const metadata: Metadata = {
-  title: "Cart",
-  robots: { index: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await get_i18n();
+  return {
+    title: t("cart.title"),
+    robots: { index: false },
+  };
+}
 
 export default function CartPage() {
   return <CartPageClient />;

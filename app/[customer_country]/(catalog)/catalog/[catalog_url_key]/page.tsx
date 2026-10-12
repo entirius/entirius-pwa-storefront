@@ -10,6 +10,7 @@ import { get_server_api } from "@/lib/seo/server-api";
 import { build_catalog_metadata, build_catalog_jsonld } from "@/lib/seo/build";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { SanitizeHTML } from "@/components/ui/sanitize-html";
+import { get_i18n } from "@/lib/i18n/i18n.server";
 import { ListingClient } from "./_components/listing.client";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import {
@@ -33,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { customer_country, catalog_url_key } = await params;
   const api = await get_server_api();
   const category = await load_category(api, { url_key: catalog_url_key });
-  if (!category) return { title: "Catalog" };
+  if (!category) return { title: (await get_i18n()).t("catalog.title") };
 
   return build_catalog_metadata(category, {
     country: customer_country,
@@ -44,6 +45,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CatalogPage({ params, searchParams }: Props) {
   const { customer_country, catalog_url_key } = await params;
   const { page = "1", limit = "16", ...search_params } = await searchParams;
+  const { t } = await get_i18n();
 
   // Same instance generateMetadata used; load_category keys its React cache on
   // the url_key string, so the two calls collapse to one fetch.
@@ -110,7 +112,7 @@ export default async function CatalogPage({ params, searchParams }: Props) {
               )}
             </div>
             {subcategories.length > 0 && (
-              <nav aria-label="Subcategories" className="flex flex-wrap gap-2">
+              <nav aria-label={t("catalog.subcategories")} className="flex flex-wrap gap-2">
                 {subcategories.map((sub) => (
                   <LinkDynamic
                     key={sub.url_key}

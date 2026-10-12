@@ -21,10 +21,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { msg } from "@/lib/i18n/translate";
+import { useI18n } from "@/providers/i18n.provider";
 
 const profile_schema = z.object({
-  firstname: z.string().trim().min(1, "First name is required"),
-  lastname: z.string().trim().min(1, "Last name is required"),
+  firstname: z.string().trim().min(1, msg("validation.firstname_required")),
+  lastname: z.string().trim().min(1, msg("validation.lastname_required")),
 });
 type ProfileFormValues = z.infer<typeof profile_schema>;
 
@@ -37,6 +39,7 @@ export function ProfileEditForm({
   onSaved: (profile: Profile) => void;
   onCancel: () => void;
 }) {
+  const { t } = useI18n();
   const [pending, startTransition] = useTransition();
   const form = useForm<ProfileFormValues>({
     // Same nominal zod type-brand cast used across the auth forms.
@@ -50,7 +53,7 @@ export function ProfileEditForm({
       const res = await client_update_profile(values);
       if (!res.ok) {
         form.setError("root", {
-          message: "Could not update profile. Please try again.",
+          message: t("profile.update_failed"),
         });
         return;
       }
@@ -66,7 +69,7 @@ export function ProfileEditForm({
           name="firstname"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>First name</FormLabel>
+              <FormLabel>{t("address.firstname")}</FormLabel>
               <FormControl>
                 <Input autoComplete="given-name" {...field} />
               </FormControl>
@@ -79,7 +82,7 @@ export function ProfileEditForm({
           name="lastname"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Last name</FormLabel>
+              <FormLabel>{t("address.lastname")}</FormLabel>
               <FormControl>
                 <Input autoComplete="family-name" {...field} />
               </FormControl>
@@ -94,10 +97,10 @@ export function ProfileEditForm({
         )}
         <div className="flex gap-2">
           <Button type="submit" disabled={pending}>
-            {pending ? <Spinner className="size-4" /> : "Save"}
+            {pending ? <Spinner className="size-4" /> : t("common.save")}
           </Button>
           <Button type="button" variant="ghost" onClick={onCancel}>
-            Cancel
+            {t("common.cancel")}
           </Button>
         </div>
       </form>

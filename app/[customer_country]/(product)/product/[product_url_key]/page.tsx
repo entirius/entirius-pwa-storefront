@@ -13,6 +13,7 @@ import {
   build_breadcrumbs_jsonld,
 } from "@/lib/seo/build";
 import { JsonLd } from "@/lib/seo/json-ld";
+import { get_i18n } from "@/lib/i18n/i18n.server";
 import { ProductClient } from "./_components/product.client";
 import {
   PageBreadcrumbs,
@@ -28,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const api = await get_server_api();
   const [error, response] = await load_product(api, { product_url_key });
   const raw = response?.results?.[0];
-  if (error || !raw) return { title: "Product" };
+  if (error || !raw) return { title: (await get_i18n()).t("product.title") };
 
   return build_product_metadata(raw, {
     country: customer_country,

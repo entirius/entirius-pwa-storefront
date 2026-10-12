@@ -10,6 +10,7 @@ import { LinkDynamic } from "@/lib/link-dynamic";
 import { NORM_FOOTER, type FooterLink } from "@/utils/NORMALIZERS/footer.normalizer";
 import { SITE_NAME } from "@/_CONFIG/app.config.json";
 import { BrandMark } from "./brand-mark";
+import { get_i18n } from "@/lib/i18n/i18n.server";
 
 // One request per render, whatever renders the footer.
 const load_footer = cache(async () => {
@@ -35,17 +36,18 @@ function FooterLinkItem({ link }: { link: FooterLink }) {
 // footer keeps only the shop name line.
 export async function FooterComponent() {
   const columns = await load_footer();
+  const { t } = await get_i18n();
   return (
     <footer className="mt-16 border-t border-border bg-card">
       <div className="mx-auto grid w-full max-w-7xl grid-cols-2 gap-8 px-4 py-12 md:grid-cols-4">
         <div className="col-span-2 flex flex-col gap-3 md:col-span-1">
           <BrandMark />
           <p className="max-w-xs text-sm text-muted-foreground">
-            Prices include VAT.
+            {t("footer.prices_incl_vat")}
           </p>
         </div>
         {columns.length > 0 && (
-          <nav aria-label="Footer" className="col-span-2 grid grid-cols-2 gap-8 md:col-span-3 md:grid-cols-3">
+          <nav aria-label={t("footer.nav")} className="col-span-2 grid grid-cols-2 gap-8 md:col-span-3 md:grid-cols-3">
             {columns.map((column, i) => (
               <div key={`${i}-${column.heading}`} className="flex flex-col gap-3">
                 {column.heading && (

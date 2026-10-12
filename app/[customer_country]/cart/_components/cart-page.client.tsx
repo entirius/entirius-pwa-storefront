@@ -39,6 +39,7 @@ export function CartPageClient() {
   const pieces = entries.reduce((n, [, item]) => n + item.quantity, 0);
   const currency = backend?.currency || "";
   const i18n = useI18n();
+  const { t } = i18n;
   const fmt = (v: string | null | undefined) => i18n.price(v, currency);
   const validation_ok = backend?.validation_status === "valid";
   const total_savings = num(backend?.item_savings_gross) + num(backend?.total_discount_gross);
@@ -55,10 +56,10 @@ export function CartPageClient() {
   const heading = (
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div>
-        <h1 className="text-4xl md:text-5xl">Your cart</h1>
+        <h1 className="text-4xl md:text-5xl">{t("cart.page_title")}</h1>
         {mounted && entries.length > 0 && (
           <p className="mt-1 text-muted-foreground">
-            {pieces} {pieces === 1 ? "item" : "items"}
+            {t("cart.items_count", { count: pieces })}
           </p>
         )}
       </div>
@@ -81,9 +82,9 @@ export function CartPageClient() {
       <div className="flex flex-col gap-6 py-4">
         {heading}
         <div className="flex flex-col items-start gap-4 rounded-3xl bg-card p-8">
-          <p className="text-lg text-heading">Your cart is empty</p>
+          <p className="text-lg text-heading">{t("cart.empty")}</p>
           <Button className="rounded-full" asChild>
-            <LinkDynamic href="/">Start shopping</LinkDynamic>
+            <LinkDynamic href="/">{t("cart.start_shopping")}</LinkDynamic>
           </Button>
         </div>
       </div>
@@ -96,17 +97,17 @@ export function CartPageClient() {
 
       {error && (
         <p className="rounded-2xl border border-destructive/50 bg-destructive-surface px-4 py-3 text-sm text-destructive">
-          Couldn’t sync with the server. Showing local items.
+          {t("cart.sync_error")}
         </p>
       )}
       {backend && !validation_ok && backend.errors.length > 0 && (
         <p className="rounded-2xl border border-destructive/50 bg-destructive-surface px-4 py-3 text-sm text-destructive">
-          Some items need attention before checkout.
+          {t("cart.needs_attention")}
         </p>
       )}
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start">
-        <section aria-label="Items in your cart" className="flex flex-col gap-3">
+        <section aria-label={t("cart.items_label")} className="flex flex-col gap-3">
           <ul className="flex flex-col gap-3">
             {entries.map(([sku, item]) => {
               const line = backend?.lines[sku];
@@ -143,7 +144,7 @@ export function CartPageClient() {
                     {line && <UnitPrice line={line} currency={currency} className="text-sm" />}
                     {flagged && (
                       <span className="self-start rounded-full bg-notice-surface px-2.5 py-0.5 text-xs font-semibold text-notice">
-                        {line?.status === "out_of_stock" ? "Out of stock" : "Limited availability"}
+                        {line?.status === "out_of_stock" ? t("product.out_of_stock") : t("cart.limited")}
                       </span>
                     )}
                   </div>
@@ -162,11 +163,11 @@ export function CartPageClient() {
                         variant="ghost"
                         size="sm"
                         className="rounded-full text-muted-foreground"
-                        aria-label={`Remove ${item.name}`}
+                        aria-label={t("cart.remove", { name: item.name })}
                         onClick={() => remove(sku)}
                       >
                         <Trash2 aria-hidden />
-                        <span className="hidden md:inline">Remove</span>
+                        <span className="hidden md:inline">{t("cart.remove_short")}</span>
                       </Button>
                     </div>
                   </div>
@@ -175,20 +176,20 @@ export function CartPageClient() {
             })}
           </ul>
           <LinkDynamic href="/" className="link mt-2 self-start font-semibold">
-            Continue shopping
+            {t("common.continue_shopping")}
           </LinkDynamic>
         </section>
 
         <aside
-          aria-label="Order summary"
+          aria-label={t("checkout.summary")}
           className="flex flex-col gap-4 rounded-4xl bg-card p-6 lg:sticky lg:top-24"
         >
-          <h2 className="text-2xl">Order summary</h2>
+          <h2 className="text-2xl">{t("checkout.summary")}</h2>
           <DiscountCode backend={backend} />
           <dl className="flex flex-col gap-2 border-t border-border pt-4 text-sm">
             <div className="flex justify-between gap-4">
               <dt className="flex items-center gap-2 text-muted-foreground">
-                Subtotal
+                {t("cart.subtotal")}
                 {isFetching && <Spinner className="size-3" />}
               </dt>
               <dd className="tabular-nums">{fmt(backend?.subtotal_gross)}</dd>
@@ -196,37 +197,39 @@ export function CartPageClient() {
             {has_discount && (
               <div className="flex justify-between gap-4">
                 <dt className="text-muted-foreground">
-                  {applied_codes.length ? `Discount (${applied_codes.join(", ")})` : "Discount"}
+                  {applied_codes.length
+                    ? t("checkout.discount_codes", { codes: applied_codes.join(", ") })
+                    : t("checkout.discount")}
                 </dt>
                 <dd className="tabular-nums text-positive">−{fmt(backend?.total_discount_gross)}</dd>
               </div>
             )}
             <div className="flex justify-between gap-4">
-              <dt className="text-muted-foreground">Shipping</dt>
-              <dd className="text-muted-foreground">Calculated at checkout</dd>
+              <dt className="text-muted-foreground">{t("cart.shipping")}</dt>
+              <dd className="text-muted-foreground">{t("cart.shipping_at_checkout")}</dd>
             </div>
           </dl>
           {to_free_shipping && (
             <p className="-mt-2 text-xs text-muted-foreground">
-              {fmt(to_free_shipping)} away from free shipping
+              {t("checkout.free_shipping_away", { amount: fmt(to_free_shipping) })}
             </p>
           )}
           <div className="flex items-baseline justify-between gap-4 border-t border-border pt-4">
-            <span className="font-semibold text-heading">Total</span>
+            <span className="font-semibold text-heading">{t("cart.total")}</span>
             <span className="font-brand text-3xl tabular-nums text-heading">{fmt(backend?.total_gross)}</span>
           </div>
           {backend?.total_tax && (
             <p className="-mt-3 text-right text-sm text-muted-foreground">
-              incl. VAT {fmt(backend.total_tax)}
+              {t("cart.incl_vat", { amount: fmt(backend.total_tax) })}
             </p>
           )}
           {total_savings > 0.005 && (
             <p className="rounded-2xl bg-positive-surface px-4 py-2.5 text-sm font-semibold text-positive">
-              You save {fmt(total_savings.toFixed(2))} on this order
+              {t("cart.you_save_order", { amount: fmt(total_savings.toFixed(2)) })}
             </p>
           )}
           <Button size="lg" className="hidden h-12 rounded-full text-base lg:inline-flex" asChild>
-            <LinkDynamic href="/checkout">Go to checkout</LinkDynamic>
+            <LinkDynamic href="/checkout">{t("cart.go_to_checkout")}</LinkDynamic>
           </Button>
         </aside>
       </div>
@@ -234,11 +237,11 @@ export function CartPageClient() {
       {/* Phones and tablets: total and checkout always in reach. */}
       <div className="fixed inset-x-0 bottom-0 z-20 flex items-center gap-3 border-t border-border bg-card px-4 pt-3 pb-5 lg:hidden">
         <div className="flex-1">
-          <p className="text-xs text-muted-foreground">Total incl. VAT</p>
+          <p className="text-xs text-muted-foreground">{t("cart.total_incl_vat")}</p>
           <p className="font-brand text-xl tabular-nums text-heading">{fmt(backend?.total_gross)}</p>
         </div>
         <Button size="lg" className="h-12 rounded-full px-6" asChild>
-          <LinkDynamic href="/checkout">Go to checkout</LinkDynamic>
+          <LinkDynamic href="/checkout">{t("cart.go_to_checkout")}</LinkDynamic>
         </Button>
       </div>
     </div>

@@ -13,12 +13,14 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { get_i18n } from "@/lib/i18n/i18n.server";
 
 export type Crumb = { name: string; href?: string };
 
 // Home + trail; the last crumb is the current page (not a link).
-export function PageBreadcrumbs({ trail }: { trail: Crumb[] }) {
-  const crumbs: Crumb[] = [{ name: "Home", href: "/" }, ...trail];
+export async function PageBreadcrumbs({ trail }: { trail: Crumb[] }) {
+  const { t } = await get_i18n();
+  const crumbs: Crumb[] = [{ name: t("breadcrumbs.home"), href: "/" }, ...trail];
   return (
     <Breadcrumb className="mb-4">
       <BreadcrumbList>

@@ -56,8 +56,8 @@ export function AddedToCart() {
             <span className="flex size-8 items-center justify-center rounded-full bg-positive-surface text-positive">
               <Check className="size-4" aria-hidden />
             </span>
-            <p className="flex-1 font-semibold text-heading">Added to your cart</p>
-            <Button variant="ghost" size="icon" className="rounded-full" aria-label="Close" onClick={hide}>
+            <p className="flex-1 font-semibold text-heading">{i18n.t("cart.added")}</p>
+            <Button variant="ghost" size="icon" className="rounded-full" aria-label={i18n.t("common.close")} onClick={hide}>
               <X />
             </Button>
           </div>
@@ -67,24 +67,24 @@ export function AddedToCart() {
             </div>
             <div className="min-w-0">
               <p className="truncate font-brand text-heading">{item.name}</p>
-              <p className="text-sm text-muted-foreground">Qty {item.quantity}</p>
+              <p className="text-sm text-muted-foreground">{i18n.t("checkout.quantity", { count: item.quantity })}</p>
             </div>
             {item.price && (
               <span className="font-brand text-heading">{price_lines(i18n, item.price).at(-1)}</span>
             )}
           </div>
           <p className="border-t border-border pt-3 text-sm text-muted-foreground">
-            Cart: {count} {count === 1 ? "item" : "items"}
+            {i18n.t("cart.added_count", { count })}
           </p>
           <div className="grid grid-cols-2 gap-2">
             <Button variant="outline" className="rounded-full" asChild>
               <LinkDynamic href="/cart" onClick={hide}>
-                View cart
+                {i18n.t("cart.view")}
               </LinkDynamic>
             </Button>
             <Button className="rounded-full" asChild>
               <LinkDynamic href="/checkout" onClick={hide}>
-                Checkout
+                {i18n.t("cart.checkout")}
               </LinkDynamic>
             </Button>
           </div>

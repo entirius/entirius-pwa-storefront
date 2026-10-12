@@ -14,6 +14,7 @@ import { NORM_CART, type Cart } from "@/utils/NORMALIZERS/cart.normalizer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import { useI18n } from "@/providers/i18n.provider";
 
 // Manual discount codes on the backend cart. PATCH replaces the whole set of
 // manual codes, so applying sends the codes already on the cart plus the new
@@ -21,6 +22,7 @@ import { Spinner } from "@/components/ui/spinner";
 // with a generic `_errors` entry, so the form compares what it sent with what
 // stuck. Codes survive item changes; automatic rules are the backend's business.
 export function DiscountCode({ backend }: { backend: Cart | null | undefined }) {
+  const { t } = useI18n();
   const api = useMemo(() => create_api(make_client_access()), []);
   const query_client = useQueryClient();
   const [pending, startTransition] = useTransition();
@@ -42,7 +44,7 @@ export function DiscountCode({ backend }: { backend: Cart | null | undefined }) 
         body: JSON.stringify(body),
       });
       if (error) {
-        setMessage(error.message || "Couldn’t update the discount code.");
+        setMessage(error.message || t("cart.discount_failed"));
         return;
       }
       const cart = NORM_CART(response);
@@ -51,7 +53,7 @@ export function DiscountCode({ backend }: { backend: Cart | null | undefined }) 
       if (added) {
         const ok = cart.discounts.some((d) => d.code === added && d.status === "valid");
         if (ok) setValue("");
-        else setMessage("This code can’t be used with your cart.");
+        else setMessage(t("cart.discount_invalid"));
       }
     });
   };
@@ -73,8 +75,8 @@ export function DiscountCode({ backend }: { backend: Cart | null | undefined }) 
         <Input
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder="Discount code"
-          aria-label="Discount code"
+          placeholder={t("cart.discount_code")}
+          aria-label={t("cart.discount_code")}
           autoComplete="off"
           className="h-9"
         />
@@ -85,7 +87,7 @@ export function DiscountCode({ backend }: { backend: Cart | null | undefined }) 
           className="h-9"
           disabled={pending || !value.trim() || !backend?.cart_id}
         >
-          {pending ? <Spinner className="size-4" /> : "Apply"}
+          {pending ? <Spinner className="size-4" /> : t("cart.discount_apply")}
         </Button>
       </form>
       {message && (
@@ -94,7 +96,7 @@ export function DiscountCode({ backend }: { backend: Cart | null | undefined }) 
         </p>
       )}
       {applied.length > 0 && (
-        <ul className="flex flex-wrap gap-1.5" aria-label="Applied discount codes">
+        <ul className="flex flex-wrap gap-1.5" aria-label={t("cart.discount_applied")}>
           {applied.map((code) => (
             <li
               key={code}
@@ -105,7 +107,7 @@ export function DiscountCode({ backend }: { backend: Cart | null | undefined }) 
                 type="button"
                 onClick={() => save(applied.filter((c) => c !== code))}
                 disabled={pending}
-                aria-label={`Remove code ${code}`}
+                aria-label={t("cart.discount_remove", { code })}
                 className="rounded p-0.5 hover:bg-positive/20"
               >
                 <X className="size-3" />

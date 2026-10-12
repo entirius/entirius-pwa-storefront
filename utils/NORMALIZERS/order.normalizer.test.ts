@@ -35,7 +35,7 @@ describe("NORM_ORDER_SUMMARIES", () => {
           id: "0200000013",
           order_uuid: "6435143b-2655-4a30-b25b-a3cafe4d9877",
           status: "unpaid",
-          status_label: "Awaiting payment",
+          status_label: "orders.status_unpaid",
           created: "2026-10-07T11:12:00.479163Z",
           total: "549.00",
           currency_code: "EUR",
@@ -96,8 +96,8 @@ describe("NORM_PLACED_ORDER", () => {
 
 describe("status_label_for", () => {
   it("names the backend's bare status codes and keeps a real label", () => {
-    expect(status_label_for("unpaid", "unpaid")).toBe("Awaiting payment");
-    expect(status_label_for("canceled", null)).toBe("Cancelled");
+    expect(status_label_for("unpaid", "unpaid")).toBe("orders.status_unpaid");
+    expect(status_label_for("canceled", null)).toBe("orders.status_canceled");
     expect(status_label_for("shipped", "Out for delivery")).toBe("Out for delivery");
   });
 });

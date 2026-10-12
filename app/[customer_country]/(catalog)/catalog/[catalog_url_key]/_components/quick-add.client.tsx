@@ -9,6 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Check, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { useI18n } from "@/providers/i18n.provider";
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
 import { useCartStore } from "@/stores/cart.store";
@@ -29,6 +30,7 @@ type QuickAddItem = {
 export function QuickAdd({ item }: { item: QuickAddItem }) {
   const api = useMemo(() => create_api(make_client_access()), []);
   const query_client = useQueryClient();
+  const { t } = useI18n();
   const add = useCartStore((s) => s.add);
   const show_added = useAddedToCart((s) => s.show);
   const [state, setState] = useState<"idle" | "busy" | "added" | "none">("idle");
@@ -61,7 +63,11 @@ export function QuickAdd({ item }: { item: QuickAddItem }) {
   };
 
   const label =
-    state === "none" ? `${item.name} is out of stock` : state === "added" ? `${item.name} added to cart` : `Add ${item.name} to cart`;
+    state === "none"
+      ? t("catalog.quick_add_out_of_stock", { name: item.name })
+      : state === "added"
+        ? t("catalog.quick_add_added", { name: item.name })
+        : t("catalog.quick_add", { name: item.name });
 
   return (
     <Button

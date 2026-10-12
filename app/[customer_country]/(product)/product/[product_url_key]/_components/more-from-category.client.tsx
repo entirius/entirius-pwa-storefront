@@ -10,6 +10,7 @@ import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
 import { ProductTile } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-tile.client";
 import { cms_category_products_query } from "@/app/[customer_country]/(builder)/[[...slug]]/api.query";
+import { useI18n } from "@/providers/i18n.provider";
 
 // Up to four other products of the product's first category, below the product.
 export function MoreFromCategory({
@@ -21,6 +22,7 @@ export function MoreFromCategory({
   name: string;
   exclude_sku: string;
 }) {
+  const { t } = useI18n();
   const api = useMemo(() => create_api(make_client_access()), []);
   const { data } = useQuery(cms_category_products_query(api, category));
   const products = (data ?? []).filter((p) => p.sku !== exclude_sku).slice(0, 4);
@@ -29,7 +31,7 @@ export function MoreFromCategory({
   return (
     <section aria-labelledby="more-from-category" className="flex flex-col gap-5">
       <h2 id="more-from-category" className="text-2xl md:text-3xl">
-        More {name.toLowerCase()}
+        {t("product.more_from_category", { name: name.toLowerCase() })}
       </h2>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {products.map((product) => (

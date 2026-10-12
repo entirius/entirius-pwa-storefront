@@ -9,6 +9,7 @@ import { useShallow } from "zustand/react/shallow";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFiltersStore, to_filter_key } from "./filters.store";
+import { useI18n } from "@/providers/i18n.provider";
 
 type FilterSortItemProps = {
   option_idx: string;
@@ -23,6 +24,7 @@ const FilterSortItem = memo(function FilterSortItem({
   option_idx,
   label,
 }: FilterSortItemProps) {
+  const { t } = useI18n();
   const sort_key = `s_${option_idx}`;
 
   const { is_asc, is_desc, sort_toggle } = useFiltersStore(
@@ -57,22 +59,22 @@ const FilterSortItem = memo(function FilterSortItem({
       <button
         type="button"
         aria-pressed={is_asc}
-        aria-label={`${label}, ascending`}
+        aria-label={t("catalog.sort_ascending", { label })}
         className={pill(is_asc)}
         onClick={toggle_asc}
       >
         <ArrowUp className="size-3.5" aria-hidden />
-        Asc
+        {t("catalog.asc")}
       </button>
       <button
         type="button"
         aria-pressed={is_desc}
-        aria-label={`${label}, descending`}
+        aria-label={t("catalog.sort_descending", { label })}
         className={pill(is_desc)}
         onClick={toggle_desc}
       >
         <ArrowDown className="size-3.5" aria-hidden />
-        Desc
+        {t("catalog.desc")}
       </button>
     </div>
   );

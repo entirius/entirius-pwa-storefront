@@ -16,11 +16,13 @@ import {
 import { FiltersOptionsClient } from "./filters-options.client";
 import { FilterIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/providers/i18n.provider";
 
 const FILTER_PREFIXES = ["q_", "s_", "r_"];
 
 export function FiltersTriggerClient({ options }: { options: any }) {
   const search_params = useSearchParams();
+  const { t } = useI18n();
 
   const has_active = FILTER_PREFIXES.some((p) =>
     Array.from(search_params.keys()).some((k) => k.startsWith(p)),
@@ -36,14 +38,14 @@ export function FiltersTriggerClient({ options }: { options: any }) {
               <span className="absolute -top-1 -right-1 size-2 rounded-full bg-highlight" />
             )}
           </div>
-          Filters
+          {t("catalog.filters")}
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="overflow-y-auto bg-card">
         {/* The panel carries its own visible "Filters" heading. */}
         <SheetHeader className="sr-only">
-          <SheetTitle>Filters</SheetTitle>
-          <SheetDescription>Narrow down the results</SheetDescription>
+          <SheetTitle>{t("catalog.filters")}</SheetTitle>
+          <SheetDescription>{t("catalog.filters_hint")}</SheetDescription>
         </SheetHeader>
         <div className="p-4">
           <FiltersOptionsClient options={options} in_sheet />

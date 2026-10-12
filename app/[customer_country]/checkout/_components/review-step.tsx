@@ -16,6 +16,7 @@ import {
 } from "@/utils/NORMALIZERS/order.normalizer";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { useI18n } from "@/providers/i18n.provider";
 
 export function ReviewStep({
   cart,
@@ -28,6 +29,8 @@ export function ReviewStep({
   onBack: () => void;
   onPlaced: (order: PlacedOrder) => void;
 }) {
+  const i18n = useI18n();
+  const { t } = i18n;
   const access = useMemo(() => make_client_access(), []);
   const api = useMemo(() => create_api(access), [access]);
   const [pending, startTransition] = useTransition();
@@ -36,7 +39,7 @@ export function ReviewStep({
   const cart_id = cart?.cart_id;
   const currency_label = cart?.currency || currency;
   const fmt = (v: string | null | undefined) =>
-    v == null ? null : parseFloat(v) === 0 ? "Free" : `${v} ${currency_label}`.trim();
+    v == null ? null : parseFloat(v) === 0 ? t("common.free") : i18n.price(v, currency_label);
 
   const billing = cart?.billing_address ?? null;
   const shipping = cart?.shipping_address ?? null;
@@ -57,12 +60,12 @@ export function ReviewStep({
           body: JSON.stringify({ cart_id }),
         });
       } catch {
-        setError("Couldn’t place your order. Please try again.");
+        setError(t("checkout.order_failed"));
         return;
       }
       if (err) {
         setError(
-          err.message || `Couldn’t place your order (HTTP ${err.status}).`,
+          err.message || t("checkout.order_failed_http", { status: String(err.status) }),
         );
         return;
       }
@@ -80,20 +83,20 @@ export function ReviewStep({
   return (
     <div className="flex flex-col gap-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        {billing && <AddressCard title="Billing address" a={billing} />}
+        {billing && <AddressCard title={t("checkout.billing_address")} a={billing} />}
         {show_shipping && shipping && (
-          <AddressCard title="Shipping address" a={shipping} />
+          <AddressCard title={t("checkout.shipping_address")} a={shipping} />
         )}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <InfoCard
-          title="Shipping method"
+          title={t("checkout.shipping_method")}
           name={cart?.shipping_method?.name}
           note={fmt(cart?.shipping_method?.price)}
         />
         <InfoCard
-          title="Payment method"
+          title={t("checkout.payment_method")}
           name={cart?.payment_method?.name}
           note={cart?.payment_method?.fee ? fmt(cart.payment_method.fee) : null}
         />
@@ -103,10 +106,10 @@ export function ReviewStep({
 
       <div className="flex gap-3">
         <Button variant="outline" onClick={onBack} disabled={pending}>
-          Back
+          {t("common.back")}
         </Button>
         <Button onClick={place} disabled={pending || !cart_id}>
-          {pending ? <Spinner className="size-4" /> : "Place order"}
+          {pending ? <Spinner className="size-4" /> : t("checkout.place_order")}
         </Button>
       </div>
     </div>
@@ -114,6 +117,7 @@ export function ReviewStep({
 }
 
 function AddressCard({ title, a }: { title: string; a: CartAddress }) {
+  const { t } = useI18n();
   const name = [a.firstname, a.lastname].filter(Boolean).join(" ");
   const phone = [a.dialling_code, a.telephone].filter(Boolean).join(" ");
   return (
@@ -130,7 +134,7 @@ function AddressCard({ title, a }: { title: string; a: CartAddress }) {
         {phone && <span className="text-muted-foreground">{phone}</span>}
         {a.email && <span className="text-muted-foreground">{a.email}</span>}
         {a.tax_id && (
-          <span className="text-muted-foreground">Tax ID: {a.tax_id}</span>
+          <span className="text-muted-foreground">{t("address.tax_id_line", { value: a.tax_id })}</span>
         )}
       </div>
     </section>
@@ -146,6 +150,7 @@ function InfoCard({
   name: string | null | undefined;
   note: string | null;
 }) {
+  const { t } = useI18n();
   return (
     <section className="rounded-lg border p-4 text-sm">
       <h3 className="text-muted-foreground mb-2 text-xs uppercase">
@@ -157,7 +162,7 @@ function InfoCard({
           {note && <span className="tabular-nums">{note}</span>}
         </div>
       ) : (
-        <span className="text-muted-foreground">Not selected</span>
+        <span className="text-muted-foreground">{t("checkout.not_selected")}</span>
       )}
     </section>
   );

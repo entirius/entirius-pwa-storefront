@@ -22,7 +22,7 @@ export const pl: Record<MessageKey, Message> = {
   "common.try_again": "Coś poszło nie tak. Spróbuj ponownie.",
   "common.continue_shopping": "Kontynuuj zakupy",
   "common.back_to_store": "Wróć do sklepu",
-  "common.reset": "Resetuj",
+  "common.pagination": "Paginacja",
 
   // header
   "header.menu": "Menu",
@@ -31,7 +31,7 @@ export const pl: Record<MessageKey, Message> = {
   "header.cart": "Koszyk",
   "header.account": "Konto",
   "header.sign_in": "Zaloguj się",
-  "header.toggle_theme": "Przełącz motyw",
+  "header.home": "{name} — strona główna",
 
   // cart drawer
   "cart.title": "Koszyk",
@@ -41,12 +41,46 @@ export const pl: Record<MessageKey, Message> = {
   "cart.limited": "Ograniczona dostępność",
   "cart.remove": "Usuń: {name}",
   "cart.subtotal": "Suma częściowa",
-  "cart.you_save": "Oszczędzasz",
   "cart.total": "Razem",
   "cart.incl_vat": "w tym VAT {amount}",
   "cart.checkout": "Do kasy",
   "cart.decrease": "Zmniejsz ilość",
   "cart.increase": "Zwiększ ilość",
+  "cart.page_title": "Twój koszyk",
+  "cart.items_count": {
+    one: "{count} produkt",
+    few: "{count} produkty",
+    many: "{count} produktów",
+    other: "{count} produktu",
+  },
+  "cart.start_shopping": "Zacznij zakupy",
+  "cart.items_label": "Produkty w koszyku",
+  "cart.remove_short": "Usuń",
+  "cart.shipping": "Dostawa",
+  "cart.shipping_at_checkout": "Obliczymy przy składaniu zamówienia",
+  "cart.you_save_order": "Oszczędzasz {amount} na tym zamówieniu",
+  "cart.go_to_checkout": "Przejdź do kasy",
+  "cart.total_incl_vat": "Razem z VAT",
+  "cart.link_label": {
+    one: "Koszyk, {count} produkt",
+    few: "Koszyk, {count} produkty",
+    many: "Koszyk, {count} produktów",
+    other: "Koszyk, {count} produktu",
+  },
+  "cart.added": "Dodano do koszyka",
+  "cart.added_count": {
+    one: "Koszyk: {count} produkt",
+    few: "Koszyk: {count} produkty",
+    many: "Koszyk: {count} produktów",
+    other: "Koszyk: {count} produktu",
+  },
+  "cart.view": "Zobacz koszyk",
+  "cart.discount_code": "Kod rabatowy",
+  "cart.discount_apply": "Zastosuj",
+  "cart.discount_applied": "Zastosowane kody rabatowe",
+  "cart.discount_remove": "Usuń kod {code}",
+  "cart.discount_failed": "Nie udało się zaktualizować kodu rabatowego.",
+  "cart.discount_invalid": "Tego kodu nie można użyć w Twoim koszyku.",
 
   // wishlist
   "wishlist.title": "Ulubione",
@@ -55,6 +89,12 @@ export const pl: Record<MessageKey, Message> = {
   "wishlist.remove": "Usuń z ulubionych",
   "wishlist.save": "Zapisz",
   "wishlist.saved": "Zapisano",
+  "wishlist.label_count": {
+    one: "Ulubione, {count} produkt",
+    few: "Ulubione, {count} produkty",
+    many: "Ulubione, {count} produktów",
+    other: "Ulubione, {count} produktu",
+  },
 
   // search
   "search.title": "Szukaj",
@@ -70,6 +110,7 @@ export const pl: Record<MessageKey, Message> = {
   "search.categories": "Kategorie",
   "search.products": "Produkty ({total})",
   "search.product_fallback": "Produkt",
+  "search.trigger": "Szukaj produktów",
 
   // account sheet and auth forms
   "auth.sign_in": "Zaloguj się",
@@ -101,15 +142,25 @@ export const pl: Record<MessageKey, Message> = {
   "catalog.updating": "Aktualizacja…",
   "catalog.apply": "Zastosuj ({count})",
   "catalog.sort": "Sortowanie",
-  "catalog.sort_asc": "Rosnąco ↑",
-  "catalog.sort_desc": "Malejąco ↓",
   "catalog.no_products": "Brak produktów",
   "catalog.previous": "Poprzednia",
   "catalog.next": "Następna",
   "catalog.previous_page": "Przejdź do poprzedniej strony",
   "catalog.next_page": "Przejdź do następnej strony",
-  "catalog.pagination": "Paginacja",
   "catalog.more_pages": "Więcej stron",
+  "catalog.clear_all": "Wyczyść wszystko",
+  "catalog.sort_ascending": "{label}, rosnąco",
+  "catalog.sort_descending": "{label}, malejąco",
+  "catalog.asc": "Rosnąco",
+  "catalog.desc": "Malejąco",
+  "catalog.reset_filter": "Resetuj: {label}",
+  "catalog.range_from": "Od",
+  "catalog.range_to": "Do",
+  "catalog.product_labels": "Oznaczenia produktu",
+  "catalog.quick_add": "Dodaj {name} do koszyka",
+  "catalog.quick_add_added": "Dodano {name} do koszyka",
+  "catalog.quick_add_out_of_stock": "{name} – brak w magazynie",
+  "catalog.subcategories": "Podkategorie",
 
   // product page
   "product.add_to_cart": "Dodaj do koszyka",
@@ -130,6 +181,9 @@ export const pl: Record<MessageKey, Message> = {
   "product.in_stock": "Dostępny",
   "product.not_available_online": "Niedostępny online",
   "product.this_category": "tej kategorii",
+  "product.more_from_category": "Więcej: {name}",
+  "product.specifications": "Specyfikacja",
+  "product.title": "Produkt",
 
   // checkout
   "checkout.title": "Zamówienie",
@@ -171,6 +225,15 @@ export const pl: Record<MessageKey, Message> = {
   "checkout.success_title": "Zamówienie złożone",
   "checkout.success_text": "Dziękujemy! Twoje zamówienie zostało złożone.",
   "checkout.success_ref": "Dziękujemy! Twoje zamówienie zostało złożone (nr {ref}).",
+  "checkout.steps": "Kroki zamówienia",
+  "checkout.step_unavailable": "Ten krok nie jest jeszcze dostępny - usługa dostawy i płatności jest chwilowo niedostępna. Twój adres został zapisany.",
+  "checkout.success_split": {
+    one: "Dziękujemy! Twoje zamówienie zostało podzielone na {count} zamówienie: {refs}.",
+    few: "Dziękujemy! Twoje zamówienie zostało podzielone na {count} zamówienia: {refs}.",
+    many: "Dziękujemy! Twoje zamówienie zostało podzielone na {count} zamówień: {refs}.",
+    other: "Dziękujemy! Twoje zamówienie zostało podzielone na {count} zamówienia: {refs}.",
+  },
+  "checkout.payment_start_failed": "Nie udało się rozpocząć płatności. Twoje zamówienie jest zapisane - skontaktuj się z nami i podaj numer zamówienia, aby je dokończyć.",
 
   // address fields (checkout and address book)
   "address.email": "E-mail",
@@ -192,7 +255,6 @@ export const pl: Record<MessageKey, Message> = {
   "profile.orders": "Moje zamówienia",
   "profile.log_out": "Wyloguj się",
   "profile.update_failed": "Nie udało się zaktualizować profilu. Spróbuj ponownie.",
-  "profile.not_persisted": "Uwaga: serwer nie zapisuje jeszcze zmian w profilu.",
   "profile.back": "Wróć do konta",
   "profile.no_addresses": "Nie masz jeszcze zapisanych adresów.",
   "profile.default": "Domyślny",
@@ -204,12 +266,20 @@ export const pl: Record<MessageKey, Message> = {
   "profile.save_address": "Zapisz adres",
   "profile.company_address": "Adres firmy (do faktury)",
   "profile.address_failed": "Nie udało się zapisać adresu. Spróbuj ponownie.",
+  "profile.overview": "Przegląd",
+  "profile.intro": "Twoje zamówienia, adresy i dane konta w jednym miejscu.",
+  "profile.account_details": "Dane konta",
+  "profile.latest_order": "Ostatnie zamówienie",
+  "profile.order_number": "Zamówienie {id}",
+  "profile.default_address": "Adres domyślny",
+  "profile.no_saved_addresses": "Nie masz jeszcze zapisanych adresów.",
+  "profile.manage_addresses": "Zarządzaj adresami",
+  "profile.saved_addresses": "Zapisane adresy",
 
   // orders
   "orders.title": "Moje zamówienia",
   "orders.load_failed": "Nie udało się wczytać zamówień. Spróbuj ponownie później.",
   "orders.none": "Nie masz jeszcze żadnych zamówień.",
-  "orders.details": "Szczegóły zamówienia",
   "orders.heading": "Zamówienie nr {id}",
   "orders.items": {
     one: "{count} produkt",
@@ -219,14 +289,27 @@ export const pl: Record<MessageKey, Message> = {
   },
   "orders.items_heading": "Produkty ({count})",
   "orders.view": "Zobacz szczegóły",
-  "orders.viewing": "Oglądasz szczegóły",
   "orders.product": "Produkt",
   "orders.quantity": "Ilość: {count}",
   "orders.phone": "Tel.: {value}",
   "orders.summary": "Podsumowanie",
-  "orders.subtotal": "Suma częściowa",
   "orders.tax": "Podatek",
   "orders.total": "Razem",
+  "orders.load_more": "Pokaż więcej",
+  "orders.back": "Wróć do moich zamówień",
+  "orders.load_one_failed": "Nie udało się wczytać tego zamówienia. Może nie istnieć albo jest teraz niedostępne.",
+  "orders.placed": "Złożone {date}",
+  "orders.sub_item_sku": "{sku} (SKU)",
+  "orders.payment": "Płatność",
+  "orders.shipping": "Dostawa",
+  "orders.items_net": "Produkty (netto)",
+  "orders.you_saved": "Oszczędność",
+  "orders.comment": "Komentarz",
+  "orders.status_unpaid": "Oczekuje na płatność",
+  "orders.status_confirmed": "Potwierdzone",
+  "orders.status_complete": "Zrealizowane",
+  "orders.status_canceled": "Anulowane",
+  "orders.status_returned": "Zwrócone",
 
   // validation (zod messages are keys; FormMessage turns them into text)
   "validation.email_required": "Podaj adres e-mail",
@@ -259,4 +342,21 @@ export const pl: Record<MessageKey, Message> = {
   "notfound.text": "Strona, której szukasz, nie istnieje albo została przeniesiona.",
   "cms.missing_url_key": "Brak url_key",
   "cms.product_unavailable": "Produkt niedostępny",
+
+  // layout
+  "layout.description": "Zrób zakupy w {name}.",
+  "layout.loading": "Ładowanie...",
+
+  // footer
+  "footer.prices_incl_vat": "Ceny zawierają VAT.",
+  "footer.nav": "Stopka",
+
+  // breadcrumbs
+  "breadcrumbs.home": "Strona główna",
+  "breadcrumbs.label": "Ścieżka nawigacji",
+  "breadcrumbs.more": "Więcej",
+
+  // omnibus
+  "omnibus.lowest_short": "Najniższa cena z 30 dni: {price}",
+  "omnibus.lowest": "Najniższa cena z 30 dni przed obniżką: {price}",
 };

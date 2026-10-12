@@ -3,6 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { resolve_media_url } from "@/utils/media-url";
+import { msg, type MessageKey } from "@/lib/i18n/translate";
 
 // Normalizes checkout v2 order responses:
 //  - the list (`{ count, next, previous, results: [ ...summary rows ] }`)
@@ -77,18 +78,19 @@ export type Order = {
   items: OrderItem[];
 };
 
-// The backend's status_label repeats the code ("unpaid"); customers read these.
-const STATUS_LABELS: Record<string, string> = {
-  unpaid: "Awaiting payment",
-  confirmed: "Confirmed",
-  complete: "Completed",
-  canceled: "Cancelled",
-  returned: "Returned",
+// The backend's status_label repeats the code ("unpaid"); customers read these. A known code becomes a message
+// key, a real backend label stays as written: render it with i18n.text(), which translates keys only.
+const STATUS_KEYS: Record<string, MessageKey> = {
+  unpaid: msg("orders.status_unpaid"),
+  confirmed: msg("orders.status_confirmed"),
+  complete: msg("orders.status_complete"),
+  canceled: msg("orders.status_canceled"),
+  returned: msg("orders.status_returned"),
 };
 
 export function status_label_for(status: string, label: string | null): string {
   if (label && label !== status) return label;
-  return STATUS_LABELS[status] ?? (status ? status.charAt(0).toUpperCase() + status.slice(1) : "");
+  return STATUS_KEYS[status] ?? (status ? status.charAt(0).toUpperCase() + status.slice(1) : "");
 }
 
 const str = (v: unknown): string | null =>
@@ -259,12 +261,12 @@ export function status_style(status: string): { bg: string; text: string } {
 
 // v2 sends ISO with a zone ("2026-10-07T11:12:00Z" / "+00:00"). Parse defensively
 // and fall back to the raw string if the engine can't read it.
-export function format_order_date(created: string): string {
+export function format_order_date(created: string, language: string): string {
   if (!created) return "";
   const d = new Date(created.replace(" ", "T"));
   if (Number.isNaN(d.getTime())) return created;
-  // The UI is English; the visitor's browser locale would mix languages.
-  return d.toLocaleDateString("en-GB", {
+  // The active UI language, not the browser locale (that would mix languages); English keeps the en-GB order.
+  return d.toLocaleDateString(language === "en" ? "en-GB" : language, {
     year: "numeric",
     month: "short",
     day: "numeric",

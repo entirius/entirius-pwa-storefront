@@ -13,6 +13,7 @@ import { NORM_CART, type Cart } from "@/utils/NORMALIZERS/cart.normalizer";
 import type { PlacedOrder } from "@/utils/NORMALIZERS/order.normalizer";
 import { cart_to_address_form } from "@/utils/validation/address.schema";
 import { useCartSync } from "@/stores/use-cart-sync";
+import { useI18n } from "@/providers/i18n.provider";
 import { CheckoutStepper, type CheckoutStep } from "./checkout-stepper";
 import { CheckoutSummary } from "./checkout-summary";
 import { AddressStep } from "./address-step";
@@ -27,6 +28,7 @@ export function CheckoutClient() {
   const entries = Object.entries(items);
   const router = useRouter();
   const country = useParams()?.customer_country as string | undefined;
+  const { t } = useI18n();
 
   const [step, setStep] = useState<CheckoutStep>("address");
   const [completed, setCompleted] = useState<Set<CheckoutStep>>(new Set());
@@ -60,13 +62,13 @@ export function CheckoutClient() {
   if (entries.length === 0) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-12">
-        <h1 className="mb-6 text-2xl">Checkout</h1>
+        <h1 className="mb-6 text-2xl">{t("checkout.title")}</h1>
         <p className="text-muted-foreground py-8 text-center">
-          Your cart is empty.
+          {t("checkout.empty")}
         </p>
         <div className="flex justify-center">
           <Button asChild variant="outline">
-            <LinkDynamic href="/">Continue shopping</LinkDynamic>
+            <LinkDynamic href="/">{t("common.continue_shopping")}</LinkDynamic>
           </Button>
         </div>
       </div>
@@ -115,7 +117,7 @@ export function CheckoutClient() {
   return (
     <div className="mx-auto max-w-5xl py-4">
       <div className="mb-6 flex items-center gap-3">
-        <h1 className="text-4xl md:text-5xl">Checkout</h1>
+        <h1 className="text-4xl md:text-5xl">{t("checkout.title")}</h1>
         {isFetching && <Spinner className="size-4" />}
       </div>
 
@@ -130,12 +132,12 @@ export function CheckoutClient() {
         <div className="min-w-0">
           {error && (
             <p className="mb-4 rounded-md border border-destructive/50 bg-destructive-surface px-3 py-2 text-sm text-destructive">
-              Couldn’t sync your cart with the server. Showing local items.
+              {t("checkout.sync_error")}
             </p>
           )}
           {backend && !validation_ok && backend.errors.length > 0 && (
             <div className="mb-4 rounded-md border border-destructive/50 bg-destructive-surface px-3 py-2 text-sm text-destructive">
-              <p className="font-medium">Some items need attention:</p>
+              <p className="font-medium">{t("checkout.items_attention")}</p>
               <ul className="mt-1 list-disc pl-5">
                 {backend.errors.map((e, i) => (
                   <li key={i}>{e.message}</li>

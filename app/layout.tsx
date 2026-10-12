@@ -33,13 +33,12 @@ const inter = Inter({
   subsets: ["latin", "latin-ext"],
 });
 
-export const metadata: Metadata = {
+const base_metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default: SITE_NAME,
     template: `%s | ${SITE_NAME}`,
   },
-  description: `Shop at ${SITE_NAME}.`,
   // Identity assets live in _CONFIG/brand/ (see app/brand/[file]/route.ts).
   icons: BRAND.FAVICON ? { icon: `/brand/${BRAND.FAVICON}` } : undefined,
   openGraph: {
@@ -51,13 +50,19 @@ export const metadata: Metadata = {
   },
 };
 
+// The description follows the active language.
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await get_i18n();
+  return { ...base_metadata, description: t("layout.description", { name: SITE_NAME }) };
+}
+
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   // <html lang> and the messages follow the language cookie (lib/i18n/i18n.server.ts).
-  const { language, messages } = await get_i18n();
+  const { language, messages, t } = await get_i18n();
   return (
     // Light by default; an instance sets THEME: "dark" in _CONFIG/app.config.json
     // for the brand's dark set (app/globals.css), which also turns shadcn's dark:
@@ -70,7 +75,7 @@ export default async function RootLayout({
           <TanstackQueryProvider>
             {/* AuthGate reads the cookie inside Suspense so the dynamic read
                 doesn't block the static shell (Next 16 blocking-route rule). */}
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<div>{t("layout.loading")}</div>}>
               <AuthGate>{children}</AuthGate>
             </Suspense>
           </TanstackQueryProvider>

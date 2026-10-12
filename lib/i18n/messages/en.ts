@@ -25,7 +25,7 @@ export const en = {
   "common.try_again": "Something went wrong. Please try again.",
   "common.continue_shopping": "Continue shopping",
   "common.back_to_store": "Back to store",
-  "common.reset": "Reset",
+  "common.pagination": "pagination",
 
   // header
   "header.menu": "Menu",
@@ -34,7 +34,7 @@ export const en = {
   "header.cart": "Cart",
   "header.account": "Account",
   "header.sign_in": "Sign in",
-  "header.toggle_theme": "Toggle theme",
+  "header.home": "{name} — home",
 
   // cart drawer
   "cart.title": "Cart",
@@ -44,12 +44,40 @@ export const en = {
   "cart.limited": "Limited availability",
   "cart.remove": "Remove {name}",
   "cart.subtotal": "Subtotal",
-  "cart.you_save": "You save",
   "cart.total": "Total",
   "cart.incl_vat": "incl. VAT {amount}",
   "cart.checkout": "Checkout",
   "cart.decrease": "Decrease quantity",
   "cart.increase": "Increase quantity",
+  "cart.page_title": "Your cart",
+  "cart.items_count": {
+    one: "{count} item",
+    other: "{count} items",
+  },
+  "cart.start_shopping": "Start shopping",
+  "cart.items_label": "Items in your cart",
+  "cart.remove_short": "Remove",
+  "cart.shipping": "Shipping",
+  "cart.shipping_at_checkout": "Calculated at checkout",
+  "cart.you_save_order": "You save {amount} on this order",
+  "cart.go_to_checkout": "Go to checkout",
+  "cart.total_incl_vat": "Total incl. VAT",
+  "cart.link_label": {
+    one: "Cart, {count} item",
+    other: "Cart, {count} items",
+  },
+  "cart.added": "Added to your cart",
+  "cart.added_count": {
+    one: "Cart: {count} item",
+    other: "Cart: {count} items",
+  },
+  "cart.view": "View cart",
+  "cart.discount_code": "Discount code",
+  "cart.discount_apply": "Apply",
+  "cart.discount_applied": "Applied discount codes",
+  "cart.discount_remove": "Remove code {code}",
+  "cart.discount_failed": "Couldn’t update the discount code.",
+  "cart.discount_invalid": "This code can’t be used with your cart.",
 
   // wishlist
   "wishlist.title": "Wishlist",
@@ -58,6 +86,10 @@ export const en = {
   "wishlist.remove": "Remove from wishlist",
   "wishlist.save": "Save",
   "wishlist.saved": "Saved",
+  "wishlist.label_count": {
+    one: "Wishlist, {count} item",
+    other: "Wishlist, {count} items",
+  },
 
   // search
   "search.title": "Search",
@@ -71,6 +103,7 @@ export const en = {
   "search.categories": "Categories",
   "search.products": "Products ({total})",
   "search.product_fallback": "Product",
+  "search.trigger": "Search products",
 
   // account sheet and auth forms
   "auth.sign_in": "Sign in",
@@ -103,15 +136,25 @@ export const en = {
   "catalog.updating": "Updating…",
   "catalog.apply": "Apply ({count})",
   "catalog.sort": "Sort",
-  "catalog.sort_asc": "ASC ↑",
-  "catalog.sort_desc": "DESC ↓",
   "catalog.no_products": "No products",
   "catalog.previous": "Previous",
   "catalog.next": "Next",
   "catalog.previous_page": "Go to previous page",
   "catalog.next_page": "Go to next page",
-  "catalog.pagination": "Pagination",
   "catalog.more_pages": "More pages",
+  "catalog.clear_all": "Clear all",
+  "catalog.sort_ascending": "{label}, ascending",
+  "catalog.sort_descending": "{label}, descending",
+  "catalog.asc": "Asc",
+  "catalog.desc": "Desc",
+  "catalog.reset_filter": "Reset {label}",
+  "catalog.range_from": "From",
+  "catalog.range_to": "To",
+  "catalog.product_labels": "Product labels",
+  "catalog.quick_add": "Add {name} to cart",
+  "catalog.quick_add_added": "{name} added to cart",
+  "catalog.quick_add_out_of_stock": "{name} is out of stock",
+  "catalog.subcategories": "Subcategories",
 
   // product page
   "product.add_to_cart": "Add to cart",
@@ -132,6 +175,9 @@ export const en = {
   "product.in_stock": "In stock",
   "product.not_available_online": "Not available online",
   "product.this_category": "this category",
+  "product.more_from_category": "More {name}",
+  "product.specifications": "Specifications",
+  "product.title": "Product",
 
   // checkout
   "checkout.title": "Checkout",
@@ -173,6 +219,13 @@ export const en = {
   "checkout.success_title": "Order placed",
   "checkout.success_text": "Thank you! Your order has been placed.",
   "checkout.success_ref": "Thank you! Your order has been placed (ref {ref}).",
+  "checkout.steps": "Order steps",
+  "checkout.step_unavailable": "This step isn’t available yet — the shipping & payment service is temporarily unavailable. Your address has been saved.",
+  "checkout.success_split": {
+    one: "Thank you! Your order was split into {count} order: {refs}.",
+    other: "Thank you! Your order was split into {count} orders: {refs}.",
+  },
+  "checkout.payment_start_failed": "We couldn’t start the payment. Your order is saved — please contact us with the order number to complete it.",
 
   // address fields (checkout and address book)
   "address.email": "Email",
@@ -194,7 +247,6 @@ export const en = {
   "profile.orders": "My orders",
   "profile.log_out": "Log out",
   "profile.update_failed": "Could not update profile. Please try again.",
-  "profile.not_persisted": "Note: the backend does not yet persist profile changes.",
   "profile.back": "Back to account",
   "profile.no_addresses": "You have no saved addresses yet.",
   "profile.default": "Default",
@@ -206,12 +258,20 @@ export const en = {
   "profile.save_address": "Save address",
   "profile.company_address": "Company address (invoice)",
   "profile.address_failed": "Could not save the address. Please try again.",
+  "profile.overview": "Overview",
+  "profile.intro": "Your orders, addresses and account details in one place.",
+  "profile.account_details": "Account details",
+  "profile.latest_order": "Latest order",
+  "profile.order_number": "Order {id}",
+  "profile.default_address": "Default address",
+  "profile.no_saved_addresses": "No saved addresses yet.",
+  "profile.manage_addresses": "Manage addresses",
+  "profile.saved_addresses": "Saved addresses",
 
   // orders
   "orders.title": "My orders",
   "orders.load_failed": "We couldn't load your orders. Please try again later.",
   "orders.none": "You haven't placed any orders yet.",
-  "orders.details": "Order details",
   "orders.heading": "Order #{id}",
   "orders.items": {
     one: "{count} item",
@@ -219,14 +279,27 @@ export const en = {
   },
   "orders.items_heading": "Items ({count})",
   "orders.view": "View details",
-  "orders.viewing": "Viewing details",
   "orders.product": "Product",
   "orders.quantity": "Qty: {count}",
   "orders.phone": "Tel: {value}",
   "orders.summary": "Summary",
-  "orders.subtotal": "Subtotal",
   "orders.tax": "Tax",
   "orders.total": "Total",
+  "orders.load_more": "Load more",
+  "orders.back": "Back to my orders",
+  "orders.load_one_failed": "We couldn't load this order. It may not exist, or it isn't available right now.",
+  "orders.placed": "Placed {date}",
+  "orders.sub_item_sku": "{sku} (SKU)",
+  "orders.payment": "Payment",
+  "orders.shipping": "Shipping",
+  "orders.items_net": "Items (net)",
+  "orders.you_saved": "You saved",
+  "orders.comment": "Comment",
+  "orders.status_unpaid": "Awaiting payment",
+  "orders.status_confirmed": "Confirmed",
+  "orders.status_complete": "Completed",
+  "orders.status_canceled": "Cancelled",
+  "orders.status_returned": "Returned",
 
   // validation (zod messages are keys; FormMessage turns them into text)
   "validation.email_required": "Email is required",
@@ -259,4 +332,21 @@ export const en = {
   "notfound.text": "The page you are looking for does not exist or has been moved.",
   "cms.missing_url_key": "Missing url_key",
   "cms.product_unavailable": "Product unavailable",
+
+  // layout
+  "layout.description": "Shop at {name}.",
+  "layout.loading": "Loading...",
+
+  // footer
+  "footer.prices_incl_vat": "Prices include VAT.",
+  "footer.nav": "Footer",
+
+  // breadcrumbs
+  "breadcrumbs.home": "Home",
+  "breadcrumbs.label": "breadcrumb",
+  "breadcrumbs.more": "More",
+
+  // omnibus
+  "omnibus.lowest_short": "Lowest 30-day price: {price}",
+  "omnibus.lowest": "Lowest price in the 30 days before the discount: {price}",
 } satisfies Record<string, Message>;
