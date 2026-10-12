@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -13,10 +17,8 @@ import { WishlistItems } from "./wishlist-items";
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { useI18n } from "@/providers/i18n.provider";
 
 export function WishlistSheet() {
-  const { t } = useI18n();
   const count = useWishlistStore((s) => s.count());
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -24,7 +26,17 @@ export function WishlistSheet() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label={t("header.wishlist")} className="relative cursor-pointer text-foreground">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative cursor-pointer text-foreground"
+          // The count joins the name only after mount, like the badge (no hydration mismatch).
+          aria-label={
+            mounted && count > 0
+              ? `Wishlist, ${count} ${count === 1 ? "item" : "items"}`
+              : "Wishlist"
+          }
+        >
           <Heart />
           {!mounted ? (
             <Spinner className="absolute -top-1 -right-1 size-3" />
@@ -37,7 +49,7 @@ export function WishlistSheet() {
       </SheetTrigger>
       <SheetContent side="right" aria-describedby={undefined}>
         <SheetHeader>
-          <SheetTitle>{t("wishlist.title")}</SheetTitle>
+          <SheetTitle>Wishlist</SheetTitle>
         </SheetHeader>
         <WishlistItems />
       </SheetContent>

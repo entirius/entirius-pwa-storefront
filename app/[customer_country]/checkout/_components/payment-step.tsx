@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { useMemo, useState, useTransition, type ReactNode } from "react";
@@ -9,7 +13,6 @@ import {
   API_CART_PAYMENT_ROUTE,
   API_CART_PAYMENT_SELECT_ROUTE,
 } from "@/API/api.routes";
-import { DEBUG_MODE } from "@/_CONFIG/app.config.json";
 import {
   NORM_PAYMENT_METHODS,
   type Cart,
@@ -18,8 +21,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { DevProbeButton } from "./dev-probe-button";
-import { useI18n } from "@/providers/i18n.provider";
 
 export function PaymentStep({
   cart,
@@ -32,7 +33,6 @@ export function PaymentStep({
   onSaved: (cart: unknown) => void;
   onBack: () => void;
 }) {
-  const { t, price } = useI18n();
   const access = useMemo(() => make_client_access(), []);
   const api = useMemo(() => create_api(access), [access]);
   const [pending, startTransition] = useTransition();
@@ -47,7 +47,7 @@ export function PaymentStep({
   const currency_label = cart?.currency || currency;
   const fmt = (v: string | null) => {
     if (v == null) return null;
-    return parseFloat(v) === 0 ? null : price(v, currency_label);
+    return parseFloat(v) === 0 ? null : `${v} ${currency_label}`.trim();
   };
 
   const {
@@ -73,7 +73,7 @@ export function PaymentStep({
         { method: "PATCH", body: JSON.stringify({ code: selected }) },
       );
       if (error) {
-        setSaveError(error.message || t("checkout.payment_failed"));
+        setSaveError(error.message || "Couldn’t select that payment method.");
         return;
       }
       onSaved(response);
@@ -88,15 +88,15 @@ export function PaymentStep({
       </div>
     );
   } else if (isError || !methods || methods.length === 0) {
-    // Payment-methods GET may still 500 on the backend — degrade gracefully.
+    // No methods, or the request failed. Degrade gracefully.
     body = (
       <div className="rounded-lg border border-dashed p-8 text-center">
-        <h2 className="text-lg font-semibold">{t("checkout.step_payment")}</h2>
+        <h2 className="text-lg">Payment</h2>
         <p className="text-muted-foreground mx-auto mt-2 max-w-sm text-sm">
-          {t("checkout.no_payment")}
+          No payment methods are available yet. Please try again later.
         </p>
         <Button variant="outline" className="mt-4" onClick={onBack}>
-          {t("checkout.back_to_shipping")}
+          Back to shipping
         </Button>
       </div>
     );
@@ -151,10 +151,10 @@ export function PaymentStep({
 
         <div className="flex gap-3">
           <Button variant="outline" onClick={onBack} disabled={pending}>
-            {t("common.back")}
+            Back
           </Button>
           <Button onClick={submit} disabled={pending || !selected}>
-            {pending ? <Spinner className="size-4" /> : t("checkout.to_review")}
+            {pending ? <Spinner className="size-4" /> : "Continue to review"}
           </Button>
         </div>
       </div>
@@ -163,12 +163,6 @@ export function PaymentStep({
 
   return (
     <div className="flex flex-col gap-4">
-      {DEBUG_MODE && (
-        <DevProbeButton
-          label="GET payment-methods"
-          route={API_CART_PAYMENT_ROUTE}
-        />
-      )}
       {body}
     </div>
   );

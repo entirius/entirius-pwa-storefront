@@ -1,8 +1,11 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Lexend_Deca } from "next/font/google";
 import "./globals.css";
 import "@/_CONFIG/theme.css";
-import { brand } from "@/_CONFIG/brand.config";
 
 import { cookies } from "next/headers";
 
@@ -13,46 +16,63 @@ import { get_i18n } from "@/lib/i18n/i18n.server";
 import { HeaderComponent } from "./_components/layout/header-component";
 import { LayoutSlot } from "./_components/layout-slots/layout-slot";
 import { CookieConsent } from "./_components/cookie-consent/cookie-consent.client";
+import { FooterComponent } from "./_components/layout/footer-component";
 import { Suspense } from "react";
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+import { SITE_URL, SITE_NAME } from "@/lib/seo/config";
+import { BRAND, THEME } from "@/_CONFIG/app.config.json";
+// Brand typefaces (styleguide §1). Both are variable fonts: one file each, no
+// weight list. Lexend Deca carries headings and the wordmark (300/400 only, never
+// bold); Inter carries the shop UI. Fallback metrics come from the brand tokens.
+const lexendDeca = Lexend_Deca({
+  variable: "--font-lexend-deca",
+  subsets: ["latin", "latin-ext"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin", "latin-ext"],
 });
 
 export const metadata: Metadata = {
-  title: brand.name,
-  description: brand.description,
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: `Shop at ${SITE_NAME}.`,
+  // Identity assets live in _CONFIG/brand/ (see app/brand/[file]/route.ts).
+  icons: BRAND.FAVICON ? { icon: `/brand/${BRAND.FAVICON}` } : undefined,
+  openGraph: {
+    siteName: SITE_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // <html lang> follows the language cookie, which is runtime data: Next 16 (cacheComponents)
-  // requires it behind a Suspense boundary.
-  return (
-    <Suspense>
-      <LocalizedDocument>{children}</LocalizedDocument>
-    </Suspense>
-  );
-}
-
-async function LocalizedDocument({ children }: { children: React.ReactNode }) {
+  // <html lang> and the messages follow the language cookie (lib/i18n/i18n.server.ts).
   const { language, messages } = await get_i18n();
   return (
-    <html lang={language}>
+    // Light by default; an instance sets THEME: "dark" in _CONFIG/app.config.json
+    // for the brand's dark set (app/globals.css), which also turns shadcn's dark:
+    // variants on.
+    <html lang={language} className={THEME === "dark" ? "dark" : undefined}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} flex min-h-screen flex-col antialiased`}
+        className={`${lexendDeca.variable} ${inter.variable} antialiased`}
       >
         <I18nProvider language={language} messages={messages}>
           <TanstackQueryProvider>
-            <AuthGate>{children}</AuthGate>
+            {/* AuthGate reads the cookie inside Suspense so the dynamic read
+                doesn't block the static shell (Next 16 blocking-route rule). */}
+            <Suspense fallback={<div>Loading...</div>}>
+              <AuthGate>{children}</AuthGate>
+            </Suspense>
           </TanstackQueryProvider>
         </I18nProvider>
         <CookieConsent />
@@ -69,9 +89,9 @@ async function AuthGate({ children }: { children: React.ReactNode }) {
     <AuthProvider initial={isLoggedIn}>
       <LayoutSlot name="announcement" />
       <HeaderComponent />
-      <main className="flex-1 p-4">{children}</main>
+      <main className="mx-auto w-full max-w-7xl p-4">{children}</main>
       <LayoutSlot name="before-footer" />
-      <LayoutSlot name="footer" />
+      <FooterComponent />
     </AuthProvider>
   );
 }

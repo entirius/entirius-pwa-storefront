@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 import { useId } from "react";
 import { RadioGroup as RadioGroupPrimitive } from "radix-ui";
@@ -72,12 +76,20 @@ export function VariantPicker({ axes, selection, choose, is_available }: PickerP
 }
 
 // The product price until a variant is chosen ("from <lowest>" when variants differ), then the variant's.
-export function VariantPrice({ price, from }: { price: Price | null; from: boolean }) {
+export function VariantPrice({
+  price,
+  from,
+  large = false,
+}: {
+  price: Price | null;
+  from: boolean;
+  large?: boolean;
+}) {
   const { t } = useI18n();
   return (
-    <div className="flex items-center gap-1.5">
-      {from && <span className="text-xs text-muted-foreground">{t("product.price_from")}</span>}
-      <ProductPrice price={price} />
+    <div className="flex items-baseline gap-1.5">
+      {from && <span className="text-sm text-muted-foreground">{t("product.price_from")}</span>}
+      <ProductPrice price={price} large={large} />
     </div>
   );
 }

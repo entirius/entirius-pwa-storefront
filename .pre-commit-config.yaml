@@ -1,4 +1,25 @@
 repos:
+  # MPL-2.0 header in every source file (Handbook: licensing). CI runs the same check.
+  - repo: https://github.com/Lucas-C/pre-commit-hooks
+    rev: v1.5.6
+    hooks:
+      - id: insert-license
+        name: MPL header (TS/JS)
+        files: \.(ts|tsx|mjs|js)$
+        args:
+          - --license-filepath
+          - .license-header.txt
+          - --comment-style
+          - "//"
+      - id: insert-license
+        name: MPL header (CSS)
+        files: \.css$
+        args:
+          - --license-filepath
+          - .license-header.txt
+          - --comment-style
+          - "/*| *| */"
+
   - repo: local
     hooks:
       - id: require-canonical-gitleaks-config

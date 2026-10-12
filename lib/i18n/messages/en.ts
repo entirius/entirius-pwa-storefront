@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 import type { Message } from "../types";
 
 // Source catalogue. Every other language is typed against these keys, so a missing key is a type error.
@@ -120,6 +124,14 @@ export const en = {
   "product.choose_option": "Choose an option",
   "product.price_from": "from",
   "product.option_unavailable": "(unavailable)",
+  "product.price_on_request": "Price on request",
+  "product.price_from_amount": "From {price}",
+  "product.show_image": "Show image {number}",
+  "product.details": "Product details",
+  "product.incl_vat": "incl. VAT",
+  "product.in_stock": "In stock",
+  "product.not_available_online": "Not available online",
+  "product.this_category": "this category",
 
   // checkout
   "checkout.title": "Checkout",

@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 import type { Message } from "../types";
 import type { MessageKey } from "../translate";
 
@@ -118,6 +122,14 @@ export const pl: Record<MessageKey, Message> = {
   "product.choose_option": "Wybierz opcję",
   "product.price_from": "od",
   "product.option_unavailable": "(niedostępne)",
+  "product.price_on_request": "Cena na zapytanie",
+  "product.price_from_amount": "Od {price}",
+  "product.show_image": "Pokaż zdjęcie {number}",
+  "product.details": "Szczegóły produktu",
+  "product.incl_vat": "z VAT",
+  "product.in_stock": "Dostępny",
+  "product.not_available_online": "Niedostępny online",
+  "product.this_category": "tej kategorii",
 
   // checkout
   "checkout.title": "Zamówienie",

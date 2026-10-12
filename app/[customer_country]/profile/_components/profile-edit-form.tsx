@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { useTransition } from "react";
@@ -17,12 +21,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { msg } from "@/lib/i18n/translate";
-import { useI18n } from "@/providers/i18n.provider";
 
 const profile_schema = z.object({
-  firstname: z.string().trim().min(1, msg("validation.firstname_required")),
-  lastname: z.string().trim().min(1, msg("validation.lastname_required")),
+  firstname: z.string().trim().min(1, "First name is required"),
+  lastname: z.string().trim().min(1, "Last name is required"),
 });
 type ProfileFormValues = z.infer<typeof profile_schema>;
 
@@ -35,7 +37,6 @@ export function ProfileEditForm({
   onSaved: (profile: Profile) => void;
   onCancel: () => void;
 }) {
-  const { t } = useI18n();
   const [pending, startTransition] = useTransition();
   const form = useForm<ProfileFormValues>({
     // Same nominal zod type-brand cast used across the auth forms.
@@ -49,7 +50,7 @@ export function ProfileEditForm({
       const res = await client_update_profile(values);
       if (!res.ok) {
         form.setError("root", {
-          message: t("profile.update_failed"),
+          message: "Could not update profile. Please try again.",
         });
         return;
       }
@@ -65,7 +66,7 @@ export function ProfileEditForm({
           name="firstname"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t("address.firstname")}</FormLabel>
+              <FormLabel>First name</FormLabel>
               <FormControl>
                 <Input autoComplete="given-name" {...field} />
               </FormControl>
@@ -78,7 +79,7 @@ export function ProfileEditForm({
           name="lastname"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t("address.lastname")}</FormLabel>
+              <FormLabel>Last name</FormLabel>
               <FormControl>
                 <Input autoComplete="family-name" {...field} />
               </FormControl>
@@ -93,15 +94,12 @@ export function ProfileEditForm({
         )}
         <div className="flex gap-2">
           <Button type="submit" disabled={pending}>
-            {pending ? <Spinner className="size-4" /> : t("common.save")}
+            {pending ? <Spinner className="size-4" /> : "Save"}
           </Button>
           <Button type="button" variant="ghost" onClick={onCancel}>
-            {t("common.cancel")}
+            Cancel
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground">
-          {t("profile.not_persisted")}
-        </p>
       </form>
     </Form>
   );

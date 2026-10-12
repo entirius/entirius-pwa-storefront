@@ -1,8 +1,15 @@
-// Normalizes the checkout/v2 `orders/list/` response into a stable Order shape.
-// The list endpoint may return a bare array, a `{ data: [] }` envelope, or a
-// DRF-style `{ results: [] }` page — unwrap all three defensively.
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { resolve_media_url } from "@/utils/media-url";
+
+// Normalizes checkout v2 order responses:
+//  - the list (`{ count, next, previous, results: [ ...summary rows ] }`)
+//    → NORM_ORDER_SUMMARIES, one page of OrderSummary for the orders list;
+//  - the detail (`{ pretty_id, status, created, order_body: { ...the rest } }`)
+//    → NORM_ORDER, which lifts `order_body` before normalizing.
+// NORM_PLACED_ORDER covers the separate POST /orders/ (create) response.
 
 export type OrderAddress = {
   firstname: string;
@@ -29,9 +36,24 @@ export type OrderItem = {
   name: string | null;
   quantity: number;
   price: string | null;
+  base_price: string | null;
+  special_percent: number | null;
   total_price: string | null;
   image_url: string | null;
   sub_items: OrderSubItem[];
+};
+
+export type OrderPaymentMethod = {
+  code: string | null;
+  name: string | null;
+  pay_code: string | null;
+};
+
+export type OrderShippingMethod = {
+  code: string | null;
+  name: string | null;
+  total_price: string | null;
+  normal_price: string | null;
 };
 
 export type Order = {
@@ -40,16 +62,34 @@ export type Order = {
   status: string;
   status_label: string;
   created: string;
+  updated: string;
+  comment: string | null;
   total: string;
   base_total: string;
   total_tax: string;
+  total_netto: string;
   currency_code: string;
   country_code: string;
   shipping_address: OrderAddress | null;
   billing_address: OrderAddress | null;
-  item_count: number;
+  payment_methods: OrderPaymentMethod[];
+  shipping_method: OrderShippingMethod | null;
   items: OrderItem[];
 };
+
+// The backend's status_label repeats the code ("unpaid"); customers read these.
+const STATUS_LABELS: Record<string, string> = {
+  unpaid: "Awaiting payment",
+  confirmed: "Confirmed",
+  complete: "Completed",
+  canceled: "Cancelled",
+  returned: "Returned",
+};
+
+export function status_label_for(status: string, label: string | null): string {
+  if (label && label !== status) return label;
+  return STATUS_LABELS[status] ?? (status ? status.charAt(0).toUpperCase() + status.slice(1) : "");
+}
 
 const str = (v: unknown): string | null =>
   v === null || v === undefined || v === "" ? null : String(v);
@@ -73,11 +113,15 @@ function norm_address(a: any): OrderAddress | null {
 
 function norm_item(i: any): OrderItem {
   const subs = Array.isArray(i?.sub_items) ? i.sub_items : [];
+  const special = Number(i?.special_percent);
   return {
     sku: str(i?.sku),
     name: str(i?.name),
     quantity: Number(i?.quantity ?? 1),
-    price: str(i?.price),
+    // The backend calls the per-unit price `unit_price`; there is no `price` key.
+    price: str(i?.unit_price ?? i?.price),
+    base_price: str(i?.base_unit_price),
+    special_percent: Number.isFinite(special) && special > 0 ? special : null,
     total_price: str(i?.total_price),
     image_url: resolve_media_url(str(i?.image_url)) || null,
     sub_items: subs.map((s: any) => ({
@@ -88,65 +132,139 @@ function norm_item(i: any): OrderItem {
   };
 }
 
-// The list row (orders/list/) is flat: order_id, total_gross, currency, item_count, no items. The detail
-// (orders/<order_id>/) keeps the cart, the addresses and the totals under `order_body`.
+// `payment_method` is an array — an order can carry a voucher alongside the
+// actual method (e.g. voucher + banktransfer).
+function norm_payment_methods(p: any): OrderPaymentMethod[] {
+  const list = Array.isArray(p) ? p : p ? [p] : [];
+  return list.map((m: any) => ({
+    code: str(m?.code),
+    name: str(m?.name),
+    pay_code: str(m?.pay_code),
+  }));
+}
+
+function norm_shipping_method(s: any): OrderShippingMethod | null {
+  if (!s || typeof s !== "object") return null;
+  return {
+    code: str(s.code),
+    name: str(s.name),
+    total_price: str(s.total_price),
+    normal_price: str(s.normal_price),
+  };
+}
+
 function norm_order(o: any): Order {
-  const body = o?.order_body ?? o;
-  const items = Array.isArray(body?.cart?.items)
-    ? body.cart.items
+  const items = Array.isArray(o?.cart?.items)
+    ? o.cart.items
     : Array.isArray(o?.items)
       ? o.items
       : [];
   return {
-    // v2 may expose `pretty_id`; v1 only had `id`. Prefer the human id.
+    // v2 may expose `pretty_id`; the legacy v1 client used `id`. Prefer the human id.
     id: str(o?.pretty_id ?? o?.id ?? o?.order_id ?? o?.order_uuid) ?? "",
-    order_uuid: str(o?.order_id ?? o?.order_uuid ?? o?.uuid ?? o?.id) ?? "",
+    // v1 calls the uuid `order_uuid`; the v2 detail/list call it `order_id`.
+    order_uuid: str(o?.order_uuid ?? o?.order_id ?? o?.uuid ?? o?.id) ?? "",
     status: str(o?.status) ?? "",
-    status_label: str(o?.status_label) ?? "",
+    status_label: status_label_for(str(o?.status) ?? "", str(o?.status_label)),
     created: str(o?.created) ?? "",
-    total: str(o?.total_gross ?? body?.total) ?? "0",
-    base_total: str(body?.cart?.total_price ?? body?.base_total) ?? "0",
-    total_tax: str(body?.total_tax) ?? "0",
-    currency_code: str(o?.currency ?? body?.currency_code) ?? "",
-    country_code: str(body?.country_code) ?? "",
-    shipping_address: norm_address(body?.addresses?.shipping_address),
-    billing_address: norm_address(body?.addresses?.billing_address),
-    item_count: Number(o?.item_count ?? items.length),
+    updated: str(o?.updated) ?? "",
+    comment: str(o?.comment),
+    total: str(o?.total) ?? "0",
+    base_total: str(o?.base_total) ?? "0",
+    total_tax: str(o?.total_tax) ?? "0",
+    total_netto: str(o?.cart?.total_netto_price) ?? "0",
+    currency_code: str(o?.currency_code) ?? "",
+    country_code: str(o?.country_code) ?? "",
+    shipping_address: norm_address(o?.addresses?.shipping_address),
+    billing_address: norm_address(o?.addresses?.billing_address),
+    payment_methods: norm_payment_methods(o?.payment_method),
+    shipping_method: norm_shipping_method(o?.shipping_method),
     items: items.map(norm_item),
   };
 }
 
-const NORM_ORDER = norm_order;
+// A row of the v2 list: the order header only — no items, no addresses.
+export type OrderSummary = {
+  id: string;
+  order_uuid: string;
+  status: string;
+  status_label: string;
+  created: string;
+  total: string;
+  currency_code: string;
+  item_count: number;
+};
 
-function NORM_ORDERS(resp: any): Order[] {
-  const list = Array.isArray(resp)
-    ? resp
-    : (resp?.data ?? resp?.results ?? []);
-  if (!Array.isArray(list)) return [];
-  return list.map(norm_order);
+export type OrderSummaryPage = {
+  orders: OrderSummary[];
+  count: number;
+  has_next: boolean;
+};
+
+function NORM_ORDER_SUMMARIES(resp: unknown): OrderSummaryPage {
+  const body = (resp ?? {}) as { count?: unknown; next?: unknown; results?: unknown };
+  const rows = Array.isArray(body.results)
+    ? (body.results as Record<string, unknown>[])
+    : [];
+  return {
+    orders: rows.map((o) => ({
+      id: str(o?.pretty_id) ?? "",
+      order_uuid: str(o?.order_id) ?? "",
+      status: str(o?.status) ?? "",
+      status_label: status_label_for(str(o?.status) ?? "", str(o?.status_label)),
+      created: str(o?.created) ?? "",
+      total: str(o?.total_gross) ?? "0",
+      currency_code: str(o?.currency) ?? "",
+      item_count: Number(o?.item_count ?? 0),
+    })),
+    count: Number(body.count ?? rows.length),
+    has_next: Boolean(body.next),
+  };
 }
 
-// status -> Tailwind pill classes.
+// Single order. The v2 detail response keeps only the header scalars at the top
+// level (pretty_id/status/created/updated) and nests everything else in
+// `order_body`, so flatten it — the outer spread keeps the top-level scalars
+// winning. `{ data }` is unwrapped so a v1 detail response works too.
+function NORM_ORDER(resp: any): Order {
+  const raw = resp?.order_body ? resp : (resp?.data ?? resp);
+  return norm_order({ ...(raw?.order_body ?? {}), ...raw });
+}
+
+// Status pills on the dark brand theme: status-coloured text on a 15 % tint of
+// the same token (WCAG AA 5.4–7.2:1). Classes must stay literal for Tailwind.
+const NOTICE = { bg: "bg-notice-surface", text: "text-notice" };
+const POSITIVE = { bg: "bg-positive-surface", text: "text-positive" };
+const NEGATIVE = { bg: "bg-destructive-surface", text: "text-destructive" };
+const INFORMATIVE = { bg: "bg-informative-surface", text: "text-informative" };
+
 export const status_colors: Record<string, { bg: string; text: string }> = {
-  pending: { bg: "bg-yellow-100", text: "text-yellow-700" },
-  processing: { bg: "bg-blue-100", text: "text-blue-700" },
-  confirmed: { bg: "bg-green-100", text: "text-green-700" },
-  shipped: { bg: "bg-purple-100", text: "text-purple-700" },
-  delivered: { bg: "bg-green-100", text: "text-green-700" },
-  cancelled: { bg: "bg-red-100", text: "text-red-700" },
+  // Statuses this backend actually returns.
+  unpaid: NOTICE,
+  confirmed: POSITIVE,
+  complete: POSITIVE,
+  canceled: NEGATIVE,
+  returned: NOTICE,
+  // Carried over from the legacy client; not emitted by this backend.
+  pending: NOTICE,
+  processing: INFORMATIVE,
+  shipped: INFORMATIVE,
+  delivered: POSITIVE,
+  cancelled: NEGATIVE,
 };
 
 export function status_style(status: string): { bg: string; text: string } {
   return status_colors[status] ?? { bg: "bg-muted", text: "text-foreground" };
 }
 
-// Backend sends "2026-07-21 10:50" (space-separated, not ISO). Parse defensively
+// v2 sends ISO with a zone ("2026-10-07T11:12:00Z" / "+00:00"). Parse defensively
 // and fall back to the raw string if the engine can't read it.
-export function format_order_date(created: string, language: string): string {
+export function format_order_date(created: string): string {
   if (!created) return "";
   const d = new Date(created.replace(" ", "T"));
   if (Number.isNaN(d.getTime())) return created;
-  return d.toLocaleDateString(language, {
+  // The UI is English; the visitor's browser locale would mix languages.
+  return d.toLocaleDateString("en-GB", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -155,4 +273,29 @@ export function format_order_date(created: string, language: string): string {
   });
 }
 
-export { NORM_ORDER, NORM_ORDERS };
+// Response of POST /checkout/v2/{channel}/orders/ (201). `payment_error` is set when
+// the order was created but the payment provider failed to start. A split order
+// (channel splitting by a product attribute) lists every part's number.
+export type PlacedOrder = {
+  order_id: string;
+  pretty_id: string;
+  status: string;
+  redirect_url: string | null;
+  split_pretty_ids: string[];
+  payment_error: boolean;
+};
+
+function NORM_PLACED_ORDER(resp: unknown): PlacedOrder {
+  const r = (resp ?? {}) as Record<string, unknown>;
+  const split = r.split_orders_pretty_ids;
+  return {
+    order_id: str(r.order_id) ?? "",
+    pretty_id: str(r.order_pretty_id) ?? "",
+    status: str(r.order_status) ?? "",
+    redirect_url: str(r.redirect_url),
+    split_pretty_ids: Array.isArray(split) ? split.map(String) : [],
+    payment_error: r.payment_error === true,
+  };
+}
+
+export { NORM_ORDER_SUMMARIES, NORM_ORDER, NORM_PLACED_ORDER };

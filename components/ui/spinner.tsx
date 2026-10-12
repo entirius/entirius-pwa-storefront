@@ -1,16 +1,16 @@
-"use client"
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { Loader2Icon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { useI18n } from "@/providers/i18n.provider"
 
 function Spinner({ className, ...props }: React.ComponentProps<"svg">) {
-  const { t } = useI18n()
   return (
     <Loader2Icon
       role="status"
-      aria-label={t("common.loading")}
+      aria-label="Loading"
       className={cn("size-4 animate-spin", className)}
       {...props}
     />

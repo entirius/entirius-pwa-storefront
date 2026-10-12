@@ -1,12 +1,16 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Price } from "@/utils/NORMALIZERS/price.normalizer";
+import { stored_price, type Price } from "@/utils/NORMALIZERS/price.normalizer";
 
 type WishlistItem = {
   sku: string;
   name: string;
   url_key: string;
-  price: Price;
+  price: Price | null;
   description: string;
   media: { uri: string; width: number; height: number }[][];
 };
@@ -22,7 +26,9 @@ const flat_storage = {
   getItem: (name: string) => {
     const raw = localStorage.getItem(name);
     if (!raw) return null;
-    return { state: { items: JSON.parse(raw) }, version: 0 };
+    const items: Record<string, WishlistItem> = JSON.parse(raw);
+    for (const item of Object.values(items)) item.price = stored_price(item.price);
+    return { state: { items }, version: 0 };
   },
   setItem: (name: string, value: { state: { items: Record<string, WishlistItem> } }) => {
     localStorage.setItem(name, JSON.stringify(value.state.items));

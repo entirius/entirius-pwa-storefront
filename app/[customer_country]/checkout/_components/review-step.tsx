@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
@@ -5,12 +9,13 @@ import { useMemo, useState, useTransition } from "react";
 import { make_client_access } from "@/API/access/api.client-access";
 import { create_api } from "@/API/api.context";
 import { API_CART_ORDERS_ROUTE } from "@/API/api.routes";
-import { DEBUG_MODE } from "@/_CONFIG/app.config.json";
 import type { Cart, CartAddress } from "@/utils/NORMALIZERS/cart.normalizer";
+import {
+  NORM_PLACED_ORDER,
+  type PlacedOrder,
+} from "@/utils/NORMALIZERS/order.normalizer";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { DevProbeButton } from "./dev-probe-button";
-import { useI18n } from "@/providers/i18n.provider";
 
 export function ReviewStep({
   cart,
@@ -21,9 +26,8 @@ export function ReviewStep({
   cart: Cart | null | undefined;
   currency: string;
   onBack: () => void;
-  onPlaced: (orderId?: string) => void;
+  onPlaced: (order: PlacedOrder) => void;
 }) {
-  const { t, price } = useI18n();
   const access = useMemo(() => make_client_access(), []);
   const api = useMemo(() => create_api(access), [access]);
   const [pending, startTransition] = useTransition();
@@ -32,7 +36,7 @@ export function ReviewStep({
   const cart_id = cart?.cart_id;
   const currency_label = cart?.currency || currency;
   const fmt = (v: string | null | undefined) =>
-    v == null ? null : parseFloat(v) === 0 ? t("common.free") : price(v, currency_label);
+    v == null ? null : parseFloat(v) === 0 ? "Free" : `${v} ${currency_label}`.trim();
 
   const billing = cart?.billing_address ?? null;
   const shipping = cart?.shipping_address ?? null;
@@ -53,53 +57,43 @@ export function ReviewStep({
           body: JSON.stringify({ cart_id }),
         });
       } catch {
-        setError(t("checkout.order_failed"));
+        setError("Couldn’t place your order. Please try again.");
         return;
       }
       if (err) {
         setError(
-          err.message || t("checkout.order_failed_http", { status: err.status ?? "" }),
+          err.message || `Couldn’t place your order (HTTP ${err.status}).`,
         );
         return;
       }
-      // The gateway URL's exact key is unconfirmed until POST /orders/ works — read
-      // it defensively (mostly present for online-payment methods).
-      const redirect_url = pick_redirect(response);
-      if (redirect_url) {
-        window.location.href = redirect_url;
+      // An online-payment method hands back its gateway; bank transfer and cash
+      // on delivery do not. The order exists either way, payment_error included.
+      const order = NORM_PLACED_ORDER(response);
+      if (order.redirect_url && !order.payment_error) {
+        window.location.href = order.redirect_url;
         return;
       }
-      const r = response as { order_pretty_id?: string; order_id?: string };
-      onPlaced(r?.order_pretty_id ?? r?.order_id);
+      onPlaced(order);
     });
   };
 
   return (
     <div className="flex flex-col gap-4">
-      {DEBUG_MODE && (
-        <DevProbeButton
-          label="POST order"
-          method="POST"
-          route={API_CART_ORDERS_ROUTE}
-          body={{ cart_id }}
-        />
-      )}
-
       <div className="grid gap-4 sm:grid-cols-2">
-        {billing && <AddressCard title={t("checkout.billing_address")} a={billing} />}
+        {billing && <AddressCard title="Billing address" a={billing} />}
         {show_shipping && shipping && (
-          <AddressCard title={t("checkout.shipping_address")} a={shipping} />
+          <AddressCard title="Shipping address" a={shipping} />
         )}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <InfoCard
-          title={t("checkout.shipping_method")}
+          title="Shipping method"
           name={cart?.shipping_method?.name}
           note={fmt(cart?.shipping_method?.price)}
         />
         <InfoCard
-          title={t("checkout.payment_method")}
+          title="Payment method"
           name={cart?.payment_method?.name}
           note={cart?.payment_method?.fee ? fmt(cart.payment_method.fee) : null}
         />
@@ -109,10 +103,10 @@ export function ReviewStep({
 
       <div className="flex gap-3">
         <Button variant="outline" onClick={onBack} disabled={pending}>
-          {t("common.back")}
+          Back
         </Button>
         <Button onClick={place} disabled={pending || !cart_id}>
-          {pending ? <Spinner className="size-4" /> : t("checkout.place_order")}
+          {pending ? <Spinner className="size-4" /> : "Place order"}
         </Button>
       </div>
     </div>
@@ -120,12 +114,11 @@ export function ReviewStep({
 }
 
 function AddressCard({ title, a }: { title: string; a: CartAddress }) {
-  const { t, country } = useI18n();
   const name = [a.firstname, a.lastname].filter(Boolean).join(" ");
   const phone = [a.dialling_code, a.telephone].filter(Boolean).join(" ");
   return (
     <section className="rounded-lg border p-4 text-sm">
-      <h3 className="text-muted-foreground mb-2 text-xs font-semibold uppercase">
+      <h3 className="text-muted-foreground mb-2 text-xs uppercase">
         {title}
       </h3>
       <div className="flex flex-col gap-0.5">
@@ -133,11 +126,11 @@ function AddressCard({ title, a }: { title: string; a: CartAddress }) {
         {a.company && <span>{a.company}</span>}
         {a.street && <span>{a.street}</span>}
         <span>{[a.postcode, a.city].filter(Boolean).join(" ")}</span>
-        {a.country_code && <span>{country(a.country_code)}</span>}
+        {a.country_code && <span>{a.country_code}</span>}
         {phone && <span className="text-muted-foreground">{phone}</span>}
         {a.email && <span className="text-muted-foreground">{a.email}</span>}
         {a.tax_id && (
-          <span className="text-muted-foreground">{t("address.tax_id_line", { value: a.tax_id })}</span>
+          <span className="text-muted-foreground">Tax ID: {a.tax_id}</span>
         )}
       </div>
     </section>
@@ -153,10 +146,9 @@ function InfoCard({
   name: string | null | undefined;
   note: string | null;
 }) {
-  const { t } = useI18n();
   return (
     <section className="rounded-lg border p-4 text-sm">
-      <h3 className="text-muted-foreground mb-2 text-xs font-semibold uppercase">
+      <h3 className="text-muted-foreground mb-2 text-xs uppercase">
         {title}
       </h3>
       {name ? (
@@ -165,27 +157,10 @@ function InfoCard({
           {note && <span className="tabular-nums">{note}</span>}
         </div>
       ) : (
-        <span className="text-muted-foreground">{t("checkout.not_selected")}</span>
+        <span className="text-muted-foreground">Not selected</span>
       )}
     </section>
   );
-}
-
-// The backend's gateway-redirect field name isn't confirmed yet (POST /orders/
-// still 500s), so accept the likely spellings and return the first non-empty URL.
-function pick_redirect(response: unknown): string | null {
-  const r = response as Record<string, unknown> | null | undefined;
-  if (!r) return null;
-  for (const k of [
-    "redirect_url",
-    "redirection_url",
-    "redirection__url",
-    "continue_url",
-  ]) {
-    const v = r[k];
-    if (typeof v === "string" && v) return v;
-  }
-  return null;
 }
 
 // Whether the shipping address meaningfully differs from billing (so it's worth

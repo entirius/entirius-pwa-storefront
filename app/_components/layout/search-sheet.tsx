@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -23,19 +27,18 @@ import {
 } from "@/components/ui/input-group";
 import { search_query } from "./search.query";
 import { SearchResults } from "./search-results";
-import { useI18n } from "@/providers/i18n.provider";
 
 const MIN_CHARS = 2;
 
 export function SearchSheet() {
-  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [debounced, setDebounced] = useState("");
 
   const access = useMemo(() => make_client_access(), []);
   const api = useMemo(() => create_api(access), [access]);
-  const currency = access.get("cr") ?? "";
+  // The `cr` cookie holds the ISO code lowercase; prices display it uppercase.
+  const currency = (access.get("cr") ?? "").toUpperCase();
 
   // Debounce the typed value (~300ms) before it drives the query.
   useEffect(() => {
@@ -61,13 +64,16 @@ export function SearchSheet() {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetTrigger asChild>
+        {/* An icon on phones, a search field look-alike from md up; it opens the
+            search sheet either way. */}
         <Button
           variant="ghost"
           size="icon"
-          aria-label={t("header.search")}
-          className="cursor-pointer text-foreground"
+          aria-label="Search"
+          className="cursor-pointer text-foreground md:h-10 md:w-56 md:justify-start md:gap-2 md:rounded-full md:border md:border-border md:bg-background md:px-4 md:text-muted-foreground lg:w-72"
         >
           <Search />
+          <span className="hidden text-sm font-normal md:inline">Search products</span>
         </Button>
       </SheetTrigger>
       <SheetContent
@@ -76,7 +82,7 @@ export function SearchSheet() {
         className="max-h-[85vh] gap-0 overflow-y-auto"
       >
         <SheetHeader className="border-b border-border">
-          <SheetTitle className="sr-only">{t("search.title")}</SheetTitle>
+          <SheetTitle className="sr-only">Search</SheetTitle>
           <InputGroup>
             <InputGroupAddon align="inline-start">
               <InputGroupText>
@@ -85,7 +91,7 @@ export function SearchSheet() {
             </InputGroupAddon>
             <InputGroupInput
               autoFocus
-              placeholder={t("search.placeholder")}
+              placeholder="Search products and categories…"
               value={q}
               onChange={(e) => setQ(e.target.value)}
             />
@@ -100,11 +106,11 @@ export function SearchSheet() {
         <div className="mx-auto w-full max-w-2xl px-4 py-4">
           {!enabled ? (
             <p className="py-6 text-center text-sm text-muted-foreground">
-              {t("search.min_chars", { count: MIN_CHARS })}
+              Type at least {MIN_CHARS} characters to search.
             </p>
           ) : isError ? (
             <p className="py-6 text-center text-sm text-muted-foreground">
-              {t("search.error")}
+              Something went wrong. Please try again.
             </p>
           ) : !data ? (
             <div className="flex justify-center py-6">

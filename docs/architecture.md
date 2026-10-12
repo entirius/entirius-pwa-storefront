@@ -1,7 +1,52 @@
 # Architecture
 
-How the storefront is put together: the files that matter, the patterns every page follows, and the path of
-a request from the middleware to the hydrated client.
+How the storefront is laid out and configured. Rules for agents and contributors live in [AGENTS.md](../AGENTS.md).
+
+## Layout
+
+```
+entirius-pwa-storefront/
+├── API/                          # Fetch engine (not Axios, not a generated client)
+│   ├── api.routes.ts             # Route constants + API_ROUTES_POLICY
+│   ├── api.setup.ts              # create_fetch_engine() — returns FETCH_METHOD
+│   ├── api.context.ts            # create_api(cookie_access) — wires access into engine
+│   ├── api.d.ts                  # COOKIE_ACCESS interface
+│   └── access/
+│       ├── api.server-access.ts  # make_server_access() — uses next/headers (RSC only)
+│       ├── api.client-access.ts  # make_client_access() — uses document.cookie
+│       └── api.static-access.ts  # static values for ISR/build-time fetches
+├── app/
+│   ├── layout.tsx                # Root layout (providers, fonts)
+│   ├── _components/layout/       # Header, navigation, search, cart/wishlist/account sheets
+│   └── [customer_country]/       # All routed pages live under the country segment
+│       ├── (builder)/[[...slug]] # CMS/builder pages (catch-all)
+│       ├── (catalog)/catalog/[catalog_url_key]/  # Listing page
+│       ├── (product)/product/[product_url_key]/  # PDP
+│       ├── checkout/             # Address → shipping → payment → review stepper
+│       ├── profile/              # Account: profile, addresses, orders
+│       └── user-handler/         # Double-opt-in activation landing
+├── components/ui/                # shadcn/ui components
+├── lib/
+│   ├── auth-client.ts            # Login/signup/activate/logout against Accounts
+│   ├── prefetch_boundary.tsx     # Server-side TanStack Query prefetch + hydration
+│   ├── link-dynamic.tsx          # Dynamic import wrapper
+│   ├── logger.ts                 # _LOGGER (respects DEBUG_MODE from config)
+│   └── utils.ts                  # cn() utility
+├── providers/
+│   ├── auth.provider.tsx         # Per-request logged-in flag (seeded server-side)
+│   └── Tanstack-query.provider.tsx
+├── stores/                       # Zustand cart + wishlist, cart query & sync hook
+├── utils/
+│   ├── NORMALIZERS/              # Data transformation (product, price, media, cart, order)
+│   ├── validation/               # Zod schemas (auth, address, customer address)
+│   └── cookies-setter.helper.ts  # Geo/Cloudflare cookie resolution (proxy.ts)
+├── types/                        # Shared TypeScript types
+├── proxy.ts                      # Next.js middleware — geo routing + cookie injection
+└── _CONFIG.example/              # Committed config templates (copy to _CONFIG/)
+    ├── app.config.json           # API_BASE_URL, DEBUG_MODE, THEME
+    ├── channels.config.json      # Channel labels + checkout keys
+    └── countries.config.json     # Country → language/currency/channel mapping
+```
 
 ## File Map
 
@@ -15,58 +60,39 @@ a request from the middleware to the hydrated client.
 | `lib/auth-client.ts` | Client-side auth flows: login, signup, double-opt-in activation, logout |
 | `app/[customer_country]/.../{page}/api.query.ts` | Co-located query definitions (`queryKey`, `queryFn`) + `cache()`-wrapped loaders |
 | `stores/cart.store.ts` | Zustand cart (flat localStorage serialization) |
-| `stores/use-cart-sync.ts` | Shared create-or-patch cart sync (drawer + checkout dedupe to one backend call) |
+| `stores/use-cart-sync.ts` | Shared create-or-patch cart sync (cart page + checkout dedupe to one backend call) |
 | `stores/wishlist.store.ts` | Zustand wishlist with flat localStorage serialization (key `WL`) |
 | `utils/NORMALIZERS/` | `NORM_PRODUCTS_DATA`, `NORM_FILTERS_DATA`, `NORM_MEDIA_DATA`, cart/order/price normalizers |
 
-## Key Patterns
+## Config System
 
-### API Layer
+`_CONFIG/` is gitignored. `_CONFIG.example/` is the committed template.
 
-Returns `[error, data, meta]` tuples — always destructure, never throw on API errors.
-
-```ts
-const api = create_api(await make_server_access()); // RSC/Server Action
-const api = create_api(make_client_access());        // Client Component
-
-const [error, data] = await api.FETCH_METHOD(API_PRODUCTS_ROUTE, {
-  querys: { category_url_key: 'shoes', page: 1 }  // auto-converted to query string
-});
+```bash
+cp -r _CONFIG.example _CONFIG
+# app.config.json      → set API_BASE_URL (Volkanos instance URL)
+# channels.config.json → set CHANNEL_LABEL and API_CHECKOUT_KEY per channel
+# countries.config.json → country → languages/currencies/channels mapping
+# brand/               → identity assets (favicon, optional logo), named in app.config.json BRAND
 ```
 
-Route placeholders `__CHANNEL__`, `__USER_ID__`, `__CART_ID__` are resolved from cookies via the access adapter. Never call `fetch()` directly — always use `FETCH_METHOD`.
+Import configs directly: `import countries from "@/_CONFIG/countries.config.json"`. Config is type-checked at build time.
 
-### PrefetchBoundary
+## Config Variables
 
-Server Component prefetches TanStack Query data; Client Component reads it via `useQuery` with the same query key (no extra network request).
-
-```tsx
-// page.tsx (Server Component)
-const api = create_api(await make_server_access());
-return (
-  <PrefetchBoundary prefetches={[catalog_query(api, opts), products_query(api, opts)]}>
-    <ListingClient options={opts} />
-  </PrefetchBoundary>
-);
-
-// listing.client.tsx ("use client")
-const { data } = useQuery(catalog_query(make_client_access_api(), opts));
-```
-
-Use `seed` on a `PrefetchEntry` to pre-populate individual product cache entries from the list response (avoids redundant fetches on PDP navigation).
-
-### React.cache() Deduplication
-
-Wrap loaders in `React.cache()` (see `api.query.ts` files). Pass the **same** `api` instance to all loaders in a request — `cache()` keys on function identity + args, so duplicate `create_api()` calls break deduplication.
-
-### Filter URL Convention
-
-Search params use prefixes parsed in `page.tsx` before passing to `PrefetchBoundary`:
-- `q_color=red` → filter value
-- `s_price=asc` → sort
-- `r_price=10&r_price=500` → range
-
-The catalog page's `build_params()` helper strips prefixes before forwarding to the API.
+| File | Key | Purpose |
+|------|-----|---------|
+| `app.config.json` | `API_BASE_URL` | Backend URL (template `http://localhost:8000`; the zeno local stack serves `:8100`) |
+| `app.config.json` | `DEBUG_MODE` | Enables `_LOGGER` console output and DEBUG-only dev tools |
+| `app.config.json` | `THEME` | `"light"` (default) or `"dark"`: which semantic colour set of `app/globals.css` applies |
+| `app.config.json` | `SITE_URL` | Public URL of the shop: canonical/Open Graph URLs, Playwright `baseURL` |
+| `app.config.json` | `SITE_NAME` | Shop name: header wordmark (when no logo), page titles, Open Graph |
+| `app.config.json` | `BRAND.LOGO` / `BRAND.LOGO_ALT` / `BRAND.FAVICON` | File names in `_CONFIG/brand/`, served by `app/brand/[file]` (only the listed names). `LOGO: null` shows the wordmark |
+| `channels.config.json` | `{channel}.CHANNEL_LABEL` | Channel display name |
+| `channels.config.json` | `{channel}.API_CHECKOUT_KEY` | Checkout API key per channel (`x-api-key`) |
+| `countries.config.json` | `{country}.default_language` | Default language for country |
+| `countries.config.json` | `{country}.default_currency` | Default currency for country |
+| `countries.config.json` | `{country}.default_channel` | Default channel for country |
 
 ## Data Flow
 
@@ -109,16 +135,6 @@ Two patterns:
 - **Client state** — Zustand:
   - `stores/cart.store.ts` and `stores/wishlist.store.ts` — persisted to localStorage with flat serialization
   - `app/.../catalog/.../_components/filters.store.ts` — co-located with catalog page, initializes from `URLSearchParams`
-
-## Theming / Styling
-
-Tailwind CSS v4 with shadcn/ui ("new-york" style). Config in `components.json`.
-
-- CSS variables enabled (`cssVariables: true`) — colors defined as HSL in `app/globals.css`
-- Dark mode toggle in header — uses `class` strategy (Tailwind `dark:` prefix)
-- Icons: `lucide-react`
-- Utility: `cn()` from `lib/utils.ts` (clsx + tailwind-merge)
-- Add shadcn components: `pnpm dlx shadcn add <component-name>`
 
 ## Coding Standards
 

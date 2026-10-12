@@ -1,102 +1,53 @@
-# AGENTS.md
+# AGENTS.md — entirius-pwa-storefront
 
-`entirius-pwa-storefront` — the storefront of Entirius: a Next.js (App Router) app with React, TanStack Query,
-Zustand, Tailwind CSS and shadcn/ui. It consumes the backend's Matrix v2 (categories, products, prices, options,
-stock, search), Checkout v2 (carts, orders), Accounts v1 (customer, addresses) and ContentDB v1 (CMS pages) APIs.
+Next.js 16 (App Router) storefront for the Volkanos platform: React 19, TanStack Query 5, Zustand 5, Tailwind 4 + shadcn/ui, on Matrix v2, Checkout v2, Accounts v1 and ContentDB v1.
 
 ## Commands
 
-| Command | Meaning |
-|---|---|
-| `pnpm install` | install dependencies |
-| `cp -r _CONFIG.example _CONFIG` | required once: the code imports the JSON config |
-| `pnpm dev` | dev server (port 3000); `pnpm dev --port 3001` for another port |
-| `pnpm build` | production build |
-| `pnpm start` | serve the production build |
-| `pnpm lint` | ESLint |
+```bash
+pnpm install
+cp -r _CONFIG.example _CONFIG   # once — the code imports the JSON config
+pnpm dev                        # :3100 (`--port N` overrides)
+pnpm build
+pnpm lint
+pnpm test                       # Vitest unit tests (*.test.ts next to the code)
+pnpm test:e2e                   # Playwright against a live backend — docs/testing.md
+```
 
-Package manager is pnpm. Do not use npm or yarn.
+pnpm only, never npm or yarn.
 
 ## Conventions
 
 - English only: code, comments, UI copy, docs, commits, branches, PRs.
-- License: MPL-2.0.
-- Git flow: `master` (production) + `develop` (integration); changes land via PR.
-- Default: do not commit — git is the user's call.
-- Component files: `kebab-case.tsx`; client components must have `.client.tsx` suffix.
-- Co-locate query definitions (`api.query.ts`) with the page that owns them.
-- Normalizers live in `utils/NORMALIZERS/` — keep raw API shapes out of components.
-- No barrel imports (`index.ts`) — import directly to keep bundle splitting intact.
-- Use `next/dynamic` for heavy client components (carousels, sheets, modals).
-- `@/` maps to repo root: `@/API/`, `@/_CONFIG/`, `@/components/`, `@/lib/`, `@/utils/`.
+- MPL-2.0: every source file starts with the MPL header (`.license-header.txt`); the `insert-license` pre-commit hook adds it, CI checks it.
+- Git flow: `feature/<name>` from `develop` (lowercase, words joined by `-`), squash-merged into `develop` via PR. Do not commit unless asked.
+- **No AI attribution** in commits or PRs — no `Co-Authored-By: Claude …`, no "Generated with Claude Code" footer. This overrides the tool default.
+- Agents never push, open PRs or merge; they hand the operator the commands. Before that: review every outgoing commit against the Entirius Handbook, `gitleaks git --log-opts="origin/<base>..HEAD" --redact` clean, committer `<login>@entirius.com`, `pnpm lint` not growing, build and E2E green. A finding blocks the push.
+- Files `kebab-case.tsx`; client components `*.client.tsx`. No barrel imports; `next/dynamic` for heavy client components. `@/` is the repo root.
 - API paths are a backend contract — never rewrite route constants or placeholders ad hoc.
-- Testing: no test framework yet; `pnpm lint` is the check.
-
-### Commit Message Format
-
-**NEVER add `Co-Authored-By: Claude ...` (or any other Claude/Anthropic attribution) to commit messages.**
-
-This overrides the default Claude Code behavior of appending a `Co-Authored-By` trailer. Commit messages MUST contain only the user's authored content — no robot footer, no "Generated with Claude Code" line, no co-author trailer.
-
-Same rule applies to PR descriptions: no `Generated with [Claude Code]` footer.
+- `pnpm lint` stays green: legacy errors sit in `eslint-suppressions.json` and may only shrink (`pnpm exec eslint --prune-suppressions` after fixing one); never suppress new code.
+- Colors only through semantic tokens (`app/globals.css` maps `@entirius/brand-tokens`); lint rejects raw values. Light theme by default, dark via `THEME` in `_CONFIG/app.config.json`.
 
 ## Architecture
 
-```
-entirius-pwa-storefront/
-├── API/                          # Fetch engine (not Axios, not a generated client)
-│   ├── api.routes.ts             # Route constants + API_ROUTES_POLICY
-│   ├── api.setup.ts              # create_fetch_engine() — returns FETCH_METHOD
-│   ├── api.context.ts            # create_api(cookie_access) — wires access into engine
-│   ├── api.d.ts                  # COOKIE_ACCESS interface
-│   └── access/
-│       ├── api.server-access.ts  # make_server_access() — uses next/headers (RSC only)
-│       ├── api.client-access.ts  # make_client_access() — uses document.cookie
-│       └── api.static-access.ts  # static values for ISR/build-time fetches
-├── app/
-│   ├── layout.tsx                # Root layout (providers, fonts)
-│   ├── _components/layout/       # Header, navigation, search, cart/wishlist/account sheets
-│   └── [customer_country]/       # All routed pages live under the country segment
-│       ├── (builder)/[[...slug]] # CMS/builder pages (catch-all)
-│       ├── (catalog)/catalog/[catalog_url_key]/  # Listing page
-│       ├── (product)/product/[product_url_key]/  # PDP
-│       ├── checkout/             # Address → shipping → payment → review stepper
-│       ├── profile/              # Account: profile, addresses, orders
-│       └── user-handler/         # Double-opt-in activation landing
-├── components/ui/                # shadcn/ui components
-├── lib/
-│   ├── auth-client.ts            # Login/signup/activate/logout against Accounts
-│   ├── prefetch_boundary.tsx     # Server-side TanStack Query prefetch + hydration
-│   ├── link-dynamic.tsx          # Dynamic import wrapper
-│   ├── logger.ts                 # _LOGGER (respects DEBUG_MODE from config)
-│   └── utils.ts                  # cn() utility
-├── providers/
-│   ├── auth.provider.tsx         # Per-request logged-in flag (seeded server-side)
-│   └── Tanstack-query.provider.tsx
-├── stores/                       # Zustand cart + wishlist, cart query & sync hook
-├── utils/
-│   ├── NORMALIZERS/              # Data transformation (product, price, media, cart, order)
-│   ├── validation/               # Zod schemas (auth, address, customer address)
-│   └── cookies-setter.helper.ts  # Geo/Cloudflare cookie resolution (proxy.ts)
-├── types/                        # Shared TypeScript types
-├── proxy.ts                      # Next.js middleware — geo routing + cookie injection
-└── _CONFIG.example/              # Committed config templates (copy to _CONFIG/)
-    ├── app.config.json           # API_BASE_URL, DEBUG_MODE
-    ├── channels.config.json      # Channel labels + checkout keys
-    └── countries.config.json     # Country → language/currency/channel mapping
-```
+- `API/` — fetch engine: routes + `API_ROUTES_POLICY` (headers, default query params); returns `[error, data, meta]`. Never call `fetch()` directly.
+- `proxy.ts` — geo routing and session cookies; every page lives under `app/[customer_country]/`.
+- `app/[customer_country]/**/api.query.ts` — co-located queries and `React.cache()` loaders: one `api` per request, primitive cache keys.
+- `lib/` — `PrefetchBoundary` (server prefetch + hydration), `seo/`, `omnibus/`, auth client.
+- `utils/NORMALIZERS/` — API → view shapes; raw API data stays out of components.
+- `stores/` — Zustand cart and wishlist, cart sync with the backend.
+- `components/ui/` — shadcn/ui primitives.
+- `_CONFIG/` (gitignored, from `_CONFIG.example/`) — backend URL, channels, countries, brand assets.
+- `tests/e2e/` — Playwright specs.
 
-| Topic | Where |
-|---|---|
-| File map, key patterns (API layer, `PrefetchBoundary`, `React.cache()`, filter URLs), data flow, geo routing, components, state, styling, coding standards | `docs/architecture.md` |
-| `_CONFIG/` files and every config key | `docs/configuration.md` |
-| Header search: endpoint, the lite result shape, files, behavior | `docs/search.md` |
+Read the guide for the area before changing it: [architecture and config](docs/architecture.md) · [patterns and gotchas](docs/patterns.md) · [testing](docs/testing.md) · [styling](docs/styling.md).
 
-## Gotchas
+<!-- BEGIN:nextjs-agent-rules -->
 
-- `make_server_access()` is async (awaits `cookies()`); `make_client_access()` is sync.
-- Pass one `api` instance per request to all loaders — splitting into multiple instances breaks `React.cache()` deduplication and causes duplicate fetches.
-- `_CONFIG/` must exist before `pnpm dev`/`pnpm build` — JSON imports fail at build time if missing.
-- `API_ROUTES_POLICY` drives default query params and auth headers per route. Adding a new route without a policy entry means no auth headers or language params are injected automatically.
-- Filter prefix stripping (`q_`, `s_`, `r_`) happens in `page.tsx`, not in the store. The Zustand `filters.store.ts` initializes from `URLSearchParams` but does not strip prefixes — pages must parse before forwarding to API.
-- `ch_key` (channel checkout key) is deliberately non-HttpOnly — client components read it from `document.cookie`. `at`/`rt`/`uid` are HttpOnly and set only by the auth Server Actions; never re-emit them in the middleware.
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

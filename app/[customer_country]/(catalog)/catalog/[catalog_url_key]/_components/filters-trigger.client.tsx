@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { useSearchParams } from "next/navigation";
@@ -12,12 +16,10 @@ import {
 import { FiltersOptionsClient } from "./filters-options.client";
 import { FilterIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useI18n } from "@/providers/i18n.provider";
 
 const FILTER_PREFIXES = ["q_", "s_", "r_"];
 
 export function FiltersTriggerClient({ options }: { options: any }) {
-  const { t } = useI18n();
   const search_params = useSearchParams();
 
   const has_active = FILTER_PREFIXES.some((p) =>
@@ -27,22 +29,25 @@ export function FiltersTriggerClient({ options }: { options: any }) {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" className="rounded-full lg:hidden">
           <div className="relative">
             <FilterIcon className="size-4" />
             {has_active && (
-              <span className="absolute -top-1 -right-1 size-2 rounded-full bg-red-500" />
+              <span className="absolute -top-1 -right-1 size-2 rounded-full bg-highlight" />
             )}
           </div>
-          {t("catalog.filters")}
+          Filters
         </Button>
       </SheetTrigger>
-      <SheetContent side="right">
-        <SheetHeader>
-          <SheetTitle>{t("catalog.filters")}</SheetTitle>
-          <SheetDescription>{t("catalog.filters_hint")}</SheetDescription>
+      <SheetContent side="right" className="overflow-y-auto bg-card">
+        {/* The panel carries its own visible "Filters" heading. */}
+        <SheetHeader className="sr-only">
+          <SheetTitle>Filters</SheetTitle>
+          <SheetDescription>Narrow down the results</SheetDescription>
         </SheetHeader>
-        <FiltersOptionsClient options={options} />
+        <div className="p-4">
+          <FiltersOptionsClient options={options} in_sheet />
+        </div>
       </SheetContent>
     </Sheet>
   );

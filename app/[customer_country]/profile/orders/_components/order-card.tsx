@@ -1,37 +1,31 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { Calendar, Eye, Package, Receipt } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { LinkDynamic } from "@/lib/link-dynamic";
 import {
   format_order_date,
   status_style,
-  type Order,
+  type OrderSummary,
 } from "@/utils/NORMALIZERS/order.normalizer";
-import { useI18n } from "@/providers/i18n.provider";
 
-type OrderCardProps = {
-  order: Order;
-  is_selected: boolean;
-  on_select: () => void;
-};
-
-export function OrderCard({ order, is_selected, on_select }: OrderCardProps) {
-  const { t, price, language } = useI18n();
+export function OrderCard({ order }: { order: OrderSummary }) {
   const style = status_style(order.status);
 
-  const formatted_date = format_order_date(order.created, language);
+  const formatted_date = format_order_date(order.created);
 
-  const items_text = t("orders.items", { count: order.item_count });
+  const items_count = order.item_count;
+  const items_text = `${items_count} ${items_count === 1 ? "item" : "items"}`;
 
   return (
-    <button
-      type="button"
-      onClick={on_select}
-      className={cn(
-        "w-full overflow-hidden rounded-xl border border-border bg-card text-left transition-colors",
-        is_selected && "border-primary bg-primary/5",
-      )}
+    <LinkDynamic
+      href={`/profile/orders/${order.id}`}
+      className="block w-full overflow-hidden rounded-xl border border-border bg-card text-left transition-colors hover:border-primary"
     >
       <div className="px-5 py-3">
         {/* Top row: ID and status */}
@@ -64,33 +58,16 @@ export function OrderCard({ order, is_selected, on_select }: OrderCardProps) {
             </div>
           </div>
           <span className="text-base font-bold">
-            {price(order.total, order.currency_code)}
+            {order.total} {order.currency_code}
           </span>
         </div>
 
         {/* View details */}
-        <div
-          className={cn(
-            "mt-3 flex items-center justify-center gap-2 rounded-lg py-2",
-            is_selected ? "bg-primary" : "bg-muted",
-          )}
-        >
-          <Eye
-            className={cn(
-              "size-3.5",
-              is_selected ? "text-primary-foreground" : "text-foreground",
-            )}
-          />
-          <span
-            className={cn(
-              "text-sm font-bold",
-              is_selected && "text-primary-foreground",
-            )}
-          >
-            {is_selected ? t("orders.viewing") : t("orders.view")}
-          </span>
+        <div className="mt-3 flex items-center justify-center gap-2 rounded-lg bg-muted py-2">
+          <Eye className="size-3.5 text-foreground" />
+          <span className="text-sm font-bold">View details</span>
         </div>
       </div>
-    </button>
+    </LinkDynamic>
   );
 }

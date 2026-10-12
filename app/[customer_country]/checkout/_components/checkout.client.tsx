@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { NORM_CART, type Cart } from "@/utils/NORMALIZERS/cart.normalizer";
+import type { PlacedOrder } from "@/utils/NORMALIZERS/order.normalizer";
 import { cart_to_address_form } from "@/utils/validation/address.schema";
 import { useCartSync } from "@/stores/use-cart-sync";
 import { CheckoutStepper, type CheckoutStep } from "./checkout-stepper";
@@ -14,12 +19,10 @@ import { AddressStep } from "./address-step";
 import { ShippingStep } from "./shipping-step";
 import { PaymentStep } from "./payment-step";
 import { ReviewStep } from "./review-step";
-import { useI18n } from "@/providers/i18n.provider";
 
 const LOCKED: Set<CheckoutStep> = new Set();
 
 export function CheckoutClient() {
-  const { t } = useI18n();
   const { mounted, backend, isFetching, error, items, currency } = useCartSync();
   const entries = Object.entries(items);
   const router = useRouter();
@@ -57,13 +60,13 @@ export function CheckoutClient() {
   if (entries.length === 0) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-12">
-        <h1 className="mb-6 text-2xl font-bold">{t("checkout.title")}</h1>
+        <h1 className="mb-6 text-2xl">Checkout</h1>
         <p className="text-muted-foreground py-8 text-center">
-          {t("checkout.empty")}
+          Your cart is empty.
         </p>
         <div className="flex justify-center">
           <Button asChild variant="outline">
-            <LinkDynamic href="/">{t("common.continue_shopping")}</LinkDynamic>
+            <LinkDynamic href="/">Continue shopping</LinkDynamic>
           </Button>
         </div>
       </div>
@@ -93,18 +96,26 @@ export function CheckoutClient() {
 
   // Order placed (no gateway redirect) → go to the dedicated success route, which
   // owns cart teardown so this page never flashes its empty-cart state on the way out.
-  const onPlaced = (orderId?: string) => {
+  // A split order passes every part's number (`ref` repeated).
+  const onPlaced = (order: PlacedOrder) => {
     const base =
       !country || country === "default"
         ? "/checkout/success"
         : `/${country}/checkout/success`;
-    router.push(orderId ? `${base}?ref=${encodeURIComponent(orderId)}` : base);
+    const params = new URLSearchParams();
+    const refs = order.split_pretty_ids.length
+      ? order.split_pretty_ids
+      : [order.pretty_id].filter(Boolean);
+    for (const ref of refs) params.append("ref", ref);
+    if (order.payment_error) params.set("payment", "failed");
+    const query = params.toString();
+    router.push(query ? `${base}?${query}` : base);
   };
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10">
-      <div className="mb-8 flex items-center gap-3">
-        <h1 className="text-2xl font-bold">{t("checkout.title")}</h1>
+    <div className="mx-auto max-w-5xl py-4">
+      <div className="mb-6 flex items-center gap-3">
+        <h1 className="text-4xl md:text-5xl">Checkout</h1>
         {isFetching && <Spinner className="size-4" />}
       </div>
 
@@ -118,13 +129,13 @@ export function CheckoutClient() {
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_20rem]">
         <div className="min-w-0">
           {error && (
-            <p className="mb-4 rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              {t("checkout.sync_error")}
+            <p className="mb-4 rounded-md border border-destructive/50 bg-destructive-surface px-3 py-2 text-sm text-destructive">
+              Couldn’t sync your cart with the server. Showing local items.
             </p>
           )}
           {backend && !validation_ok && backend.errors.length > 0 && (
-            <div className="mb-4 rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              <p className="font-medium">{t("checkout.items_attention")}</p>
+            <div className="mb-4 rounded-md border border-destructive/50 bg-destructive-surface px-3 py-2 text-sm text-destructive">
+              <p className="font-medium">Some items need attention:</p>
               <ul className="mt-1 list-disc pl-5">
                 {backend.errors.map((e, i) => (
                   <li key={i}>{e.message}</li>
