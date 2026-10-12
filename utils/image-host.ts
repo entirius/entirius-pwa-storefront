@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 // Pure on purpose: `next.config.ts` loads this file, and the `@/` alias does not
 // resolve in modules the config pulls in.
 const LOOPBACK_HOSTS = ["localhost", "127.0.0.1", "[::1]"];
