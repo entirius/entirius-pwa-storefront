@@ -1,84 +1,76 @@
-# Storefront — Entirius PWA
+# entirius-pwa-storefront
 
-Customer-facing e-commerce storefront for the Volkanos platform. Next.js 16 App Router with React Server
-Components; catalog, search, cart, checkout and customer account run against the platform REST APIs
-(Matrix v2, Checkout v2, Accounts v1, ContentDB v1).
+The storefront of Entirius, the open-source modular ecommerce platform: the shop customers browse and buy in.
+Catalog, search, cart, checkout and customer account run against the REST APIs of the backend, rendered on the
+server with Next.js (App Router, React Server Components).
 
-Multi-country by design: every route lives under a country segment (`/{country}/...`) and the middleware
-resolves country, language, currency and sales channel into cookies before the page renders.
+Multi-country by design: every route lives under a country segment (`/{country}/...`) and the middleware resolves
+country, language, currency and sales channel into cookies before the page renders.
 
-## Stack
+## What it does
 
-| Layer | Choice |
-|---|---|
-| Framework | Next.js 16 (App Router, RSC) |
-| UI | React 19, Tailwind CSS v4, shadcn/ui, lucide-react |
-| Server state | TanStack Query v5 (server prefetch + hydration) |
-| Client state | Zustand v5 (cart, wishlist, catalog filters) |
-| Forms | React Hook Form + Zod |
-| Package manager | pnpm (do not use npm or yarn) |
+- Category listings with filters, sorting and pagination, and product detail pages.
+- Header search with live results: phrases, categories and products.
+- Cart and wishlist kept in the browser, the cart synchronised with the backend.
+- Checkout as a stepper: address, shipping, payment, review.
+- Customer account: sign-up with email activation, login, profile, addresses, orders.
+- Pages built in the CMS, served through a catch-all route.
 
-## Prerequisites
+## Installation
 
-- Node.js 20+
-- pnpm 10+ (`corepack enable` or `npm i -g pnpm`)
-- A running Volkanos backend reachable over HTTP (default `http://localhost:8000`)
-
-## Quick Start
-
-`_CONFIG/` is gitignored and **required** — JSON config is imported directly by the code, so the build fails
-without it. Copy the committed template first:
-
-```bash
+```shell
+git clone https://github.com/entirius/entirius-pwa-storefront.git
+cd entirius-pwa-storefront
 cp -r _CONFIG.example _CONFIG
 pnpm install
+```
+
+`_CONFIG/` is gitignored and required: the code imports its JSON files directly, so the build fails without it.
+Set `API_BASE_URL` in `_CONFIG/app.config.json` and the checkout key of each channel in
+`_CONFIG/channels.config.json`; every key is described in
+https://github.com/entirius/entirius-pwa-storefront/blob/develop/docs/configuration.md.
+
+## Quick start
+
+```shell
 pnpm dev
 ```
 
 Open `http://localhost:3000`. Unknown countries fall through to the `default` segment.
 
-## Configuration
+## Requirements
 
-| File | Keys |
-|---|---|
-| `_CONFIG/app.config.json` | `API_BASE_URL` (backend URL), `DEBUG_MODE` (enables `_LOGGER` output) |
-| `_CONFIG/channels.config.json` | per channel: `CHANNEL_LABEL`, `API_CHECKOUT_KEY` (checkout `x-api-key`) |
-| `_CONFIG/countries.config.json` | per country: languages, currencies, channels + defaults |
+- Node.js 20 or newer.
+- pnpm (`corepack enable` or `npm i -g pnpm`); npm and yarn are not supported.
+- A running Entirius backend reachable over HTTP (default `http://localhost:8000`).
 
-The template ships the two channels of the reference dataset (`default-europe`, `default-local`);
-replace `API_CHECKOUT_KEY` with the key issued by your backend for each channel.
+## Documentation
 
-## Scripts
+- Developer docs (architecture, configuration, search):
+  https://github.com/entirius/entirius-pwa-storefront/tree/develop/docs
+- Entirius documentation: https://docs.entirius.com/
+- Releases: https://github.com/entirius/entirius-pwa-storefront/releases
 
-| Command | Description |
-|---|---|
-| `pnpm dev` | Dev server on port 3000 |
-| `pnpm build` | Production build |
-| `pnpm start` | Serve the production build |
-| `pnpm lint` | ESLint (`eslint-config-next`) |
+## Part of Entirius
 
-## Architecture
+The storefront is the customer-facing frontend of the platform; it reads the catalog, content, checkout and
+account APIs of the Entirius backend service.
 
-```
-API/                    Fetch engine: route constants, policies, cookie access adapters
-app/
-├── layout.tsx          Root layout (providers, fonts)
-├── _components/layout/ Header, navigation, search, cart / wishlist / account sheets
-└── [customer_country]/ All routed pages
-    ├── (builder)/      CMS pages (catch-all slug)
-    ├── (catalog)/      Category listing with filters, sorting, pagination
-    ├── (product)/      Product detail page
-    ├── checkout/       Address → shipping → payment → review stepper
-    └── profile/        Account: profile, addresses, orders
-components/ui/          shadcn/ui primitives
-lib/                    Auth server actions, prefetch boundary, logger, cn()
-stores/                 Zustand stores (cart, wishlist) + cart sync
-utils/                  NORMALIZERS (API → view shapes), Zod schemas, cookie helper
-proxy.ts                Middleware: geo routing + session cookie injection
+- Backend service: https://github.com/entirius/entirius-service-volkanos
+- Docker harness (backend, CMS and storefront in one stack): https://github.com/entirius/entirius-zeno
+- Admin CMS: https://github.com/entirius/entirius-pwa-cms
+
+## Development
+
+```shell
+pnpm dev      # dev server on port 3000
+pnpm build    # production build
+pnpm start    # serve the production build
+pnpm lint     # ESLint (eslint-config-next)
 ```
 
-Details for contributors and coding agents → [AGENTS.md](AGENTS.md).
+Development and agent instructions: https://github.com/entirius/entirius-pwa-storefront/blob/develop/AGENTS.md
 
 ## License
 
-[MPL-2.0](LICENSE).
+Mozilla Public License 2.0 (MPL-2.0) — see https://github.com/entirius/entirius-pwa-storefront/blob/develop/LICENSE.

@@ -1,6 +1,23 @@
 {
   "name": "entirius-pwa-storefront",
   "version": "1.0.0",
+  "description": "Storefront of Entirius, the open-source modular ecommerce platform: catalog, search, cart and checkout",
+  "keywords": [
+    "entirius",
+    "ecommerce",
+    "storefront",
+    "nextjs",
+    "react",
+    "pwa"
+  ],
+  "homepage": "https://docs.entirius.com/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/entirius/entirius-pwa-storefront.git"
+  },
+  "bugs": {
+    "url": "https://github.com/entirius/entirius-pwa-storefront/issues"
+  },
   "private": true,
   "license": "MPL-2.0",
   "author": "Entirius",
