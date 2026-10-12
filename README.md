@@ -45,9 +45,15 @@ Open `http://localhost:3100`. Unknown countries fall through to the `default` se
 | `_CONFIG/app.config.json` | `API_BASE_URL` (backend URL), `SITE_URL` (public URL of the shop, also the E2E `baseURL`), `SITE_NAME`, `BRAND` (assets in `_CONFIG/brand/`), `DEBUG_MODE` (enables `_LOGGER` output and dev tools) |
 | `_CONFIG/channels.config.json` | per channel: `CHANNEL_LABEL`, `API_CHECKOUT_KEY` (checkout `x-api-key`) |
 | `_CONFIG/countries.config.json` | per country: languages, currencies, channels + defaults |
+| `_CONFIG/theme.css` | client theme: overrides the values of the theme variables of `app/globals.css` (colours, `--radius`, `--font-family-sans`); empty = default look |
+| `_CONFIG/messages.config.json` | optional: overrides of single interface messages per language |
 
 The template ships the two channels of the reference dataset (`default-europe`, `default-local`);
-replace `API_CHECKOUT_KEY` with the key issued by your backend for each channel.
+replace `API_CHECKOUT_KEY` with the key issued by your backend for each channel. An existing `_CONFIG/` from before
+the client theme needs `theme.css` too (copy it from `_CONFIG.example/`).
+
+The cookie banner needs no config: when the backend has a published banner for the channel (django-agreements
+2.2.0 or newer), the storefront shows it, with every text from the backend; otherwise nothing is loaded.
 
 ## Scripts
 

@@ -16,8 +16,10 @@ entirius-pwa-storefront/
 │       ├── api.client-access.ts  # make_client_access() — uses document.cookie
 │       └── api.static-access.ts  # static values for ISR/build-time fetches
 ├── app/
-│   ├── layout.tsx                # Root layout (providers, fonts)
-│   ├── _components/layout/       # Header, navigation, search, cart/wishlist/account sheets
+│   ├── layout.tsx                # Root layout (providers, fonts, language, layout slots, cookie banner)
+│   ├── _components/layout/       # Header, footer, navigation, search, cart link, wishlist/account sheets
+│   ├── _components/layout-slots/ # CMS content on every page (announcement, before-footer)
+│   ├── _components/cookie-consent/ # Cookie banner on django-agreements
 │   └── [customer_country]/       # All routed pages live under the country segment
 │       ├── (builder)/[[...slug]] # CMS/builder pages (catch-all)
 │       ├── (catalog)/catalog/[catalog_url_key]/  # Listing page
@@ -27,6 +29,7 @@ entirius-pwa-storefront/
 │       └── user-handler/         # Double-opt-in activation landing
 ├── components/ui/                # shadcn/ui components
 ├── lib/
+│   ├── i18n/                     # Messages (messages/en.ts, pl.ts), t(), price(), server loader
 │   ├── auth-client.ts            # Login/signup/activate/logout against Accounts
 │   ├── prefetch_boundary.tsx     # Server-side TanStack Query prefetch + hydration
 │   ├── link-dynamic.tsx          # Dynamic import wrapper
@@ -34,6 +37,7 @@ entirius-pwa-storefront/
 │   └── utils.ts                  # cn() utility
 ├── providers/
 │   ├── auth.provider.tsx         # Per-request logged-in flag (seeded server-side)
+│   ├── i18n.provider.tsx         # useI18n() for client components (seeded by the root layout)
 │   └── Tanstack-query.provider.tsx
 ├── stores/                       # Zustand cart + wishlist, cart query & sync hook
 ├── utils/
@@ -43,9 +47,10 @@ entirius-pwa-storefront/
 ├── types/                        # Shared TypeScript types
 ├── proxy.ts                      # Next.js middleware — geo routing + cookie injection
 └── _CONFIG.example/              # Committed config templates (copy to _CONFIG/)
-    ├── app.config.json           # API_BASE_URL, DEBUG_MODE, THEME
+    ├── app.config.json           # API_BASE_URL, DEBUG_MODE, THEME, SITE_NAME, BRAND
     ├── channels.config.json      # Channel labels + checkout keys
-    └── countries.config.json     # Country → language/currency/channel mapping
+    ├── countries.config.json     # Country → language/currency/channel mapping
+    └── theme.css                 # Client theme (empty = default look)
 ```
 
 ## File Map
@@ -64,35 +69,9 @@ entirius-pwa-storefront/
 | `stores/wishlist.store.ts` | Zustand wishlist with flat localStorage serialization (key `WL`) |
 | `utils/NORMALIZERS/` | `NORM_PRODUCTS_DATA`, `NORM_FILTERS_DATA`, `NORM_MEDIA_DATA`, cart/order/price normalizers |
 
-## Config System
+## Configuration
 
-`_CONFIG/` is gitignored. `_CONFIG.example/` is the committed template.
-
-```bash
-cp -r _CONFIG.example _CONFIG
-# app.config.json      → set API_BASE_URL (Volkanos instance URL)
-# channels.config.json → set CHANNEL_LABEL and API_CHECKOUT_KEY per channel
-# countries.config.json → country → languages/currencies/channels mapping
-# brand/               → identity assets (favicon, optional logo), named in app.config.json BRAND
-```
-
-Import configs directly: `import countries from "@/_CONFIG/countries.config.json"`. Config is type-checked at build time.
-
-## Config Variables
-
-| File | Key | Purpose |
-|------|-----|---------|
-| `app.config.json` | `API_BASE_URL` | Backend URL (template `http://localhost:8000`; the zeno local stack serves `:8100`) |
-| `app.config.json` | `DEBUG_MODE` | Enables `_LOGGER` console output and DEBUG-only dev tools |
-| `app.config.json` | `THEME` | `"light"` (default) or `"dark"`: which semantic colour set of `app/globals.css` applies |
-| `app.config.json` | `SITE_URL` | Public URL of the shop: canonical/Open Graph URLs, Playwright `baseURL` |
-| `app.config.json` | `SITE_NAME` | Shop name: header wordmark (when no logo), page titles, Open Graph |
-| `app.config.json` | `BRAND.LOGO` / `BRAND.LOGO_ALT` / `BRAND.FAVICON` | File names in `_CONFIG/brand/`, served by `app/brand/[file]` (only the listed names). `LOGO: null` shows the wordmark |
-| `channels.config.json` | `{channel}.CHANNEL_LABEL` | Channel display name |
-| `channels.config.json` | `{channel}.API_CHECKOUT_KEY` | Checkout API key per channel (`x-api-key`) |
-| `countries.config.json` | `{country}.default_language` | Default language for country |
-| `countries.config.json` | `{country}.default_currency` | Default currency for country |
-| `countries.config.json` | `{country}.default_channel` | Default channel for country |
+`_CONFIG/` files and every key: [configuration](configuration.md).
 
 ## Data Flow
 
@@ -143,3 +122,43 @@ Priority order for React/Next.js code:
 2. Bundle size — no barrel imports, `next/dynamic` for heavy components
 3. Server-side performance — `React.cache()` deduplication, minimize client serialization
 4. Re-render optimization — derive state during render, avoid unnecessary `memo`
+
+## Layout slots
+
+The root layout renders CMS content above the header (`announcement`) and above the footer (`before-footer`) with
+the builder's own renderer. A slot is an ordinary contentdb static page published under the reserved route
+`layout-<slot>`; without that route nothing renders. The builder answers 404 for routes starting with `layout-`.
+All slot pages come from one request per page render (`app/_components/layout-slots/api.query.ts`: the routes
+list, then `static-page?routes=…`, deduplicated with `React.cache()`); the draft in the active language wins.
+
+The footer is not a slot: it is the CMS footer extender (`layout-extender-published/footer/`, edited in the CMS
+navigation editor), rendered by `app/_components/layout/footer-component.tsx`.
+
+## Configurable products (variant picker)
+
+The product page of a `CONFIGURABLE` product sells variants, never the parent SKU. `variants_query` (product
+`api.query.ts`) reads `GET products/{url_key}/variants/` (axes, option labels, variant option values, `on_stock`),
+then the product list by the variant SKUs for price, name and pictures; `NORM_VARIANTS_DATA` merges both.
+Real-time stock of all variants is one `stock/` call with repeated `sku`.
+
+- Any number of axes; one radio group per axis (`variant-picker.client.tsx`), selection logic in
+  `variant-selection.ts`, page glue in `use-product-variants.ts`.
+- `?variant=<sku>` is set once the choice names a variant and is read on SSR. A variant has no url_key; links to
+  one go to `/product/<parent_url_key>?variant=<sku>` (search rows do this).
+- The cart gets the variant SKU and the name `Product (option, option)`; the gallery follows the variant when it
+  has pictures of its own.
+
+## Cookie consent
+
+`app/_components/cookie-consent/`, mounted as `<CookieConsent />` in `app/layout.tsx`. After hydration it asks
+`GET /api/agreements/v2/__CHANNEL__/cookie-banner/` (django-agreements >= 2.2.0) through the API layer.
+
+- No banner on the backend (404, module absent): nothing is loaded, and the answer is cached for the session.
+- With a banner, `consent-banner.ts` loads `vanilla-cookieconsent` and `cookie-consent.css` as a separate chunk.
+  Every text comes from the backend; never put banner copy in the storefront.
+- Decisions go to `POST .../cookie-consents/`; a 409 means a newer banner was published: refetch and ask again.
+- Any link whose `href` ends with `#cookie-consents` reopens the preferences; `app/globals.css` hides such links
+  until a banner runs. A CMS button of type `external` with a `#…` url stays in the same tab.
+- The storefront ships no tags: `apply_consent()` in `consent-mode.ts` is the one place a tag learns about the
+  decision (Consent Mode signals).
+- The library hides the banner from bots (`navigator.webdriver` included): a Playwright check has to override that.

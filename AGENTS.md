@@ -26,6 +26,7 @@ pnpm only, never npm or yarn.
 - Files `kebab-case.tsx`; client components `*.client.tsx`. No barrel imports; `next/dynamic` for heavy client components. `@/` is the repo root.
 - API paths are a backend contract — never rewrite route constants or placeholders ad hoc.
 - `pnpm lint` stays green: legacy errors sit in `eslint-suppressions.json` and may only shrink (`pnpm exec eslint --prune-suppressions` after fixing one); never suppress new code.
+- Interface text only through message keys (`t()`; `lib/i18n/messages/en.ts` + `pl.ts`), prices only through `price()` / `price_lines()` — never a hand-built "12.00 EUR".
 - Colors only through semantic tokens (`app/globals.css` maps `@entirius/brand-tokens`); lint rejects raw values. Light theme by default, dark via `THEME` in `_CONFIG/app.config.json`.
 
 ## Architecture
@@ -37,10 +38,11 @@ pnpm only, never npm or yarn.
 - `utils/NORMALIZERS/` — API → view shapes; raw API data stays out of components.
 - `stores/` — Zustand cart and wishlist, cart sync with the backend.
 - `components/ui/` — shadcn/ui primitives.
-- `_CONFIG/` (gitignored, from `_CONFIG.example/`) — backend URL, channels, countries, brand assets.
+- `lib/i18n/` — message catalogues, `t()`, `price()`; `providers/i18n.provider.tsx` for client components.
+- `_CONFIG/` (gitignored, from `_CONFIG.example/`) — backend URL, channels, countries, brand assets, client `theme.css`.
 - `tests/e2e/` — Playwright specs.
 
-Read the guide for the area before changing it: [architecture and config](docs/architecture.md) · [patterns and gotchas](docs/patterns.md) · [testing](docs/testing.md) · [styling](docs/styling.md).
+Read the guide for the area before changing it: [architecture](docs/architecture.md) · [configuration](docs/configuration.md) · [patterns and gotchas](docs/patterns.md) · [search](docs/search.md) · [testing](docs/testing.md) · [styling](docs/styling.md).
 
 <!-- BEGIN:nextjs-agent-rules -->
 

@@ -69,6 +69,22 @@ Search params use prefixes parsed in `page.tsx` before passing to `PrefetchBound
 
 The catalog page's `build_params()` helper strips prefixes before forwarding to the API.
 
+## Translations and prices
+
+- Every interface text goes through a message key: client components `const { t, price } = useI18n()`, server
+  components `const { t, price } = await get_i18n()`. `lib/i18n/messages/en.ts` is the source catalogue (key naming
+  at its top); every other language (`pl.ts`) is typed against its keys, so a missing key is a type error. Adding
+  a language: a file in `messages/` and one line in `lib/i18n/catalogues.ts`.
+- Active language = the `lg` cookie (from `countries.config.json`; the API layer sends the same `language`).
+  Unknown language → `en`. Fallback per key: `_CONFIG/messages.config.json` override, language catalogue, `en`.
+- Zod schemas hold keys wrapped in `msg("validation.x")`; `<FormMessage>` turns them into text (`text()` passes
+  any other string, such as a backend error, through).
+- Prices: never build `"12.00 PLN"` by hand. `price(amount, currency)` formats with `Intl.NumberFormat` in the
+  active language (`359,00 zł` for pl/PLN, `€549.00` for en/EUR). `NORM_PRICE_DATA` keeps raw
+  `{ gross, currency, final_gross?, from? }` (or `null`: price on request); `price_lines(i18n, price)` turns it
+  into the list price and the special price.
+- Dates follow `i18n.language`; country names `i18n.country(code)`.
+
 ## Gotchas
 
 - `make_server_access()` is async (awaits `cookies()`); `make_client_access()` is sync.
