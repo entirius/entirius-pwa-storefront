@@ -1,20 +1,12 @@
 import type { NextConfig } from "next";
 import { API_BASE_URL } from "@/_CONFIG/app.config.json";
-
-function split_url(url: string) {
-  const [protocol, hostname] = url.split("://");
-  return { protocol, hostname };
-}
-
-const { protocol, hostname } = split_url(API_BASE_URL);
+import { api_remote_pattern, is_loopback_api } from "./utils/image-host";
 
 const nextConfig: NextConfig = {
   images: {
+    dangerouslyAllowLocalIP: is_loopback_api(API_BASE_URL),
     remotePatterns: [
-      {
-        protocol: protocol,
-        hostname: hostname,
-      } as URL,
+      api_remote_pattern(API_BASE_URL),
       {
         protocol: "https",
         hostname: "picsum.photos",

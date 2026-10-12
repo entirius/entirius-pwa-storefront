@@ -10,6 +10,8 @@
 // cart total_gross is after both. `item_savings_gross` = subtotal_gross - Σfinal_total_gross
 // captures the special-price saving so the two can be shown as distinct rows.
 
+import { resolve_media_url } from "@/utils/media-url";
+
 type CartLine = {
   sku: string;
   quantity: number;
@@ -159,7 +161,7 @@ function norm_payment(m: any): PaymentMethod | null {
     code: String(m.code),
     name: str(m.name) ?? String(m.code),
     description: str(m.description),
-    image: str(m.image),
+    image: resolve_media_url(str(m.image)) || null,
     provider: str(m.provider),
     fee: str(m.cash_on_delivery_fee ?? m.fee),
   };

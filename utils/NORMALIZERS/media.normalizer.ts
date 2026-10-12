@@ -1,3 +1,5 @@
+import { resolve_media_url } from '@/utils/media-url';
+
 const placeholder_width = 600;
 const placeholder_height = 600;
 //export const image_placeholder = `https://placehold.co/${placeholder_width}x${placeholder_height}/111/ddd/png`;
@@ -74,7 +76,7 @@ function NORM_MEDIA_DATA(
   return media.map((item: any) => {
     return item.source_set.map((n: any) => {
       return {
-        uri: n.source,
+        uri: resolve_media_url(n.source),
         width: n.width,
         height: n.height,
       };

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { resolve_media_url } from "@/utils/media-url";
 
 interface ImageSetItem {
   width: number;
@@ -39,8 +40,10 @@ export function normalize_image_source(
   if (!images_set) return null;
   const variant = images_set.desktop ?? images_set.mobile;
   if (!variant) return null;
+  const uri = resolve_media_url(variant.image);
+  if (!uri) return null;
   return {
-    uri: variant.image,
+    uri,
     width: variant.width,
     height: variant.height,
     alt: variant.meta?.alt ?? variant.meta?.fileName ?? "",
