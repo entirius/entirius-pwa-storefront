@@ -165,6 +165,10 @@ an unknown type: nothing renders and nothing is requested.
   `CHECKOUT.PRIVACY_ROUTE`. The product page offers it as a collapsed "Ask about this product" (type
   `product-enquiry`, slug `product-enquiry`, `code` = SKU); a product without a price (`purchasable` false) gets the
   primary "Ask for the price" instead.
+- "Tell me when a similar product arrives" (`components/notify-similar.client.tsx`, type `notify-similar`, slug
+  `notify-similar`): on a sold-out product (stock answered, nothing buyable; `code` = SKU) and on an empty category
+  page without filters. E-mail, optional note, consent, honeypot. Body: `product_sku`, `product_name`, `category`,
+  the values of `CONTACT_FORMS.NOTIFY_ATTRIBUTES` (`lib/notify-body.ts`), `note`, `language`.
 - CMS block: a section (`section-type-a`) description with `<div data-enquiry-form data-slug="contact" data-type="general"></div>`
   shows the form in place of the marker (`lib/enquiry-marker.ts`). `data-slug` names the form in the inbox (default
   `contact`), `data-type` is the contact-forms type it is sent as (default `general`); keep the marker a top-level

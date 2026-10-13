@@ -27,6 +27,9 @@ import { ProductSpecs } from "./product-specs";
 import { ProductBadges } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-badges";
 import { MoreFromCategory } from "./more-from-category.client";
 import { EnquiryForm, PRODUCT_ENQUIRY_TYPE } from "@/components/enquiry-form.client";
+import { NotifySimilar } from "@/components/notify-similar.client";
+import { NOTIFY_ATTRIBUTES } from "@/lib/contact-forms-config";
+import { notify_body } from "@/lib/notify-body";
 
 const PLACEHOLDER_MEDIA = [[{ uri: image_placeholder, width: 600, height: 600 }]];
 
@@ -87,6 +90,8 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
   };
 
   const category = (product.categories as { name?: string; url_key?: string }[] | undefined)?.[0];
+  // Sold out for good (stock answered, nothing to buy): offer to be told about a similar product.
+  const sold_out = stock_known && (configurable ? configurable.sold_out : !inStock);
 
   return (
     <div
@@ -238,6 +243,14 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
             className="rounded-full"
           />
         </div>
+
+        {sold_out && (
+          <NotifySimilar
+            body={notify_body(product, category?.name, NOTIFY_ATTRIBUTES)}
+            code={product.sku}
+            trigger_label={t("product.notify_similar")}
+          />
+        )}
 
         {/* Without a price the enquiry is the way to buy; with one it stays a quiet question. */}
         <EnquiryForm

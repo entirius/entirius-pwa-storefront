@@ -37,6 +37,7 @@ The template ships the two channels of the reference dataset (`default-europe`, 
 | `app.config.json` | `BRAND.OG_IMAGE` | Optional file in `_CONFIG/brand/`: default Open Graph / Twitter image of pages without a picture of their own (product, category, CMS). `null` = none |
 | `app.config.json` | `BRAND.THEME_COLOR` / `BRAND.BACKGROUND_COLOR` / `BRAND.SHORT_NAME` | Optional: browser `theme-color` and manifest `theme_color`; manifest `background_color` (default: omitted); manifest `short_name` (default `SITE_NAME`) |
 | `app.config.json` | `CHECKOUT.TERMS_ROUTE` / `CHECKOUT.PRIVACY_ROUTE` | Optional CMS routes (e.g. `"terms"`) of the terms and privacy pages named in the consent line of the review step. `null` = the consent text shows the page name without a link |
+| `app.config.json` | `CONTACT_FORMS.NOTIFY_ATTRIBUTES` | Optional list of attribute idxs (e.g. `["brand", "series"]`). Their values on a sold-out product go into its "tell me when a similar product arrives" request, keyed by idx. Empty (default) = the request carries SKU, name and category only |
 | `channels.config.json` | `{channel}.CHANNEL_LABEL` | Channel display name |
 | `channels.config.json` | `{channel}.API_CHECKOUT_KEY` | Checkout API key per channel (`x-api-key`) |
 | `channels.config.json` | `{channel}.API_CONTACT_FORMS_KEY` | Optional contact-forms API key per channel (`X-API-KEY`, scope `contact_form`). `proxy.ts` sends it as the `cf_key` cookie. Without it no contact form is offered |

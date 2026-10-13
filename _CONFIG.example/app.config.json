@@ -20,6 +20,9 @@
     "TERMS_ROUTE": null,
     "PRIVACY_ROUTE": null
   },
+  "CONTACT_FORMS": {
+    "NOTIFY_ATTRIBUTES": []
+  },
   "SEO": {
     "PRODUCT_META": [
       ["title", ["meta_title", "name"]],

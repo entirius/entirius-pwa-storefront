@@ -165,6 +165,7 @@ export const pl: Record<MessageKey, Message> = {
   "catalog.quick_add_added": "Dodano {name} do koszyka",
   "catalog.quick_add_out_of_stock": "{name} – brak w magazynie",
   "catalog.subcategories": "Podkategorie",
+  "catalog.notify_cta": "Powiadom mnie, gdy pojawią się tu produkty",
 
   // product page
   "product.add_to_cart": "Dodaj do koszyka",
@@ -191,6 +192,7 @@ export const pl: Record<MessageKey, Message> = {
   "product.title": "Produkt",
   "product.ask_about": "Zapytaj o ten produkt",
   "product.ask_price": "Zapytaj o cenę",
+  "product.notify_similar": "Powiadom mnie, gdy pojawi się podobny produkt",
 
   // contact forms
   "enquiry.title": "Napisz do nas",
@@ -202,6 +204,16 @@ export const pl: Record<MessageKey, Message> = {
   "enquiry.sent": "Dziękujemy, wiadomość została wysłana. Odpowiemy e-mailem.",
   "enquiry.invalid": "Podaj imię i nazwisko, poprawny adres e-mail i wiadomość oraz zaakceptuj przetwarzanie danych.",
   "enquiry.failed": "Nie udało się wysłać wiadomości. Spróbuj ponownie za chwilę.",
+  "notify.title": "Powiadomimy Cię o podobnym produkcie",
+  "notify.title_category": "Powiadomimy Cię, gdy pojawią się tu produkty",
+  "notify.email": "Adres e-mail",
+  "notify.note": "Czego szukasz? (opcjonalnie)",
+  "notify.note_hint": "Im więcej napiszesz, tym lepiej dopasujemy.",
+  "notify.consent": "Zgadzam się na kontakt e-mailem w tej sprawie i na przetwarzanie moich danych w tym celu. Informacje o tym, jak je przetwarzamy, są w {privacy}.",
+  "notify.send": "Powiadom mnie",
+  "notify.sent": "Dziękujemy, napiszemy do Ciebie, gdy pojawi się coś odpowiedniego.",
+  "notify.invalid": "Podaj poprawny adres e-mail i zaakceptuj przetwarzanie danych.",
+  "notify.failed": "Nie udało się wysłać zgłoszenia. Spróbuj ponownie za chwilę.",
 
   // checkout
   "checkout.title": "Zamówienie",

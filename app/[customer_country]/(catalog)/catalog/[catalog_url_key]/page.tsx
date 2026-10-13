@@ -127,7 +127,7 @@ export default async function CatalogPage({ params, searchParams }: Props) {
           </div>
         </header>
       )}
-      <ListingClient options={options} />
+      <ListingClient options={options} category_name={category?.name} />
     </PrefetchBoundary>
   );
 }

@@ -96,6 +96,8 @@ export function useProductVariants(
     // the chosen variant's own pictures; undefined = keep the product's
     media: variant?.media.length ? variant.media : undefined,
     in_stock,
+    // no variant can be bought at all (a chosen variant being sold out is not this)
+    sold_out: !any_buyable,
     max: variant ? quantity(variant) : 0,
     cta: !variant && any_buyable ? t("product.choose_option") : in_stock ? t("product.add_to_cart") : t("product.out_of_stock"),
     // what goes into the cart: the variant's SKU, the product name with the chosen options

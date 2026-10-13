@@ -159,6 +159,7 @@ export const en = {
   "catalog.quick_add_added": "{name} added to cart",
   "catalog.quick_add_out_of_stock": "{name} is out of stock",
   "catalog.subcategories": "Subcategories",
+  "catalog.notify_cta": "Tell me when products arrive here",
 
   // product page
   "product.add_to_cart": "Add to cart",
@@ -185,6 +186,7 @@ export const en = {
   "product.title": "Product",
   "product.ask_about": "Ask about this product",
   "product.ask_price": "Ask for the price",
+  "product.notify_similar": "Tell me when a similar product arrives",
 
   // contact forms
   "enquiry.title": "Contact us",
@@ -196,6 +198,16 @@ export const en = {
   "enquiry.sent": "Thank you, your message has been sent. We will reply by email.",
   "enquiry.invalid": "Fill in your name, a valid email address and a message, and accept the data processing.",
   "enquiry.failed": "The message could not be sent. Try again in a moment.",
+  "notify.title": "Get notified about a similar product",
+  "notify.title_category": "Get notified when products arrive here",
+  "notify.email": "Email address",
+  "notify.note": "What are you looking for? (optional)",
+  "notify.note_hint": "The more you tell us, the better we can match it.",
+  "notify.consent": "I agree to be contacted by email about this request and to the processing of my data for that purpose. How we process it is described in the {privacy}.",
+  "notify.send": "Notify me",
+  "notify.sent": "Thank you, we will email you when something fitting arrives.",
+  "notify.invalid": "Enter a valid email address and accept the data processing.",
+  "notify.failed": "The request could not be sent. Try again in a moment.",
 
   // checkout
   "checkout.title": "Checkout",
