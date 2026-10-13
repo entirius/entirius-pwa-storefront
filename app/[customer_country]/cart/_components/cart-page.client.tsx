@@ -192,7 +192,7 @@ export function CartPageClient() {
                 {t("cart.subtotal")}
                 {isFetching && <Spinner className="size-3" />}
               </dt>
-              <dd className="tabular-nums">{fmt(backend?.subtotal_gross)}</dd>
+              <dd className="tabular-nums">{fmt(backend?.items_subtotal_gross)}</dd>
             </div>
             {has_discount && (
               <div className="flex justify-between gap-4">

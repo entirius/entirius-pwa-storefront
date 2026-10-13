@@ -219,6 +219,8 @@ export const en = {
   "checkout.discount": "Discount",
   "checkout.discount_codes": "Discount ({codes})",
   "checkout.free_shipping_away": "{amount} away from free shipping",
+  "checkout.delivery": "Delivery",
+  "checkout.payment_fee": "Payment fee",
   "checkout.success_title": "Order placed",
   "checkout.success_text": "Thank you! Your order has been placed.",
   "checkout.success_ref": "Thank you! Your order has been placed (ref {ref}).",

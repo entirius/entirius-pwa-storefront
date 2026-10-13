@@ -225,6 +225,8 @@ export const pl: Record<MessageKey, Message> = {
   "checkout.discount": "Rabat",
   "checkout.discount_codes": "Rabat ({codes})",
   "checkout.free_shipping_away": "Do darmowej dostawy brakuje {amount}",
+  "checkout.delivery": "Dostawa",
+  "checkout.payment_fee": "Opłata za płatność",
   "checkout.success_title": "Zamówienie złożone",
   "checkout.success_text": "Dziękujemy! Twoje zamówienie zostało złożone.",
   "checkout.success_ref": "Dziękujemy! Twoje zamówienie zostało złożone (nr {ref}).",

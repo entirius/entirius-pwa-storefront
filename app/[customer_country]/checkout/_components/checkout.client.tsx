@@ -35,7 +35,10 @@ export function CheckoutClient() {
   // Freshest cart from an address/shipping mutation. We deliberately don't refetch
   // ["cart"] on save (that wipes the auto-discount), so these responses — not the
   // synced query — are the freshest source for the needed fields.
-  const [serverCart, setServerCart] = useState<Cart | null>(null);
+  // It is dropped as soon as the synced cart refetches: that response is newer.
+  const [server, setServer] = useState<{ cart: Cart; base: Cart | null | undefined } | null>(null);
+  const serverCart = server && server.base === backend ? server.cart : null;
+  const setServerCart = (cart: Cart) => setServer({ cart, base: backend });
 
   const hydrate_cart = serverCart ?? backend ?? null;
 
@@ -177,7 +180,7 @@ export function CheckoutClient() {
         </div>
 
         <div className="h-fit lg:sticky lg:top-6">
-          <CheckoutSummary backend={backend} items={items} currency={currency} />
+          <CheckoutSummary backend={hydrate_cart} items={items} currency={currency} />
         </div>
       </div>
     </div>
