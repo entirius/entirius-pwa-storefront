@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 import { PrefetchBoundary } from "@/lib/prefetch_boundary";
 import { create_api } from "@/API/api.context";
 import { make_server_access } from "@/API/access/api.server-access";
+import { link_keys, url_key_query } from "@/lib/url-keys";
 import {
   load_static_page,
   pick_static_page,
@@ -101,6 +102,8 @@ export default async function BuilderPage({ params }: Props) {
     ...(url_keys.length ? [cms_products_query(api, url_keys)] : []),
     ...(skus.length ? [cms_products_by_sku_query(api, skus)] : []),
     ...categories.map((category) => cms_category_products_query(api, category)),
+    // Button links in the active language's url keys already in the server HTML.
+    ...link_keys(document.content).map(({ kind, key }) => url_key_query(api, language, kind, key)),
     ...(discounted_skus.length ? [omnibus_prefetch(api, discounted_skus)] : []),
   ];
 

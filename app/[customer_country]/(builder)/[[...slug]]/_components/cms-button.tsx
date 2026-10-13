@@ -2,8 +2,16 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+"use client";
+
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { create_api } from "@/API/api.context";
+import { make_client_access } from "@/API/access/api.client-access";
 import { Button } from "@/components/ui/button";
 import { LinkDynamic } from "@/lib/link-dynamic";
+import { link_target, url_key_query } from "@/lib/url-keys";
+import { useI18n } from "@/providers/i18n.provider";
 
 // `internal` is what the CMS editor saves (`custom_buttons[].type`), with the
 // CMS link convention in `url`: `/p/<url_key>` product, `/c/<url_key>` category,
@@ -36,14 +44,17 @@ function resolve_internal(url: string): string {
   return path;
 }
 
-export function resolve_cms_href(type: CmsButtonType, url: string): string {
+// `key`: the active language's url key of the catalog / product the button points at (replaces the typed one).
+export function resolve_cms_href(type: CmsButtonType, url: string, key?: string): string {
   switch (type) {
-    case "internal":
-      return resolve_internal(url);
+    case "internal": {
+      const target = link_target(type, url);
+      return key && target ? `/${target.kind === "product" ? "product" : "catalog"}/${key}` : resolve_internal(url);
+    }
     case "catalog":
-      return `/catalog/${url}`;
+      return `/catalog/${key ?? url}`;
     case "product":
-      return `/product/${url}`;
+      return `/product/${key ?? url}`;
     case "cms":
       return `/${url}`;
     case "external":
@@ -59,8 +70,16 @@ export default function CmsButton({
   size?: "sm" | "default" | "lg";
 }) {
   const { url, label, type, dye = "default" } = button;
+  const { language } = useI18n();
+  const api = useMemo(() => create_api(make_client_access()), []);
+  // Catalog / product links resolve to the active language's url key (cached; the page prefetches them on the server).
+  const target = link_target(type, url);
+  const { data: key } = useQuery({
+    ...url_key_query(api, language, target?.kind ?? "product", target?.key ?? ""),
+    enabled: !!target,
+  });
   if (!label || !url) return null;
-  const href = resolve_cms_href(type, url);
+  const href = resolve_cms_href(type, url, key);
   const variant = dye === "leading" ? "default" : dye;
 
   if (type === "external") {

@@ -154,6 +154,34 @@ Real-time stock of all variants is one `stock/` call with repeated `sku`.
 - The cart gets the variant SKU and the name `Product (option, option)`; the gallery follows the variant when it
   has pictures of its own.
 
+## Product page and catalog extras
+
+- Gallery (`gallery.client.tsx`, `gallery-viewer.client.tsx`): a scroll-snap row (swipe on phones, "3 / 12" counter),
+  arrows and a thumbnail strip from `md`, keyboard arrows; a click opens a full-screen viewer (swipe, double-tap and
+  pinch zoom, Escape, focus returns to the opener). The first picture is `loading="eager"`, the rest lazy. Hooks:
+  `data-gallery`, `data-gallery-thumb`, `data-gallery-counter`, `data-gallery-viewer`.
+- Similar products (`related.ts`, `related-products.tsx`): server-rendered tiles (crawlable links) from the rules of
+  `PRODUCT.RELATED`. Each rule asks `products/` with `q_<idx>=<value>` / `category=` and `on_stock=true`, and every
+  candidate is checked again (the API ignores a filter that is not defined in the channel). Never the product itself,
+  never a sold-out one; hidden when nothing matches. The server passes the section to `ProductClient`, which places
+  it by stock: closing the page, or (sold out) right under the buy area with a lead line.
+- Sticky buy bar (`sticky-buy-bar.client.tsx`, `data-buy-bar`, phones): slides in once `[data-buy-area]` is out of
+  view (the sticky header does not count as view); price + Add to cart, or on a sold-out product "See similar"
+  (link to `#related-products`) and the notify-similar action when the channel offers it. Hidden while the cookie
+  banner is open (`html.show--consent`).
+- No quantity stepper when the real-time stock is exactly 1. Key facts: `PRODUCT.KEY_FACTS` (`key-facts.ts`).
+- Specification (`product-specs.tsx`): a value links to `/catalog/<category>?q_<idx>=<value>` when that attribute is a
+  filter of the product's broadest category (`options/`) and offers the value. Long text: a TEXT attribute whose value
+  is HTML, or an idx of `PRODUCT.STORY_ATTRIBUTES`, becomes a section of its own (`product-stories.tsx`,
+  `is_story` in `lib/rich-html.ts`); external links open in a new tab. A description without HTML keeps its paragraphs.
+- Catalog: pagination above and below the list (both scroll to `[data-catalog-list]`); `CATALOG.SORT_IN_STOCK_FIRST`
+  (`lib/stock-sort.ts`, applied in `load_catalog`). A tile of an in-stock product with exactly one piece shows message
+  `product.single_piece` and `data-single-piece` (empty message = off, no request; `lib/stock-batch.ts` batches the
+  tiles' stock lookups of one list into one `stock/` call).
+- CMS buttons of type `catalog` / `product` (and `internal` `/c/…` / `/p/…`) link with the url key of the active
+  language (`lib/url-keys.ts`, query `["url-key", language, kind, key]`, prefetched by the builder page); any failure
+  keeps the key the editor typed.
+
 ## Contact forms
 
 Forms of the `django_contact_forms` module (`/api/contact-forms/v2/{channel}/...`), all optional. A form shows only
