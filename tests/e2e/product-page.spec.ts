@@ -37,8 +37,11 @@ test.describe("gallery", () => {
     await expect(gallery.locator("button img").first()).toHaveAttribute("loading", "eager");
     await expect(gallery.locator("button img").nth(1)).toHaveAttribute("loading", "lazy");
 
-    await gallery.locator("[data-gallery-thumb]").nth(2).click();
-    await expect(gallery.locator("[data-gallery-thumb]").nth(2)).toHaveAttribute("aria-current", "true");
+    // Retried: a click made before hydration does nothing.
+    await expect(async () => {
+      await gallery.locator("[data-gallery-thumb]").nth(2).click();
+      await expect(gallery.locator("[data-gallery-thumb]").nth(2)).toHaveAttribute("aria-current", "true", { timeout: 500 });
+    }).toPass();
   });
 
   test("a click opens the full-screen viewer, Escape closes it", async ({ page }) => {
