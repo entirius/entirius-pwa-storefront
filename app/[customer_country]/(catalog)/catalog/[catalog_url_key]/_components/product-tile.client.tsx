@@ -6,7 +6,6 @@
 
 import { MediaImage } from "@/components/ui/media-image.client";
 import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
-import { cn } from "@/lib/utils";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { WishlistButton } from "@/components/ui/wishlist-button";

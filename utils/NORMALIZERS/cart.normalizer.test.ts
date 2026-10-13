@@ -29,7 +29,8 @@ describe("NORM_CART totals", () => {
   });
 
   it("falls back to unit price times quantity and to the backend subtotal", () => {
-    const { total_gross: _total, ...no_total } = item;
+    const no_total: Partial<typeof item> = { ...item };
+    delete no_total.total_gross;
     expect(NORM_CART({ items: [no_total] }).items_subtotal_gross).toBe("100.00");
     expect(NORM_CART({ subtotal_gross: "7.00", items: [] }).items_subtotal_gross).toBe("7.00");
   });
