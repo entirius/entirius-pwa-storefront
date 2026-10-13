@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Lexend_Deca } from "next/font/google";
 import "./globals.css";
 import "@/_CONFIG/theme.css";
@@ -20,7 +20,8 @@ import { CookieConsent } from "./_components/cookie-consent/cookie-consent.clien
 import { FooterComponent } from "./_components/layout/footer-component";
 import { Suspense } from "react";
 import { SITE_URL, SITE_NAME } from "@/lib/seo/config";
-import { BRAND, THEME } from "@/_CONFIG/app.config.json";
+import { THEME } from "@/_CONFIG/app.config.json";
+import { DEFAULT_OG_IMAGES, MANIFEST_PATH, THEME_COLOR, brand_url, has_manifest } from "@/lib/brand";
 // Brand typefaces (styleguide §1). Both are variable fonts: one file each, no
 // weight list. Lexend Deca carries headings and the wordmark (300/400 only, never
 // bold); Inter carries the shop UI. Fallback metrics come from the brand tokens.
@@ -41,14 +42,29 @@ const base_metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   // Identity assets live in _CONFIG/brand/ (see app/brand/[file]/route.ts).
-  icons: BRAND.FAVICON ? { icon: `/brand/${BRAND.FAVICON}` } : undefined,
+  icons: site_icons(),
+  manifest: has_manifest() ? MANIFEST_PATH : undefined,
   openGraph: {
     siteName: SITE_NAME,
     type: "website",
+    images: DEFAULT_OG_IMAGES,
   },
   twitter: {
     card: "summary_large_image",
+    images: DEFAULT_OG_IMAGES,
   },
+};
+
+// Optional BRAND files: whatever is not configured is simply left out.
+function site_icons(): Metadata["icons"] {
+  const apple = brand_url("ICON_192");
+  const icon = brand_url("FAVICON") ?? apple;
+  if (!icon) return undefined;
+  return { icon, ...(apple && { apple }) };
+}
+
+export const viewport: Viewport = {
+  ...(THEME_COLOR && { themeColor: THEME_COLOR }),
 };
 
 // The description follows the active language.

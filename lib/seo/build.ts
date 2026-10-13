@@ -5,6 +5,7 @@
 import type { Metadata } from "next";
 import { DEBUG_MODE } from "@/_CONFIG/app.config.json";
 import { _LOGGER } from "@/lib/logger";
+import { DEFAULT_OG_IMAGES } from "@/lib/brand";
 import {
   SEO_FIELDS,
   get_path,
@@ -71,7 +72,7 @@ export function build_product_metadata(
     openGraph: {
       title: bag.title,
       description: bag.description,
-      images: bag.images,
+      images: bag.images ?? DEFAULT_OG_IMAGES,
       url: canonical,
       siteName: SITE_NAME,
       type: "website",
@@ -80,7 +81,7 @@ export function build_product_metadata(
       card: "summary_large_image",
       title: bag.title,
       description: bag.description,
-      images: bag.images,
+      images: bag.images ?? DEFAULT_OG_IMAGES,
     },
   };
 }
@@ -140,7 +141,7 @@ export function build_catalog_metadata(
   const bag = resolve(raw, SEO_FIELDS.CATALOG_META, opts.pick);
   const url_key = bag.url_key ?? ctx.url_key;
   const canonical = url_key ? `/${ctx.country}/catalog/${url_key}` : undefined;
-  const images = bag.image ? [bag.image] : undefined;
+  const images = bag.image ? [bag.image] : DEFAULT_OG_IMAGES;
 
   return {
     title: bag.title,

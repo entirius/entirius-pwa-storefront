@@ -7,7 +7,14 @@
   "BRAND": {
     "LOGO": null,
     "LOGO_ALT": null,
-    "FAVICON": "favicon.svg"
+    "FAVICON": "favicon.svg",
+    "ICON_192": null,
+    "ICON_512": null,
+    "ICON_MASKABLE": null,
+    "OG_IMAGE": null,
+    "THEME_COLOR": null,
+    "BACKGROUND_COLOR": null,
+    "SHORT_NAME": null
   },
   "SEO": {
     "PRODUCT_META": [
