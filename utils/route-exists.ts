@@ -51,9 +51,21 @@ async function lookup(kind: string, key: string, channel: string): Promise<boole
   return ask(`/api/contentdb/v1/published/static-page/?routes=${q}&limit=1&page=1`, "data");
 }
 
-// `segments`: the path without the country segment. Returns false only for a known-missing address.
+// Path segments arrive percent-encoded (`regal%C5%82`); the lookup encodes the key itself.
+function decode(segment: string | undefined): string | undefined | null {
+  if (segment === undefined) return undefined;
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return null; // malformed escape: no answer
+  }
+}
+
+// `segments`: the path without the country segment, as in the URL. Returns false only for a known-missing
+// address.
 export async function route_exists(segments: string[], channel: string): Promise<boolean> {
-  const [first, second] = segments;
+  const [first, second] = segments.slice(0, 2).map(decode);
+  if (first === null || second === null) return true;
   if (!first) return true; // home
   if (first.startsWith(LAYOUT_ROUTE_PREFIX)) return false; // layout slots are not pages (the builder answers 404)
   const kind = first === "product" || first === "catalog" ? first : APP_ROUTES.has(first) ? null : "page";
