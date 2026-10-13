@@ -86,8 +86,8 @@ export const address_schema = z
 
 export type AddressFormValues = z.infer<typeof address_schema>;
 
-// Country → default dialling code. Small curated set (this channel ships EU + UK); the country name
-// is shown in the active language by i18n.country(code).
+// Country → default dialling code. Fallback of the checkout countries (utils/checkout-countries.ts) when
+// the channel list is not available; the name is shown in the active language by i18n.country(code).
 export const COUNTRY_OPTIONS = [
   { code: "PL", dialling_code: "+48" },
   { code: "DE", dialling_code: "+49" },
@@ -97,8 +97,6 @@ export const COUNTRY_OPTIONS = [
   { code: "NL", dialling_code: "+31" },
   { code: "GB", dialling_code: "+44" },
 ] as const;
-
-export const DIALLING_OPTIONS = COUNTRY_OPTIONS.map((c) => c.dialling_code);
 
 // Build the PATCH /addresses/ body from the flat form values.
 export function to_addresses_body(v: AddressFormValues) {

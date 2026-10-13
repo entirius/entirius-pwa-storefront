@@ -35,6 +35,8 @@ export const API_CART_SHIPPING_SELECT_ROUTE =
 export const API_CART_PAYMENT_SELECT_ROUTE =
   "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/payment/";
 // POST places an order; GET a single order is this route + `{pretty_id}/`.
+// Countries the channel accepts (public with the checkout key): [{ code, label, prefix }] + default_country.
+export const API_CHECKOUT_COUNTRIES_ROUTE = "/api/checkout/v2/__CHANNEL__/countries/";
 export const API_CART_ORDERS_ROUTE = "/api/checkout/v2/__CHANNEL__/orders/";
 // v2 list — the customer's own orders (401 without a token), summary rows,
 // paginated with `page` / `page_size`.
@@ -224,6 +226,10 @@ export const API_ROUTES_POLICY = {
       ["Authorization", "access_token"],
       { "Content-Type": "application/json" },
     ],
+  },
+  [API_CHECKOUT_COUNTRIES_ROUTE]: {
+    default_querys: ["language"],
+    default_headers: [["x-api-key", "channel_checkout_key"]],
   },
   [API_CART_ORDERS_ROUTE]: {
     // for GET orders language gives 500 error...
