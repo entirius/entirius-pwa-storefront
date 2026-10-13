@@ -15,6 +15,8 @@ import {
 import { JsonLd } from "@/lib/seo/json-ld";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 import { ProductClient } from "./_components/product.client";
+import { load_related } from "./related";
+import { RelatedProducts } from "./related-products";
 import {
   PageBreadcrumbs,
   category_trail,
@@ -56,6 +58,7 @@ export default async function ProductPage({ params }: Props) {
         url: product_ld?.offers?.url,
       })
     : null;
+  const related = raw ? await load_related(api, raw) : [];
   const jsonLd = [product_ld, crumbs_ld].filter((d): d is object => d !== null);
 
   return (
@@ -66,6 +69,9 @@ export default async function ProductPage({ params }: Props) {
         ...(raw && is_discounted(raw.price)
           ? [omnibus_prefetch(api, [raw.sku])]
           : []),
+        ...(related.some((p) => is_discounted(p.price))
+          ? [omnibus_prefetch(api, related.filter((p) => is_discounted(p.price)).map((p) => p.sku))]
+          : []),
       ]}
     >
       {jsonLd.length > 0 && <JsonLd data={jsonLd} />}
@@ -74,7 +80,10 @@ export default async function ProductPage({ params }: Props) {
           trail={[...category_trail(category_path), { name: raw.name }]}
         />
       )}
-      <ProductClient product_url_key={product_url_key} />
+      <ProductClient
+        product_url_key={product_url_key}
+        related={related.length ? <RelatedProducts items={related} /> : null}
+      />
     </PrefetchBoundary>
   );
 }

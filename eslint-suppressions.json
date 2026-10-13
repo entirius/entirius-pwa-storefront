@@ -62,14 +62,6 @@
       "count": 16
     }
   },
-  "app/[customer_country]/(product)/product/[product_url_key]/_components/product.client.tsx": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    },
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
   "app/[customer_country]/(product)/product/[product_url_key]/api.query.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2

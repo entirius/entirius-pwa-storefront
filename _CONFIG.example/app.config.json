@@ -23,6 +23,14 @@
   "CONTACT_FORMS": {
     "NOTIFY_ATTRIBUTES": []
   },
+  "CATALOG": {
+    "SORT_IN_STOCK_FIRST": false
+  },
+  "PRODUCT": {
+    "RELATED": ["category"],
+    "KEY_FACTS": [],
+    "STORY_ATTRIBUTES": []
+  },
   "SEO": {
     "PRODUCT_META": [
       ["title", ["meta_title", "name"]],

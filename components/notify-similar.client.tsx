@@ -31,17 +31,32 @@ type Props = {
   trigger_label: string;
   title_key?: MessageKey;
   className?: string;
+  // Optional control from outside (the sticky buy bar opens the form); the button manages itself otherwise.
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 type State = "idle" | "sending" | "sent" | "failed" | "invalid";
 
-// A button that opens the request form in place. Renders nothing unless the channel has a contact-forms
-// key AND the `notify-similar` type.
-export function NotifySimilar({ body, code, trigger_label, title_key = "notify.title", className }: Props) {
+// Whether the channel offers the request (a contact-forms key AND the `notify-similar` type).
+export const useNotifySimilarAvailable = () => useContactFormAvailable(NOTIFY_SIMILAR_TYPE);
+
+// A button that opens the request form in place. Renders nothing unless the request is available.
+export function NotifySimilar({
+  body,
+  code,
+  trigger_label,
+  title_key = "notify.title",
+  className,
+  open: controlled_open,
+  onOpenChange,
+}: Props) {
   const { t, language } = useI18n();
-  const available = useContactFormAvailable(NOTIFY_SIMILAR_TYPE);
+  const available = useNotifySimilarAvailable();
   const api = useMemo(() => create_api(make_client_access()), []);
-  const [open, setOpen] = useState(false);
+  const [own_open, setOwnOpen] = useState(false);
+  const open = controlled_open ?? own_open;
+  const setOpen = onOpenChange ?? setOwnOpen;
   const [state, setState] = useState<State>("idle");
   const [consent, setConsent] = useState(false);
 
