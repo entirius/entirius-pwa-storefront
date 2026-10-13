@@ -183,6 +183,19 @@ export const en = {
   "product.more_from_category": "More {name}",
   "product.specifications": "Specifications",
   "product.title": "Product",
+  "product.ask_about": "Ask about this product",
+  "product.ask_price": "Ask for the price",
+
+  // contact forms
+  "enquiry.title": "Contact us",
+  "enquiry.name": "Your name",
+  "enquiry.email": "Email address",
+  "enquiry.message": "Message",
+  "enquiry.consent": "I agree to the processing of my data to answer this request. How we process it is described in the {privacy}.",
+  "enquiry.send": "Send",
+  "enquiry.sent": "Thank you, your message has been sent. We will reply by email.",
+  "enquiry.invalid": "Fill in your name, a valid email address and a message, and accept the data processing.",
+  "enquiry.failed": "The message could not be sent. Try again in a moment.",
 
   // checkout
   "checkout.title": "Checkout",

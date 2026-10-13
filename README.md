@@ -43,7 +43,7 @@ Open `http://localhost:3100`. Unknown countries fall through to the `default` se
 | File | Keys |
 |---|---|
 | `_CONFIG/app.config.json` | `API_BASE_URL` (backend URL), `SITE_URL` (public URL of the shop, also the E2E `baseURL`), `SITE_NAME`, `CHECKOUT` (optional `TERMS_ROUTE` / `PRIVACY_ROUTE`: CMS routes linked from the consent line of the review step), `BRAND` (assets in `_CONFIG/brand/`: logo, favicon, optional app icons for the web app manifest, default share image, `THEME_COLOR`, `BACKGROUND_COLOR`, `SHORT_NAME`; see [configuration](docs/configuration.md)), `DEBUG_MODE` (enables `_LOGGER` output and dev tools) |
-| `_CONFIG/channels.config.json` | per channel: `CHANNEL_LABEL`, `API_CHECKOUT_KEY` (checkout `x-api-key`) |
+| `_CONFIG/channels.config.json` | per channel: `CHANNEL_LABEL`, `API_CHECKOUT_KEY` (checkout `x-api-key`), optional `API_CONTACT_FORMS_KEY` (contact-forms `X-API-KEY`: switches on the enquiry form and the CMS form block) |
 | `_CONFIG/countries.config.json` | per country: languages, currencies, channels + defaults |
 | `_CONFIG/theme.css` | client theme: overrides the values of the theme variables of `app/globals.css` (colours, `--radius`, `--font-family-sans`); empty = default look |
 | `_CONFIG/messages.config.json` | optional: overrides of single interface messages per language |

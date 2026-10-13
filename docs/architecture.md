@@ -80,7 +80,7 @@ entirius-pwa-storefront/
 proxy.ts (middleware)
   → reads ct cookie / cf-ipcountry header
   → rewrites URL to /{country}/...
-  → sets lg, cr, ch, ch_key, cid cookies (at/rt/uid are owned by the auth Server Actions)
+  → sets lg, cr, ch, ch_key, cf_key, cid cookies (at/rt/uid are owned by the auth Server Actions)
 
 page.tsx (Server Component)
   → make_server_access() reads next/headers cookies
@@ -153,6 +153,24 @@ Real-time stock of all variants is one `stock/` call with repeated `sku`.
   one go to `/product/<parent_url_key>?variant=<sku>` (search rows do this).
 - The cart gets the variant SKU and the name `Product (option, option)`; the gallery follows the variant when it
   has pictures of its own.
+
+## Contact forms
+
+Forms of the `django_contact_forms` module (`/api/contact-forms/v2/{channel}/...`), all optional. A form shows only
+when the channel has `API_CONTACT_FORMS_KEY` (`channels.config.json`) AND `form-types/` lists the form's type;
+`lib/contact-forms.ts` holds the check (`useContactFormAvailable`) and the submit. No key, a refused key (401) or
+an unknown type: nothing renders and nothing is requested.
+
+- Enquiry (`components/enquiry-form.client.tsx`): honeypot field `website`, required consent with a link to
+  `CHECKOUT.PRIVACY_ROUTE`. The product page offers it as a collapsed "Ask about this product" (type
+  `product-enquiry`, slug `product-enquiry`, `code` = SKU); a product without a price (`purchasable` false) gets the
+  primary "Ask for the price" instead.
+- CMS block: a section (`section-type-a`) description with `<div data-enquiry-form data-slug="contact" data-type="general"></div>`
+  shows the form in place of the marker (`lib/enquiry-marker.ts`). `data-slug` names the form in the inbox (default
+  `contact`), `data-type` is the contact-forms type it is sent as (default `general`); keep the marker a top-level
+  element, not inside a `<p>`.
+- The backend needs a `Channel` (`idx` = the channel), an `APIKey` with scope `contact_form` for it and one
+  `FormType` per code used above.
 
 ## Cookie consent
 

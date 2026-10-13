@@ -65,6 +65,11 @@ export const API_CMS_ROUTES_ROUTE = "/api/contentdb/v1/routes/";
 export const API_CMS_FOOTER_ROUTE =
   "/api/contentdb/v1/layout-extender-published/footer/";
 // ----- CMS / CONTENT -----
+// ----- CONTACT FORMS (django_contact_forms; X-API-KEY of the channel, optional) -----
+// Form types the channel defines: { results: [{ code, label, is_default }] }.
+export const API_CONTACT_FORM_TYPES_ROUTE = "/api/contact-forms/v2/__CHANNEL__/form-types/";
+// POST a submission as one form type. The caller fills __TYPE__ with the type code.
+export const API_CONTACT_SUBMIT_ROUTE = "/api/contact-forms/v2/__CHANNEL__/submit/__TYPE__/";
 // ----- COOKIE CONSENT (django-agreements >= 2.2.0) -----
 export const API_COOKIE_BANNER_ROUTE =
   "/api/agreements/v2/__CHANNEL__/cookie-banner/";
@@ -275,6 +280,12 @@ export const API_ROUTES_POLICY = {
   [API_USER_LOGIN_ROUTE]: {
     default_querys: ["language"],
     default_headers: [{ "Content-Type": "application/json" }],
+  },
+  [API_CONTACT_FORM_TYPES_ROUTE]: {
+    default_headers: [["X-API-KEY", "contact_forms_key"]],
+  },
+  [API_CONTACT_SUBMIT_ROUTE]: {
+    default_headers: [["X-API-KEY", "contact_forms_key"], { "Content-Type": "application/json" }],
   },
   [API_CMS_STATIC_PAGE_ROUTE]: {},
   [API_CMS_ROUTES_ROUTE]: {},

@@ -65,6 +65,11 @@ export default async function proxy(request: NextRequest) {
       const key = (channels as Record<string, { API_CHECKOUT_KEY?: string }>)[ch]
         ?.API_CHECKOUT_KEY;
       if (key) res.cookies.set("ch_key", key);
+      // cf_key = the channel's contact-forms key (X-API-KEY of the enquiry and notify forms). Optional:
+      // without it the forms are not offered. Client-visible by design, like the checkout key.
+      const forms_key = (channels as Record<string, { API_CONTACT_FORMS_KEY?: string }>)[ch]
+        ?.API_CONTACT_FORMS_KEY;
+      if (forms_key) res.cookies.set("cf_key", forms_key);
     }
     // at/rt/uid are owned solely by the auth Server Actions (set as HttpOnly on
     // login, cleared on logout). Re-emitting them here would strip HttpOnly.

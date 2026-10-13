@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 import { SanitizeHTML } from "@/components/ui/sanitize-html";
 import ChildrenWrapper, { type ChildrenLayout } from "../children-wrapper";
 import CmsButton, { type CmsButtonData } from "../cms-button";
+import { EnquiryForm } from "@/components/enquiry-form.client";
+import { split_enquiry_marker } from "@/lib/enquiry-marker";
 
 const section_dyes: Record<
   number,
@@ -108,6 +110,8 @@ export default function SectionTypeA({
   const dye_styles = section_dyes[dye] ?? section_dyes[1];
   const variant_styles = section_variants[variant] ?? section_variants[1];
   const spans_row = variant === 4 && !buttons?.length;
+  const enquiry = description ? split_enquiry_marker(description) : null;
+  const description_props = { className: variant_styles.description, style: { color: dye_styles.html_text_color } };
 
   return (
     <div
@@ -140,11 +144,15 @@ export default function SectionTypeA({
       </div>
 
       {description && (
-        <SanitizeHTML
-          html={description}
-          className={variant_styles.description}
-          style={{ color: dye_styles.html_text_color }}
-        />
+        <>
+          {enquiry?.before && <SanitizeHTML html={enquiry.before} {...description_props} />}
+          {enquiry ? (
+            <EnquiryForm form_type={enquiry.form_type} slug={enquiry.slug} className="mt-4 max-w-xl" />
+          ) : (
+            <SanitizeHTML html={description} {...description_props} />
+          )}
+          {enquiry?.after && <SanitizeHTML html={enquiry.after} {...description_props} />}
+        </>
       )}
 
       {children && (

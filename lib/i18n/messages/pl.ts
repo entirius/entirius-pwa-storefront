@@ -189,6 +189,19 @@ export const pl: Record<MessageKey, Message> = {
   "product.more_from_category": "Więcej: {name}",
   "product.specifications": "Specyfikacja",
   "product.title": "Produkt",
+  "product.ask_about": "Zapytaj o ten produkt",
+  "product.ask_price": "Zapytaj o cenę",
+
+  // contact forms
+  "enquiry.title": "Napisz do nas",
+  "enquiry.name": "Imię i nazwisko",
+  "enquiry.email": "Adres e-mail",
+  "enquiry.message": "Wiadomość",
+  "enquiry.consent": "Zgadzam się na przetwarzanie moich danych w celu odpowiedzi na to zapytanie. Informacje o tym, jak je przetwarzamy, są w {privacy}.",
+  "enquiry.send": "Wyślij",
+  "enquiry.sent": "Dziękujemy, wiadomość została wysłana. Odpowiemy e-mailem.",
+  "enquiry.invalid": "Podaj imię i nazwisko, poprawny adres e-mail i wiadomość oraz zaakceptuj przetwarzanie danych.",
+  "enquiry.failed": "Nie udało się wysłać wiadomości. Spróbuj ponownie za chwilę.",
 
   // checkout
   "checkout.title": "Zamówienie",

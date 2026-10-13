@@ -10,7 +10,7 @@ runtime (the optional message overrides).
 ```bash
 cp -r _CONFIG.example _CONFIG
 # app.config.json       → API_BASE_URL (backend URL), site name and URL, THEME, BRAND
-# channels.config.json  → CHANNEL_LABEL and API_CHECKOUT_KEY per channel
+# channels.config.json  → CHANNEL_LABEL and API_CHECKOUT_KEY per channel (optional API_CONTACT_FORMS_KEY)
 # countries.config.json → country → languages/currencies/channels mapping
 # brand/                → identity assets (favicon, optional logo), named in app.config.json BRAND
 # theme.css             → client theme: values of the theme variables of app/globals.css (empty = default look)
@@ -39,6 +39,7 @@ The template ships the two channels of the reference dataset (`default-europe`, 
 | `app.config.json` | `CHECKOUT.TERMS_ROUTE` / `CHECKOUT.PRIVACY_ROUTE` | Optional CMS routes (e.g. `"terms"`) of the terms and privacy pages named in the consent line of the review step. `null` = the consent text shows the page name without a link |
 | `channels.config.json` | `{channel}.CHANNEL_LABEL` | Channel display name |
 | `channels.config.json` | `{channel}.API_CHECKOUT_KEY` | Checkout API key per channel (`x-api-key`) |
+| `channels.config.json` | `{channel}.API_CONTACT_FORMS_KEY` | Optional contact-forms API key per channel (`X-API-KEY`, scope `contact_form`). `proxy.ts` sends it as the `cf_key` cookie. Without it no contact form is offered |
 | `countries.config.json` | `{country}.default_language` | Default language for country (the `lg` cookie: interface language and the API `language`) |
 | `countries.config.json` | `{country}.default_currency` | Default currency for country |
 | `countries.config.json` | `{country}.default_channel` | Default channel for country |

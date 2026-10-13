@@ -16,6 +16,7 @@ export function create_api(cookie_access: COOKIE_ACCESS) {
     get_user_id: () => cookie_access.get("uid"),
     get_cart_id: () => cookie_access.get("cid"),
     get_channel_checkout_key: () => cookie_access.get("ch_key"),
+    get_contact_forms_key: () => cookie_access.get("cf_key"),
     set_tokens: (tokens: { access_token: string; refresh_token: string }) => {
       cookie_access.set?.("at", tokens.access_token);
       cookie_access.set?.("rt", tokens.refresh_token);

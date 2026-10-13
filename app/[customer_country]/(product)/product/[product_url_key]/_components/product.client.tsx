@@ -26,6 +26,7 @@ import { ProductPrice } from "@/app/[customer_country]/(catalog)/catalog/[catalo
 import { ProductSpecs } from "./product-specs";
 import { ProductBadges } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-badges";
 import { MoreFromCategory } from "./more-from-category.client";
+import { EnquiryForm, PRODUCT_ENQUIRY_TYPE } from "@/components/enquiry-form.client";
 
 const PLACEHOLDER_MEDIA = [[{ uri: image_placeholder, width: 600, height: 600 }]];
 
@@ -237,6 +238,15 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
             className="rounded-full"
           />
         </div>
+
+        {/* Without a price the enquiry is the way to buy; with one it stays a quiet question. */}
+        <EnquiryForm
+          form_type={PRODUCT_ENQUIRY_TYPE}
+          slug={PRODUCT_ENQUIRY_TYPE}
+          context={{ sku: product.sku, name: product.name }}
+          collapsed_label={purchasable ? t("product.ask_about") : t("product.ask_price")}
+          collapsed_primary={!purchasable}
+        />
       </section>
     </div>
 
