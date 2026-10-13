@@ -333,6 +333,7 @@ export const en = {
   "page.loading_error": "Error loading page",
   "notfound.title": "Page not found",
   "notfound.text": "The page you are looking for does not exist or has been moved.",
+  "notfound.browse": "Browse categories",
   "cms.missing_url_key": "Missing url_key",
   "cms.product_unavailable": "Product unavailable",
 

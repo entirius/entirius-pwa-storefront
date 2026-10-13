@@ -343,6 +343,7 @@ export const pl: Record<MessageKey, Message> = {
   "page.loading_error": "Nie udało się wczytać strony",
   "notfound.title": "Nie znaleziono strony",
   "notfound.text": "Strona, której szukasz, nie istnieje albo została przeniesiona.",
+  "notfound.browse": "Przeglądaj kategorie",
   "cms.missing_url_key": "Brak url_key",
   "cms.product_unavailable": "Produkt niedostępny",
 

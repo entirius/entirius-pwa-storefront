@@ -9,6 +9,7 @@ import { NextResponse } from "next/server";
 
 import countries from "@/_CONFIG/countries.config.json";
 import channels from "@/_CONFIG/channels.config.json";
+import { route_exists } from "@/utils/route-exists";
 
 const REGISTERED_COUNTRIES = Object.keys(countries);
 function get_country_from_path(pathname: string): string | null {
@@ -18,7 +19,34 @@ function get_country_from_path(pathname: string): string | null {
   return null;
 }
 
-export default function proxy(request: NextRequest) {
+// Loop guard for the self request of `render_not_found`.
+const NOT_FOUND_RENDER_HEADER = "x-not-found-render";
+
+// The `status` of `NextResponse.rewrite` is ignored by `next start` and the page streams its body with 200,
+// so the 404 has to come from here: render the not-found page with an internal request and answer with its
+// body and status 404. Null (dev server, which answers 404 itself, or the request failed) = fall back to the
+// plain rewrite.
+async function render_not_found(request: NextRequest, path: string): Promise<NextResponse | null> {
+  if (process.env.NODE_ENV !== "production") return null;
+  try {
+    // Never derived from the request: behind a reverse proxy the forwarded host/proto name the public
+    // https address, which the loopback listener does not speak.
+    const origin = process.env.INTERNAL_ORIGIN ?? `http://localhost:${process.env.PORT ?? 3000}`;
+    const headers = new Headers({ [NOT_FOUND_RENDER_HEADER]: "1" });
+    for (const name of ["cookie", "accept-language", "cf-ipcountry", "user-agent"]) {
+      const value = request.headers.get(name);
+      if (value) headers.set(name, value);
+    }
+    const res = await fetch(new URL(path, origin), { headers, redirect: "manual", signal: AbortSignal.timeout(5_000) });
+    const out = new Headers({ "content-type": res.headers.get("content-type") ?? "text/html; charset=utf-8" });
+    out.set("cache-control", "no-store");
+    return new NextResponse(res.body, { status: 404, headers: out });
+  } catch {
+    return null;
+  }
+}
+
+export default async function proxy(request: NextRequest) {
   const { ct, lg, cr, th, ch, cid } = geo_CF_helper(request);
 
   const pathname = request.nextUrl.pathname;
@@ -43,6 +71,22 @@ export default function proxy(request: NextRequest) {
     if (cid) res.cookies.set("cid", cid);
     return res;
   };
+
+  // Unknown product, category or CMS page: the page cannot set the status, so a missing address is
+  // rewritten to a CMS route that does not exist (the not-found page), with 404.
+  const is_document = !request.headers.get("rsc");
+  if (is_document && ch && !request.headers.has(NOT_FOUND_RENDER_HEADER)) {
+    const rest = pathname.split("/").filter(Boolean).slice(country_from_path ? 1 : 0);
+    if (!(await route_exists(rest, ch))) {
+      const url = request.nextUrl.clone();
+      // `ct` can be a bare Cloudflare country code (e.g. "PL") that is no profile of countries.config: the
+      // not-found page must render under a real profile, or its links get a prefix that does not exist.
+      const profile = country_from_path ?? (ct && ct in countries ? ct : "default");
+      url.pathname = `/${profile}/not-found-route`;
+      const rendered = await render_not_found(request, url.pathname);
+      return finish(rendered ?? NextResponse.rewrite(url, { status: 404 }));
+    }
+  }
 
   // Already on the correct path — pass through
   if (pathname.startsWith(`/${ct}/`) || pathname === `/${ct}`) {
