@@ -14,6 +14,7 @@ import { ProductPrice } from "./product-price.client";
 import { ProductBadges } from "./product-badges";
 import { QuickAdd } from "./quick-add.client";
 import { useI18n } from "@/providers/i18n.provider";
+import { useSinglePiece } from "./use-single-piece";
 
 const PLACEHOLDER_MEDIA = [{ uri: image_placeholder, width: 600, height: 600 }];
 
@@ -38,6 +39,7 @@ export function ProductTile({
   const media = product?.media?.[0] ?? PLACEHOLDER_MEDIA;
   const firstMedia = Array.isArray(media) ? media[0] : media;
   const compact = variant === "compact";
+  const single_piece = useSinglePiece(product?.sku, !compact && !sold_out);
 
   const wishlistItem = {
     sku: product.sku,
@@ -104,6 +106,7 @@ export function ProductTile({
       href={`/product/${product.url_key}`}
       data-product-tile
       data-stock={sold_out ? "out" : "in"}
+      data-single-piece={single_piece ? "" : undefined}
       className="flex h-full flex-col gap-3 rounded-3xl bg-card bg-gradient-card p-3 group relative transition-shadow hover:shadow-glow"
     >
       <AspectRatio ratio={1 / 1} className="w-full rounded-2xl bg-muted overflow-hidden relative">
@@ -135,6 +138,7 @@ export function ProductTile({
         {product.description && (
           <p className="text-xs text-muted-foreground line-clamp-2">{plain_text(product.description)}</p>
         )}
+        {single_piece && <p className="text-xs font-medium text-heading">{single_piece}</p>}
       </div>
       <div className="flex items-end justify-between gap-2 px-1 pb-1">
         <ProductPrice price={product.price} sku={product.sku} />

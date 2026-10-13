@@ -43,7 +43,7 @@ export function ListingClient({ options, category_name }: { options: any; catego
       <aside aria-label={t("catalog.filters")} className="hidden rounded-3xl bg-card p-5 lg:sticky lg:top-24 lg:block lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
         <FiltersOptionsClient options={options} />
       </aside>
-      <div className="min-w-0">
+      <div data-catalog-list className="min-w-0 scroll-mt-24">
         <div className="mb-4 flex items-center justify-between gap-4">
           <FiltersTriggerClient options={options} />
           <PaginationClient
@@ -70,6 +70,13 @@ export function ListingClient({ options, category_name }: { options: any; catego
               <ProductTile key={product.sku ?? "no-sku-error"} product={product} />
             ))}
           </div>
+        )}
+        {products.length > 0 && (
+          <PaginationClient
+            pagination={data.pagination}
+            current_page={Number(options.page ?? 1)}
+            className="mt-8"
+          />
         )}
       </div>
     </div>
