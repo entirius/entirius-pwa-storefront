@@ -6,6 +6,7 @@ import { cache } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PrefetchBoundary } from "@/lib/prefetch_boundary";
+import { decode_param } from "@/lib/route-params";
 import { create_api } from "@/API/api.context";
 import { make_server_access } from "@/API/access/api.server-access";
 import { link_keys, url_key_query } from "@/lib/url-keys";
@@ -45,7 +46,7 @@ const is_page_route = (slug?: string[]) =>
   !slug?.some((s) => s.includes(".")) && !slug?.[0]?.startsWith(LAYOUT_ROUTE_PREFIX);
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const slug = (await params).slug?.map(decode_param);
   if (!is_page_route(slug)) return {};
 
   const [, cms_data] = await load_static_page(await get_api(), {
@@ -60,7 +61,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function BuilderPage({ params }: Props) {
-  const { slug } = await params;
+  const slug = (await params).slug?.map(decode_param);
 
   if (!is_page_route(slug)) notFound();
 

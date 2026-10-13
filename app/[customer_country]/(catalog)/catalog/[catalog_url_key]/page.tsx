@@ -4,6 +4,7 @@
 
 import { Metadata } from "next";
 import { PrefetchBoundary } from "@/lib/prefetch_boundary";
+import { decode_param } from "@/lib/route-params";
 import { catalog_query, load_catalog, load_category } from "./api.query";
 import { omnibus_prefetch, is_discounted } from "@/lib/omnibus/omnibus.query";
 import { get_server_api } from "@/lib/seo/server-api";
@@ -31,7 +32,8 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { customer_country, catalog_url_key } = await params;
+  const { customer_country, ...route } = await params;
+  const catalog_url_key = decode_param(route.catalog_url_key);
   const api = await get_server_api();
   const category = await load_category(api, { url_key: catalog_url_key });
   if (!category) return { title: (await get_i18n()).t("catalog.title") };
@@ -43,7 +45,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CatalogPage({ params, searchParams }: Props) {
-  const { customer_country, catalog_url_key } = await params;
+  const { customer_country, ...route } = await params;
+  const catalog_url_key = decode_param(route.catalog_url_key);
   const { page = "1", limit = "16", ...search_params } = await searchParams;
   const { t } = await get_i18n();
 

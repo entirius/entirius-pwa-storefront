@@ -4,6 +4,7 @@
 
 import type { Metadata } from "next";
 import { PrefetchBoundary } from "@/lib/prefetch_boundary";
+import { decode_param } from "@/lib/route-params";
 import { product_query, load_product, variants_query } from "./api.query";
 import { omnibus_prefetch, is_discounted } from "@/lib/omnibus/omnibus.query";
 import { get_server_api } from "@/lib/seo/server-api";
@@ -27,7 +28,8 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { customer_country, product_url_key } = await params;
+  const { customer_country, ...route } = await params;
+  const product_url_key = decode_param(route.product_url_key);
   const api = await get_server_api();
   const [error, response] = await load_product(api, { product_url_key });
   const raw = response?.results?.[0];
@@ -40,7 +42,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProductPage({ params }: Props) {
-  const { customer_country, product_url_key } = await params;
+  const { customer_country, ...route } = await params;
+  const product_url_key = decode_param(route.product_url_key);
   const api = await get_server_api();
 
   // Raw product (RAW price/media, not the display-normalized shape) for JSON-LD.
