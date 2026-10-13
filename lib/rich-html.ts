@@ -19,16 +19,6 @@ export function description_html(text: string): string {
     .join("");
 }
 
-// External links open in a new tab without handing over `window.opener`. Works on the string, so it can run on
-// the sanitised markup of the server render as well.
-export function external_links(html: string): string {
-  return html.replace(/<a\s([^>]*?)>/gi, (tag, attrs: string) => {
-    if (!/href\s*=\s*["']https?:\/\//i.test(attrs)) return tag;
-    const cleaned = attrs.replace(/\s(?:target|rel)\s*=\s*("[^"]*"|'[^']*')/gi, "");
-    return `<a ${cleaned} target="_blank" rel="noopener">`;
-  });
-}
-
 type Attribute = { feature_idx?: string; feature_type?: string; value?: string | null; is_visible?: boolean };
 
 // A long-text attribute shown as its own section after the specification: a TEXT attribute whose value is

@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { describe, expect, it } from "vitest";
-import { description_html, external_links, is_story } from "./rich-html";
+import { description_html, is_story } from "./rich-html";
 
 describe("description_html", () => {
   it("turns blank lines into paragraphs and single breaks into <br>", () => {
@@ -12,18 +12,6 @@ describe("description_html", () => {
 
   it("leaves HTML alone", () => {
     expect(description_html("<p>Hi</p>")).toBe("<p>Hi</p>");
-  });
-});
-
-describe("external_links", () => {
-  it("opens http(s) links in a new tab and replaces target and rel", () => {
-    expect(external_links('<a href="https://x.test" target="_self" rel="nofollow">x</a>')).toBe(
-      '<a href="https://x.test" target="_blank" rel="noopener">x</a>',
-    );
-  });
-
-  it("leaves internal links alone", () => {
-    expect(external_links('<a href="/catalog/a">x</a>')).toBe('<a href="/catalog/a">x</a>');
   });
 });
 

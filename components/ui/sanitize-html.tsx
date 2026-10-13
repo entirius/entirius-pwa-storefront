@@ -3,9 +3,8 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 "use client";
-import DOMPurify from "isomorphic-dompurify";
 import { useMemo } from "react";
-import { external_links } from "@/lib/rich-html";
+import { sanitize_html } from "@/lib/sanitize-html";
 
 // Sanitizes on every render path: the server render (jsdom) as well as the
 // browser. HTML from the API must never reach dangerouslySetInnerHTML raw — the
@@ -21,13 +20,10 @@ export function SanitizeHTML({
   className?: string;
   style?: React.CSSProperties;
   as?: keyof React.JSX.IntrinsicElements;
-  // External links open in a new tab (done after sanitising: DOMPurify drops `target`).
+  // External links open in a new tab.
   new_tab_links?: boolean;
 }) {
-  const clean = useMemo(() => {
-    const safe = DOMPurify.sanitize(html);
-    return new_tab_links ? external_links(safe) : safe;
-  }, [html, new_tab_links]);
+  const clean = useMemo(() => sanitize_html(html, { new_tab_links }), [html, new_tab_links]);
   return (
     <Tag
       data-rich-text=""
