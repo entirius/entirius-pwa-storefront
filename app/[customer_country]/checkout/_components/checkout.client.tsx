@@ -14,6 +14,7 @@ import type { PlacedOrder } from "@/utils/NORMALIZERS/order.normalizer";
 import { cart_to_address_form } from "@/utils/validation/address.schema";
 import { useCartSync } from "@/stores/use-cart-sync";
 import { useI18n } from "@/providers/i18n.provider";
+import { cart_error_texts } from "@/utils/cart-errors";
 import { CheckoutStepper, type CheckoutStep } from "./checkout-stepper";
 import { CheckoutSummary } from "./checkout-summary";
 import { AddressStep } from "./address-step";
@@ -142,8 +143,8 @@ export function CheckoutClient() {
             <div className="mb-4 rounded-md border border-destructive/50 bg-destructive-surface px-3 py-2 text-sm text-destructive">
               <p className="font-medium">{t("checkout.items_attention")}</p>
               <ul className="mt-1 list-disc pl-5">
-                {backend.errors.map((e, i) => (
-                  <li key={i}>{e.message}</li>
+                {cart_error_texts(backend.errors, t).map((text) => (
+                  <li key={text}>{text}</li>
                 ))}
               </ul>
             </div>

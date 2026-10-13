@@ -105,7 +105,7 @@ export function AddressStep({
           }
         } else {
           form.setError("root", {
-            message: error.message || t("checkout.address_failed"),
+            message: t("checkout.address_failed"),
           });
         }
         return;

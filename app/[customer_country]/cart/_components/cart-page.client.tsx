@@ -25,14 +25,16 @@ const num = (v: string | null | undefined) => {
   return Number.isFinite(n) ? n : 0;
 };
 
-// No per-line live stock: the stepper soft-clamps and the backend validation
-// flags catch the rest.
+// Upper bound of a line: the available stock where it is known, else a soft limit
+// (the backend validation flags catch the rest).
 const SOFT_MAX = 99;
+const line_max = (stock: { quantity: number } | undefined) =>
+  typeof stock?.quantity === "number" && stock.quantity > 0 ? stock.quantity : SOFT_MAX;
 
 // The cart as a page: lines on the left, the order summary beside them (below on
 // phones, with the total and "Go to checkout" pinned to the bottom).
 export function CartPageClient() {
-  const { backend, isFetching, error, items, setQty, remove } = useCartSync();
+  const { backend, isFetching, error, items, stocks, setQty, remove } = useCartSync();
   const mounted = useHydrated();
 
   const entries = Object.entries(items);
@@ -152,9 +154,9 @@ export function CartPageClient() {
                     <QuantityStepper
                       size="lg"
                       value={item.quantity}
-                      onChange={(q) => setQty(sku, q, SOFT_MAX)}
+                      onChange={(q) => setQty(sku, q, line_max(stocks?.[sku]))}
                       min={0}
-                      max={SOFT_MAX}
+                      max={line_max(stocks?.[sku])}
                     />
                     <div className="flex items-center gap-2 md:min-w-36 md:flex-col md:items-end md:gap-0">
                       <span className="font-brand text-lg tabular-nums text-heading">{line_total}</span>

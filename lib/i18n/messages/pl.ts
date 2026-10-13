@@ -85,6 +85,8 @@ export const pl: Record<MessageKey, Message> = {
   "cart.discount_invalid": "Tego kodu nie można użyć w Twoim koszyku.",
 
   // wishlist
+  "cart.error_stock_limited": "Można zamówić tylko tyle sztuk, ile mamy na stanie; zmniejszyliśmy ilość.",
+  "cart.error_generic": "Z jednym z produktów w koszyku jest problem. Sprawdź koszyk i spróbuj ponownie.",
   "wishlist.title": "Ulubione",
   "wishlist.empty": "Nie masz jeszcze ulubionych produktów",
   "wishlist.add": "Dodaj do ulubionych",

@@ -64,9 +64,7 @@ export function ReviewStep({
         return;
       }
       if (err) {
-        setError(
-          err.message || t("checkout.order_failed_http", { status: String(err.status) }),
-        );
+        setError(t("checkout.order_failed_http", { status: String(err.status) }));
         return;
       }
       // An online-payment method hands back its gateway; bank transfer and cash

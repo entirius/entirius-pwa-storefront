@@ -10,6 +10,7 @@ import { make_client_access } from "@/API/access/api.client-access";
 import { create_api } from "@/API/api.context";
 import { useCartStore } from "@/stores/cart.store";
 import { cart_query } from "@/stores/cart.query";
+import { stocks_query } from "@/app/[customer_country]/(product)/product/[product_url_key]/stock.query";
 import { useAuth } from "@/providers/auth.provider";
 
 // Shared create-or-patch sync for the cart. The cart page and the checkout page
@@ -49,5 +50,19 @@ export function useCartSync(enabled = true) {
     enabled: mounted && enabled,
   });
 
-  return { mounted, items, backend, isFetching, error, currency, setQty, remove };
+  // Real-time stock per SKU: caps the quantity at what is available. A quantity above it (set in an
+  // earlier session or while the stock was higher) is lowered, so the cart never asks for more.
+  const skus = Object.keys(items);
+  const { data: stocks } = useQuery({
+    ...stocks_query(api, { skus }),
+    enabled: mounted && enabled && skus.length > 0,
+  });
+  useEffect(() => {
+    for (const [sku, item] of Object.entries(items)) {
+      const available = stocks?.[sku]?.quantity;
+      if (available && available > 0 && item.quantity > available) setQty(sku, available, available);
+    }
+  }, [stocks, items, setQty]);
+
+  return { mounted, items, backend, isFetching, error, currency, stocks, setQty, remove };
 }

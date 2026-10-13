@@ -76,7 +76,7 @@ export function PaymentStep({
         { method: "PATCH", body: JSON.stringify({ code: selected }) },
       );
       if (error) {
-        setSaveError(error.message || t("checkout.payment_failed"));
+        setSaveError(t("checkout.payment_failed"));
         return;
       }
       onSaved(response);

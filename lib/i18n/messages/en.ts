@@ -82,6 +82,8 @@ export const en = {
   "cart.discount_invalid": "This code can’t be used with your cart.",
 
   // wishlist
+  "cart.error_stock_limited": "Only the quantity we have in stock can be ordered; we reduced it.",
+  "cart.error_generic": "Something is wrong with an item in your cart. Check the cart and try again.",
   "wishlist.title": "Wishlist",
   "wishlist.empty": "Your wishlist is empty",
   "wishlist.add": "Add to wishlist",
