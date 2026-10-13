@@ -16,6 +16,10 @@
     "BACKGROUND_COLOR": null,
     "SHORT_NAME": null
   },
+  "CHECKOUT": {
+    "TERMS_ROUTE": null,
+    "PRIVACY_ROUTE": null
+  },
   "SEO": {
     "PRODUCT_META": [
       ["title", ["meta_title", "name"]],

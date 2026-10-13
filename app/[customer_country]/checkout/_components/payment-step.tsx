@@ -22,6 +22,19 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useI18n } from "@/providers/i18n.provider";
+// Payment methods offered for the cart; the review step reads the same entry for the method text.
+export function usePaymentMethods(cart_id: string | undefined) {
+  const api = useMemo(() => create_api(make_client_access()), []);
+  return useQuery({
+    queryKey: ["payment-methods", cart_id],
+    enabled: !!cart_id,
+    queryFn: async () => {
+      const [error, response] = await api.FETCH_METHOD(API_CART_PAYMENT_ROUTE);
+      if (error) throw new Error(error.message);
+      return NORM_PAYMENT_METHODS(response);
+    },
+  });
+}
 
 export function PaymentStep({
   cart,
@@ -53,19 +66,7 @@ export function PaymentStep({
     return parseFloat(v) === 0 ? null : i18n.price(v, currency_label);
   };
 
-  const {
-    data: methods,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["payment-methods", cart_id],
-    enabled: !!cart_id,
-    queryFn: async () => {
-      const [error, response] = await api.FETCH_METHOD(API_CART_PAYMENT_ROUTE);
-      if (error) throw new Error(error.message);
-      return NORM_PAYMENT_METHODS(response);
-    },
-  });
+  const { data: methods, isLoading, isError } = usePaymentMethods(cart_id);
 
   const submit = () => {
     if (!selected) return;

@@ -78,6 +78,7 @@ type PaymentMethod = {
   image: string | null; // logo URL, when the method carries one
   provider: string | null; // gateway provider, e.g. "payu_card"
   fee: string | null; // extra fee (e.g. cash-on-delivery), when > 0
+  is_transfer: boolean; // offline bank transfer (provider "transfer"): the customer pays after the order
 };
 
 type Cart = {
@@ -172,6 +173,7 @@ function norm_payment(m: any): PaymentMethod | null {
     image: resolve_media_url(str(m.image)) || null,
     provider: str(m.provider),
     fee: str(m.cash_on_delivery_fee ?? m.fee ?? m.fee_gross),
+    is_transfer: m.provider === "transfer",
   };
 }
 

@@ -21,6 +21,7 @@ import { AddressStep } from "./address-step";
 import { ShippingStep } from "./shipping-step";
 import { PaymentStep } from "./payment-step";
 import { ReviewStep } from "./review-step";
+import { order_refs } from "./order-receipt";
 
 const LOCKED: Set<CheckoutStep> = new Set();
 
@@ -109,10 +110,7 @@ export function CheckoutClient() {
         ? "/checkout/success"
         : `/${country}/checkout/success`;
     const params = new URLSearchParams();
-    const refs = order.split_pretty_ids.length
-      ? order.split_pretty_ids
-      : [order.pretty_id].filter(Boolean);
-    for (const ref of refs) params.append("ref", ref);
+    for (const ref of order_refs(order)) params.append("ref", ref);
     if (order.payment_error) params.set("payment", "failed");
     const query = params.toString();
     router.push(query ? `${base}?${query}` : base);

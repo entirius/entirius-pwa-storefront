@@ -36,6 +36,7 @@ The template ships the two channels of the reference dataset (`default-europe`, 
 | `app.config.json` | `BRAND.ICON_192` / `BRAND.ICON_512` / `BRAND.ICON_MASKABLE` | Optional PNG app icons in `_CONFIG/brand/`. Any of them switches on `/manifest.webmanifest` (linked from every page); `ICON_192` is also the Apple touch icon (and the page icon when `FAVICON` is unset). `null` = no manifest |
 | `app.config.json` | `BRAND.OG_IMAGE` | Optional file in `_CONFIG/brand/`: default Open Graph / Twitter image of pages without a picture of their own (product, category, CMS). `null` = none |
 | `app.config.json` | `BRAND.THEME_COLOR` / `BRAND.BACKGROUND_COLOR` / `BRAND.SHORT_NAME` | Optional: browser `theme-color` and manifest `theme_color`; manifest `background_color` (default: omitted); manifest `short_name` (default `SITE_NAME`) |
+| `app.config.json` | `CHECKOUT.TERMS_ROUTE` / `CHECKOUT.PRIVACY_ROUTE` | Optional CMS routes (e.g. `"terms"`) of the terms and privacy pages named in the consent line of the review step. `null` = the consent text shows the page name without a link |
 | `channels.config.json` | `{channel}.CHANNEL_LABEL` | Channel display name |
 | `channels.config.json` | `{channel}.API_CHECKOUT_KEY` | Checkout API key per channel (`x-api-key`) |
 | `countries.config.json` | `{country}.default_language` | Default language for country (the `lg` cookie: interface language and the API `language`) |
@@ -54,6 +55,11 @@ sits on it. Layout slot wrappers carry `data-layout-slot="<slot>"` for theme rul
 
 Optional, read at runtime (not imported — no file, no overrides): `{ "pl": { "cart.checkout": "Idź do kasy" } }`.
 Keys are the ones of `lib/i18n/messages/en.ts`; see [patterns](patterns.md#translations-and-prices).
+
+`checkout.transfer_next` is empty by default. A shop that takes offline bank transfers sets it per language
+(for example the time limit for the payment): the line then shows on the review step and on the success page for
+the transfer payment method, next to a button that copies the payment details (the method's description from the
+backend, the amount and the order number). The description itself comes from the payment method in the backend.
 
 ## Cookie banner
 

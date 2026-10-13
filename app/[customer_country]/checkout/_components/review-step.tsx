@@ -15,7 +15,12 @@ import {
   type PlacedOrder,
 } from "@/utils/NORMALIZERS/order.normalizer";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Spinner } from "@/components/ui/spinner";
+import { TokenLinks } from "@/components/ui/token-links";
+import { PRIVACY_ROUTE, TERMS_ROUTE } from "@/lib/checkout-config";
+import { order_refs, save_receipt, type OrderReceipt } from "./order-receipt";
+import { usePaymentMethods } from "./payment-step";
 import { useI18n } from "@/providers/i18n.provider";
 
 export function ReviewStep({
@@ -35,8 +40,14 @@ export function ReviewStep({
   const api = useMemo(() => create_api(access), [access]);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [accepted, setAccepted] = useState(false);
 
   const cart_id = cart?.cart_id;
+  // The cart's own payment method has no description; the offered list has (bank details etc.).
+  const { data: offered } = usePaymentMethods(cart_id);
+  const offered_payment = offered?.find((m) => m.code === cart?.payment_method?.code);
+  // What happens after an offline transfer order: the shop's own wording (empty message = nothing).
+  const transfer_note = offered_payment?.is_transfer ? t("checkout.transfer_next").trim() : "";
   const currency_label = cart?.currency || currency;
   const fmt = (v: string | null | undefined) =>
     v == null ? null : parseFloat(v) === 0 ? t("common.free") : i18n.price(v, currency_label);
@@ -46,7 +57,7 @@ export function ReviewStep({
   const show_shipping = !!shipping && !!billing && addresses_differ(billing, shipping);
 
   const place = () => {
-    if (!cart_id) return;
+    if (!cart_id || !accepted) return;
     setError(null);
     startTransition(async () => {
       // Only 200/201 (no `err`) proceed; anything else stays on this step with an
@@ -74,8 +85,30 @@ export function ReviewStep({
         window.location.href = order.redirect_url;
         return;
       }
+      const refs = order_refs(order);
+      if (refs.length) save_receipt(build_receipt(refs));
       onPlaced(order);
     });
+  };
+
+  const build_receipt = (refs: string[]): OrderReceipt => {
+    const payment = cart?.payment_method;
+    return {
+      refs,
+      placed_at: new Date().toISOString(),
+      total: cart?.total_gross ?? null,
+      currency: currency_label,
+      payment: payment
+        ? {
+            name: payment.name,
+            description: offered_payment?.description ?? null,
+            is_transfer: !!offered_payment?.is_transfer,
+          }
+        : null,
+      shipping: cart?.shipping_method
+        ? { name: cart.shipping_method.name, price: cart.shipping_method.price }
+        : null,
+    };
   };
 
   return (
@@ -100,13 +133,42 @@ export function ReviewStep({
         />
       </div>
 
+      {transfer_note && (
+        <p data-transfer-next className="rounded-lg border bg-muted p-4 text-sm">
+          {transfer_note}
+        </p>
+      )}
+
+      <label className="flex items-start gap-3 text-sm" data-terms-consent>
+        <Checkbox
+          checked={accepted}
+          onCheckedChange={(v) => setAccepted(v === true)}
+          className="mt-0.5"
+          aria-required
+        />
+        <span>
+          <TokenLinks
+            text={t("checkout.terms_consent", { terms: "{terms}", privacy: "{privacy}" })}
+            links={{
+              terms: { route: TERMS_ROUTE, label: t("checkout.terms_link") },
+              privacy: { route: PRIVACY_ROUTE, label: t("checkout.privacy_link") },
+            }}
+          />
+        </span>
+      </label>
+
       {error && <p className="text-destructive text-sm">{error}</p>}
 
       <div className="flex gap-3">
         <Button variant="outline" onClick={onBack} disabled={pending}>
           {t("common.back")}
         </Button>
-        <Button onClick={place} disabled={pending || !cart_id}>
+        <Button
+          className="h-auto min-h-9 min-w-0 flex-1 whitespace-normal py-2 sm:flex-none"
+          onClick={place}
+          disabled={pending || !cart_id || !accepted}
+          title={accepted ? undefined : t("checkout.terms_required")}
+        >
           {pending ? <Spinner className="size-4" /> : t("checkout.place_order")}
         </Button>
       </div>

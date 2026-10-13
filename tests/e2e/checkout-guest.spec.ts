@@ -67,10 +67,25 @@ test("guest places an order with bank transfer", async ({ page, context }) => {
   await expect(page.locator("section", { hasText: "Shipping method" })).not.toContainText("Not selected");
   await expect(page.locator("section", { hasText: "Payment method" })).toContainText(/bank transfer/i);
 
+  // The summary adds up: delivery has its own row, the total is the one of the cart.
+  const summary_review = page.locator("section", { hasText: "Order summary" });
+  await expect(summary_review).toContainText("Delivery");
+  await expect(summary_review).toContainText(/Total\s*€/);
+
+  // The order needs the terms consent, and the button names the obligation to pay. With no terms or
+  // privacy route configured the consent line has no links.
+  const place = page.getByRole("button", { name: "Order with obligation to pay" });
+  await expect(place).toBeDisabled();
+  const consent = page.locator("[data-terms-consent]");
+  await expect(consent).toContainText("terms and conditions");
+  await expect(consent.getByRole("link")).toHaveCount(0);
+  await consent.getByRole("checkbox").click();
+  await expect(place).toBeEnabled();
+
   const order = page.waitForResponse(
     (r) => r.request().method() === "POST" && /\/orders\/?(\?|$)/.test(r.url()),
   );
-  await page.getByRole("button", { name: "Place order" }).click();
+  await place.click();
   const response = await order;
   expect(response.status()).toBe(201);
   const placed = await response.json();
@@ -82,6 +97,17 @@ test("guest places an order with bank transfer", async ({ page, context }) => {
   await expect(page).toHaveURL(`/checkout/success?ref=${ref}`);
   await expect(page.getByRole("heading", { name: "Order placed" })).toBeVisible();
   await expect(page.getByText(`(ref ${ref})`)).toBeVisible();
+
+  // Guests cannot read the order back: the receipt kept by the review step shows the number, the
+  // amount, the payment method and the delivery.
+  const receipt = page.locator("[data-order-receipt]");
+  await expect(receipt).toContainText(ref);
+  await expect(receipt).toContainText(/Amount to pay\s*€/);
+  await expect(receipt).toContainText("Bank Transfer");
+  await expect(receipt).toContainText("Europe Standard");
+  await expect(page.getByRole("button", { name: "Print / save the confirmation" })).toBeVisible();
+  // A transfer shows a button that copies the payment details.
+  await expect(receipt.getByRole("button", { name: "Copy payment details" })).toBeVisible();
 
   // The cart is torn down: no backend cart id, empty header badge.
   await expect
