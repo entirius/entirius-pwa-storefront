@@ -8,5 +8,6 @@
 export const DEFAULT_PROFILE = "default";
 
 export function profile_path(country: string | null | undefined, path: string): string {
-  return !country || country === DEFAULT_PROFILE ? path : `/${country}${path}`;
+  if (!country || country === DEFAULT_PROFILE) return path;
+  return path === "/" ? `/${country}` : `/${country}${path}`;
 }

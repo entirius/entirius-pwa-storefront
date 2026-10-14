@@ -4,20 +4,26 @@
 
 import type { MetadataRoute } from "next";
 import { profile_path } from "@/lib/profile-path";
+import { language_alternates, type ProfileView } from "./alternates";
 
-// Addresses of the sitemap. Products and categories use the form the page declares as canonical
-// (`/product/{key}` for `default`, `/{profile}/product/{key}` else, see lib/seo/build.ts); CMS pages have no
-// canonical and keep the plain path.
-export const sitemap_url = (
-  origin: string,
-  profile: string,
-  kind: "product" | "catalog" | "page",
-  key: string,
-): string => {
-  if (kind === "page") return key === "home" ? `${origin}/` : `${origin}/${key}`;
-  return `${origin}${profile_path(profile, `/${kind}/${key}`)}`;
-};
+// Addresses of the sitemap: the form the page declares as canonical (lib/seo/build.ts), `/product/{key}` for
+// `default` and `/{profile}/product/{key}` else; CMS pages by their route, home as the profile's root.
+export const sitemap_path = (profile: string, kind: "product" | "catalog" | "page", key: string): string =>
+  profile_path(profile, kind === "page" ? (key === "home" ? "/" : `/${key}`) : `/${kind}/${key}`);
 
-export function unique_entries(urls: string[]): MetadataRoute.Sitemap {
-  return [...new Set(urls)].map((url) => ({ url }));
+// One entry per address. `items`: each page as its address in every profile (null = not there); each address
+// lists the page's addresses in the other profiles (hreflang), the same set the page itself declares.
+export function sitemap_entries(origin: string, items: [ProfileView, string | null][][]): MetadataRoute.Sitemap {
+  const seen = new Set<string>();
+  const out: MetadataRoute.Sitemap = [];
+  for (const paths of items) {
+    const languages = language_alternates(paths);
+    const absolute = languages && Object.fromEntries(Object.entries(languages).map(([lang, path]) => [lang, origin + path]));
+    for (const [, path] of paths) {
+      if (!path || seen.has(path)) continue;
+      seen.add(path);
+      out.push({ url: origin + path, ...(absolute && { alternates: { languages: absolute } }) });
+    }
+  }
+  return out;
 }

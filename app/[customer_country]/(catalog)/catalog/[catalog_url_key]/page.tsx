@@ -9,6 +9,7 @@ import { catalog_query, load_catalog, load_category } from "./api.query";
 import { omnibus_prefetch, is_discounted } from "@/lib/omnibus/omnibus.query";
 import { get_server_api } from "@/lib/seo/server-api";
 import { build_catalog_metadata, build_catalog_jsonld } from "@/lib/seo/build";
+import { catalog_alternates } from "@/lib/seo/alternates";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { SanitizeHTML } from "@/components/ui/sanitize-html";
 import { get_i18n } from "@/lib/i18n/i18n.server";
@@ -38,9 +39,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const category = await load_category(api, { url_key: catalog_url_key });
   if (!category) return { title: (await get_i18n()).t("catalog.title") };
 
+  const { language } = await get_i18n();
   return build_catalog_metadata(category, {
     country: customer_country,
     url_key: catalog_url_key,
+    languages: await catalog_alternates("catalog", category.url_key ?? catalog_url_key, language),
   });
 }
 

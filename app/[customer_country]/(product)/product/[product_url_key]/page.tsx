@@ -15,6 +15,7 @@ import {
   build_breadcrumbs_jsonld,
 } from "@/lib/seo/build";
 import { JsonLd } from "@/lib/seo/json-ld";
+import { catalog_alternates } from "@/lib/seo/alternates";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 import { ProductClient } from "./_components/product.client";
 import { RelatedSection } from "./related-products";
@@ -35,9 +36,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const raw = response?.results?.[0];
   if (error || !raw) return { title: (await get_i18n()).t("product.title") };
 
+  const { language } = await get_i18n();
   return build_product_metadata(raw, {
     country: customer_country,
     url_key: product_url_key,
+    languages: await catalog_alternates("product", raw.url_key ?? product_url_key, language),
   });
 }
 

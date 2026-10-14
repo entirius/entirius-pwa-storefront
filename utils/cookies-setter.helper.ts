@@ -41,6 +41,19 @@ function channel_for(profile: Profile, cookie: string | undefined): string | nul
   return null;
 }
 
+// Every configured profile, `default` first.
+export const PROFILE_NAMES = [DEFAULT_PROFILE, ...Object.keys(PROFILES).filter((name) => name !== DEFAULT_PROFILE)];
+
+// What a visitor without cookies gets in a profile (a crawler, too): its own language, currency and channel.
+export function profile_defaults(name: string) {
+  const profile = PROFILES[name] ?? PROFILES[DEFAULT_PROFILE] ?? {};
+  return {
+    language: profile.default_language ?? null,
+    currency: profile.default_currency ?? null,
+    channel: channel_for(profile, undefined),
+  };
+}
+
 // The request's profile and the values the shop runs with, as proxy.ts writes them back as cookies.
 //
 // The profile always comes from the path, never from the visitor's IP: one address shows one country to

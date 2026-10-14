@@ -10,5 +10,7 @@ describe("profile_path", () => {
     expect(profile_path("pl", "/catalog/x")).toBe("/pl/catalog/x");
     expect(profile_path("default", "/catalog/x")).toBe("/catalog/x");
     expect(profile_path(undefined, "/catalog/x")).toBe("/catalog/x");
+    expect(profile_path("pl", "/")).toBe("/pl");
+    expect(profile_path("default", "/")).toBe("/");
   });
 });

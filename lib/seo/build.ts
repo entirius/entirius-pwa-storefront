@@ -69,7 +69,7 @@ export function build_product_metadata(
   return {
     title: bag.title,
     description: bag.description,
-    alternates: canonical ? { canonical } : undefined,
+    alternates: canonical ? { canonical, languages: ctx.languages } : undefined,
     openGraph: {
       title: bag.title,
       description: bag.description,
@@ -148,7 +148,7 @@ export function build_catalog_metadata(
     title: bag.title,
     description: bag.description,
     robots: bag.robots,
-    alternates: canonical ? { canonical } : undefined,
+    alternates: canonical ? { canonical, languages: ctx.languages } : undefined,
     openGraph: {
       title: bag.title,
       description: bag.description,

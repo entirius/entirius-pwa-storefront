@@ -13,6 +13,8 @@ export { SITE_URL, SITE_NAME };
 export type SEO_CONTEXT = {
   country: string;
   url_key?: string;
+  // hreflang → address of the page in the other profiles (lib/seo/alternates.ts).
+  languages?: Record<string, string>;
 };
 
 // ------------------------------------------------------------

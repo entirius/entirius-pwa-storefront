@@ -38,6 +38,33 @@ test("sitemap.xml lists pages, categories and products that exist", async ({ req
   }
 });
 
+// hreflang: an address's alternates as the sitemap lists them and as the page declares them.
+const sitemap_alternates = (entry: string) =>
+  Object.fromEntries([...entry.matchAll(/hreflang="([^"]+)" href="([^"]+)"/g)].map((m) => [m[1], m[2]]));
+const page_alternates = (html: string) =>
+  Object.fromEntries([...html.matchAll(/<link rel="alternate" hrefLang="([^"]+)" href="([^"]+)"\/>/g)].map((m) => [m[1], m[2]]));
+
+test("a page declares the same language alternates as the sitemap lists for it", async ({ request }) => {
+  const entries = [...(await (await request.get("/sitemap.xml")).text()).matchAll(/<url>([\s\S]*?)<\/url>/g)].map(
+    (m) => m[1],
+  );
+  for (const kind of ["/catalog/", "/product/"]) {
+    // one with alternates when the config has several profiles sharing the page, else any
+    const of_kind = entries.filter((e) => e.includes(kind));
+    const entry = of_kind.find((e) => e.includes("hreflang")) ?? of_kind[0];
+    const url = entry.match(/<loc>([^<]+)<\/loc>/)![1];
+    const path = new URL(url).pathname;
+    const expected = sitemap_alternates(entry);
+    expect(page_alternates(await (await request.get(path)).text()), path).toEqual(expected);
+    // each alternate answers 200 and points back with the same set
+    for (const alternate of Object.values(expected)) {
+      const res = await request.get(new URL(alternate).pathname);
+      expect(res.status(), alternate).toBe(200);
+      expect(page_alternates(await res.text()), alternate).toEqual(expected);
+    }
+  }
+});
+
 test("the default profile has one address: /default/... is sent to the address without a prefix", async ({
   request,
 }) => {

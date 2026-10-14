@@ -29,6 +29,9 @@ import {
 import { BuilderClient } from "./_components/builder.client";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 import { LAYOUT_ROUTE_PREFIX } from "@/app/_components/layout-slots/api.query";
+import { page_alternates } from "@/lib/seo/alternates";
+import type { CmsPage } from "@/types/cms.types";
+import { profile_path } from "@/lib/profile-path";
 
 interface Props {
   params: Promise<{
@@ -46,17 +49,24 @@ const is_page_route = (slug?: string[]) =>
   !slug?.some((s) => s.includes(".")) && !slug?.[0]?.startsWith(LAYOUT_ROUTE_PREFIX);
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const slug = (await params).slug?.map(decode_param);
+  const { customer_country, ...route } = await params;
+  const slug = route.slug?.map(decode_param);
   if (!is_page_route(slug)) return {};
 
   const [, cms_data] = await load_static_page(await get_api(), {
     routes: slug?.[0] ? [slug[0]] : ["home"],
   });
   const { language } = await get_i18n();
-  const meta = pick_static_page(cms_data?.data, language)?.meta;
+  const pages: CmsPage[] = cms_data?.data ?? [];
+  const meta = pick_static_page(pages, language)?.meta;
+  if (!pages.length) return {};
+  // One address per page, and the same page in the profiles whose language it is written in.
+  const path = slug?.[0] ? `/${slug[0]}` : "/";
+  const languages = page_alternates(path, pages.flatMap((page) => (page.language ? [page.language] : [])));
   return {
     ...(meta?.title && { title: meta.title }),
     ...(meta?.description && { description: meta.description }),
+    alternates: { canonical: profile_path(customer_country, path), languages },
   };
 }
 
