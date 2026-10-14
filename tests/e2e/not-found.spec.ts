@@ -22,11 +22,15 @@ test("existing addresses are not hit by the 404 check", async ({ request }) => {
   }
 });
 
-test("the not-found page links to the root categories and searches", async ({ page }) => {
+test("the not-found page links to the menu's top categories and searches", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/does-not-exist");
   const links = page.locator("[data-notfound-categories] a");
   await expect(links.first()).toBeVisible();
   await expect(links.first()).toHaveAttribute("href", /\/catalog\//);
+  // The same categories as the header menu, not the roots of the category tree ("Root Category").
+  const menu = (await page.getByRole("navigation", { name: "Main" }).getByRole("listitem").allInnerTexts()).map((t) => t.trim());
+  await expect(links).toHaveText(menu);
 
   await page.locator("[data-notfound-search] input").fill("chair");
   await expect(page.locator("[data-notfound-search] a").first()).toBeVisible();

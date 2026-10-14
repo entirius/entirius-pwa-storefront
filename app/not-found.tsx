@@ -3,23 +3,28 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { get_i18n } from "@/lib/i18n/i18n.server";
-import { API_CATEGORIES_ROUTE } from "@/API/api.routes";
 import { get_server_api } from "@/lib/seo/server-api";
-import { NORM_CATEGORIES_DATA } from "@/utils/NORMALIZERS/category.normalizer";
+import { categories_query } from "./_components/layout/api.query";
+import { CONFIG_QUERY } from "./_components/layout/menu-config";
 import { Button } from "@/components/ui/button";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { NotFoundSearch } from "./_components/not-found-search.client";
 
-// Root categories; a failed request just leaves the links out.
-async function root_categories() {
+// The top categories of the menu (`MENU_CINFGURATION.CONFIG_QUERY`), as the header shows them. The bare
+// categories list answers the tree roots ("Root Category"), which are no shop categories. A failed request
+// just leaves the links out.
+async function top_categories() {
   const api = await get_server_api();
-  const [error, rows] = await api.FETCH_METHOD(API_CATEGORIES_ROUTE);
-  return error ? [] : NORM_CATEGORIES_DATA(rows);
+  try {
+    return (await categories_query(api, CONFIG_QUERY).queryFn()).data;
+  } catch {
+    return [];
+  }
 }
 
 export default async function NotFound() {
   const { t } = await get_i18n();
-  const categories = await root_categories();
+  const categories = await top_categories();
   return (
     <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 px-4 py-16 text-center">
       <div>
