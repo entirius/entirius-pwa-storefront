@@ -206,10 +206,23 @@ export function CartPageClient() {
                 <dd className="tabular-nums text-positive">−{fmt(backend?.total_discount_gross)}</dd>
               </div>
             )}
+            {/* Once checkout has chosen a method, the total includes it: show it so the rows add up. */}
             <div className="flex justify-between gap-4">
               <dt className="text-muted-foreground">{t("cart.shipping")}</dt>
-              <dd className="text-muted-foreground">{t("cart.shipping_at_checkout")}</dd>
+              {backend?.shipping_method && backend.shipping_gross != null ? (
+                <dd className="tabular-nums">
+                  {num(backend.shipping_gross) === 0 ? t("common.free") : fmt(backend.shipping_gross)}
+                </dd>
+              ) : (
+                <dd className="text-muted-foreground">{t("cart.shipping_at_checkout")}</dd>
+              )}
             </div>
+            {num(backend?.fee_gross) > 0 && (
+              <div className="flex justify-between gap-4">
+                <dt className="text-muted-foreground">{t("checkout.payment_fee")}</dt>
+                <dd className="tabular-nums">{fmt(backend?.fee_gross)}</dd>
+              </div>
+            )}
           </dl>
           {to_free_shipping && (
             <p className="-mt-2 text-xs text-muted-foreground">
