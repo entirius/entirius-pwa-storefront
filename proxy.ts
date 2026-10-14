@@ -3,21 +3,13 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import type { NextRequest } from "next/server";
-import geo_CF_helper from "@/utils/cookies-setter.helper";
+import geo_CF_helper, { profile_from_path } from "@/utils/cookies-setter.helper";
 import { NextResponse } from "next/server";
 // ------------------------------ ---- - ----- -- - - - --
 
-import countries from "@/_CONFIG/countries.config.json";
 import channels from "@/_CONFIG/channels.config.json";
 import { route_exists } from "@/utils/route-exists";
 
-const REGISTERED_COUNTRIES = Object.keys(countries);
-function get_country_from_path(pathname: string): string | null {
-  const match = pathname.match(/^\/([a-z]{2,})\/?/i);
-  const segment = match?.[1]?.toLowerCase() ?? null;
-  if (segment && REGISTERED_COUNTRIES.includes(segment)) return segment;
-  return null;
-}
 
 // Loop guard for the self request of `render_not_found`.
 const NOT_FOUND_RENDER_HEADER = "x-not-found-render";
@@ -58,10 +50,18 @@ async function render_not_found(request: NextRequest, path: string): Promise<Nex
 }
 
 export default async function proxy(request: NextRequest) {
-  const { ct, lg, cr, th, ch, cid } = geo_CF_helper(request);
+  const { ct, lg, cr, th, ch, cid, visited, geo } = geo_CF_helper(request);
 
   const pathname = request.nextUrl.pathname;
-  const country_from_path = get_country_from_path(pathname);
+  const country_from_path = profile_from_path(pathname);
+
+  // First visit of the home page: off to the profile of the visitor's country (302, the target differs per
+  // visitor). Only `/`: any other address shows its own country to everybody, crawlers included.
+  if (pathname === "/" && !visited && geo && geo !== "default") {
+    const url = request.nextUrl.clone();
+    url.pathname = `/${geo}`;
+    return NextResponse.redirect(url, 302);
+  }
 
   const finish = (res: NextResponse) => {
     if (ct) res.cookies.set("ct", ct);
@@ -95,50 +95,18 @@ export default async function proxy(request: NextRequest) {
     const rest = pathname.split("/").filter(Boolean).slice(country_from_path ? 1 : 0);
     if (!(await route_exists(rest, { channel: ch, language: lg, currency: cr, country: ct }))) {
       const url = request.nextUrl.clone();
-      // `ct` can be a bare Cloudflare country code (e.g. "PL") that is no profile of countries.config: the
-      // not-found page must render under a real profile, or its links get a prefix that does not exist.
-      const profile = country_from_path ?? (ct && ct in countries ? ct : "default");
+      const profile = country_from_path ?? "default";
       url.pathname = `/${profile}/not-found-route`;
       const rendered = await render_not_found(request, url.pathname);
       return finish(rendered ?? NextResponse.rewrite(url, { status: 404 }));
     }
   }
 
-  // Already on the correct path — pass through
-  if (pathname.startsWith(`/${ct}/`) || pathname === `/${ct}`) {
-    return finish(NextResponse.next());
-  }
-
-  //- ---------------------------------------------------------
-  // INACTIVE/STRIPPED CODE due to rerender problems
-  // posible change it to mark in cookies that user is guest
-  // ---------------------------------------------------------
-  // Visitor enters a country path other than their own ct
-  // e.g. ct=default browsing /uk/ — pass through, but flag as guest
-  if (country_from_path && country_from_path !== ct) {
-    // this allows to access to /uk/ even if ct=default
-    // if (request.nextUrl.searchParams.get("seeker") === "true") {
-    return finish(NextResponse.next());
-    //  }
-    // const url = request.nextUrl.clone();
-    // url.searchParams.set("seeker", "true");
-    // return finish(NextResponse.rewrite(url));
-  }
-  //- ---------------------------------------------------------
-  // ct=default, no country in the path — rewrite to /default/
-  if (ct === "default") {
-    const url = request.nextUrl.clone();
-    url.pathname = `/default${pathname}`;
-    return finish(NextResponse.rewrite(url));
-  }
-
-  //- ---------------------------------------------------------
-  // for now allow to access to /uk/products even if ct=default
-  // ---------------------------------------------------------
-  // Rewrite to the country path (e.g. /uk/ -> /uk/products)
-  const path = country_from_path === null ? `/default${pathname}` : `/${ct}${pathname}`;
+  // A country in the path: its own pages. No country: the `default` profile, whose addresses carry no prefix
+  // (LinkDynamic). Never the visitor's country: the same address must show the same page to everybody.
+  if (country_from_path) return finish(NextResponse.next());
   const url = request.nextUrl.clone();
-  url.pathname = path;
+  url.pathname = `/default${pathname}`;
   return finish(NextResponse.rewrite(url));
 }
 
