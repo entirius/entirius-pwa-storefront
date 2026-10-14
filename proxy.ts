@@ -8,6 +8,7 @@ import { NextResponse } from "next/server";
 // ------------------------------ ---- - ----- -- - - - --
 
 import channels from "@/_CONFIG/channels.config.json";
+import { DEFAULT_PROFILE } from "@/lib/profile-path";
 import { localized_catalog_key, route_exists } from "@/utils/route-exists";
 
 
@@ -55,6 +56,14 @@ export default async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const country_from_path = profile_from_path(pathname);
 
+  // One address per page: the `default` profile lives without a prefix (`/catalog/x`), so `/default/...` is
+  // sent there for good. Not the self request of `render_not_found`, which renders `/default/not-found-route`.
+  if (country_from_path === DEFAULT_PROFILE && !request.headers.has(NOT_FOUND_RENDER_HEADER)) {
+    const url = request.nextUrl.clone();
+    url.pathname = pathname.slice(`/${DEFAULT_PROFILE}`.length) || "/";
+    return NextResponse.redirect(url, 301);
+  }
+
   // First visit of the home page: off to the profile of the visitor's country (302, the target differs per
   // visitor). Only `/`: any other address shows its own country to everybody, crawlers included.
   if (pathname === "/" && !visited && geo && geo !== "default") {
@@ -96,7 +105,7 @@ export default async function proxy(request: NextRequest) {
     const ctx = { channel: ch, language: lg, currency: cr, country: ct };
     if (!(await route_exists(rest, ctx))) {
       const url = request.nextUrl.clone();
-      const profile = country_from_path ?? "default";
+      const profile = country_from_path ?? DEFAULT_PROFILE;
       url.pathname = `/${profile}/not-found-route`;
       const rendered = await render_not_found(request, url.pathname);
       return finish(rendered ?? NextResponse.rewrite(url, { status: 404 }));
@@ -119,7 +128,7 @@ export default async function proxy(request: NextRequest) {
   // (LinkDynamic). Never the visitor's country: the same address must show the same page to everybody.
   if (country_from_path) return finish(NextResponse.next());
   const url = request.nextUrl.clone();
-  url.pathname = `/default${pathname}`;
+  url.pathname = `/${DEFAULT_PROFILE}${pathname}`;
   return finish(NextResponse.rewrite(url));
 }
 

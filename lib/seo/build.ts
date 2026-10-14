@@ -14,6 +14,7 @@ import {
   type SeoField,
   type SEO_CONTEXT,
 } from "./config";
+import { profile_path } from "@/lib/profile-path";
 
 // metadataBase absolutizes Metadata fields, but raw JSON-LD is emitted as-is —
 // schema.org expects absolute URLs, so build them against SITE_URL here.
@@ -63,7 +64,7 @@ export function build_product_metadata(
 ): Metadata {
   const bag = resolve(raw, SEO_FIELDS.PRODUCT_META, opts.pick);
   const url_key = bag.url_key ?? ctx.url_key;
-  const canonical = url_key ? `/${ctx.country}/product/${url_key}` : undefined;
+  const canonical = url_key ? profile_path(ctx.country, `/product/${url_key}`) : undefined;
 
   return {
     title: bag.title,
@@ -97,7 +98,7 @@ export function build_product_jsonld(
 ): Record<string, any> {
   const bag = resolve(raw, SEO_FIELDS.PRODUCT_JSONLD, opts.pick);
   const url_key = bag.url_key ?? ctx.url_key;
-  const url = site_url(url_key ? `/${ctx.country}/product/${url_key}` : undefined);
+  const url = site_url(url_key ? profile_path(ctx.country, `/product/${url_key}`) : undefined);
 
   const jsonLd: Record<string, any> = {
     "@context": "https://schema.org",
@@ -140,7 +141,7 @@ export function build_catalog_metadata(
 ): Metadata {
   const bag = resolve(raw, SEO_FIELDS.CATALOG_META, opts.pick);
   const url_key = bag.url_key ?? ctx.url_key;
-  const canonical = url_key ? `/${ctx.country}/catalog/${url_key}` : undefined;
+  const canonical = url_key ? profile_path(ctx.country, `/catalog/${url_key}`) : undefined;
   const images = bag.image ? [bag.image] : DEFAULT_OG_IMAGES;
 
   return {
@@ -176,7 +177,7 @@ export function build_catalog_jsonld(
       "@type": "CollectionPage",
       name: bag.title,
       description: bag.description,
-      url: site_url(url_key ? `/${ctx.country}/catalog/${url_key}` : undefined),
+      url: site_url(url_key ? profile_path(ctx.country, `/catalog/${url_key}`) : undefined),
     }),
   ];
 
@@ -201,7 +202,7 @@ export function build_breadcrumbs_jsonld(
   const nodes: TrailNode[] = Array.isArray(path) ? path : [];
   const items: { name?: string; item?: string }[] = nodes.map((c) => ({
     name: c?.name,
-    item: site_url(c?.url_key ? `/${ctx.country}/catalog/${c.url_key}` : undefined),
+    item: site_url(c?.url_key ? profile_path(ctx.country, `/catalog/${c.url_key}`) : undefined),
   }));
   if (current?.name) items.push({ name: current.name, item: current.url });
   if (!items.length) return null;

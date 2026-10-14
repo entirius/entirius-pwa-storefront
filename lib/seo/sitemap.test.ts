@@ -6,11 +6,10 @@ import { describe, expect, it } from "vitest";
 import { sitemap_url, unique_entries } from "./sitemap";
 
 describe("sitemap_url", () => {
-  it("uses the canonical form for products and categories", () => {
-    expect(sitemap_url("https://shop.test", "default", "product", "a-b")).toBe("https://shop.test/default/product/a-b");
-    expect(sitemap_url("https://shop.test", "default", "catalog", "chairs")).toBe(
-      "https://shop.test/default/catalog/chairs",
-    );
+  it("uses the canonical form for products and categories, `default` without a prefix", () => {
+    expect(sitemap_url("https://shop.test", "default", "product", "a-b")).toBe("https://shop.test/product/a-b");
+    expect(sitemap_url("https://shop.test", "default", "catalog", "chairs")).toBe("https://shop.test/catalog/chairs");
+    expect(sitemap_url("https://shop.test", "pl", "catalog", "krzesla")).toBe("https://shop.test/pl/catalog/krzesla");
   });
 
   it("keeps CMS pages plain, home as the root", () => {

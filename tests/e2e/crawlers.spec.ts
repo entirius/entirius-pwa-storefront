@@ -6,7 +6,7 @@ import { expect, test } from "@playwright/test";
 import app_config from "../../_CONFIG/app.config.json";
 
 // robots.txt keeps private flows out and points to the sitemap; the sitemap lists the
-// addresses the shop serves, and each one answers 200.
+// addresses the shop serves, and each one answers 200 under its canonical address.
 
 test("robots.txt disallows private flows and names the sitemap", async ({ request }) => {
   const res = await request.get("/robots.txt");
@@ -25,11 +25,29 @@ test("sitemap.xml lists pages, categories and products that exist", async ({ req
   expect(urls.some((u) => u.includes("/catalog/"))).toBe(true);
   expect(urls.some((u) => u.includes("/product/"))).toBe(true);
   expect(urls.some((u) => u.includes("layout-"))).toBe(false);
+  expect(urls.some((u) => new URL(u).pathname.startsWith("/default/"))).toBe(false);
 
   const sample = [urls.find((u) => u.includes("/catalog/")), urls.find((u) => u.includes("/product/"))];
   for (const url of sample) {
     // the sitemap holds SITE_URL addresses; the test server may sit elsewhere
     const path = new URL(url!).pathname;
-    expect((await request.get(path)).status(), path).toBe(200);
+    const page = await request.get(path);
+    expect(page.status(), path).toBe(200);
+    // one address per page: the sitemap lists what the page declares canonical
+    expect(await page.text(), path).toContain(`<link rel="canonical" href="${url}"/>`);
+  }
+});
+
+test("the default profile has one address: /default/... is sent to the address without a prefix", async ({
+  request,
+}) => {
+  for (const [from, to] of [
+    ["/default/catalog/chairs?s_sort=price", "/catalog/chairs?s_sort=price"],
+    ["/default", "/"],
+  ]) {
+    const res = await request.get(from, { maxRedirects: 0 });
+    expect(res.status(), from).toBe(301);
+    const location = new URL(res.headers().location, "http://x");
+    expect(location.pathname + location.search, from).toBe(to);
   }
 });

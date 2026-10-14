@@ -6,6 +6,7 @@ import type { NextRequest } from "next/server";
 
 import countries from "@/_CONFIG/countries.config.json";
 import channels from "@/_CONFIG/channels.config.json";
+import { DEFAULT_PROFILE } from "@/lib/profile-path";
 
 type Profile = {
   languages?: string[];
@@ -18,7 +19,6 @@ type Profile = {
 
 const PROFILES = countries as Record<string, Profile>;
 const SERVED_CHANNELS = new Set(Object.keys(channels));
-const DEFAULT_PROFILE = "default";
 
 // The country profile a path names (`/pl/catalog/x` → "pl"); a path without one belongs to `default`.
 export function profile_from_path(pathname: string): string | null {
