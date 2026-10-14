@@ -37,9 +37,20 @@ async function render_not_found(request: NextRequest, path: string): Promise<Nex
       const value = request.headers.get(name);
       if (value) headers.set(name, value);
     }
-    const res = await fetch(new URL(path, origin), { headers, redirect: "manual", signal: AbortSignal.timeout(5_000) });
-    const out = new Headers({ "content-type": res.headers.get("content-type") ?? "text/html; charset=utf-8" });
-    out.set("cache-control", "no-store");
+    // The timeout bounds the wait for the response head only; the body then streams through.
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 5_000);
+    const res = await fetch(new URL(path, origin), { headers, redirect: "manual", signal: controller.signal }).finally(
+      () => clearTimeout(timer),
+    );
+    // Only a rendered not-found page is relayed; anything else (an error page, a redirect, another service on
+    // that port) falls back to the plain rewrite.
+    const type = res.headers.get("content-type") ?? "";
+    if (res.status !== 404 || !type.startsWith("text/html")) {
+      await res.body?.cancel();
+      return null;
+    }
+    const out = new Headers({ "content-type": type, "cache-control": "no-store" });
     return new NextResponse(res.body, { status: 404, headers: out });
   } catch {
     return null;
@@ -82,7 +93,7 @@ export default async function proxy(request: NextRequest) {
   const is_document = !request.headers.get("rsc");
   if (is_document && ch && !request.headers.has(NOT_FOUND_RENDER_HEADER)) {
     const rest = pathname.split("/").filter(Boolean).slice(country_from_path ? 1 : 0);
-    if (!(await route_exists(rest, ch))) {
+    if (!(await route_exists(rest, { channel: ch, language: lg, currency: cr, country: ct }))) {
       const url = request.nextUrl.clone();
       // `ct` can be a bare Cloudflare country code (e.g. "PL") that is no profile of countries.config: the
       // not-found page must render under a real profile, or its links get a prefix that does not exist.
