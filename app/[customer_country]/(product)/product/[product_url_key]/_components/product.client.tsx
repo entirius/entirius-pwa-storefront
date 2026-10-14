@@ -3,11 +3,10 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 "use client";
-import { MediaImage } from "@/components/ui/media-image.client";
-import { useMemo, useState, useEffect } from "react";
+import Link from "next/link";
+import { useMemo, useRef, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext, type CarouselApi } from "@/components/ui/carousel";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { SanitizeHTML } from "@/components/ui/sanitize-html";
 import { WishlistButton } from "@/components/ui/wishlist-button";
@@ -24,14 +23,26 @@ import { useProductVariants } from "./use-product-variants";
 import { VariantPicker, VariantPrice } from "./variant-picker.client";
 import { ProductPrice } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-price.client";
 import { ProductSpecs } from "./product-specs";
+import { ProductStories } from "./product-stories";
+import { Gallery } from "./gallery.client";
+import { scroll_behavior } from "./gallery-utils";
+import { StickyBuyBar } from "./sticky-buy-bar.client";
+import { key_facts_line } from "./key-facts";
 import { ProductBadges } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-badges";
-import { MoreFromCategory } from "./more-from-category.client";
+import { EnquiryForm, PRODUCT_ENQUIRY_TYPE } from "@/components/enquiry-form.client";
+import { NotifySimilar, useNotifySimilarAvailable } from "@/components/notify-similar.client";
+import { NOTIFY_ATTRIBUTES } from "@/lib/contact-forms-config";
+import { notify_body } from "@/lib/notify-body";
+import { KEY_FACTS } from "@/lib/product-config";
+import { description_html } from "@/lib/rich-html";
 
 const PLACEHOLDER_MEDIA = [[{ uri: image_placeholder, width: 600, height: 600 }]];
 
 
-export function ProductClient({ product_url_key }: { product_url_key: string }) {
-  const { t } = useI18n();
+// `related`: the streamed similar-products section (it renders nothing when there are none), placed here by
+// stock. Whether it holds any is read from the DOM by CSS (`has-[[data-related-products]]`).
+export function ProductClient({ product_url_key, related }: { product_url_key: string; related: ReactNode }) {
+  const { t, language } = useI18n();
   const api = useMemo(() => create_api(make_client_access()), []);
   const { data: product, isLoading, error } = useQuery(
     product_query(api, { product_url_key })
@@ -49,22 +60,16 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
   const max = configurable ? configurable.max : (stock?.quantity ?? 0);
   const inStock = configurable ? configurable.in_stock : !!stock?.is_in_stock && max > 0;
 
+  // Stock arrives after the product: no attribute until it is known.
+  const stock_known = !!configurable || stock !== undefined;
+
   const add = useCartStore((s) => s.add);
   const show_added = useAddedToCart((s) => s.show);
   const [qty, setQty] = useState(1);
 
-  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(1);
-  const [total, setTotal] = useState(1);
-
-  useEffect(() => {
-    if (!carouselApi) return;
-    setTotal(carouselApi.scrollSnapList().length);
-    setCurrent(carouselApi.selectedScrollSnap() + 1);
-    const onSelect = () => setCurrent(carouselApi.selectedScrollSnap() + 1);
-    carouselApi.on("select", onSelect);
-    return () => { carouselApi.off("select", onSelect); };
-  }, [carouselApi]);
+  const notify_available = useNotifySimilarAvailable();
+  const [notify_open, setNotifyOpen] = useState(false);
+  const buy_area = useRef<HTMLDivElement>(null);
 
   if (isLoading) return <div>{t("common.loading")}</div>;
   if (error || !product) return <div>{t("product.not_found")}</div>;
@@ -83,62 +88,56 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
   };
 
   const category = (product.categories as { name?: string; url_key?: string }[] | undefined)?.[0];
+  // Sold out for good (stock answered, nothing to buy): offer to be told about a similar product.
+  const sold_out = stock_known && (configurable ? configurable.sold_out : !inStock);
+  // Until the real-time stock answers, the product's own flag decides where the similar products go.
+  const sold = stock_known ? sold_out : product.on_stock === false;
+  // A single piece cannot be bought twice: no stepper then.
+  const single_piece = stock_known && max === 1;
+  const facts = key_facts_line(product.attributes, KEY_FACTS, language);
+  const notify_visible = sold_out && notify_available;
+
+  const add_to_cart = () => {
+    add(buy, qty, max);
+    show_added({
+      sku: buy.sku,
+      name: buy.name,
+      quantity: qty,
+      price: buy.price,
+      image: media[0]?.[0]?.uri ?? null,
+    });
+  };
+  // Until stock answers the button stays "Add to cart" (disabled), so an
+  // in-stock product never flashes "Out of stock".
+  const cta_label =
+    configurable?.cta ??
+    (!product.purchasable
+      ? t("product.not_available_online")
+      : inStock || stockPending
+        ? t("product.add_to_cart")
+        : t("product.out_of_stock"));
+  const open_notify = () => {
+    setNotifyOpen(true);
+    buy_area.current?.scrollIntoView({ block: "center", behavior: scroll_behavior() });
+  };
+  const related_section = (
+    <div
+      data-stock={sold ? "out" : "in"}
+      className={cn("group/related hidden has-[[data-related-products]]:block", sold && "border-t border-border pt-5")}
+    >
+      {related}
+    </div>
+  );
 
   return (
-    <div className="flex flex-col gap-10">
+    <div
+      // Room under the page for the fixed buy bar on phones.
+      className={cn("group/product flex flex-col gap-10", purchasable && "pb-16 md:pb-0")}
+      data-product-page
+      data-stock={stock_known ? (inStock ? "in" : "out") : undefined}
+    >
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:items-start">
-      {/* Carousel */}
-      <div className="rounded-4xl bg-card p-3 md:sticky md:top-24 md:self-start">
-        <Carousel setApi={setCarouselApi} className="relative">
-          <CarouselContent>
-            {media.map((variants: any[], i: number) => {
-              const img = variants[0];
-              return (
-                <CarouselItem key={i}>
-                  <AspectRatio ratio={1} className="bg-muted overflow-hidden rounded-3xl">
-                    <MediaImage
-                      src={img.uri}
-                      alt={t("product.image", { name: product.name, number: i + 1 })}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      className="object-cover"
-                    />
-                  </AspectRatio>
-                </CarouselItem>
-              );
-            })}
-          </CarouselContent>
-          {media.length > 1 && (
-            <>
-              <CarouselPrevious className="left-2" />
-              <CarouselNext className="right-2" />
-              <div className="absolute bottom-2 right-3 text-xs text-heading bg-background/70 rounded px-1.5 py-0.5">
-                {current} / {total}
-              </div>
-            </>
-          )}
-        </Carousel>
-        {media.length > 1 && (
-          <div className="mt-3 grid grid-cols-4 gap-3 sm:grid-cols-5">
-            {media.map((variants: { uri: string }[], i: number) => (
-              <button
-                key={i}
-                type="button"
-                aria-label={t("product.show_image", { number: i + 1 })}
-                aria-current={current === i + 1 ? "true" : undefined}
-                onClick={() => carouselApi?.scrollTo(i)}
-                className={
-                  current === i + 1
-                    ? "relative aspect-square overflow-hidden rounded-2xl bg-muted ring-2 ring-primary"
-                    : "relative aspect-square overflow-hidden rounded-2xl bg-muted ring-1 ring-border hover:ring-primary"
-                }
-              >
-                <MediaImage src={variants[0].uri} alt="" fill sizes="96px" className="object-cover" />
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+      <Gallery media={media} name={product.name} />
 
       {/* Product info */}
       <section aria-label={t("product.details")} className="flex flex-col gap-5 rounded-4xl bg-card p-6 md:p-8">
@@ -155,21 +154,28 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
           <h1 className="text-3xl leading-tight md:text-4xl">{product.name}</h1>
         </div>
 
-        <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
-          {configurable ? (
-            <VariantPrice price={configurable.price} from={configurable.price_from} large />
-          ) : (
-            <ProductPrice price={product.price} sku={product.sku} large />
-          )}
-          {purchasable && (
-            <span className="pb-1.5 text-sm text-muted-foreground">{t("product.incl_vat")}</span>
+        <div className="flex flex-col gap-1">
+          <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
+            {configurable ? (
+              <VariantPrice price={configurable.price} from={configurable.price_from} large />
+            ) : (
+              <ProductPrice price={product.price} sku={product.sku} large />
+            )}
+            {purchasable && (
+              <span className="pb-1.5 text-sm text-muted-foreground">{t("product.incl_vat")}</span>
+            )}
+          </div>
+          {facts && (
+            <p data-key-facts className="text-sm text-muted-foreground">
+              {facts}
+            </p>
           )}
         </div>
 
         {configurable && <VariantPicker {...configurable} />}
 
         {product.description && (
-          <SanitizeHTML html={product.description} className="text-muted-foreground" />
+          <SanitizeHTML html={description_html(product.description)} className="text-muted-foreground" />
         )}
 
         {purchasable && !stockPending && (!configurable || configurable.buy) && (
@@ -182,38 +188,21 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
           </p>
         )}
 
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="sr-only">{t("product.quantity")}</span>
-          <QuantityStepper
-            size="lg"
-            value={Math.min(qty, Math.max(max, 1))}
-            onChange={setQty}
-            max={Math.max(max, 1)}
-            disabled={!canBuy}
-          />
-          <Button
-            size="lg"
-            className="flex-1 rounded-full"
-            disabled={!canBuy}
-            onClick={() => {
-              add(buy, qty, max);
-              show_added({
-                sku: buy.sku,
-                name: buy.name,
-                quantity: qty,
-                price: buy.price,
-                image: media[0]?.[0]?.uri ?? null,
-              });
-            }}
-          >
-            {/* Until stock answers the button stays "Add to cart" (disabled), so an
-                in-stock product never flashes "Out of stock". */}
-            {configurable?.cta ??
-              (!product.purchasable
-                ? t("product.not_available_online")
-                : inStock || stockPending
-                  ? t("product.add_to_cart")
-                  : t("product.out_of_stock"))}
+        <div ref={buy_area} data-buy-area className="flex flex-wrap items-center gap-3">
+          {!single_piece && (
+            <>
+              <span className="sr-only">{t("product.quantity")}</span>
+              <QuantityStepper
+                size="lg"
+                value={Math.min(qty, Math.max(max, 1))}
+                onChange={setQty}
+                max={Math.max(max, 1)}
+                disabled={!canBuy}
+              />
+            </>
+          )}
+          <Button size="lg" className="flex-1 rounded-full" disabled={!canBuy} onClick={add_to_cart}>
+            {cta_label}
           </Button>
           <WishlistButton
             sku={product.sku}
@@ -230,21 +219,69 @@ export function ProductClient({ product_url_key }: { product_url_key: string }) 
             className="rounded-full"
           />
         </div>
+
+        {sold_out && (
+          <NotifySimilar
+            body={notify_body(product, category?.name, NOTIFY_ATTRIBUTES)}
+            code={product.sku}
+            trigger_label={t("product.notify_similar")}
+            open={notify_open}
+            onOpenChange={setNotifyOpen}
+          />
+        )}
+
+        {/* Without a price the enquiry is the way to buy; with one it stays a quiet question. */}
+        <EnquiryForm
+          form_type={PRODUCT_ENQUIRY_TYPE}
+          slug={PRODUCT_ENQUIRY_TYPE}
+          context={{ sku: product.sku, name: product.name }}
+          collapsed_label={purchasable ? t("product.ask_about") : t("product.ask_price")}
+          collapsed_primary={!purchasable}
+        />
+
+        {sold && related_section}
       </section>
     </div>
 
       {product.specs?.length > 0 && (
         <div className="rounded-4xl bg-card p-6 md:p-10">
-          <ProductSpecs groups={product.specs} />
+          <ProductSpecs groups={product.specs} categories={product.categories} />
         </div>
       )}
 
-      {category?.url_key && (
-        <MoreFromCategory
-          category={category.url_key}
-          name={category.name ?? t("product.this_category")}
-          exclude_sku={product.sku}
-        />
+      <ProductStories stories={product.stories ?? []} />
+
+      {!sold && related_section}
+
+      {purchasable && (
+        <StickyBuyBar target={buy_area}>
+          {!sold_out && <ProductPrice price={configurable ? configurable.price : product.price} />}
+          {sold_out ? (
+            <>
+              {/* With the notify action the bar has room for two buttons only: the marker stays in the buy area. */}
+              {!notify_visible && <span data-unavailable className="text-sm font-medium">{t("product.out_of_stock")}</span>}
+              <Button
+                asChild
+                variant="outline"
+                className={cn(
+                  "hidden group-has-[[data-related-products]]/product:inline-flex",
+                  notify_visible ? "shrink-0" : "ml-auto",
+                )}
+              >
+                <Link href="#related-products">{t("product.see_similar")}</Link>
+              </Button>
+              {notify_visible && (
+                <Button className="min-w-0 flex-1" data-notify-bar-trigger onClick={open_notify}>
+                  {t("product.notify_short")}
+                </Button>
+              )}
+            </>
+          ) : (
+            <Button className="ml-auto flex-1" disabled={!canBuy} onClick={add_to_cart}>
+              {cta_label}
+            </Button>
+          )}
+        </StickyBuyBar>
       )}
     </div>
   );

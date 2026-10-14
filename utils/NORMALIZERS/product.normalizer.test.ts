@@ -23,8 +23,8 @@ describe("NORM_PRODUCTS_DATA specs", () => {
     const p = one({
       attributes: [
         attr("series", "Series", "Heliox Works"),
-        attr("options", "Options", "Ceramic Composite"),
-        attr("options", "Options", "Nano-Chrome"),
+        attr("options", "Options", "Ceramic Composite", { value_idx: "ceramic-composite" }),
+        attr("options", "Options", "Nano-Chrome", { value_idx: "nano-chrome" }),
         attr("internal", "Internal", "x", { is_visible: false }),
         attr("empty", "Empty", ""),
       ],
@@ -33,11 +33,35 @@ describe("NORM_PRODUCTS_DATA specs", () => {
       {
         name: null,
         rows: [
-          { name: "Series", value: "Heliox Works" },
-          { name: "Options", value: "Ceramic Composite, Nano-Chrome" },
+          { idx: "series", name: "Series", value: "Heliox Works", parts: [{ label: "Heliox Works", value_idx: null }] },
+          {
+            idx: "options",
+            name: "Options",
+            value: "Ceramic Composite, Nano-Chrome",
+            parts: [
+              { label: "Ceramic Composite", value_idx: "ceramic-composite" },
+              { label: "Nano-Chrome", value_idx: "nano-chrome" },
+            ],
+          },
         ],
       },
     ]);
+  });
+
+  it("keeps the value idx of each part for catalog links", () => {
+    const p = one({ attributes: [attr("series", "Series", "Heliox Works", { value_idx: "heliox" })] });
+    expect(p.specs[0].rows[0].parts).toEqual([{ label: "Heliox Works", value_idx: "heliox" }]);
+  });
+
+  it("moves long-text attributes out of the specification into stories", () => {
+    const p = one({
+      attributes: [
+        attr("weight", "Weight", "35"),
+        attr("history", "History", "<p>Long text</p>", { feature_type: "TEXT" }),
+      ],
+    });
+    expect(p.specs[0].rows.map((r: { name: string }) => r.name)).toEqual(["Weight"]);
+    expect(p.stories).toEqual([{ idx: "history", name: "History", html: "<p>Long text</p>" }]);
   });
 
   it("orders groups by group_position, ungrouped last", () => {

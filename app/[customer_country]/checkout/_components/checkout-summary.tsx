@@ -14,6 +14,11 @@ import { DiscountCode } from "@/app/_components/layout/discount-code.client";
 import type { Cart } from "@/utils/NORMALIZERS/cart.normalizer";
 import type { CartItem } from "@/stores/cart.store";
 
+const num = (v: string | null | undefined) => {
+  const n = parseFloat(String(v));
+  return Number.isFinite(n) ? n : 0;
+};
+
 // Read-only order summary (authoritative totals from the synced backend cart, local
 // line-price fallback). Rendered in the sticky right column of the checkout stepper.
 export function CheckoutSummary({
@@ -91,7 +96,7 @@ export function CheckoutSummary({
       </div>
 
       <div className="mt-4 flex flex-col gap-2 border-t pt-4 text-sm">
-        <Row label={t("cart.subtotal")} value={fmt(backend?.subtotal_gross)} />
+        <Row label={t("cart.subtotal")} value={fmt(backend?.items_subtotal_gross)} />
         {backend?.item_savings_gross && (
           <Row
             label={t("checkout.sale_savings")}
@@ -107,6 +112,15 @@ export function CheckoutSummary({
               accent
             />
           )}
+        {backend?.shipping_method && backend.shipping_gross != null && (
+          <Row
+            label={t("checkout.delivery")}
+            value={num(backend.shipping_gross) === 0 ? t("common.free") : fmt(backend.shipping_gross)}
+          />
+        )}
+        {num(backend?.fee_gross) > 0 && (
+          <Row label={t("checkout.payment_fee")} value={fmt(backend?.fee_gross)} />
+        )}
         {backend?.amount_missing_for_free_shipping &&
           backend.amount_missing_for_free_shipping !== "0.00" && (
             <p className="text-xs text-muted-foreground">

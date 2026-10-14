@@ -5,6 +5,7 @@
 import { cache } from "react";
 import { QueryClient } from "@tanstack/react-query";
 import { API_CMS_STATIC_PAGE_ROUTE, API_PRODUCTS_ROUTE } from "@/API/api.routes";
+import type { CmsPage } from "@/types/cms.types";
 import { NORM_PRODUCTS_DATA } from "@/utils/NORMALIZERS/product.normalizer";
 
 type Api = { FETCH_METHOD: (path: string, options?: any) => Promise<any> };
@@ -15,18 +16,27 @@ type Api = { FETCH_METHOD: (path: string, options?: any) => Promise<any> };
 // Keyed on a joined string — React.cache() compares arguments with Object.is, so
 // both the options object and the routes array inside it would be fresh
 // references at every call site and never hit.
+// The same route can hold one draft per language: fetch them all, the caller picks one.
 const _load_static_page = cache(async (api: Api, routes_key: string) => {
   return api.FETCH_METHOD(API_CMS_STATIC_PAGE_ROUTE, {
-    querys: { routes: routes_key.split(","), limit: 1, page: 1 },
+    querys: { routes: routes_key.split(","), limit: 50, page: 1 },
   });
 });
 
 export const load_static_page = (api: Api, options: { routes: string[] }) =>
   _load_static_page(api, options.routes.join(","));
 
+// The page in the given language; a page in another language when there is none (like layout slots).
+export function pick_static_page(pages: CmsPage[] | undefined, language: string): CmsPage | null {
+  const own = pages?.find((p) => p.language?.toLowerCase() === language.toLowerCase());
+  return own ?? pages?.[0] ?? null;
+}
 
-export const static_page_query = (api: Api, options: { routes: string[] }) => ({
-  queryKey: ["cms-static-page", options.routes],
+export const static_page_query = (
+  api: Api,
+  options: { routes: string[]; language: string },
+) => ({
+  queryKey: ["cms-static-page", options.routes, options.language],
   queryFn: async () => {
     const [error, response] = await load_static_page(api, options);
     if (error) throw new Error(error.message);

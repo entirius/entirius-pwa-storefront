@@ -158,7 +158,8 @@ test("an order placed while logged in shows in my orders and its detail", async 
   const placed = page.waitForResponse(
     (r) => r.request().method() === "POST" && /\/orders\/?(\?|$)/.test(r.url()),
   );
-  await page.getByRole("button", { name: "Place order" }).click();
+  await page.locator("[data-terms-consent]").getByRole("checkbox").click();
+  await page.getByRole("button", { name: "Order with obligation to pay" }).click();
   const response = await placed;
   expect(response.status()).toBe(201);
   const ref: string = (await response.json()).order_pretty_id;

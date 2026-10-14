@@ -412,7 +412,8 @@ export function create_fetch_engine(access: API_ACCESS) {
     return fetch(`${API_BASE_URL}${path}${querys ? `${querys}` : ""}`, {
       ...init,
       headers,
-      signal: session_controller.signal,
+      // A caller's own signal (e.g. a timeout) counts too; logout still cancels everything.
+      signal: init.signal ? AbortSignal.any([session_controller.signal, init.signal]) : session_controller.signal,
     });
   }
 

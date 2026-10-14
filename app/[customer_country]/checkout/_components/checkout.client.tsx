@@ -14,12 +14,14 @@ import type { PlacedOrder } from "@/utils/NORMALIZERS/order.normalizer";
 import { cart_to_address_form } from "@/utils/validation/address.schema";
 import { useCartSync } from "@/stores/use-cart-sync";
 import { useI18n } from "@/providers/i18n.provider";
+import { cart_error_texts } from "@/utils/cart-errors";
 import { CheckoutStepper, type CheckoutStep } from "./checkout-stepper";
 import { CheckoutSummary } from "./checkout-summary";
 import { AddressStep } from "./address-step";
 import { ShippingStep } from "./shipping-step";
 import { PaymentStep } from "./payment-step";
 import { ReviewStep } from "./review-step";
+import { order_refs } from "./order-receipt";
 
 const LOCKED: Set<CheckoutStep> = new Set();
 
@@ -35,7 +37,10 @@ export function CheckoutClient() {
   // Freshest cart from an address/shipping mutation. We deliberately don't refetch
   // ["cart"] on save (that wipes the auto-discount), so these responses — not the
   // synced query — are the freshest source for the needed fields.
-  const [serverCart, setServerCart] = useState<Cart | null>(null);
+  // It is dropped as soon as the synced cart refetches: that response is newer.
+  const [server, setServer] = useState<{ cart: Cart; base: Cart | null | undefined } | null>(null);
+  const serverCart = server && server.base === backend ? server.cart : null;
+  const setServerCart = (cart: Cart) => setServer({ cart, base: backend });
 
   const hydrate_cart = serverCart ?? backend ?? null;
 
@@ -105,10 +110,7 @@ export function CheckoutClient() {
         ? "/checkout/success"
         : `/${country}/checkout/success`;
     const params = new URLSearchParams();
-    const refs = order.split_pretty_ids.length
-      ? order.split_pretty_ids
-      : [order.pretty_id].filter(Boolean);
-    for (const ref of refs) params.append("ref", ref);
+    for (const ref of order_refs(order)) params.append("ref", ref);
     if (order.payment_error) params.set("payment", "failed");
     const query = params.toString();
     router.push(query ? `${base}?${query}` : base);
@@ -139,8 +141,8 @@ export function CheckoutClient() {
             <div className="mb-4 rounded-md border border-destructive/50 bg-destructive-surface px-3 py-2 text-sm text-destructive">
               <p className="font-medium">{t("checkout.items_attention")}</p>
               <ul className="mt-1 list-disc pl-5">
-                {backend.errors.map((e, i) => (
-                  <li key={i}>{e.message}</li>
+                {cart_error_texts(backend.errors, t).map((text) => (
+                  <li key={text}>{text}</li>
                 ))}
               </ul>
             </div>
@@ -177,7 +179,7 @@ export function CheckoutClient() {
         </div>
 
         <div className="h-fit lg:sticky lg:top-6">
-          <CheckoutSummary backend={backend} items={items} currency={currency} />
+          <CheckoutSummary backend={hydrate_cart} items={items} currency={currency} />
         </div>
       </div>
     </div>

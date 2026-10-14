@@ -4,9 +4,9 @@
 
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { BRAND } from "@/_CONFIG/app.config.json";
+import { brand_files } from "@/lib/brand";
 
-// Serves the instance's identity assets (logo, favicon) from `_CONFIG/brand/`.
+// Serves the instance's identity assets (logo, favicon, app icons, share image) from `_CONFIG/brand/`.
 // They are per-deployment data like the rest of `_CONFIG/`, so they stay out of
 // `public/` and out of git. Only the file names listed in `BRAND` are served —
 // the URL never reaches the filesystem as a path.
@@ -18,11 +18,6 @@ const CONTENT_TYPES: Record<string, string> = {
   ".webp": "image/webp",
   ".ico": "image/x-icon",
 };
-
-const brand_files = (): string[] =>
-  [BRAND.LOGO as string | null, BRAND.FAVICON as string | null].filter(
-    (name): name is string => typeof name === "string" && name.length > 0,
-  );
 
 export async function GET(_request: Request, ctx: RouteContext<"/brand/[file]">) {
   const { file } = await ctx.params;

@@ -26,7 +26,14 @@ import { useI18n } from "@/providers/i18n.provider";
 
 type Level = { url_key: string | null; name: string };
 
-export function HamburgerMenuSheet({ query }: { query: CONFIG_QUERY }) {
+// `footer` is rendered under the list (the language and currency switch on small screens).
+export function HamburgerMenuSheet({
+  query,
+  footer,
+}: {
+  query: CONFIG_QUERY;
+  footer?: React.ReactNode;
+}) {
   const { t } = useI18n();
   const api = useMemo(() => create_api(make_client_access()), []);
 
@@ -126,6 +133,7 @@ export function HamburgerMenuSheet({ query }: { query: CONFIG_QUERY }) {
             ),
           )}
         </div>
+        {footer}
       </SheetContent>
     </Sheet>
   );

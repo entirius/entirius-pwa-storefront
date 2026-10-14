@@ -8,7 +8,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
-import { static_page_query } from "../api.query";
+import { pick_static_page, static_page_query } from "../api.query";
 import { render_cms_document } from "./cms-renderer";
 import type { CmsDocumentContent } from "@/types/cms.types";
 import { useI18n } from "@/providers/i18n.provider";
@@ -18,11 +18,11 @@ interface Props {
 }
 
 export function BuilderClient({ routes }: Props) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const api = useMemo(() => create_api(make_client_access()), []);
-  const { data, isLoading, error } = useQuery(static_page_query(api, { routes }));
+  const { data, isLoading, error } = useQuery(static_page_query(api, { routes, language }));
 
-  const document = data?.data?.[0] ?? null;
+  const document = pick_static_page(data?.data, language);
 
   if (isLoading) {
     return (

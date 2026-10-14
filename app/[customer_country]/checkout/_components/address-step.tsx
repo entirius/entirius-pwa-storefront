@@ -17,8 +17,6 @@ import {
   empty_address_defaults,
   dummy_address_defaults,
   to_addresses_body,
-  COUNTRY_OPTIONS,
-  DIALLING_OPTIONS,
   type AddressFormValues,
 } from "@/utils/validation/address.schema";
 import {
@@ -40,6 +38,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Spinner } from "@/components/ui/spinner";
+import { useCountryOptions } from "@/utils/checkout-countries";
 import { useI18n } from "@/providers/i18n.provider";
 
 // Backend validation field ("billing_address.email") → RHF form path ("billing.email").
@@ -105,7 +104,7 @@ export function AddressStep({
           }
         } else {
           form.setError("root", {
-            message: error.message || t("checkout.address_failed"),
+            message: t("checkout.address_failed"),
           });
         }
         return;
@@ -238,9 +237,18 @@ function AddressFields({
   prefix: "billing" | "shipping";
   form: ReturnType<typeof useForm<AddressFormValues>>;
 }) {
-  const { t, country } = useI18n();
+  const { t } = useI18n();
+  const { options: countries, dialling, default_code, ready } = useCountryOptions();
+  // A country the channel does not accept (the form default, an old cart address) gives way to its default.
+  const current = form.watch(`${prefix}.country_code` as Path<AddressFormValues>) as string;
+  useEffect(() => {
+    if (!ready || countries.some((c) => c.code === current)) return;
+    const fallback = countries.find((c) => c.code === default_code) ?? countries[0];
+    form.setValue(`${prefix}.country_code` as Path<AddressFormValues>, fallback.code);
+    form.setValue(`${prefix}.dialling_code` as Path<AddressFormValues>, fallback.dialling_code);
+  }, [ready, countries, current, default_code, form, prefix]);
   const onCountry = (code: string) => {
-    const opt = COUNTRY_OPTIONS.find((c) => c.code === code);
+    const opt = countries.find((c) => c.code === code);
     if (opt)
       form.setValue(
         `${prefix}.dialling_code` as Path<AddressFormValues>,
@@ -263,7 +271,7 @@ function AddressFields({
         control={control}
         name={`${prefix}.country_code` as Path<AddressFormValues>}
         label={t("address.country")}
-        options={COUNTRY_OPTIONS.map((c) => ({ value: c.code, label: country(c.code) }))}
+        options={countries.map((c) => ({ value: c.code, label: c.label }))}
         onSelect={onCountry}
       />
       <div className="grid gap-4 sm:grid-cols-[7rem_1fr]">
@@ -271,7 +279,7 @@ function AddressFields({
           control={control}
           name={`${prefix}.dialling_code` as Path<AddressFormValues>}
           label={t("address.dialling_code")}
-          options={DIALLING_OPTIONS.map((d) => ({ value: d, label: d }))}
+          options={dialling.map((d) => ({ value: d, label: d }))}
         />
         <TextField control={control} name={`${prefix}.telephone` as Path<AddressFormValues>} label={t("address.phone")} type="tel" autoComplete="tel-national" />
       </div>

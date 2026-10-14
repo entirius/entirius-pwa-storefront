@@ -11,6 +11,10 @@ import { expect, test } from "@playwright/test";
 
 const NOTE = /^Lowest price in the 30 days before the discount: €\d+\.\d{2}$/;
 const NOTE_COMPACT = /^Lowest 30-day price: €\d+\.\d{2}$/;
+
+// The product's own text: on a sold-out product the similar products (reduced tiles among them) sit inside the
+// product details, under the buy area.
+const OWN = ":not([data-related-products] *)";
 const is_omnibus = (url: string) => /\/omnibus\/\?/.test(url);
 
 test("reduced product shows the Omnibus price in the server HTML", async ({ request }) => {
@@ -20,7 +24,7 @@ test("reduced product shows the Omnibus price in the server HTML", async ({ requ
 
 test("reduced product page shows the Omnibus price", async ({ page }) => {
   await page.goto("/product/observation-deck-lounge-chair");
-  await expect(page.getByRole("region", { name: "Product details" }).getByText(NOTE)).toBeVisible();
+  await expect(page.getByRole("region", { name: "Product details" }).getByText(NOTE).and(page.locator(OWN))).toBeVisible();
 });
 
 test("regular price has no Omnibus line", async ({ page }) => {
@@ -28,7 +32,7 @@ test("regular price has no Omnibus line", async ({ page }) => {
   // Scoped to the product: the "More chairs" cards below have reductions of their own.
   const details = page.getByRole("region", { name: "Product details" });
   await expect(details.getByText("€549.00")).toBeVisible();
-  await expect(details.getByText(/Lowest/)).toHaveCount(0);
+  await expect(details.getByText(/Lowest/).and(page.locator(OWN))).toHaveCount(0);
 });
 
 test("every reduced tile in the catalog has its Omnibus line, without browser requests", async ({ page }) => {

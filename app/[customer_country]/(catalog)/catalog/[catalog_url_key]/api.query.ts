@@ -10,6 +10,7 @@ import {
 } from "@/API/api.routes";
 import { QueryClient } from "@tanstack/react-query";
 import { NORM_PRODUCTS_DATA } from "@/utils/NORMALIZERS/product.normalizer";
+import { with_stock_first } from "@/lib/stock-sort";
 
 type Api = { FETCH_METHOD: (path: string, options?: any) => Promise<any> };
 
@@ -141,7 +142,7 @@ const _load_catalog = cache(async (api: Api, options_key: string) => {
   // ------------------------------------------------------------
   const options = Object.fromEntries(JSON.parse(options_key));
   return api.FETCH_METHOD(API_PRODUCTS_ROUTE, {
-    querys: { ...options, include: "full" },
+    querys: { ...with_stock_first(options), include: "full" },
   });
 });
 

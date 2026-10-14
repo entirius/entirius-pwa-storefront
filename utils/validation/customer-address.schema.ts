@@ -6,9 +6,7 @@ import { z } from "zod";
 import { msg, type MessageKey } from "@/lib/i18n/translate";
 
 // Address-book entry (accounts service). Distinct from the checkout billing+shipping
-// `address_schema` — this is a single customer address. Reuses the shared country/
-// dialling options and validator style from address.schema.ts.
-export { COUNTRY_OPTIONS, DIALLING_OPTIONS } from "./address.schema";
+// `address_schema` — this is a single customer address.
 
 const req = (message: MessageKey) => z.string().trim().min(1, message);
 const phone_field = z

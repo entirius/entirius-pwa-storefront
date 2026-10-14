@@ -22,6 +22,7 @@ type API_ACCESS = {
   get_user_id?: () => string | null;
   get_cart_id?: () => string | null;
   get_channel_checkout_key?: () => string | null;
+  get_contact_forms_key?: () => string | null;
   set_tokens?: (tokens: TOKENS) => void | Promise<void>;
   clear_tokens?: () => void | Promise<void>;
 };

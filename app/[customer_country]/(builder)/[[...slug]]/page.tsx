@@ -6,10 +6,13 @@ import { cache } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PrefetchBoundary } from "@/lib/prefetch_boundary";
+import { decode_param } from "@/lib/route-params";
 import { create_api } from "@/API/api.context";
 import { make_server_access } from "@/API/access/api.server-access";
+import { link_keys, url_key_query } from "@/lib/url-keys";
 import {
   load_static_page,
+  pick_static_page,
   static_page_query,
   cms_products_query,
   cms_products_by_sku_query,
@@ -24,6 +27,7 @@ import {
   aggregate_url_keys,
 } from "./_components/cms-product-aggregation.config";
 import { BuilderClient } from "./_components/builder.client";
+import { get_i18n } from "@/lib/i18n/i18n.server";
 import { LAYOUT_ROUTE_PREFIX } from "@/app/_components/layout-slots/api.query";
 
 interface Props {
@@ -42,13 +46,14 @@ const is_page_route = (slug?: string[]) =>
   !slug?.some((s) => s.includes(".")) && !slug?.[0]?.startsWith(LAYOUT_ROUTE_PREFIX);
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const slug = (await params).slug?.map(decode_param);
   if (!is_page_route(slug)) return {};
 
   const [, cms_data] = await load_static_page(await get_api(), {
     routes: slug?.[0] ? [slug[0]] : ["home"],
   });
-  const meta = cms_data?.data?.[0]?.meta;
+  const { language } = await get_i18n();
+  const meta = pick_static_page(cms_data?.data, language)?.meta;
   return {
     ...(meta?.title && { title: meta.title }),
     ...(meta?.description && { description: meta.description }),
@@ -56,7 +61,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function BuilderPage({ params }: Props) {
-  const { slug } = await params;
+  const slug = (await params).slug?.map(decode_param);
 
   if (!is_page_route(slug)) notFound();
 
@@ -68,9 +73,10 @@ export default async function BuilderPage({ params }: Props) {
   // load_static_page keys its React cache on the joined routes string, so the
   // second call inside PrefetchBoundary.queryFn costs no additional request.
   // ------------------------------------------------------------
-  const options = { routes };
+  const { language } = await get_i18n();
+  const options = { routes, language };
   const [, cms_data] = await load_static_page(api, options);
-  const document = cms_data?.data?.[0] ?? null;
+  const document = pick_static_page(cms_data?.data, language);
 
   if (!document) notFound();
 
@@ -97,6 +103,8 @@ export default async function BuilderPage({ params }: Props) {
     ...(url_keys.length ? [cms_products_query(api, url_keys)] : []),
     ...(skus.length ? [cms_products_by_sku_query(api, skus)] : []),
     ...categories.map((category) => cms_category_products_query(api, category)),
+    // Button links in the active language's url keys already in the server HTML.
+    ...link_keys(document.content).map(({ kind, key }) => url_key_query(api, language, kind, key)),
     ...(discounted_skus.length ? [omnibus_prefetch(api, discounted_skus)] : []),
   ];
 

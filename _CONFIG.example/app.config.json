@@ -7,7 +7,29 @@
   "BRAND": {
     "LOGO": null,
     "LOGO_ALT": null,
-    "FAVICON": "favicon.svg"
+    "FAVICON": "favicon.svg",
+    "ICON_192": null,
+    "ICON_512": null,
+    "ICON_MASKABLE": null,
+    "OG_IMAGE": null,
+    "THEME_COLOR": null,
+    "BACKGROUND_COLOR": null,
+    "SHORT_NAME": null
+  },
+  "CHECKOUT": {
+    "TERMS_ROUTE": null,
+    "PRIVACY_ROUTE": null
+  },
+  "CONTACT_FORMS": {
+    "NOTIFY_ATTRIBUTES": []
+  },
+  "CATALOG": {
+    "SORT_IN_STOCK_FIRST": false
+  },
+  "PRODUCT": {
+    "RELATED": ["category"],
+    "KEY_FACTS": [],
+    "STORY_ATTRIBUTES": []
   },
   "SEO": {
     "PRODUCT_META": [

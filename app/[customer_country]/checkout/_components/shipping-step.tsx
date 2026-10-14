@@ -76,7 +76,7 @@ export function ShippingStep({
         { method: "PATCH", body: JSON.stringify({ code: selected }) },
       );
       if (error) {
-        setSaveError(error.message || t("checkout.shipping_failed"));
+        setSaveError(t("checkout.shipping_failed"));
         return;
       }
       onSaved(response);

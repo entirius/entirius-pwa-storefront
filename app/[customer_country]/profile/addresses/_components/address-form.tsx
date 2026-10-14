@@ -11,8 +11,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   customer_address_schema,
   to_customer_address_body,
-  COUNTRY_OPTIONS,
-  DIALLING_OPTIONS,
   type CustomerAddressFormValues,
 } from "@/utils/validation/customer-address.schema";
 import {
@@ -40,6 +38,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { useCountryOptions } from "@/utils/checkout-countries";
 import { useI18n } from "@/providers/i18n.provider";
 
 export function AddressFormSheet({
@@ -55,7 +54,8 @@ export function AddressFormSheet({
   title: string;
   onSubmit: (body: ReturnType<typeof to_customer_address_body>) => Promise<void>;
 }) {
-  const { t, country } = useI18n();
+  const { t } = useI18n();
+  const { options: countries, dialling } = useCountryOptions();
   const [pending, startTransition] = useTransition();
   const form = useForm<CustomerAddressFormValues>({
     resolver: zodResolver(customer_address_schema as never),
@@ -97,9 +97,9 @@ export function AddressFormSheet({
               control={form.control}
               name="country_code"
               label={t("address.country")}
-              options={COUNTRY_OPTIONS.map((c) => ({ value: c.code, label: country(c.code) }))}
+              options={countries.map((c) => ({ value: c.code, label: c.label }))}
               onSelect={(code) => {
-                const opt = COUNTRY_OPTIONS.find((c) => c.code === code);
+                const opt = countries.find((c) => c.code === code);
                 if (opt) form.setValue("dialling_code", opt.dialling_code);
               }}
             />
@@ -108,7 +108,7 @@ export function AddressFormSheet({
                 control={form.control}
                 name="dialling_code"
                 label={t("address.dialling_code")}
-                options={DIALLING_OPTIONS.map((d) => ({ value: d, label: d }))}
+                options={dialling.map((d) => ({ value: d, label: d }))}
               />
               <TextField control={form.control} name="telephone" label={t("address.phone")} type="tel" autoComplete="tel-national" />
             </div>

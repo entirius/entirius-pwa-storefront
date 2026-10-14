@@ -25,14 +25,16 @@ const num = (v: string | null | undefined) => {
   return Number.isFinite(n) ? n : 0;
 };
 
-// No per-line live stock: the stepper soft-clamps and the backend validation
-// flags catch the rest.
+// Upper bound of a line: the available stock where it is known, else a soft limit
+// (the backend validation flags catch the rest).
 const SOFT_MAX = 99;
+const line_max = (stock: { quantity: number } | undefined) =>
+  typeof stock?.quantity === "number" && stock.quantity > 0 ? stock.quantity : SOFT_MAX;
 
 // The cart as a page: lines on the left, the order summary beside them (below on
 // phones, with the total and "Go to checkout" pinned to the bottom).
 export function CartPageClient() {
-  const { backend, isFetching, error, items, setQty, remove } = useCartSync();
+  const { backend, isFetching, error, items, stocks, setQty, remove } = useCartSync();
   const mounted = useHydrated();
 
   const entries = Object.entries(items);
@@ -152,9 +154,9 @@ export function CartPageClient() {
                     <QuantityStepper
                       size="lg"
                       value={item.quantity}
-                      onChange={(q) => setQty(sku, q, SOFT_MAX)}
+                      onChange={(q) => setQty(sku, q, line_max(stocks?.[sku]))}
                       min={0}
-                      max={SOFT_MAX}
+                      max={line_max(stocks?.[sku])}
                     />
                     <div className="flex items-center gap-2 md:min-w-36 md:flex-col md:items-end md:gap-0">
                       <span className="font-brand text-lg tabular-nums text-heading">{line_total}</span>
@@ -192,7 +194,7 @@ export function CartPageClient() {
                 {t("cart.subtotal")}
                 {isFetching && <Spinner className="size-3" />}
               </dt>
-              <dd className="tabular-nums">{fmt(backend?.subtotal_gross)}</dd>
+              <dd className="tabular-nums">{fmt(backend?.items_subtotal_gross)}</dd>
             </div>
             {has_discount && (
               <div className="flex justify-between gap-4">
@@ -204,10 +206,23 @@ export function CartPageClient() {
                 <dd className="tabular-nums text-positive">−{fmt(backend?.total_discount_gross)}</dd>
               </div>
             )}
+            {/* Once checkout has chosen a method, the total includes it: show it so the rows add up. */}
             <div className="flex justify-between gap-4">
               <dt className="text-muted-foreground">{t("cart.shipping")}</dt>
-              <dd className="text-muted-foreground">{t("cart.shipping_at_checkout")}</dd>
+              {backend?.shipping_method && backend.shipping_gross != null ? (
+                <dd className="tabular-nums">
+                  {num(backend.shipping_gross) === 0 ? t("common.free") : fmt(backend.shipping_gross)}
+                </dd>
+              ) : (
+                <dd className="text-muted-foreground">{t("cart.shipping_at_checkout")}</dd>
+              )}
             </div>
+            {num(backend?.fee_gross) > 0 && (
+              <div className="flex justify-between gap-4">
+                <dt className="text-muted-foreground">{t("checkout.payment_fee")}</dt>
+                <dd className="tabular-nums">{fmt(backend?.fee_gross)}</dd>
+              </div>
+            )}
           </dl>
           {to_free_shipping && (
             <p className="-mt-2 text-xs text-muted-foreground">

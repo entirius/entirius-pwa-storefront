@@ -292,3 +292,22 @@ html.dark {
 html:not([data-consent-ready]) a[href$="#cookie-consents"] {
   display: none;
 }
+
+/* Order confirmation (/checkout/success): printing or saving as PDF outputs the receipt only. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  [data-order-receipt],
+  [data-order-receipt] * {
+    visibility: visible;
+  }
+  [data-order-receipt] {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+  }
+  [data-print-hide] {
+    display: none;
+  }
+}
