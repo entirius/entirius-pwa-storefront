@@ -57,6 +57,8 @@ export default function geo_CF_helper(request: NextRequest) {
   return {
     ct,
     lg: allowed(cookie("lg"), profile.languages, profile.default_language),
+    // The profile's own language: what a visitor without a choice of their own gets.
+    profile_language: profile.default_language ?? null,
     cr: allowed(cookie("cr"), profile.currencies, profile.default_currency),
     ch: channel_for(profile, cookie("ch")),
     th: cookie("th") ?? null,

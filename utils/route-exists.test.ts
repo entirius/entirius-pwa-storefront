@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { clear_route_cache, route_exists } from "./route-exists";
+import { clear_route_cache, localized_catalog_key, route_exists } from "./route-exists";
 
 const CTX = { channel: "default-europe", language: "en", currency: "eur", country: "default" };
 
@@ -66,5 +66,19 @@ describe("route_exists", () => {
     expect(fetch).toHaveBeenCalledTimes(1001);
     await route_exists(["product", "p0"], CTX); // oldest: dropped, asked again
     expect(fetch).toHaveBeenCalledTimes(1002);
+  });
+
+  it("knows the active language's key of a category written in another language", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string | URL) => {
+        const language = new URL(String(url)).searchParams.get("language");
+        const hit = language === "en" ? [{ url_key: "chairs", url_keys: { en: "chairs", pl: "krzesla" } }] : [];
+        return Response.json({ results: hit });
+      }),
+    );
+    expect(await localized_catalog_key(["catalog", "chairs"], { ...CTX, language: "pl" })).toBe("krzesla");
+    expect(await localized_catalog_key(["catalog", "chairs"], { ...CTX, language: "en" })).toBeNull();
+    expect(await localized_catalog_key(["product", "chairs"], { ...CTX, language: "pl" })).toBeNull();
   });
 });

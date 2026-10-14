@@ -32,3 +32,25 @@ test("catalog and empty cart in Polish", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Twój koszyk" })).toBeVisible();
   await expect(page.getByText("Twój koszyk jest pusty")).toBeVisible();
 });
+
+// Category url keys belong to a language (`chairs` / `krzesla`): an address with another language's key goes to
+// the active one's, and the menu's configured keys are turned into it too.
+test("a category address and the menu follow the language's url keys", async ({ page }) => {
+  const response = await page.goto("/catalog/chairs");
+  expect(response?.request().redirectedFrom()?.url()).toMatch(/\/catalog\/chairs$/);
+  await expect(page).toHaveURL(/\/catalog\/krzesla$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Krzesła");
+
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/");
+  await expect(page.getByRole("navigation", { name: "Main" }).getByRole("listitem").first()).toHaveText("Krzesła");
+});
+
+test("a crawler without cookies reads a category in the profile's language", async ({ browser }) => {
+  const context = await browser.newContext(); // no `lg` cookie
+  const page = await context.newPage();
+  await page.goto("/catalog/krzesla");
+  await expect(page).toHaveURL(/\/catalog\/chairs$/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await context.close();
+});

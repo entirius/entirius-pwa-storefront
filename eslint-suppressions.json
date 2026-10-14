@@ -77,11 +77,6 @@
       "count": 1
     }
   },
-  "app/_components/layout/api.query.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 2
-    }
-  },
   "app/_components/layout/search.query.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2

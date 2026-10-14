@@ -8,7 +8,7 @@ import { NextResponse } from "next/server";
 // ------------------------------ ---- - ----- -- - - - --
 
 import channels from "@/_CONFIG/channels.config.json";
-import { route_exists } from "@/utils/route-exists";
+import { localized_catalog_key, route_exists } from "@/utils/route-exists";
 
 
 // Loop guard for the self request of `render_not_found`.
@@ -50,7 +50,7 @@ async function render_not_found(request: NextRequest, path: string): Promise<Nex
 }
 
 export default async function proxy(request: NextRequest) {
-  const { ct, lg, cr, th, ch, cid, visited, geo } = geo_CF_helper(request);
+  const { ct, lg, cr, th, ch, cid, visited, geo, profile_language } = geo_CF_helper(request);
 
   const pathname = request.nextUrl.pathname;
   const country_from_path = profile_from_path(pathname);
@@ -93,12 +93,25 @@ export default async function proxy(request: NextRequest) {
   const is_document = !request.headers.get("rsc");
   if (is_document && ch && !request.headers.has(NOT_FOUND_RENDER_HEADER)) {
     const rest = pathname.split("/").filter(Boolean).slice(country_from_path ? 1 : 0);
-    if (!(await route_exists(rest, { channel: ch, language: lg, currency: cr, country: ct }))) {
+    const ctx = { channel: ch, language: lg, currency: cr, country: ct };
+    if (!(await route_exists(rest, ctx))) {
       const url = request.nextUrl.clone();
       const profile = country_from_path ?? "default";
       url.pathname = `/${profile}/not-found-route`;
       const rendered = await render_not_found(request, url.pathname);
       return finish(rendered ?? NextResponse.rewrite(url, { status: 404 }));
+    }
+
+    // A category written with another language's key (`/pl/catalog/chairs`): to the active language's key.
+    // 301 when that language is the profile's own (the same answer for every visitor, crawlers included);
+    // 302 when the visitor chose it, so no browser keeps a redirect that a later switch would reverse.
+    const key = await localized_catalog_key(rest, ctx);
+    if (key) {
+      const url = request.nextUrl.clone();
+      const parts = pathname.split("/");
+      parts[country_from_path ? 3 : 2] = encodeURIComponent(key);
+      url.pathname = parts.join("/");
+      return finish(NextResponse.redirect(url, lg === profile_language ? 301 : 302));
     }
   }
 

@@ -19,8 +19,10 @@ import { LANGUAGES } from "@/lib/languages";
 const TTL_MS = 60_000;
 const TIMEOUT_MS = 2_000;
 const MAX_ENTRIES = 1_000;
-const cache = new Map<string, { exists: boolean; until: number }>();
-const pending = new Map<string, Promise<boolean>>();
+// `keys`: a category's url key per language ({en: "chairs", pl: "krzesla"}), for the redirect to the active one.
+type Answer = { exists: boolean; keys?: Record<string, string> };
+const cache = new Map<string, Answer & { until: number }>();
+const pending = new Map<string, Promise<Answer>>();
 
 // First path segments that are app routes, not CMS pages (catch-all `(builder)/[[...slug]]`).
 // A new top-level app route must be added here.
@@ -38,38 +40,41 @@ export type RouteContext = {
 
 type Api = ReturnType<typeof create_api>;
 
-async function ask(api: Api, route: string, querys: Record<string, string>, listing_key: string): Promise<boolean> {
+type Hit = { exists: boolean; rows?: { url_keys?: Record<string, string> | null }[] };
+
+async function ask(api: Api, route: string, querys: Record<string, string>, listing_key: string): Promise<Hit> {
   try {
     const [error, body] = await api.FETCH_METHOD<Record<string, unknown>>(route, {
       querys,
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
-    if (error) return error.status !== 400 && error.status !== 404;
+    if (error) return { exists: error.status !== 400 && error.status !== 404 };
     const list = body?.[listing_key] ?? body;
-    return Array.isArray(list) ? list.length > 0 : true;
+    return Array.isArray(list) ? { exists: list.length > 0, rows: list } : { exists: true };
   } catch {
-    return true;
+    return { exists: true };
   }
 }
 
-async function lookup(kind: string, key: string, ctx: RouteContext): Promise<boolean> {
+async function lookup(kind: string, key: string, ctx: RouteContext): Promise<Answer> {
   const api = create_api(make_static_access(ctx));
   if (kind === "product") {
-    return ask(api, API_PRODUCTS_ROUTE, { url_key: key, page_size: "1" }, "results");
+    return { exists: (await ask(api, API_PRODUCTS_ROUTE, { url_key: key, page_size: "1" }, "results")).exists };
   }
   if (kind === "catalog") {
     // url_key is matched per language: a category exists when any language of any profile has it.
     const hits = await Promise.all(
       LANGUAGES.map((language) => ask(api, API_CATEGORIES_ROUTE, { url_key: key, language }, "results")),
     );
-    return hits.some(Boolean);
+    const keys = hits.flatMap((hit) => hit.rows ?? []).find((row) => row.url_keys)?.url_keys ?? undefined;
+    return { exists: hits.some((hit) => hit.exists), keys };
   }
-  return ask(api, API_CMS_STATIC_PAGE_ROUTE, { routes: key, limit: "1", page: "1" }, "data");
+  return { exists: (await ask(api, API_CMS_STATIC_PAGE_ROUTE, { routes: key, limit: "1", page: "1" }, "data")).exists };
 }
 
-function remember(cache_key: string, exists: boolean) {
+function remember(cache_key: string, answer: Answer) {
   cache.delete(cache_key);
-  cache.set(cache_key, { exists, until: Date.now() + TTL_MS });
+  cache.set(cache_key, { ...answer, until: Date.now() + TTL_MS });
   // Map keeps insertion order: the first entries are the oldest.
   for (const old of cache.keys()) {
     if (cache.size <= MAX_ENTRIES) break;
@@ -87,33 +92,47 @@ function decode(segment: string | undefined): string | undefined | null {
   }
 }
 
-// `segments`: the path without the country segment, as in the URL. Returns false only for a known-missing
-// address.
-export async function route_exists(segments: string[], ctx: RouteContext): Promise<boolean> {
+async function answer(segments: string[], ctx: RouteContext): Promise<Answer & { kind?: string; key?: string }> {
   const [first, second] = segments.slice(0, 2).map(decode);
-  if (first === null || second === null) return true;
-  if (!first) return true; // home
-  if (first.startsWith(LAYOUT_ROUTE_PREFIX)) return false; // layout slots are not pages (the builder answers 404)
+  if (first === null || second === null) return { exists: true };
+  if (!first) return { exists: true }; // home
+  if (first.startsWith(LAYOUT_ROUTE_PREFIX)) return { exists: false }; // layout slots are not pages (the builder answers 404)
   const kind = first === "product" || first === "catalog" ? first : APP_ROUTES.has(first) ? null : "page";
   const key = kind === "page" ? first : second;
-  if (!kind || !key) return true;
-  if (!CHANNELS.has(ctx.channel)) return true; // a channel this shop does not serve: the page decides
+  if (!kind || !key) return { exists: true };
+  if (!CHANNELS.has(ctx.channel)) return { exists: true }; // a channel this shop does not serve: the page decides
 
   const cache_key = `${ctx.channel}|${kind}|${key}`;
   const hit = cache.get(cache_key);
-  if (hit && hit.until > Date.now()) return hit.exists;
+  if (hit && hit.until > Date.now()) return { ...hit, kind, key };
   if (hit) cache.delete(cache_key);
 
-  const running = pending.get(cache_key);
-  if (running) return running;
-  const ask_api = lookup(kind, key, ctx)
-    .then((exists) => {
-      remember(cache_key, exists);
-      return exists;
-    })
-    .finally(() => pending.delete(cache_key));
-  pending.set(cache_key, ask_api);
-  return ask_api;
+  let running = pending.get(cache_key);
+  if (!running) {
+    running = lookup(kind, key, ctx)
+      .then((found) => {
+        remember(cache_key, found);
+        return found;
+      })
+      .finally(() => pending.delete(cache_key));
+    pending.set(cache_key, running);
+  }
+  return { ...(await running), kind, key };
+}
+
+// `segments`: the path without the country segment, as in the URL. Returns false only for a known-missing
+// address.
+export async function route_exists(segments: string[], ctx: RouteContext): Promise<boolean> {
+  return (await answer(segments, ctx)).exists;
+}
+
+// For a category address written with another language's key (`/pl/catalog/chairs`): the active language's
+// key (`krzesla`). null when the key is already the active one, or nothing is known.
+export async function localized_catalog_key(segments: string[], ctx: RouteContext): Promise<string | null> {
+  const found = await answer(segments, ctx);
+  if (found.kind !== "catalog" || !found.exists || !ctx.language) return null;
+  const target = found.keys?.[ctx.language];
+  return target && target !== found.key ? target : null;
 }
 
 // Test hook: the cache is module state.
