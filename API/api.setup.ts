@@ -104,7 +104,8 @@ export function create_fetch_engine(access: API_ACCESS) {
 
       if (val === undefined) throw new Error(`missing-route-param:${ph}`);
       if (val === null) val = "";
-      out = out.replace(new RegExp(ph, "g"), String(val));
+      // Cookie values: encoded, so a forged one stays a single path segment (`../../x` cannot climb).
+      out = out.replace(new RegExp(ph, "g"), encodeURIComponent(String(val)));
       // delete doubled slashes that could appear in the path because of last params could be empty
       out = out.replace(/([^:])\/\//g, "$1/");
     }

@@ -6,6 +6,7 @@ import type { NextRequest } from "next/server";
 import { _LOGGER } from "@/lib/logger";
 
 import countries from "@/_CONFIG/countries.config.json";
+import channels from "@/_CONFIG/channels.config.json";
 
 const READ_COOKIES_NAMES: [string, string | null][] = [
   // language
@@ -81,6 +82,12 @@ export default function geo_CF_helper(
         : COUNTRIES_APP_SETTINGS["default"][_default_value_codename];
     }
     _cookies[_name as string] = _value;
+  }
+  // The channel goes into the API path: one this shop does not serve (a stale or forged cookie) falls back to
+  // the profile's default, which proxy.ts then writes back.
+  if (_cookies.ch && !(_cookies.ch in channels)) {
+    const profile = COUNTRIES_APP_SETTINGS[_COUNTRY] ?? COUNTRIES_APP_SETTINGS["default"];
+    _cookies.ch = profile?.default_channel ?? null;
   }
   // ------------------------------------------------------------
   // ------------------------------------------------------------
