@@ -112,7 +112,7 @@ export function CheckoutSummary({
               accent
             />
           )}
-        {backend?.shipping_method && (
+        {backend?.shipping_method && backend.shipping_gross != null && (
           <Row
             label={t("checkout.delivery")}
             value={num(backend.shipping_gross) === 0 ? t("common.free") : fmt(backend.shipping_gross)}

@@ -106,7 +106,7 @@ export function ReviewStep({
           }
         : null,
       shipping: cart?.shipping_method
-        ? { name: cart.shipping_method.name, price: cart.shipping_method.price }
+        ? { name: cart.shipping_method.name, price: cart.shipping_gross }
         : null,
     };
   };
@@ -124,7 +124,7 @@ export function ReviewStep({
         <InfoCard
           title={t("checkout.shipping_method")}
           name={cart?.shipping_method?.name}
-          note={fmt(cart?.shipping_method?.price)}
+          note={fmt(cart?.shipping_gross)}
         />
         <InfoCard
           title={t("checkout.payment_method")}

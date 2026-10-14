@@ -28,6 +28,16 @@ describe("NORM_CART totals", () => {
     expect(cart.shipping_gross).toBe("12.00");
   });
 
+  it("takes the delivery price after free delivery, not the method's base price", () => {
+    // The shape of the cart's method on the reference backend: `gross` before, `final_gross` after free delivery.
+    const cart = NORM_CART({
+      free_shipping: true,
+      items: [item],
+      shipping_method: { code: "std", name: "Standard", price: "9.99", gross: "9.99", final_gross: "0.00" },
+    });
+    expect(cart.shipping_gross).toBe("0.00");
+  });
+
   it("falls back to unit price times quantity and to the backend subtotal", () => {
     const no_total: Partial<typeof item> = { ...item };
     delete no_total.total_gross;
