@@ -7,6 +7,7 @@ import { cache } from "react";
 import { API_PRODUCTS_ROUTE } from "@/API/api.routes";
 import { primary_category, type ProductCategory } from "@/lib/categories";
 import { RELATED_RULES } from "@/lib/product-config";
+import { load_product } from "./api.query";
 
 type Api = ReturnType<typeof create_api>;
 type Attribute = { feature_idx: string; value_idx: string | null };
@@ -73,21 +74,30 @@ export function accept_candidates(
   return taken;
 }
 
-// In-stock products similar to `product`, never the product itself: the rules of `PRODUCT.RELATED` in order,
-// each one filling up what the previous left (up to RELATED_LIMIT).
-export const load_related = cache(async (api: Api, product: RawProduct): Promise<RawProduct[]> => {
+// In-stock products similar to the product at `product_url_key`, never the product itself: the rules of
+// `PRODUCT.RELATED` in order, each one filling up what the previous left (up to RELATED_LIMIT). The rules are
+// asked in parallel; the order only decides whose candidates go first. Keyed on the url_key (a primitive), so
+// React cache() dedupes it; the product itself comes from load_product's cache.
+export const load_related = cache(async (api: Api, product_url_key: string): Promise<RawProduct[]> => {
+  const [, response] = await load_product(api, { product_url_key });
+  const product = (response as { results?: RawProduct[] } | undefined)?.results?.[0];
+  if (!product) return [];
+
+  const filters = RELATED_RULES.map((rule) => rule_filter(rule, product)).filter((f): f is Filter => f !== null);
+  const answers = await Promise.all(
+    filters.map((filter) =>
+      api.FETCH_METHOD<{ results?: RawProduct[] }>(API_PRODUCTS_ROUTE, {
+        querys: { ...filter.query, on_stock: "true", page_size: CANDIDATES, include: "full" },
+      }),
+    ),
+  );
+
   const found: RawProduct[] = [];
   const seen = new Set([product.sku]);
-  for (const rule of RELATED_RULES) {
-    if (found.length >= RELATED_LIMIT) break;
-    const filter = rule_filter(rule, product);
-    if (!filter) continue;
-    const [error, response] = await api.FETCH_METHOD(API_PRODUCTS_ROUTE, {
-      querys: { ...filter.query, on_stock: "true", page_size: CANDIDATES, include: "full" },
-    });
-    if (error) continue;
-    const results = (response as { results?: RawProduct[] } | null)?.results ?? [];
-    found.push(...accept_candidates(results, seen, filter, RELATED_LIMIT - found.length));
-  }
+  filters.forEach((filter, i) => {
+    const [error, body] = answers[i];
+    if (error || found.length >= RELATED_LIMIT) return;
+    found.push(...accept_candidates(body?.results ?? [], seen, filter, RELATED_LIMIT - found.length));
+  });
   return found;
 });

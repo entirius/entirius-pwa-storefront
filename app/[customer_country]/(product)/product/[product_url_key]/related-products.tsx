@@ -3,10 +3,13 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { cn } from "@/lib/utils";
+import { PrefetchBoundary } from "@/lib/prefetch_boundary";
+import { omnibus_prefetch, is_discounted } from "@/lib/omnibus/omnibus.query";
+import { get_server_api } from "@/lib/seo/server-api";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 import { NORM_PRODUCTS_DATA } from "@/utils/NORMALIZERS/product.normalizer";
 import { ProductTile } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-tile.client";
-import type { RawProduct } from "./related";
+import { load_related, type RawProduct } from "./related";
 
 const strip_html = (html: string) => html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 
@@ -57,5 +60,19 @@ export async function RelatedProducts({ items }: { items: RawProduct[] }) {
         ))}
       </div>
     </section>
+  );
+}
+
+// The section as the product page streams it: under <Suspense>, so the product does not wait for its similar
+// products. Renders nothing when there are none.
+export async function RelatedSection({ product_url_key }: { product_url_key: string }) {
+  const api = await get_server_api();
+  const items = await load_related(api, product_url_key);
+  if (!items.length) return null;
+  const discounted = items.filter((p) => is_discounted(p.price)).map((p) => p.sku);
+  return (
+    <PrefetchBoundary prefetches={discounted.length ? [omnibus_prefetch(api, discounted)] : []}>
+      <RelatedProducts items={items} />
+    </PrefetchBoundary>
   );
 }

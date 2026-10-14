@@ -39,8 +39,9 @@ import { description_html } from "@/lib/rich-html";
 const PLACEHOLDER_MEDIA = [[{ uri: image_placeholder, width: 600, height: 600 }]];
 
 
-// `related`: server-rendered similar products (null when there are none), placed here by stock.
-export function ProductClient({ product_url_key, related }: { product_url_key: string; related: ReactNode | null }) {
+// `related`: the streamed similar-products section (it renders nothing when there are none), placed here by
+// stock. Whether it holds any is read from the DOM by CSS (`has-[[data-related-products]]`).
+export function ProductClient({ product_url_key, related }: { product_url_key: string; related: ReactNode }) {
   const { t, language } = useI18n();
   const api = useMemo(() => create_api(make_client_access()), []);
   const { data: product, isLoading, error } = useQuery(
@@ -119,10 +120,10 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
     setNotifyOpen(true);
     buy_area.current?.scrollIntoView({ block: "center", behavior: scroll_behavior() });
   };
-  const related_section = related && (
+  const related_section = (
     <div
       data-stock={sold ? "out" : "in"}
-      className={cn("group/related", sold ? "border-t border-border pt-5" : undefined)}
+      className={cn("group/related hidden has-[[data-related-products]]:block", sold && "border-t border-border pt-5")}
     >
       {related}
     </div>
@@ -131,7 +132,7 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
   return (
     <div
       // Room under the page for the fixed buy bar on phones.
-      className={cn("flex flex-col gap-10", purchasable && "pb-16 md:pb-0")}
+      className={cn("group/product flex flex-col gap-10", purchasable && "pb-16 md:pb-0")}
       data-product-page
       data-stock={stock_known ? (inStock ? "in" : "out") : undefined}
     >
@@ -259,11 +260,16 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
             <>
               {/* With the notify action the bar has room for two buttons only: the marker stays in the buy area. */}
               {!notify_visible && <span data-unavailable className="text-sm font-medium">{t("product.out_of_stock")}</span>}
-              {related && (
-                <Button asChild variant="outline" className={notify_visible ? "shrink-0" : "ml-auto"}>
-                  <Link href="#related-products">{t("product.see_similar")}</Link>
-                </Button>
-              )}
+              <Button
+                asChild
+                variant="outline"
+                className={cn(
+                  "hidden group-has-[[data-related-products]]/product:inline-flex",
+                  notify_visible ? "shrink-0" : "ml-auto",
+                )}
+              >
+                <Link href="#related-products">{t("product.see_similar")}</Link>
+              </Button>
               {notify_visible && (
                 <Button className="min-w-0 flex-1" data-notify-bar-trigger onClick={open_notify}>
                   {t("product.notify_short")}

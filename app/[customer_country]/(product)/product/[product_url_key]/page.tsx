@@ -2,6 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { PrefetchBoundary } from "@/lib/prefetch_boundary";
 import { decode_param } from "@/lib/route-params";
@@ -16,8 +17,7 @@ import {
 import { JsonLd } from "@/lib/seo/json-ld";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 import { ProductClient } from "./_components/product.client";
-import { load_related } from "./related";
-import { RelatedProducts } from "./related-products";
+import { RelatedSection } from "./related-products";
 import {
   PageBreadcrumbs,
   category_trail,
@@ -61,7 +61,6 @@ export default async function ProductPage({ params }: Props) {
         url: product_ld?.offers?.url,
       })
     : null;
-  const related = raw ? await load_related(api, raw) : [];
   const jsonLd = [product_ld, crumbs_ld].filter((d): d is object => d !== null);
 
   return (
@@ -71,9 +70,6 @@ export default async function ProductPage({ params }: Props) {
         variants_query(api, { product_url_key }),
         ...(raw && is_discounted(raw.price)
           ? [omnibus_prefetch(api, [raw.sku])]
-          : []),
-        ...(related.some((p) => is_discounted(p.price))
-          ? [omnibus_prefetch(api, related.filter((p) => is_discounted(p.price)).map((p) => p.sku))]
           : []),
       ]}
     >
@@ -85,7 +81,11 @@ export default async function ProductPage({ params }: Props) {
       )}
       <ProductClient
         product_url_key={product_url_key}
-        related={related.length ? <RelatedProducts items={related} /> : null}
+        related={
+          <Suspense fallback={null}>
+            <RelatedSection product_url_key={product_url_key} />
+          </Suspense>
+        }
       />
     </PrefetchBoundary>
   );
