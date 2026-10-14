@@ -53,6 +53,33 @@ test.describe("gallery", () => {
     await page.keyboard.press("Escape");
     await expect(viewer).toHaveCount(0);
   });
+
+  test("viewer keys move the viewer only and keep working on the first picture", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/product/nebula-crimson-sofa");
+    await page.locator("[data-gallery] button img").first().click();
+    const viewer = page.locator("[data-gallery-viewer]");
+    const counter = viewer.getByText(/^\d+ \/ 4$/);
+    const next = viewer.getByRole("button", { name: "Next slide" });
+    await next.click();
+    await expect(counter).toHaveText("2 / 4");
+    await next.click();
+    await expect(counter).toHaveText("3 / 4");
+    // The keys reached the gallery behind too, which pulled the viewer back to its own picture.
+    await page.keyboard.press("ArrowRight");
+    await expect(counter).toHaveText("4 / 4");
+
+    // The Previous button leaves on the first picture; the keys must still reach the viewer.
+    const previous = viewer.getByRole("button", { name: "Previous slide" });
+    for (const at of ["3 / 4", "2 / 4", "1 / 4"]) {
+      await previous.click();
+      await expect(counter).toHaveText(at);
+    }
+    await page.keyboard.press("Escape");
+    await expect(viewer).toHaveCount(0);
+    await expect(page.locator("[data-gallery] button[aria-label]").first()).toBeFocused();
+  });
 });
 
 test.describe("related products", () => {

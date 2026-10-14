@@ -4,7 +4,7 @@
 
 "use client";
 import { MediaImage } from "@/components/ui/media-image.client";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal, flushSync } from "react-dom";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -92,7 +92,8 @@ function ZoomSlide({ src, alt, active, eager }: { src: string; alt: string; acti
   );
 }
 
-// Full-screen viewer: swipe (scroll-snap), keyboard arrows, Escape, 44 px close target, focus returns to the opener.
+// Full-screen viewer: swipe (scroll-snap), keyboard arrows, Escape, 44 px close target, Tab kept inside, focus
+// returns to the opener.
 export function GalleryViewer({
   media,
   name,
@@ -105,9 +106,12 @@ export function GalleryViewer({
   onClose: (index: number) => void;
 }) {
   const { t } = useI18n();
+  const dialog = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
   const close_button = useRef<HTMLButtonElement>(null);
   const [index, setIndex] = useState(start);
+  // The slide the viewer opened on. `start` follows the gallery behind, which must not re-run the opening.
+  const [first] = useState(start);
   const count = media.length;
 
   const go = (to: number) => {
@@ -119,32 +123,48 @@ export function GalleryViewer({
     const opener = document.activeElement as HTMLElement | null;
     const overflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    if (track.current) track.current.scrollLeft = start * track.current.clientWidth;
+    if (track.current) track.current.scrollLeft = first * track.current.clientWidth;
     close_button.current?.focus();
     return () => {
       document.body.style.overflow = overflow;
       opener?.focus?.({ preventScroll: true });
     };
-  }, [start]);
+  }, [first]);
+
+  // The edge buttons go away on the first and the last slide; if one had focus, the dialog takes it back, or
+  // the keys would stop reaching it.
+  useEffect(() => {
+    if (!dialog.current?.contains(document.activeElement)) dialog.current?.focus({ preventScroll: true });
+  }, [index]);
 
   const on_key = (e: React.KeyboardEvent) => {
+    // The viewer is a portal of the gallery: its keys would also move the gallery behind it.
+    e.stopPropagation();
     if (e.key === "Escape") onClose(index);
     if (e.key === "ArrowLeft") go(index - 1);
     if (e.key === "ArrowRight") go(index + 1);
     if (e.key === "Tab") {
+      // Tab and Shift+Tab cycle through the viewer's own buttons.
       e.preventDefault();
-      close_button.current?.focus();
+      const buttons = [...(dialog.current?.querySelectorAll<HTMLButtonElement>("button") ?? [])].filter(
+        (b) => b.offsetParent !== null,
+      );
+      const at = buttons.indexOf(document.activeElement as HTMLButtonElement);
+      const next = at === -1 ? 0 : (at + (e.shiftKey ? -1 : 1) + buttons.length) % buttons.length;
+      buttons[next]?.focus();
     }
   };
 
   return createPortal(
     <div
+      ref={dialog}
       data-gallery-viewer
       role="dialog"
+      tabIndex={-1}
       aria-modal="true"
       aria-label={t("product.gallery_viewer", { name })}
       onKeyDown={on_key}
-      className="fixed inset-0 z-[60] bg-background"
+      className="fixed inset-0 z-[60] bg-background outline-none"
     >
       <div
         ref={track}
@@ -157,7 +177,7 @@ export function GalleryViewer({
             src={variants[0].uri}
             alt={t("product.image", { name, number: i + 1 })}
             active={i === index}
-            eager={Math.abs(i - start) <= 1}
+            eager={Math.abs(i - first) <= 1}
           />
         ))}
       </div>
