@@ -122,7 +122,8 @@ export function Gallery({ media, name }: { media: GalleryMedia; name: string }) 
                 i === index ? "ring-2 ring-primary" : "ring-border hover:ring-primary",
               )}
             >
-              <MediaImage src={variants[0].uri} alt="" fill sizes="96px" className="object-cover" />
+              {/* One of five columns in the half-width gallery: about a tenth of the viewport, at most 128px. */}
+              <MediaImage src={variants[0].uri} alt="" fill sizes="(min-width: 1280px) 128px, 10vw" className="object-cover" />
             </button>
           ))}
         </div>

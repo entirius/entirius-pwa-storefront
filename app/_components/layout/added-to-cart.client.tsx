@@ -57,7 +57,7 @@ export function AddedToCart() {
               <Check className="size-4" aria-hidden />
             </span>
             <p className="flex-1 font-semibold text-heading">{i18n.t("cart.added")}</p>
-            <Button variant="ghost" size="icon" className="rounded-full" aria-label={i18n.t("common.close")} onClick={hide}>
+            <Button variant="ghost" size="icon" aria-label={i18n.t("common.close")} onClick={hide}>
               <X />
             </Button>
           </div>
@@ -66,7 +66,12 @@ export function AddedToCart() {
               <MediaImage src={item.image ?? image_placeholder} alt="" fill sizes="64px" className="object-cover" />
             </div>
             <div className="min-w-0">
-              <p className="truncate font-brand text-heading">{item.name}</p>
+              <p className="line-clamp-2 font-brand leading-snug text-heading">{item.name}</p>
+              {item.options?.map((o) => (
+                <p key={o.axis} className="text-sm text-muted-foreground">
+                  {o.axis}: {o.value}
+                </p>
+              ))}
               <p className="text-sm text-muted-foreground">{i18n.t("checkout.quantity", { count: item.quantity })}</p>
             </div>
             {item.price && (

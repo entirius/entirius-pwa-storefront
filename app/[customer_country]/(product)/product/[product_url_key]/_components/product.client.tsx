@@ -107,10 +107,15 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
     add(buy, qty, max);
     show_added({
       sku: buy.sku,
-      name: buy.name,
+      // The variant goes on its own line, so the product name without the "(S/M)" suffix.
+      name: configurable ? product.name : buy.name,
       quantity: qty,
       price: buy.price,
       image: media[0]?.[0]?.uri ?? null,
+      options: configurable?.axes.flatMap((axis) => {
+        const option = axis.options.find((o) => o.value === configurable.selection[axis.idx]);
+        return option ? [{ axis: axis.label, value: option.label }] : [];
+      }),
     });
   };
   // Until stock answers the button stays "Add to cart" (disabled), so an
