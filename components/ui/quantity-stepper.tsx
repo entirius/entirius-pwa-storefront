@@ -51,7 +51,7 @@ export function QuantityStepper({
       </Button>
       <span
         aria-live="polite"
-        className={cn("min-w-8 text-center tabular-nums", large ? "font-semibold" : "text-sm")}
+        className="min-w-8 text-center text-sm tabular-nums"
       >
         {value}
       </span>
