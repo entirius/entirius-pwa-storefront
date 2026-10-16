@@ -17,7 +17,7 @@
     /* Not --cc-font-family: a custom property set to `inherit` takes the library's own default. */
     font-family: inherit;
     --cc-modal-border-radius: max(0px, var(--radius));
-    --cc-btn-border-radius: max(0px, calc(var(--radius) - 2px));
+    --cc-btn-border-radius: var(--control-radius);
     --cc-bg: var(--popover);
     --cc-primary-color: var(--popover-foreground);
     --cc-secondary-color: var(--muted-foreground);

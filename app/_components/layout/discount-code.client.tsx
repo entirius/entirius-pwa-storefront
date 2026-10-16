@@ -11,9 +11,8 @@ import { make_client_access } from "@/API/access/api.client-access";
 import { create_api } from "@/API/api.context";
 import { API_CART_DISCOUNTS_ROUTE } from "@/API/api.routes";
 import { NORM_CART, type Cart } from "@/utils/NORMALIZERS/cart.normalizer";
-import { Button } from "@/components/ui/button";
 import { FormError } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/ui/input-group";
 import { Spinner } from "@/components/ui/spinner";
 import { useI18n } from "@/providers/i18n.provider";
 
@@ -72,22 +71,26 @@ export function DiscountCode({ backend }: { backend: Cart | null | undefined }) 
 
   return (
     <div className="flex flex-col gap-2">
-      <form onSubmit={apply} className="flex gap-2">
-        <Input
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder={t("cart.discount_code")}
-          aria-label={t("cart.discount_code")}
-          autoComplete="off"
-        />
-        <Button
-          type="submit"
-          variant="outline"
-          className="shrink-0"
-          disabled={pending || !value.trim() || !backend?.cart_id}
-        >
-          {pending ? <Spinner className="size-4" /> : t("cart.discount_apply")}
-        </Button>
+      <form onSubmit={apply}>
+        <InputGroup>
+          <InputGroupInput
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder={t("cart.discount_code")}
+            aria-label={t("cart.discount_code")}
+            autoComplete="off"
+          />
+          <InputGroupAddon align="inline-end">
+            <InputGroupButton
+              type="submit"
+              size="sm"
+              className="font-medium"
+              disabled={pending || !value.trim() || !backend?.cart_id}
+            >
+              {pending ? <Spinner className="size-4" /> : t("cart.discount_apply")}
+            </InputGroupButton>
+          </InputGroupAddon>
+        </InputGroup>
       </form>
       <FormError>{message}</FormError>
       {applied.length > 0 && (
