@@ -16,9 +16,10 @@
   --color-foreground: var(--foreground);
   /* next/font variables first, the token stacks (with the metric-matched Arial
      fallback faces from tokens.css) after. */
-  /* --font-family-sans: a client font from _CONFIG/theme.css. */
+  /* --font-family-sans / --font-family-brand: client fonts from _CONFIG/theme.css. They come first because
+     next/font sets --font-inter / --font-lexend-deca on <html>, which a theme's :root cannot override. */
   --font-sans: var(--font-family-sans, var(--font-inter), var(--brand-font-family-ui));
-  --font-brand: var(--font-lexend-deca), var(--brand-font-family-brand);
+  --font-brand: var(--font-family-brand, var(--font-lexend-deca), var(--brand-font-family-brand));
   --font-mono: var(--brand-font-family-mono);
   --tracking-brand: var(--brand-font-tracking-brand);
   --color-sidebar-ring: var(--sidebar-ring);
