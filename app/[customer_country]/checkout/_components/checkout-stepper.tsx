@@ -19,7 +19,7 @@ export const CHECKOUT_STEPS: { id: CheckoutStep; label: MessageKey }[] = [
   { id: "review", label: "checkout.step_review" },
 ];
 
-const pill = "flex h-9 items-center gap-2 rounded-full border px-3 text-sm";
+const pill = "flex h-9 pointer-coarse:min-h-touch items-center gap-2 rounded-full border px-3 text-sm";
 const badge = "flex size-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold";
 
 // The order steps as pills: the cart first (a link back from checkout), then the
