@@ -6,10 +6,12 @@ import { NORM_MEDIA_DATA } from "@/utils/NORMALIZERS/media.normalizer";
 import { NORM_PRICE_DATA } from "@/utils/NORMALIZERS/price.normalizer";
 import type { Price } from "@/utils/NORMALIZERS/price.normalizer";
 
-type VariantOption = { value: string; label: string };
+// color_hash: "#RGB" / "#RRGGBB" from the option's extension, null for a pattern or a text option.
+type VariantOption = { value: string; label: string; color_hash: string | null };
 
 // One axis of a configurable product (size, colour, ...). Feature names come from the backend.
-type VariantAxis = { idx: string; label: string; options: VariantOption[] };
+// widget_type: "Swatch_Visual" (colours), "Swatch_Text" (sizes), null when the API sends none.
+type VariantAxis = { idx: string; label: string; widget_type: string | null; options: VariantOption[] };
 
 type Variant = {
   sku: string;
@@ -36,7 +38,12 @@ type RawPrice = {
 };
 type RawVariantsResponse = {
   data?: {
-    options?: { idx: string; label: string; options?: VariantOption[] }[];
+    options?: {
+      idx: string;
+      label: string;
+      widget_type?: string | null;
+      options?: { value: string; label: string; extension?: { color_hash?: unknown } | null }[];
+    }[];
     products?: {
       sku: string;
       on_stock?: boolean;
@@ -49,12 +56,23 @@ type RawDetail = { sku: string; name?: string; price?: RawPrice | null; media?: 
 // GET products/{url_key}/variants/ answers { data: { options, products } }: axes with option labels
 // and, per variant, its option values and on_stock. It has no price, name or pictures, so those come
 // from the product list queried by the variant SKUs (`details`).
+const COLOR_HASH = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
+
+function color_hash(value: unknown): string | null {
+  return typeof value === "string" && COLOR_HASH.test(value.trim()) ? value.trim() : null;
+}
+
 function NORM_VARIANTS_DATA(response: RawVariantsResponse, details: RawDetail[]): VariantsData {
   const data = response?.data ?? {};
   const axes: VariantAxis[] = (data.options ?? []).map((axis) => ({
     idx: axis.idx,
     label: axis.label,
-    options: (axis.options ?? []).map((o) => ({ value: o.value, label: o.label })),
+    widget_type: axis.widget_type ?? null,
+    options: (axis.options ?? []).map((o) => ({
+      value: o.value,
+      label: o.label,
+      color_hash: color_hash(o.extension?.color_hash),
+    })),
   }));
   const detail_by_sku = new Map<string, RawDetail>((details ?? []).map((d) => [d.sku, d]));
 

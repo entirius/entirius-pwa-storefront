@@ -190,6 +190,15 @@
   --surface-padding-sm: 0.5rem;
   --surface-outline-padding: 1rem;
   --surface-divider: transparent;
+  /* The diagonal over an unavailable colour swatch: a light line with dark edges, visible on any colour. */
+  --swatch-cross: linear-gradient(
+    to top right,
+    transparent calc(50% - 1.5px),
+    var(--foreground) calc(50% - 1.5px) calc(50% - 0.75px),
+    var(--background) calc(50% - 0.75px) calc(50% + 0.75px),
+    var(--foreground) calc(50% + 0.75px) calc(50% + 1.5px),
+    transparent calc(50% + 1.5px)
+  );
 }
 
 /* html.dark, not .dark: _CONFIG/theme.css loads after this file and its :root would win over .dark. */

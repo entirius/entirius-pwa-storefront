@@ -6,6 +6,8 @@
 
 import { useState } from "react";
 import { Search, Mail, Lock, Eye, DollarSign } from "lucide-react";
+import type { VariantAxis } from "@/utils/NORMALIZERS/variant.normalizer";
+import { VariantPicker } from "@/app/[customer_country]/(product)/product/[product_url_key]/_components/variant-picker.client";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,6 +72,41 @@ function Row({ label, children }: { label?: string; children: React.ReactNode })
 }
 
 // ─── page ────────────────────────────────────────────────────────────────────
+
+// Swatch demo data; colour hashes come from the API in real use (extension.color_hash).
+const hex = (digits: string) => `#${digits}`;
+const DEMO_AXES: VariantAxis[] = [
+  {
+    idx: "color",
+    label: "Kolor",
+    widget_type: "Swatch_Visual",
+    options: [
+      { value: "camel", label: "Camel", color_hash: hex("C19A6B") },
+      { value: "czarny", label: "Czarny", color_hash: hex("1A1A1A") },
+      { value: "bialy", label: "Biały", color_hash: hex("FFFFFF") },
+      { value: "granat", label: "Granat", color_hash: hex("1F2A44") },
+      { value: "kwiaty", label: "Kwiaty", color_hash: null },
+    ],
+  },
+  {
+    idx: "size",
+    label: "Rozmiar",
+    widget_type: "Swatch_Text",
+    options: ["S/M", "M/L", "XL"].map((v) => ({ value: v, label: v, color_hash: null })),
+  },
+];
+
+function VariantPickerDemo() {
+  const [selection, setSelection] = useState<Record<string, string>>({ color: "camel" });
+  return (
+    <VariantPicker
+      axes={DEMO_AXES}
+      selection={selection}
+      choose={(axis, value) => setSelection((s) => ({ ...s, [axis]: value }))}
+      is_available={(_, value) => value !== "granat" && value !== "XL"}
+    />
+  );
+}
 
 export default function StylesheetsPage() {
   const [sliderSingle, setSliderSingle] = useState([40]);
@@ -341,6 +378,11 @@ export default function StylesheetsPage() {
             </AspectRatio>
           </div>
         </Row>
+      </Section>
+
+      {/* ── VariantPicker ───────────────────────────────────────────────────── */}
+      <Section title="VariantPicker (swatches + text)">
+        <VariantPickerDemo />
       </Section>
 
       {/* ── WishlistButton (custom) ────────────────────────────────────────── */}

@@ -149,6 +149,8 @@ Real-time stock of all variants is one `stock/` call with repeated `sku`.
 
 - Any number of axes; one radio group per axis (`variant-picker.client.tsx`), selection logic in
   `variant-selection.ts`, page glue in `use-product-variants.ts`.
+- Colour swatches: an axis with `widget_type: "Swatch_Visual"` draws options whose `extension.color_hash` is `#RGB` /
+  `#RRGGBB` as swatches (name in `aria-label`); options without a valid hash (patterns) stay text chips.
 - `?variant=<sku>` is set once the choice names a variant and is read on SSR. A variant has no url_key; links to
   one go to `/product/<parent_url_key>?variant=<sku>` (search rows do this).
 - The cart gets the variant SKU and the name `Product (option, option)`; the gallery follows the variant when it
