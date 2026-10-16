@@ -50,7 +50,7 @@ export function OrderDetails({ order }: { order: Order }) {
           <SectionHeader icon={<Package className="size-3.5 text-primary" />}>
             {t("orders.items_heading", { count: items.length })}
           </SectionHeader>
-          <div className="overflow-hidden rounded-(--surface-radius) border border-border bg-card">
+          <div className="overflow-hidden rounded-lg border border-border bg-card">
             {items.map((item, idx) => (
               <div
                 key={item.sku ?? idx}
@@ -162,7 +162,7 @@ export function OrderDetails({ order }: { order: Order }) {
           <SectionHeader icon={<CreditCard className="size-3.5 text-primary" />}>
             {t("orders.payment")}
           </SectionHeader>
-          <div className="overflow-hidden rounded-(--surface-radius) border border-border bg-card">
+          <div className="overflow-hidden rounded-lg border border-border bg-card">
             {order.payment_methods.map((method, idx) => (
               <div
                 key={method.code ?? idx}

@@ -64,7 +64,7 @@ export function CartPageClient() {
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
             <section aria-label={t("cart.items_label")} className="flex min-w-0 flex-col gap-4">
               <CartAlerts backend={backend} sync_failed={!!error} sync_message={t("cart.sync_error")} />
-              <ul className="flex flex-col divide-y rounded-(--surface-radius) border px-4">
+              <ul className="flex flex-col divide-y rounded-lg border px-4">
                 {entries.map(([sku, item]) => (
                   <CartLine
                     key={sku}
@@ -190,7 +190,7 @@ function CartLine({
 
 function ListSkeleton() {
   return (
-    <div aria-hidden className="flex flex-col divide-y rounded-(--surface-radius) border px-4 lg:mr-[22rem]">
+    <div aria-hidden className="flex flex-col divide-y rounded-lg border px-4 lg:mr-[22rem]">
       {[0, 1].map((i) => (
         <div key={i} className="flex gap-4 py-4">
           <div className="aspect-product w-20 shrink-0 animate-pulse rounded-md bg-muted md:w-24" />

@@ -179,7 +179,7 @@
   --surface-glow: 0 12px 32px -12px color-mix(in srgb, var(--brand-light-neutral-900) 18%, transparent);
 
   /* Section containers (`surface`, `surface-sm`): a flat theme sets the background to transparent and the paddings
-     and radius to 0, so the content lines up with the breadcrumbs. `surface-outline` keeps its border and padding. */
+     and radius to 0, so the content lines up with the breadcrumbs. `surface-outline` keeps its border, padding and the brand radius. */
   --surface-bg: var(--card);
   --surface-radius: var(--brand-radius-4xl);
   --surface-padding: 1rem;
@@ -281,7 +281,7 @@ html.dark {
 }
 @utility surface-outline {
   border: 1px solid var(--border);
-  border-radius: var(--surface-radius);
+  border-radius: var(--radius-lg);
   padding: var(--surface-outline-padding);
 }
 /* A surface that follows another in a column (used instead of `surface`): the line a flat theme draws between

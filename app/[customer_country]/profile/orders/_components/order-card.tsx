@@ -27,7 +27,7 @@ export function OrderCard({ order }: { order: OrderSummary }) {
   return (
     <LinkDynamic
       href={`/profile/orders/${order.id}`}
-      className="block w-full overflow-hidden rounded-(--surface-radius) border border-border bg-card text-left transition-colors hover:border-primary"
+      className="block w-full overflow-hidden rounded-lg border border-border bg-card text-left transition-colors hover:border-primary"
     >
       <div className="px-5 py-3">
         {/* Top row: ID and status */}

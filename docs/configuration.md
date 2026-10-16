@@ -58,7 +58,7 @@ of outlined round icon buttons (wishlist, gallery and carousel arrows) and text 
 `9999px`, a pill). Section containers (`surface`, `surface-sm`, `surface-divided`) read `--surface-bg`, `--surface-radius`,
 `--surface-padding` / `--surface-padding-lg` / `--surface-padding-sm` and `--surface-divider`; a flat theme sets the
 background to `transparent`, paddings and radius to `0` and the divider to `var(--border)`, and the content lines up
-with the breadcrumbs. `surface-outline` keeps its border and `--surface-outline-padding`; `--surface-backdrop` is the
+with the breadcrumbs. `surface-outline` keeps its border, the brand radius (`rounded-lg`) and `--surface-outline-padding`; `--surface-backdrop` is the
 category header's gradient (`none` turns it off). Other panel and card
 corners come from `--brand-radius-*`, and `--radius` only reaches the cookie banner's dialog. Fonts: set `--font-family-sans`; self-host them with
 `@font-face` and `url("./assets/...")` relative to the file. The dark set sits under `html.dark`, which a `:root`
