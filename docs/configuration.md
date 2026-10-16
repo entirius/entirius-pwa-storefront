@@ -65,7 +65,8 @@ corners come from `--brand-radius-*`, and `--radius` only reaches the cookie ban
 rule in the theme cannot beat. `--leading` is the colour of CMS dyes (`bg-leading`, `text-leading`); white text
 sits on it. `--product-image-ratio` (width / height, default `1 / 1`) shapes every product photo: listing, PDP gallery,
 cart, checkout, search, wishlist. Layout slot wrappers carry `data-layout-slot="<slot>"` for theme rules, and every CMS section and tile
-sits in a `display: contents` wrapper with `data-cms-type="<core_type>"`.
+sits in a `display: contents` wrapper with `data-cms-type="<core_type>"`. The product page root carries `data-product-page`,
+the category header `data-catalog-header`.
 
 ## Message overrides (`messages.config.json`)
 

@@ -105,7 +105,7 @@ export default async function CatalogPage({ params, searchParams }: Props) {
     >
       {jsonLd && <JsonLd data={jsonLd} />}
       {category && (
-        <header className="mb-6 flex flex-col gap-4">
+        <header data-catalog-header className="mb-6 flex flex-col gap-4">
           <PageBreadcrumbs trail={category_trail(category.breadcrumbs)} />
           <div className="surface flex flex-wrap items-end justify-between gap-4 bg-gradient-backdrop">
             <div>
