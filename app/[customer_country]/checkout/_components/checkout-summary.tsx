@@ -12,7 +12,7 @@ import { UnitPrice } from "@/app/_components/layout/cart-price";
 import { DiscountCode } from "@/app/_components/layout/discount-code.client";
 import type { Cart } from "@/utils/NORMALIZERS/cart.normalizer";
 import type { CartItem } from "@/stores/cart.store";
-import { OrderSummaryCard, OrderTotals } from "./order-totals";
+import { OrderSummaryCard, OrderTotals } from "@/app/_components/order/order-totals";
 
 // Read-only order summary (authoritative totals from the synced backend cart, local
 // line-price fallback). Rendered in the sticky right column of the checkout stepper.

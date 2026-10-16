@@ -19,10 +19,10 @@ import type { CartItem } from "@/stores/cart.store";
 import type { Cart } from "@/utils/NORMALIZERS/cart.normalizer";
 import { UnitPrice } from "@/app/_components/layout/cart-price";
 import { DiscountCode } from "@/app/_components/layout/discount-code.client";
-import { CartAlerts } from "@/app/[customer_country]/checkout/_components/cart-alerts";
+import { CartAlerts } from "@/app/_components/order/cart-alerts";
 import { CheckoutStepper } from "@/app/[customer_country]/checkout/_components/checkout-stepper";
-import { OrderSummaryCard, OrderTotals } from "@/app/[customer_country]/checkout/_components/order-totals";
-import { EmptyCart, OrderPageHeader } from "@/app/[customer_country]/checkout/_components/page-header";
+import { OrderSummaryCard, OrderTotals } from "@/app/_components/order/order-totals";
+import { EmptyCart, OrderPageHeader } from "@/app/_components/order/page-header";
 
 const SOFT_MAX = 99;
 const line_max = (stock: { quantity: number } | undefined) =>
