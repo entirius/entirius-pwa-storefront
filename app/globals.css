@@ -36,6 +36,7 @@
   --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
+  --color-field-border: var(--field-border);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
@@ -109,6 +110,8 @@
 
   --border: var(--brand-light-neutral-300);
   --input: var(--brand-light-basic-400); /* form control boundary, 3:1 */
+  /* Resting field border, lighter than --input on purpose (below 3:1); hover darkens to --input, focus to --ring. */
+  --field-border: var(--brand-light-basic-300);
   --ring: var(--brand-accent-fill);
   /* Leading colour of CMS sections and tiles (bg-leading, text-leading); white text sits on it, so keep it dark. */
   --leading: var(--primary);
@@ -174,6 +177,7 @@ html.dark {
 
   --border: var(--brand-hairline);
   --input: var(--brand-basic-700); /* 3.8:1 */
+  --field-border: var(--brand-basic-500);
   --ring: var(--brand-accent);
   --link: var(--brand-accent); /* 7.2:1 */
   --highlight: var(--brand-accent);
