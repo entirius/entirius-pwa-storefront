@@ -8,13 +8,12 @@ import { useHydrated } from "@/lib/use-hydrated";
 import { Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { MediaImage } from "@/components/ui/media-image.client";
+import { ProductThumb } from "@/components/ui/product-thumb";
 import { price_lines } from "@/lib/i18n/price-lines";
 import { useI18n } from "@/providers/i18n.provider";
 import { useAuth } from "@/providers/auth.provider";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
 import { LinkDynamic } from "@/lib/link-dynamic";
-import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
 import { useCartSync } from "@/stores/use-cart-sync";
 import type { CartItem } from "@/stores/cart.store";
 import type { Cart } from "@/utils/NORMALIZERS/cart.normalizer";
@@ -140,18 +139,12 @@ function CartLine({
 
   return (
     <li className="flex gap-4 py-4">
-      <LinkDynamic
-        href={href}
-        className="relative aspect-product w-20 shrink-0 self-start overflow-hidden rounded-md bg-muted md:w-24"
-        tabIndex={-1}
-        aria-hidden
-      >
-        <MediaImage
-          src={item.media?.[0]?.[0]?.uri ?? image_placeholder}
+      <LinkDynamic href={href} className="shrink-0 self-start" tabIndex={-1} aria-hidden>
+        <ProductThumb
+          src={item.media?.[0]?.[0]?.uri}
           alt=""
-          fill
-          sizes="96px"
-          className="object-cover"
+          sizes="(min-width: 768px) 96px, 80px"
+          className="w-20 md:w-24"
         />
       </LinkDynamic>
       <div className="flex min-w-0 flex-1 flex-col gap-3">

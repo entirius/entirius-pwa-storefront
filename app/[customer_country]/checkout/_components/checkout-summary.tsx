@@ -4,7 +4,7 @@
 
 "use client";
 
-import { MediaImage } from "@/components/ui/media-image.client";
+import { ProductThumb } from "@/components/ui/product-thumb";
 import { price_lines } from "@/lib/i18n/price-lines";
 import { useI18n } from "@/providers/i18n.provider";
 import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
@@ -42,15 +42,7 @@ export function CheckoutSummary({
             : price_lines(i18n, item.price).at(-1);
           return (
             <div key={sku} className="flex gap-3 py-3">
-              <div className="relative w-16 aspect-product self-start shrink-0 overflow-hidden rounded-md bg-muted">
-                <MediaImage
-                  src={uri}
-                  alt={item.name}
-                  fill
-                  sizes="64px"
-                  className="object-cover"
-                />
-              </div>
+              <ProductThumb src={uri} alt={item.name} sizes="64px" className="w-16" />
               <div className="flex min-w-0 flex-1 flex-col gap-1">
                 <p className="truncate text-sm font-medium">{item.name}</p>
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">

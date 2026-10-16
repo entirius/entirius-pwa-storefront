@@ -4,7 +4,7 @@
 
 "use client";
 
-import { MediaImage } from "@/components/ui/media-image.client";
+import { ProductThumb } from "@/components/ui/product-thumb";
 
 import { LinkDynamic } from "@/lib/link-dynamic";
 import {
@@ -110,15 +110,12 @@ export function SearchProductRow({
       data-stock={product.on_stock === false ? "out" : "in"}
       className="grid grid-cols-[5rem_1fr] gap-3 rounded-md border border-border p-2 transition-colors hover:bg-accent"
     >
-      <div className="relative w-20 aspect-product self-start overflow-hidden rounded-md bg-muted">
-        <MediaImage
-          src={src}
-          alt={product.name ?? i18n.t("search.product_fallback")}
-          fill
-          sizes="80px"
-          className="object-cover unavailable:opacity-60 unavailable:grayscale"
-        />
-      </div>
+      <ProductThumb
+        src={src}
+        alt={product.name ?? i18n.t("search.product_fallback")}
+        sizes="80px"
+        className="w-20 unavailable:opacity-60 unavailable:grayscale"
+      />
       <div className="min-w-0 self-center unavailable:opacity-70">
         <h4 className="truncate text-sm">{product.name}</h4>
         <div className="mt-0.5 flex items-center gap-1.5">

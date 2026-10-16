@@ -8,9 +8,8 @@ import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { MediaImage } from "@/components/ui/media-image.client";
+import { ProductThumb } from "@/components/ui/product-thumb";
 import { LinkDynamic } from "@/lib/link-dynamic";
-import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
 import { useAddedToCart } from "@/stores/added-to-cart.store";
 import { useCartStore } from "@/stores/cart.store";
 import { price_lines } from "@/lib/i18n/price-lines";
@@ -62,9 +61,7 @@ export function AddedToCart() {
             </Button>
           </div>
           <div className="grid grid-cols-[4rem_minmax(0,1fr)_auto] items-center gap-3">
-            <div className="relative w-16 aspect-product overflow-hidden rounded-2xl bg-muted">
-              <MediaImage src={item.image ?? image_placeholder} alt="" fill sizes="64px" className="object-cover" />
-            </div>
+            <ProductThumb src={item.image} alt="" sizes="64px" className="w-16" />
             <div className="min-w-0">
               <p className="line-clamp-2 font-brand leading-snug text-heading">{item.name}</p>
               {item.options?.map((o) => (
