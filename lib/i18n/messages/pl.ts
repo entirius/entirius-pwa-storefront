@@ -12,6 +12,7 @@ export const pl: Record<MessageKey, Message> = {
   // common
   "common.loading": "Ładowanie",
   "common.close": "Zamknij",
+  "common.more_info": "Więcej informacji",
   "common.back": "Wstecz",
   "common.save": "Zapisz",
   "common.cancel": "Anuluj",

@@ -17,7 +17,10 @@ import {
 } from "react-hook-form";
 
 import { cn } from "@/lib/utils";
+import { CircleHelp } from "lucide-react";
+
 import { Label } from "@/components/ui/label";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useI18n } from "@/providers/i18n.provider";
 
 const Form = FormProvider;
@@ -94,11 +97,12 @@ function FormItem({ className, ...props }: React.ComponentProps<"div">) {
 
 function FormLabel({
   className,
+  tooltip,
   ...props
-}: React.ComponentProps<typeof Label>) {
+}: React.ComponentProps<typeof Label> & { tooltip?: React.ReactNode }) {
   const { error, formItemId } = useFormField();
 
-  return (
+  const label = (
     <Label
       data-slot="form-label"
       data-error={!!error}
@@ -106,6 +110,34 @@ function FormLabel({
       htmlFor={formItemId}
       {...props}
     />
+  );
+  if (!tooltip) return label;
+  return (
+    <div className="flex items-center gap-1.5">
+      {label}
+      <FieldTooltip>{tooltip}</FieldTooltip>
+    </div>
+  );
+}
+
+// The (?) next to a label. Opens on hover and focus, and on tap: touch has no hover.
+function FieldTooltip({ children }: { children: React.ReactNode }) {
+  const { t } = useI18n();
+  const [open, setOpen] = React.useState(false);
+  return (
+    <Tooltip open={open} onOpenChange={setOpen}>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          aria-label={t("common.more_info")}
+          onClick={() => setOpen((v) => !v)}
+          className="relative touch-target text-muted-foreground hover:text-foreground focus-visible:text-foreground outline-none"
+        >
+          <CircleHelp className="size-3.5" aria-hidden />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent>{children}</TooltipContent>
+    </Tooltip>
   );
 }
 

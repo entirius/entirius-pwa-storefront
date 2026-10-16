@@ -15,6 +15,7 @@ export const en = {
   // common
   "common.loading": "Loading",
   "common.close": "Close",
+  "common.more_info": "More information",
   "common.back": "Back",
   "common.save": "Save",
   "common.cancel": "Cancel",

@@ -74,6 +74,25 @@
   --radius-4xl: var(--brand-radius-4xl);
 }
 
+@theme {
+  /* Minimum touch target (WCAG 2.5.5, Apple HIG): `size-touch`, `min-h-touch`, `touch-target`. */
+  --spacing-touch: 2.75rem;
+}
+
+/* Grows the tappable area to at least --spacing-touch without changing the look.
+   The element must be positioned (relative/absolute); neighbours need >= 44px pitch. */
+@utility touch-target {
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, var(--spacing-touch));
+    height: max(100%, var(--spacing-touch));
+    translate: -50% -50%;
+  }
+}
+
 :root {
   /* Semantic layer: shadcn variables -> @entirius/brand-tokens. The only place in
      the storefront that names brand values; components use the semantic names
