@@ -5,8 +5,6 @@
 "use client";
 import { useId } from "react";
 import { RadioGroup as RadioGroupPrimitive } from "radix-ui";
-import { Check } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { RadioGroup } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/providers/i18n.provider";
@@ -21,9 +19,9 @@ type PickerProps = {
   is_available: (axis: string, value: string) => boolean;
 };
 
-// One radio group per axis; each option is a button. Arrow keys move inside a group, Tab moves
-// between groups. Selected = filled button with a check mark (not colour alone); unavailable =
-// disabled, struck through and announced as unavailable, but the label stays readable.
+// One radio group per axis; each option is a radio styled as a chip. Arrow keys move inside a group, Tab moves
+// between groups. Selected = 2px frame in the text colour, no fill (the CTA stays the only filled control);
+// unavailable = muted and struck through, announced as unavailable, still readable.
 export function VariantPicker({ axes, selection, choose, is_available }: PickerProps) {
   const { t } = useI18n();
   const id = useId();
@@ -53,17 +51,15 @@ export function VariantPicker({ axes, selection, choose, is_available }: PickerP
                     key={option.value}
                     value={option.value}
                     disabled={!available && !selected}
-                    asChild
+                    className={cn(
+                      "relative touch-target inline-flex h-9 min-w-12 cursor-pointer items-center justify-center rounded-control border border-field-border bg-background px-3 text-xs transition-[color,box-shadow] outline-none hover:border-input sm:text-sm",
+                      "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                      "data-[state=checked]:border-foreground data-[state=checked]:font-medium data-[state=checked]:ring-1 data-[state=checked]:ring-inset data-[state=checked]:ring-foreground",
+                      !available && "text-muted-foreground line-through disabled:cursor-not-allowed",
+                    )}
                   >
-                    <Button
-                      type="button"
-                      variant={selected ? "default" : "outline"}
-                      className={cn("min-h-touch min-w-touch", !available && "line-through")}
-                    >
-                      {selected && <Check aria-hidden />}
-                      {option.label}
-                      {!available && <span className="sr-only">{t("product.option_unavailable")}</span>}
-                    </Button>
+                    {option.label}
+                    {!available && <span className="sr-only">{t("product.option_unavailable")}</span>}
                   </RadioGroupPrimitive.Item>
                 );
               })}
