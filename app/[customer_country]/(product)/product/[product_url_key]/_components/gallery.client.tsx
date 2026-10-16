@@ -44,13 +44,13 @@ export function Gallery({ media, name }: { media: GalleryMedia; name: string }) 
     <div
       data-gallery
       onKeyDown={on_key}
-      className="md:sticky md:top-24 md:self-start"
+      className="surface-sm md:sticky md:top-24 md:self-start"
     >
       <div className="relative">
         <div
           ref={track}
           onScroll={() => track.current && setIndex(slide_index(track.current))}
-          className="flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain rounded-(--surface-radius) bg-muted [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain rounded-[max(0px,calc(var(--surface-radius)-var(--surface-padding-sm)))] bg-muted [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {media.map((variants, i) => (
             <button
