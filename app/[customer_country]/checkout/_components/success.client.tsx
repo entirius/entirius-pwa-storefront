@@ -79,7 +79,7 @@ function Receipt({ receipt, date }: { receipt: OrderReceipt; date: string }) {
   return (
     <section data-order-receipt className="mb-6">
       <h2 className="mb-2 text-lg">{t("checkout.receipt_title")}</h2>
-      <dl className="divide-y rounded-lg border text-sm">
+      <dl className="divide-y rounded-(--surface-radius) border text-sm">
         <Row label={t("checkout.receipt_seller")}>
           <span className="font-medium">{SITE_NAME}</span>
         </Row>

@@ -181,7 +181,7 @@ function AddressCard({ title, a }: { title: string; a: CartAddress }) {
   const name = [a.firstname, a.lastname].filter(Boolean).join(" ");
   const phone = [a.dialling_code, a.telephone].filter(Boolean).join(" ");
   return (
-    <section className="rounded-lg border p-4 text-sm">
+    <section className="surface-outline text-sm">
       <h3 className="text-muted-foreground mb-2 text-xs uppercase">
         {title}
       </h3>
@@ -212,7 +212,7 @@ function InfoCard({
 }) {
   const { t } = useI18n();
   return (
-    <section className="rounded-lg border p-4 text-sm">
+    <section className="surface-outline text-sm">
       <h3 className="text-muted-foreground mb-2 text-xs uppercase">
         {title}
       </h3>

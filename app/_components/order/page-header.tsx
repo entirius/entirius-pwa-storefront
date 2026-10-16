@@ -35,7 +35,7 @@ export function OrderPageHeader({
 // Nothing in the cart: the cart page and checkout say it the same way.
 export function EmptyCart({ message, action, hint }: { message: string; action: string; hint?: string }) {
   return (
-    <div className="flex flex-col items-center gap-4 rounded-lg border px-4 py-12 text-center">
+    <div className="surface-outline flex flex-col items-center gap-4 py-12 text-center">
       <ShoppingBag className="size-10 text-muted-foreground" strokeWidth={1.25} aria-hidden />
       <div className="flex flex-col gap-1">
         <p className="text-lg text-heading">{message}</p>

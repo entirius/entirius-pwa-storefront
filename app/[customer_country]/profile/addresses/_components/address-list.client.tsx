@@ -111,7 +111,7 @@ export function AddressList() {
           {addresses.map((a) => (
             <li
               key={a.address_id}
-              className="flex items-start justify-between gap-4 rounded-lg border border-border p-4"
+              className="surface-outline flex items-start justify-between gap-4"
             >
               <div className="flex flex-col gap-0.5 text-sm">
                 <span className="flex items-center gap-2 font-medium">

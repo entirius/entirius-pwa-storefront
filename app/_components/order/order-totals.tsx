@@ -30,7 +30,7 @@ export function OrderSummaryCard({
 }) {
   const { t } = useI18n();
   return (
-    <aside aria-label={t("checkout.summary")} className={cn("flex flex-col gap-4 rounded-lg border p-4", className)}>
+    <aside aria-label={t("checkout.summary")} className={cn("surface-outline flex flex-col gap-4", className)}>
       <FormHeading>{t("checkout.summary")}</FormHeading>
       {children}
     </aside>
