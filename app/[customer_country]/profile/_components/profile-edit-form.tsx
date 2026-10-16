@@ -16,6 +16,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormError,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -90,11 +91,7 @@ export function ProfileEditForm({
             </FormItem>
           )}
         />
-        {form.formState.errors.root && (
-          <p className="text-sm text-destructive">
-            {form.formState.errors.root.message}
-          </p>
-        )}
+        <FormError>{form.formState.errors.root?.message}</FormError>
         <div className="flex gap-2">
           <Button type="submit" disabled={pending}>
             {pending ? <Spinner className="size-4" /> : t("common.save")}

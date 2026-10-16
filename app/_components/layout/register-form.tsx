@@ -19,6 +19,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormError,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -142,11 +143,7 @@ export function RegisterForm({
             </FormItem>
           )}
         />
-        {form.formState.errors.root && (
-          <p className="text-sm text-destructive">
-            {form.formState.errors.root.message}
-          </p>
-        )}
+        <FormError>{form.formState.errors.root?.message}</FormError>
         <Button type="submit" disabled={pending}>
           {pending ? <Spinner className="size-4" /> : t("auth.create_account")}
         </Button>

@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { FormError } from "@/components/ui/form";
 import { useI18n } from "@/providers/i18n.provider";
 // Payment methods offered for the cart; the review step reads the same entry for the method text.
 export function usePaymentMethods(cart_id: string | undefined) {
@@ -151,7 +152,7 @@ export function PaymentStep({
           })}
         </RadioGroup>
 
-        {saveError && <p className="text-destructive text-sm">{saveError}</p>}
+        <FormError>{saveError}</FormError>
 
         <div className="flex gap-3">
           <Button variant="outline" onClick={onBack} disabled={pending}>

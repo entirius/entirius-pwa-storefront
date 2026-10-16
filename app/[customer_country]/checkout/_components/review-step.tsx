@@ -21,6 +21,7 @@ import { TokenLinks } from "@/components/ui/token-links";
 import { PRIVACY_ROUTE, TERMS_ROUTE } from "@/lib/checkout-config";
 import { order_refs, save_receipt, type OrderReceipt } from "./order-receipt";
 import { usePaymentMethods } from "./payment-step";
+import { FormError } from "@/components/ui/form";
 import { useI18n } from "@/providers/i18n.provider";
 
 export function ReviewStep({
@@ -157,7 +158,7 @@ export function ReviewStep({
         </span>
       </label>
 
-      {error && <p className="text-destructive text-sm">{error}</p>}
+      <FormError>{error}</FormError>
 
       <div className="flex gap-3">
         <Button variant="outline" onClick={onBack} disabled={pending}>

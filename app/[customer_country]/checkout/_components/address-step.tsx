@@ -25,6 +25,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormError,
   FormMessage,
 } from "@/components/ui/form";
 import {
@@ -209,11 +210,7 @@ export function AddressStep({
           </fieldset>
         )}
 
-        {form.formState.errors.root && (
-          <p className="text-sm text-destructive">
-            {form.formState.errors.root.message}
-          </p>
-        )}
+        <FormError>{form.formState.errors.root?.message}</FormError>
 
         {!cartReady && (
           <p className="text-xs text-muted-foreground">{t("checkout.preparing")}</p>

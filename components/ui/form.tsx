@@ -75,6 +75,9 @@ const FormItemContext = React.createContext<FormItemContextValue>(
   {} as FormItemContextValue,
 );
 
+// One look for every form error: a field's message and a form-level (root) error.
+const FORM_ERROR = "text-xs text-destructive";
+
 function FormItem({ className, ...props }: React.ComponentProps<"div">) {
   const id = React.useId();
 
@@ -82,7 +85,7 @@ function FormItem({ className, ...props }: React.ComponentProps<"div">) {
     <FormItemContext.Provider value={{ id }}>
       <div
         data-slot="form-item"
-        className={cn("grid gap-2", className)}
+        className={cn("grid gap-1", className)}
         {...props}
       />
     </FormItemContext.Provider>
@@ -99,7 +102,7 @@ function FormLabel({
     <Label
       data-slot="form-label"
       data-error={!!error}
-      className={cn("data-[error=true]:text-destructive", className)}
+      className={cn("text-xs text-foreground data-[error=true]:text-destructive", className)}
       htmlFor={formItemId}
       {...props}
     />
@@ -132,7 +135,7 @@ function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
     <p
       data-slot="form-description"
       id={formDescriptionId}
-      className={cn("text-muted-foreground text-sm", className)}
+      className={cn("text-xs text-muted-foreground", className)}
       {...props}
     />
   );
@@ -152,7 +155,7 @@ function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
     <p
       data-slot="form-message"
       id={formMessageId}
-      className={cn("text-destructive text-sm", className)}
+      className={cn(FORM_ERROR, className)}
       {...props}
     >
       {body}
@@ -160,8 +163,19 @@ function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
   );
 }
 
+// A form-level error (root error, failed save) outside any field. Renders nothing when empty.
+function FormError({ className, children, ...props }: React.ComponentProps<"p">) {
+  if (!children) return null;
+  return (
+    <p role="alert" data-slot="form-error" className={cn(FORM_ERROR, className)} {...props}>
+      {children}
+    </p>
+  );
+}
+
 export {
   Form,
+  FormError,
   FormItem,
   FormLabel,
   FormControl,
