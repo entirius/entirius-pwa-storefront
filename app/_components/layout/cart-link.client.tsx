@@ -30,7 +30,7 @@ export function CartLink() {
         mounted && count > 0 ? t("cart.link_label", { count }) : t("header.cart")
       }
       className={cn(
-        "relative inline-flex size-9 items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent hover:text-accent-foreground [&_svg]:size-4",
+        "relative inline-flex size-9 touch-target items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent hover:text-accent-foreground [&_svg]:size-4",
         on_cart && "bg-accent text-accent-foreground",
       )}
     >

@@ -47,7 +47,7 @@ const FilterSortItem = memo(function FilterSortItem({
 
   const pill = (active: boolean) =>
     cn(
-      "inline-flex h-8 cursor-pointer items-center gap-1 rounded-full border px-3 text-xs font-medium transition-colors",
+      "inline-flex h-8 pointer-coarse:min-h-touch cursor-pointer items-center gap-1 rounded-full border px-3 text-xs font-medium transition-colors",
       active
         ? "border-primary bg-primary text-primary-foreground"
         : "border-border bg-card text-heading hover:bg-muted",

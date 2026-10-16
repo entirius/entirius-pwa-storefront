@@ -45,7 +45,7 @@ const FilterItem = memo(function FilterItem({
   return (
     <label
       htmlFor={id}
-      className="flex min-h-9 cursor-pointer items-center gap-3 rounded-xl px-2 text-sm text-heading transition-colors hover:bg-muted has-disabled:cursor-not-allowed has-disabled:text-muted-foreground has-disabled:hover:bg-transparent"
+      className="flex min-h-9 pointer-coarse:min-h-touch cursor-pointer items-center gap-3 rounded-xl px-2 text-sm text-heading transition-colors hover:bg-muted has-disabled:cursor-not-allowed has-disabled:text-muted-foreground has-disabled:hover:bg-transparent"
     >
       <Checkbox id={id} checked={is_active} disabled={empty} onCheckedChange={handle_click} />
       <span className="flex-1">{option.label}</span>

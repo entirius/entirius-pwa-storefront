@@ -41,7 +41,7 @@ export function AccountMenu() {
 
   const item_class = (active: boolean) =>
     cn(
-      "flex min-h-11 shrink-0 items-center gap-3 rounded-2xl px-3 text-sm font-medium transition-colors",
+      "flex min-h-touch shrink-0 items-center gap-3 rounded-2xl px-3 text-sm font-medium transition-colors",
       active ? "bg-accent text-accent-foreground" : "text-heading hover:bg-muted",
     );
 

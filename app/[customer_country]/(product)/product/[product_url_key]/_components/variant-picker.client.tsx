@@ -58,7 +58,7 @@ export function VariantPicker({ axes, selection, choose, is_available }: PickerP
                     <Button
                       type="button"
                       variant={selected ? "default" : "outline"}
-                      className={cn("min-h-11 min-w-11", !available && "line-through")}
+                      className={cn("min-h-touch min-w-touch", !available && "line-through")}
                     >
                       {selected && <Check aria-hidden />}
                       {option.label}

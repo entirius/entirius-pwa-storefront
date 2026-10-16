@@ -186,7 +186,7 @@ export function GalleryViewer({
         type="button"
         aria-label={t("common.close")}
         onClick={() => onClose(index)}
-        className="absolute right-[max(0.5rem,env(safe-area-inset-right))] top-[max(0.5rem,env(safe-area-inset-top))] grid size-11 place-items-center rounded-full bg-background/70 text-heading outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="absolute right-[max(0.5rem,env(safe-area-inset-right))] top-[max(0.5rem,env(safe-area-inset-top))] grid size-touch place-items-center rounded-full bg-background/70 text-heading outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <X className="size-6" strokeWidth={1.5} />
       </button>
