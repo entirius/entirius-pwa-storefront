@@ -4,7 +4,7 @@
 
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -37,11 +37,15 @@ export function AddedToCart() {
     }
   }, [pathname, hide]);
 
+  // Hidden after VISIBLE_MS, but never while the pointer or keyboard focus is on it (WCAG 2.2.1): leaving restarts
+  // the full delay. Tied to the showing's key, so a new notice never starts out held.
+  const [held_key, setHeldKey] = useState<number | null>(null);
+  const held = held_key === key;
   useEffect(() => {
-    if (!item) return;
+    if (!item || held) return;
     const t = setTimeout(hide, VISIBLE_MS);
     return () => clearTimeout(t);
-  }, [item, key, hide]);
+  }, [item, key, hide, held]);
 
   return (
     <div
@@ -50,7 +54,14 @@ export function AddedToCart() {
       className="pointer-events-none fixed inset-x-4 top-20 z-toast flex justify-end sm:left-auto sm:w-96"
     >
       {item && (
-        <div className="pointer-events-auto flex w-full flex-col gap-4 rounded-3xl border border-border bg-card p-5 shadow-glow">
+        <div
+          onPointerEnter={() => setHeldKey(key)}
+          onPointerLeave={() => setHeldKey(null)}
+          onFocus={() => setHeldKey(key)}
+          onBlur={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget)) setHeldKey(null);
+          }}
+          className="pointer-events-auto flex w-full flex-col gap-4 rounded-3xl border border-border bg-card p-5 shadow-glow">
           <div className="flex items-center gap-3">
             <span className="flex size-8 items-center justify-center rounded-full bg-positive-surface text-positive">
               <Check className="size-4" aria-hidden />
