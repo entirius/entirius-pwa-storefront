@@ -238,7 +238,7 @@ export const pl: Record<MessageKey, Message> = {
   "checkout.step_review": "Podsumowanie",
   "checkout.sync_error": "Nie udało się zsynchronizować koszyka z serwerem. Pokazujemy produkty zapisane na tym urządzeniu.",
   "checkout.items_attention": "Niektóre produkty wymagają uwagi:",
-  "checkout.billing_details": "Dane do faktury",
+  "checkout.billing_details": "Dane do rozliczeń",
   "checkout.email_hint": "Wyślemy na niego potwierdzenie i informacje o zamówieniu.",
   "checkout.phone_hint": "Tylko w sprawie dostawy zamówienia.",
   "checkout.shipping_address": "Adres dostawy",
