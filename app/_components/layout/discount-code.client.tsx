@@ -4,14 +4,14 @@
 
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useId, useMemo, useState, useTransition } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { make_client_access } from "@/API/access/api.client-access";
 import { create_api } from "@/API/api.context";
 import { API_CART_DISCOUNTS_ROUTE } from "@/API/api.routes";
 import { NORM_CART, type Cart } from "@/utils/NORMALIZERS/cart.normalizer";
-import { FormError } from "@/components/ui/form";
+import { Field, FormError } from "@/components/ui/form";
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/ui/input-group";
 import { Spinner } from "@/components/ui/spinner";
 import { useI18n } from "@/providers/i18n.provider";
@@ -23,6 +23,7 @@ import { useI18n } from "@/providers/i18n.provider";
 // stuck. Codes survive item changes; automatic rules are the backend's business.
 export function DiscountCode({ backend }: { backend: Cart | null | undefined }) {
   const { t } = useI18n();
+  const input_id = useId();
   const api = useMemo(() => create_api(make_client_access()), []);
   const query_client = useQueryClient();
   const [pending, startTransition] = useTransition();
@@ -72,25 +73,26 @@ export function DiscountCode({ backend }: { backend: Cart | null | undefined }) 
   return (
     <div className="flex flex-col gap-2">
       <form onSubmit={apply}>
-        <InputGroup>
-          <InputGroupInput
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            placeholder={t("cart.discount_code")}
-            aria-label={t("cart.discount_code")}
-            autoComplete="off"
-          />
-          <InputGroupAddon align="inline-end">
-            <InputGroupButton
-              type="submit"
-              size="sm"
-              className="font-medium"
-              disabled={pending || !value.trim() || !backend?.cart_id}
-            >
-              {pending ? <Spinner className="size-4" /> : t("cart.discount_apply")}
-            </InputGroupButton>
-          </InputGroupAddon>
-        </InputGroup>
+        <Field id={input_id} label={t("cart.discount_code")}>
+          <InputGroup>
+            <InputGroupInput
+              id={input_id}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              autoComplete="off"
+            />
+            <InputGroupAddon align="inline-end">
+              <InputGroupButton
+                type="submit"
+                size="sm"
+                className="font-medium"
+                disabled={pending || !value.trim() || !backend?.cart_id}
+              >
+                {pending ? <Spinner className="size-4" /> : t("cart.discount_apply")}
+              </InputGroupButton>
+            </InputGroupAddon>
+          </InputGroup>
+        </Field>
       </form>
       <FormError>{message}</FormError>
       {applied.length > 0 && (
