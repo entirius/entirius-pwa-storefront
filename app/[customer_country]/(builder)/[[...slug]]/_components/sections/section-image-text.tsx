@@ -4,6 +4,7 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
+import { FULL_BLEED_CLASS, is_full_width } from "../cms-width";
 
 // Image beside text: a `tile-image` and a `tile-txt-btn` (in either order),
 // stacked on mobile.
@@ -20,9 +21,10 @@ export default function SectionImageText({
   if (!tiles.length) return null;
   return (
     <section
+      data-width={is_full_width(width) ? "full_width" : "container"}
       className={cn(
         "grid grid-cols-1 items-center gap-6 md:grid-cols-2",
-        width === "full_width" ? "" : "w-full",
+        is_full_width(width) ? cn(FULL_BLEED_CLASS, "px-4") : "w-full",
         String(margin) !== "false" && "py-6",
       )}
     >

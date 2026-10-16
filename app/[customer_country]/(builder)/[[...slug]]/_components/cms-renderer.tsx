@@ -55,6 +55,7 @@ export const render_cms_component = (
   data: CmsSectionData,
   index: number,
   children?: React.ReactNode,
+  section_width?: string,
 ): React.ReactNode => {
   const Component = cms_components_map[data.core_type];
   if (!Component) {
@@ -79,7 +80,7 @@ export const render_cms_component = (
   // `display: contents` keeps it out of the layout.
   return (
     <div key={data.id ?? `cms-${index}`} data-cms-type={data.core_type} className="contents">
-      <Component {...(data as any)}>{children}</Component>
+      <Component {...(data as any)} section_width={section_width}>{children}</Component>
     </div>
   );
 };
@@ -97,7 +98,7 @@ export const render_cms_document = (
     const rendered_tiles = tile_uids.map((tile_uid, tile_index) => {
       const tile = content.tiles?.[tile_uid];
       if (!tile) return null;
-      return render_cms_component(tile, tile_index);
+      return render_cms_component(tile, tile_index, undefined, section.width);
     });
 
     return render_cms_component(section, section_index, rendered_tiles);

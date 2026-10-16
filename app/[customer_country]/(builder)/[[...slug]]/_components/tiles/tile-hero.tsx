@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { SanitizeHTML } from "@/components/ui/sanitize-html";
 import { MediaImage } from "@/components/ui/media-image.client";
 import { CmsButtons, type CmsButtonData } from "../cms-button";
+import { hero_desktop_sizes, is_full_width } from "../cms-width";
 import { normalize_image_source, type CmsImagesSet } from "../cms-image";
 
 // `dye` is the editor's colour variant (1–5); the palette belongs to the
@@ -31,6 +32,7 @@ export default function TileHero({
   tile_align = "left",
   dye = 1,
   shape = "slide",
+  section_width,
 }: {
   title?: string;
   description?: string;
@@ -40,17 +42,21 @@ export default function TileHero({
   dye?: number;
   // `banner` is the `section-banner` strip.
   shape?: "slide" | "banner";
+  // The parent section's `width`, set by the renderer (or `section-banner`).
+  section_width?: string;
 }) {
+  const full_width = is_full_width(section_width);
   const desktop = normalize_image_source(images_set, "desktop");
   const mobile = normalize_image_source(images_set, "mobile");
   const style = shape === "banner" ? hero_dyes[4] : (hero_dyes[dye] ?? hero_dyes[1]);
   const image_first = tile_align === "right";
 
   return (
-    <div className="@container w-full">
+    <div className="@container w-full" data-width={full_width ? "full_width" : "container"}>
       <div
         className={cn(
-          "grid w-full overflow-hidden rounded-4xl @3xl:grid-cols-2",
+          "grid w-full overflow-hidden @3xl:grid-cols-2",
+          !full_width && "rounded-4xl",
           style.card,
         )}
       >
@@ -96,7 +102,7 @@ export default function TileHero({
               src={desktop.uri}
               alt={desktop.alt}
               fill
-              sizes="50vw"
+              sizes={hero_desktop_sizes(section_width)}
               className="hidden object-cover @3xl:block"
             />
           )}
