@@ -12,6 +12,7 @@ import { create_api } from "@/API/api.context";
 import { API_CART_DISCOUNTS_ROUTE } from "@/API/api.routes";
 import { NORM_CART, type Cart } from "@/utils/NORMALIZERS/cart.normalizer";
 import { Button } from "@/components/ui/button";
+import { FormError } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { useI18n } from "@/providers/i18n.provider";
@@ -78,23 +79,17 @@ export function DiscountCode({ backend }: { backend: Cart | null | undefined }) 
           placeholder={t("cart.discount_code")}
           aria-label={t("cart.discount_code")}
           autoComplete="off"
-          className="h-9"
         />
         <Button
           type="submit"
           variant="outline"
-          size="sm"
-          className="h-9"
+          className="shrink-0"
           disabled={pending || !value.trim() || !backend?.cart_id}
         >
           {pending ? <Spinner className="size-4" /> : t("cart.discount_apply")}
         </Button>
       </form>
-      {message && (
-        <p role="alert" className="text-xs text-destructive">
-          {message}
-        </p>
-      )}
+      <FormError>{message}</FormError>
       {applied.length > 0 && (
         <ul className="flex flex-wrap gap-1.5" aria-label={t("cart.discount_applied")}>
           {applied.map((code) => (

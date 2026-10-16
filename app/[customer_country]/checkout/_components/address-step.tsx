@@ -22,6 +22,7 @@ import {
 import {
   Form,
   FormError,
+  FormSection,
 } from "@/components/ui/form";
 import { CheckboxField, SelectField, TextField } from "@/components/ui/form-fields";
 import { Button } from "@/components/ui/button";
@@ -133,10 +134,7 @@ export function AddressStep({
           </div>
         )}
 
-        <fieldset className="flex flex-col gap-4">
-          <legend className="mb-2 text-sm font-semibold text-muted-foreground">
-            {t("checkout.billing_details")}
-          </legend>
+        <FormSection title={t("checkout.billing_details")}>
           <TextField
             control={form.control}
             name="billing.email"
@@ -145,7 +143,7 @@ export function AddressStep({
             autoComplete="email"
           />
           <AddressFields control={form.control} prefix="billing" form={form} />
-        </fieldset>
+        </FormSection>
 
         <CheckboxField control={form.control} name="requested_invoice" label={t("checkout.request_invoice")} />
         {requested_invoice && (
@@ -157,12 +155,9 @@ export function AddressStep({
 
         <CheckboxField control={form.control} name="ship_to_different" label={t("checkout.ship_to_different")} />
         {ship_to_different && (
-          <fieldset className="flex flex-col gap-4">
-            <legend className="mb-2 text-sm font-semibold text-muted-foreground">
-              {t("checkout.shipping_address")}
-            </legend>
+          <FormSection title={t("checkout.shipping_address")}>
             <AddressFields control={form.control} prefix="shipping" form={form} />
-          </fieldset>
+          </FormSection>
         )}
 
         <FormError>{form.formState.errors.root?.message}</FormError>

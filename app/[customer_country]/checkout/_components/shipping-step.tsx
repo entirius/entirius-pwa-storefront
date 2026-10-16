@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { FormError } from "@/components/ui/form";
+import { FormError, FormHeading } from "@/components/ui/form";
 import { useI18n } from "@/providers/i18n.provider";
 
 export function ShippingStep({
@@ -95,7 +95,7 @@ export function ShippingStep({
     // No methods for this address, or the request failed. Degrade gracefully.
     body = (
       <div className="rounded-lg border border-dashed p-8 text-center">
-        <h2 className="text-lg">{t("checkout.shipping_method")}</h2>
+        <FormHeading>{t("checkout.shipping_method")}</FormHeading>
         <p className="text-muted-foreground mx-auto mt-2 max-w-sm text-sm">
           {t("checkout.no_shipping")}
         </p>

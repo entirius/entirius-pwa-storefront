@@ -80,6 +80,8 @@ const FormItemContext = React.createContext<FormItemContextValue>(
 
 // One look for every form error: a field's message and a form-level (root) error.
 const FORM_ERROR = "text-xs text-destructive";
+const FIELD_LABEL = "text-xs text-foreground";
+const FIELD_HINT = "text-xs text-muted-foreground";
 
 function FormItem({ className, ...props }: React.ComponentProps<"div">) {
   const id = React.useId();
@@ -106,7 +108,7 @@ function FormLabel({
     <Label
       data-slot="form-label"
       data-error={!!error}
-      className={cn("text-xs text-foreground data-[error=true]:text-destructive", className)}
+      className={cn(FIELD_LABEL, "data-[error=true]:text-destructive", className)}
       htmlFor={formItemId}
       {...props}
     />
@@ -167,7 +169,7 @@ function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
     <p
       data-slot="form-description"
       id={formDescriptionId}
-      className={cn("text-xs text-muted-foreground", className)}
+      className={cn(FIELD_HINT, className)}
       {...props}
     />
   );
@@ -205,7 +207,78 @@ function FormError({ className, children, ...props }: React.ComponentProps<"p">)
   );
 }
 
+// Fields outside react-hook-form (contact forms): the same label, (?) and hint as FormLabel/FormDescription.
+function Field({
+  id,
+  label,
+  hint,
+  tooltip,
+  className,
+  children,
+}: {
+  id: string;
+  label: React.ReactNode;
+  hint?: React.ReactNode;
+  tooltip?: React.ReactNode;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div data-slot="form-item" className={cn("grid gap-1", className)}>
+      <div className="flex items-center gap-1.5">
+        <Label htmlFor={id} className={FIELD_LABEL}>
+          {label}
+        </Label>
+        {tooltip && <FieldTooltip>{tooltip}</FieldTooltip>}
+      </div>
+      {children}
+      {hint && (
+        <p id={`${id}-hint`} className={FIELD_HINT}>
+          {hint}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// A checkbox with its sentence-long label (consents, options): body size, box aligned to the first line.
+const CHECK_LABEL = "flex items-start gap-2 text-sm leading-snug [&>[data-slot=checkbox]]:mt-0.5";
+
+function CheckLabel({ className, ...props }: React.ComponentProps<"label">) {
+  return <label className={cn(CHECK_LABEL, className)} {...props} />;
+}
+
+// The title of a form or of a form step.
+function FormHeading({ className, ...props }: React.ComponentProps<"h2">) {
+  return <h2 data-slot="form-heading" className={cn("text-lg", className)} {...props} />;
+}
+
+// A group of fields under a FormHeading-styled legend.
+function FormSection({
+  title,
+  className,
+  children,
+}: {
+  title: React.ReactNode;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <fieldset className={cn("flex flex-col gap-4", className)}>
+      <legend className="mb-1">
+        <FormHeading>{title}</FormHeading>
+      </legend>
+      {children}
+    </fieldset>
+  );
+}
+
 export {
+  CHECK_LABEL,
+  CheckLabel,
+  Field,
+  FormHeading,
+  FormSection,
   Form,
   FormError,
   FormItem,

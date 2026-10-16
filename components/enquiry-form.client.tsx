@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { HONEYPOT_NAME, HoneypotField } from "@/components/ui/honeypot-field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { CheckLabel, Field, FormError, FormHeading } from "@/components/ui/form";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { TokenLinks } from "@/components/ui/token-links";
@@ -90,7 +90,6 @@ export function EnquiryForm({ form_type, slug, context, className, collapsed_lab
     );
   }
 
-  const field = "flex flex-col gap-1.5";
   return (
     <form
       onSubmit={submit}
@@ -98,31 +97,28 @@ export function EnquiryForm({ form_type, slug, context, className, collapsed_lab
       data-enquiry-form
       className={cn("relative flex flex-col gap-3 rounded-2xl border p-4", className)}
     >
-      <h2 className="text-base font-semibold">{collapsed_label ?? t("enquiry.title")}</h2>
-      <div className={field}>
-        <Label htmlFor={`enq-name-${slug}`}>{t("enquiry.name")}</Label>
+      <FormHeading>{collapsed_label ?? t("enquiry.title")}</FormHeading>
+      <Field id={`enq-name-${slug}`} label={t("enquiry.name")}>
         <Input id={`enq-name-${slug}`} name="name" autoComplete="name" required />
-      </div>
-      <div className={field}>
-        <Label htmlFor={`enq-email-${slug}`}>{t("enquiry.email")}</Label>
+      </Field>
+      <Field id={`enq-email-${slug}`} label={t("enquiry.email")}>
         <Input id={`enq-email-${slug}`} name="email" type="email" autoComplete="email" required />
-      </div>
-      <div className={field}>
-        <Label htmlFor={`enq-message-${slug}`}>{t("enquiry.message")}</Label>
+      </Field>
+      <Field id={`enq-message-${slug}`} label={t("enquiry.message")}>
         <Textarea id={`enq-message-${slug}`} name="message" rows={4} required />
-      </div>
+      </Field>
       <HoneypotField />
-      <label className="flex items-start gap-3 text-sm" data-enquiry-consent>
-        <Checkbox checked={consent} onCheckedChange={(v) => setConsent(v === true)} className="mt-0.5" aria-required />
+      <CheckLabel data-enquiry-consent>
+        <Checkbox checked={consent} onCheckedChange={(v) => setConsent(v === true)} aria-required />
         <span>
           <TokenLinks
             text={t("enquiry.consent", { privacy: "{privacy}" })}
             links={{ privacy: { route: PRIVACY_ROUTE, label: t("checkout.privacy_link") } }}
           />
         </span>
-      </label>
-      {state === "invalid" && <p role="alert" className="text-sm text-destructive">{t("enquiry.invalid")}</p>}
-      {state === "failed" && <p role="alert" className="text-sm text-destructive">{t("enquiry.failed")}</p>}
+      </CheckLabel>
+      {state === "invalid" && <FormError>{t("enquiry.invalid")}</FormError>}
+      {state === "failed" && <FormError>{t("enquiry.failed")}</FormError>}
       <Button type="submit" disabled={state === "sending"}>
         {state === "sending" ? <Spinner className="size-4" /> : t("enquiry.send")}
       </Button>

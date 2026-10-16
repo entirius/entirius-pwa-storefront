@@ -131,7 +131,7 @@ export function CheckboxField<T extends FieldValues>({
         <FormItem>
           <div className="flex items-start gap-2">
             <FormControl>
-              <Checkbox checked={!!field.value} onCheckedChange={field.onChange} />
+              <Checkbox checked={!!field.value} onCheckedChange={field.onChange} className="mt-0.5" />
             </FormControl>
             <FormLabel tooltip={tooltip} className="text-sm font-normal leading-snug">
               {label}
