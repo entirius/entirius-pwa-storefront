@@ -56,6 +56,7 @@ function Carousel({
   children,
   ...props
 }: React.ComponentProps<"div"> & CarouselProps) {
+  const { t } = useI18n()
   const [carouselRef, api] = useEmblaCarousel(
     {
       ...opts,
@@ -127,7 +128,7 @@ function Carousel({
         onKeyDownCapture={handleKeyDown}
         className={cn("relative", className)}
         role="region"
-        aria-roledescription="carousel"
+        aria-roledescription={t("common.carousel")}
         data-slot="carousel"
         {...props}
       >
@@ -159,12 +160,13 @@ function CarouselContent({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 function CarouselItem({ className, ...props }: React.ComponentProps<"div">) {
+  const { t } = useI18n()
   const { orientation } = useCarousel()
 
   return (
     <div
       role="group"
-      aria-roledescription="slide"
+      aria-roledescription={t("common.slide")}
       data-slot="carousel-item"
       className={cn(
         "min-w-0 shrink-0 grow-0 basis-full",

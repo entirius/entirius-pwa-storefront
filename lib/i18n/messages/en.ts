@@ -29,6 +29,8 @@ export const en = {
   "common.show_less": "Show less",
   "common.back_to_store": "Back to store",
   "common.pagination": "pagination",
+  "common.carousel": "carousel",
+  "common.slide": "slide",
 
   // header
   "header.menu": "Menu",

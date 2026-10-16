@@ -26,6 +26,8 @@ export const pl: Record<MessageKey, Message> = {
   "common.show_less": "Zwiń",
   "common.back_to_store": "Wróć do sklepu",
   "common.pagination": "Paginacja",
+  "common.carousel": "karuzela",
+  "common.slide": "slajd",
 
   // header
   "header.menu": "Menu",
