@@ -108,7 +108,6 @@ export function SearchProductRow({
       onClick={onNavigate}
       data-product-tile
       data-stock={product.on_stock === false ? "out" : "in"}
-      data-available={product.on_stock === false ? "false" : "true"}
       className="grid grid-cols-[5rem_1fr] gap-3 rounded-md border border-border p-2 transition-colors hover:bg-accent"
     >
       <div className="relative w-20 aspect-product self-start overflow-hidden rounded-md bg-muted">

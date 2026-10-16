@@ -65,7 +65,6 @@ export function ProductTile({
         href={`/product/${product.url_key}`}
         data-product-tile
         data-stock={sold_out ? "out" : "in"}
-        data-available={sold_out ? "false" : "true"}
         className="grid grid-cols-[5rem_1fr] gap-3 rounded-xl bg-card bg-gradient-card p-2 group relative"
       >
         <div className="relative w-20 aspect-product self-start rounded-md bg-muted overflow-hidden">
@@ -98,14 +97,13 @@ export function ProductTile({
 
   // In stock and with a price: the "+" quick add. Out of stock or price on request
   // leaves only the link to the product page.
-  const can_quick_add = product.purchasable && product.on_stock !== false;
+  const can_quick_add = product.purchasable && !sold_out;
 
   return (
     <LinkDynamic
       href={`/product/${product.url_key}`}
       data-product-tile
       data-stock={sold_out ? "out" : "in"}
-      data-available={sold_out ? "false" : "true"}
       data-single-piece={single_piece ? "" : undefined}
       className="flex h-full flex-col gap-3 rounded-3xl bg-card bg-gradient-card p-3 group relative transition-shadow hover:shadow-glow"
     >

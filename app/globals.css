@@ -10,8 +10,9 @@
 @import "@entirius/brand-tokens/tokens.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
-/* Inside a product tile or row with data-available="false" (out of stock): dimmed picture, muted text. */
-@custom-variant unavailable (&:where([data-available="false"] *));
+/* Inside an out-of-stock product tile or search row (data-stock="out"): dimmed picture, muted text. Scoped to the
+   tile: sections and the product page also carry data-stock. */
+@custom-variant unavailable (&:where([data-product-tile][data-stock="out"] *));
 
 @theme inline {
   --color-background: var(--background);
