@@ -116,7 +116,7 @@ export function CheckoutClient() {
         onStep={setStep}
       />
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_20rem]">
+      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="min-w-0">
           <CartAlerts
             className="mb-4"

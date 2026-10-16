@@ -61,7 +61,7 @@ export function CartPageClient() {
             hint={isLoggedIn ? undefined : t("cart.empty_hint")}
           />
         ) : (
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
             <section aria-label={t("cart.items_label")} className="flex min-w-0 flex-col gap-4">
               <CartAlerts backend={backend} sync_failed={!!error} sync_message={t("cart.sync_error")} />
               <ul className="flex flex-col divide-y rounded-lg border px-4">
