@@ -51,7 +51,7 @@ async function render_not_found(request: NextRequest, path: string): Promise<Nex
 }
 
 export default async function proxy(request: NextRequest) {
-  const { ct, lg, cr, th, ch, cid, visited, geo, profile_language } = geo_CF_helper(request);
+  const { ct, lg, cr, th, ch, cid, visited, geo } = geo_CF_helper(request);
 
   const pathname = request.nextUrl.pathname;
   const country_from_path = profile_from_path(pathname);
@@ -112,15 +112,15 @@ export default async function proxy(request: NextRequest) {
     }
 
     // A category written with another language's key (`/pl/catalog/chairs`): to the active language's key.
-    // 301 when that language is the profile's own (the same answer for every visitor, crawlers included);
-    // 302 when the visitor chose it, so no browser keeps a redirect that a later switch would reverse.
+    // Always 302: the target depends on the visitor's language cookie, and a cached 301 (kurtki -> jackets)
+    // would loop against the reverse 302 after a language switch (ERR_TOO_MANY_REDIRECTS).
     const key = await localized_catalog_key(rest, ctx);
     if (key) {
       const url = request.nextUrl.clone();
       const parts = pathname.split("/");
       parts[country_from_path ? 3 : 2] = encodeURIComponent(key);
       url.pathname = parts.join("/");
-      return finish(NextResponse.redirect(url, lg === profile_language ? 301 : 302));
+      return finish(NextResponse.redirect(url, 302));
     }
   }
 
