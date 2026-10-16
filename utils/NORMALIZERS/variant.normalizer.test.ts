@@ -29,7 +29,7 @@ describe("NORM_VARIANTS_DATA swatches", () => {
         "Swatch_Visual",
       ),
     );
-    expect(a.widget_type).toBe("Swatch_Visual");
+    expect(a.swatch).toBe(true);
     expect(a.options.map((o) => o.color_hash)).toEqual([hex("C19A6B"), hex("fff")]);
   });
 
@@ -59,7 +59,8 @@ describe("NORM_VARIANTS_DATA swatches", () => {
     expect(a.options.map((o) => o.color_hash)).toEqual([null, null, null, null]);
   });
 
-  it("leaves the widget type null when the API sends none", () => {
-    expect(axis(response([{ value: "m", label: "M" }])).widget_type).toBeNull();
+  it("is not a swatch axis for Swatch_Text or without a widget type", () => {
+    expect(axis(response([{ value: "m", label: "M" }], "Swatch_Text")).swatch).toBe(false);
+    expect(axis(response([{ value: "m", label: "M" }])).swatch).toBe(false);
   });
 });

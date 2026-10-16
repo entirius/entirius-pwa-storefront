@@ -79,7 +79,7 @@ const DEMO_AXES: VariantAxis[] = [
   {
     idx: "color",
     label: "Kolor",
-    widget_type: "Swatch_Visual",
+    swatch: true,
     options: [
       { value: "camel", label: "Camel", color_hash: hex("C19A6B") },
       { value: "czarny", label: "Czarny", color_hash: hex("1A1A1A") },
@@ -91,7 +91,7 @@ const DEMO_AXES: VariantAxis[] = [
   {
     idx: "size",
     label: "Rozmiar",
-    widget_type: "Swatch_Text",
+    swatch: false,
     options: ["S/M", "M/L", "XL"].map((v) => ({ value: v, label: v, color_hash: null })),
   },
 ];

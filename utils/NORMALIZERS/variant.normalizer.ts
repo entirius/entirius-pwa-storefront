@@ -10,8 +10,8 @@ import type { Price } from "@/utils/NORMALIZERS/price.normalizer";
 type VariantOption = { value: string; label: string; color_hash: string | null };
 
 // One axis of a configurable product (size, colour, ...). Feature names come from the backend.
-// widget_type: "Swatch_Visual" (colours), "Swatch_Text" (sizes), null when the API sends none.
-type VariantAxis = { idx: string; label: string; widget_type: string | null; options: VariantOption[] };
+// swatch: the API's widget_type is "Swatch_Visual" (colours), so options with a color_hash draw as swatches.
+type VariantAxis = { idx: string; label: string; swatch: boolean; options: VariantOption[] };
 
 type Variant = {
   sku: string;
@@ -53,21 +53,22 @@ type RawVariantsResponse = {
 };
 type RawDetail = { sku: string; name?: string; price?: RawPrice | null; media?: unknown[] };
 
-// GET products/{url_key}/variants/ answers { data: { options, products } }: axes with option labels
-// and, per variant, its option values and on_stock. It has no price, name or pictures, so those come
-// from the product list queried by the variant SKUs (`details`).
+const SWATCH_VISUAL = "Swatch_Visual";
 const COLOR_HASH = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
 
 function color_hash(value: unknown): string | null {
   return typeof value === "string" && COLOR_HASH.test(value.trim()) ? value.trim() : null;
 }
 
+// GET products/{url_key}/variants/ answers { data: { options, products } }: axes with option labels
+// and, per variant, its option values and on_stock. It has no price, name or pictures, so those come
+// from the product list queried by the variant SKUs (`details`).
 function NORM_VARIANTS_DATA(response: RawVariantsResponse, details: RawDetail[]): VariantsData {
   const data = response?.data ?? {};
   const axes: VariantAxis[] = (data.options ?? []).map((axis) => ({
     idx: axis.idx,
     label: axis.label,
-    widget_type: axis.widget_type ?? null,
+    swatch: axis.widget_type === SWATCH_VISUAL,
     options: (axis.options ?? []).map((o) => ({
       value: o.value,
       label: o.label,

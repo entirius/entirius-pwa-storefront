@@ -19,8 +19,6 @@ type PickerProps = {
   is_available: (axis: string, value: string) => boolean;
 };
 
-const SWATCH_VISUAL = "Swatch_Visual";
-
 // The colour itself, with a hairline so white and light colours stay visible; unavailable = a diagonal stroke,
 // the swatch's counterpart of the struck-through text.
 function Swatch({ color, crossed }: { color: string; crossed: boolean }) {
@@ -60,23 +58,23 @@ export function VariantPicker({ axes, selection, choose, is_available }: PickerP
                 const selected = option.value === chosen?.value;
                 const available = is_available(axis.idx, option.value);
                 // A colour with a hash is a swatch; a pattern without one ("kwiaty") stays a text chip.
-                const swatch = axis.widget_type === SWATCH_VISUAL && option.color_hash !== null;
+                const swatch_color = axis.swatch ? option.color_hash : null;
                 return (
                   <RadioGroupPrimitive.Item
                     key={option.value}
                     value={option.value}
                     disabled={!available && !selected}
-                    aria-label={swatch ? option.label : undefined}
+                    aria-label={swatch_color ? option.label : undefined}
                     className={cn(
                       "relative touch-target inline-flex h-9 cursor-pointer items-center justify-center rounded-control border border-field-border bg-background text-xs transition-[color,box-shadow] outline-none hover:border-input sm:text-sm",
-                      swatch ? "w-9" : "min-w-12 px-3",
+                      swatch_color ? "w-9" : "min-w-12 px-3",
                       "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
                       "data-[state=checked]:border-foreground data-[state=checked]:font-medium data-[state=checked]:ring-1 data-[state=checked]:ring-inset data-[state=checked]:ring-foreground",
                       !available && "text-muted-foreground line-through disabled:cursor-not-allowed",
                     )}
                   >
-                    {swatch ? (
-                      <Swatch color={option.color_hash!} crossed={!available} />
+                    {swatch_color ? (
+                      <Swatch color={swatch_color} crossed={!available} />
                     ) : (
                       option.label
                     )}
