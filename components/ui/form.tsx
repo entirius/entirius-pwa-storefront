@@ -133,7 +133,7 @@ function FieldTooltip({ children }: { children: React.ReactNode }) {
           type="button"
           aria-label={t("common.more_info")}
           onClick={() => setOpen((v) => !v)}
-          className="relative touch-target text-muted-foreground hover:text-foreground focus-visible:text-foreground outline-none"
+          className="relative touch-target rounded-sm text-muted-foreground outline-none hover:text-foreground focus-visible:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50"
         >
           <CircleHelp className="size-3.5" aria-hidden />
         </button>
