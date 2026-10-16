@@ -19,7 +19,7 @@ import {
 } from "@/utils/NORMALIZERS/cart.normalizer";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { PageLoading, Spinner } from "@/components/ui/spinner";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { FormError, FormHeading } from "@/components/ui/form";
 import { useI18n } from "@/providers/i18n.provider";
@@ -88,9 +88,7 @@ export function PaymentStep({
   let body: ReactNode;
   if (isLoading) {
     body = (
-      <div className="flex justify-center py-12">
-        <Spinner />
-      </div>
+      <PageLoading className="min-h-48" />
     );
   } else if (isError || !methods || methods.length === 0) {
     // No methods, or the request failed. Degrade gracefully.

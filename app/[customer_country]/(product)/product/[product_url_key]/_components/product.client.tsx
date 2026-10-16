@@ -6,6 +6,7 @@
 import Link from "next/link";
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { PageLoading } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { SanitizeHTML } from "@/components/ui/sanitize-html";
@@ -76,7 +77,7 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
   const [notify_open, setNotifyOpen] = useState(false);
   const buy_area = useRef<HTMLDivElement>(null);
 
-  if (isLoading) return <div>{t("common.loading")}</div>;
+  if (isLoading) return <PageLoading />;
   if (error || !product) return <div>{t("product.not_found")}</div>;
 
   const purchasable = !!configurable || product.purchasable;

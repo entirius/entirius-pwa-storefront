@@ -22,6 +22,7 @@ import { Suspense } from "react";
 import { SITE_URL, SITE_NAME } from "@/lib/seo/config";
 import { THEME } from "@/_CONFIG/app.config.json";
 import { DEFAULT_OG_IMAGES, MANIFEST_PATH, THEME_COLOR, brand_url, has_manifest } from "@/lib/brand";
+import { PageLoading } from "@/components/ui/spinner";
 // Brand typefaces (styleguide §1). Both are variable fonts: one file each, no
 // weight list. Lexend Deca carries headings and the wordmark (300/400 only, never
 // bold); Inter carries the shop UI. Fallback metrics come from the brand tokens.
@@ -79,7 +80,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   // <html lang> and the messages follow the language cookie (lib/i18n/i18n.server.ts).
-  const { language, messages, t } = await get_i18n();
+  const { language, messages } = await get_i18n();
   return (
     // Light by default; an instance sets THEME: "dark" in _CONFIG/app.config.json
     // for the brand's dark set (app/globals.css), which also turns shadcn's dark:
@@ -92,7 +93,7 @@ export default async function RootLayout({
           <TanstackQueryProvider>
             {/* AuthGate reads the cookie inside Suspense so the dynamic read
                 doesn't block the static shell (Next 16 blocking-route rule). */}
-            <Suspense fallback={<div>{t("layout.loading")}</div>}>
+            <Suspense fallback={<PageLoading />}>
               <AuthGate>{children}</AuthGate>
             </Suspense>
           </TanstackQueryProvider>

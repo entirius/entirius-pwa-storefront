@@ -6,7 +6,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Spinner } from "@/components/ui/spinner";
+import { PageLoading } from "@/components/ui/spinner";
 import { NORM_CART, type Cart } from "@/utils/NORMALIZERS/cart.normalizer";
 import type { PlacedOrder } from "@/utils/NORMALIZERS/order.normalizer";
 import { cart_to_address_form } from "@/utils/validation/address.schema";
@@ -56,9 +56,7 @@ export function CheckoutClient() {
 
   if (!mounted) {
     return (
-      <div className="flex justify-center py-16">
-        <Spinner />
-      </div>
+      <PageLoading />
     );
   }
 

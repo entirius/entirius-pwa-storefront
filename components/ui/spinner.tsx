@@ -9,16 +9,33 @@ import { Loader2Icon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/providers/i18n.provider"
 
-function Spinner({ className, ...props }: React.ComponentProps<"svg">) {
+// `decorative`: inside something that already announces the loading (PageLoading, a labelled button).
+function Spinner({
+  className,
+  decorative = false,
+  ...props
+}: React.ComponentProps<"svg"> & { decorative?: boolean }) {
+  const { t } = useI18n()
+  const a11y = decorative
+    ? { "aria-hidden": true }
+    : { role: "status", "aria-label": t("common.loading") }
+  return <Loader2Icon {...a11y} className={cn("size-4 animate-spin", className)} {...props} />
+}
+
+// The one loading state for a page or a page section: spinner centred in the space it takes, a caption under it.
+// min-h keeps the footer from jumping up while the content loads (no h-screen, which overshoots).
+function PageLoading({ className }: { className?: string }) {
   const { t } = useI18n()
   return (
-    <Loader2Icon
+    <div
       role="status"
-      aria-label={t("common.loading")}
-      className={cn("size-4 animate-spin", className)}
-      {...props}
-    />
+      aria-live="polite"
+      className={cn("flex min-h-[50vh] flex-col items-center justify-center gap-3", className)}
+    >
+      <Spinner decorative className="size-8 text-muted-foreground" />
+      <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
+    </div>
   )
 }
 
-export { Spinner }
+export { PageLoading, Spinner }
