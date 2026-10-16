@@ -22,7 +22,7 @@ export default function SectionAccordion({
 }) {
   return (
     <section className="w-full py-8">
-      <div className="grid gap-8 rounded-4xl bg-card p-6 md:grid-cols-[2fr_3fr] md:p-12">
+      <div className="surface grid gap-8 md:grid-cols-[2fr_3fr]">
         {(title || description || custom_buttons?.length) && (
           <header className="flex flex-col gap-3">
             {title && <h2 className="text-3xl md:text-4xl">{title}</h2>}

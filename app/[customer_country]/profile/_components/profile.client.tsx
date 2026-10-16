@@ -48,7 +48,7 @@ export function ProfileClient() {
       <LatestOrder />
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section aria-labelledby="account-details" className="flex flex-col gap-4 rounded-3xl bg-card p-6">
+        <section aria-labelledby="account-details" className="surface flex flex-col gap-4">
           <h2 id="account-details" className="text-xl">
             {t("profile.account_details")}
           </h2>
@@ -92,7 +92,7 @@ function LatestOrder() {
   const style = order ? status_style(order.status) : null;
 
   return (
-    <section aria-labelledby="latest-order" className="flex flex-col gap-4 rounded-3xl bg-card p-6">
+    <section aria-labelledby="latest-order" className="surface flex flex-col gap-4">
       <h2 id="latest-order" className="text-xl">
         {t("profile.latest_order")}
       </h2>
@@ -133,7 +133,7 @@ function DefaultAddress() {
     addresses?.find((a) => a.address_id === defaults?.shipping_address) ?? addresses?.[0];
 
   return (
-    <section aria-labelledby="default-address" className="flex flex-col gap-4 rounded-3xl bg-card p-6">
+    <section aria-labelledby="default-address" className="surface flex flex-col gap-4">
       <h2 id="default-address" className="text-xl">
         {t("profile.default_address")}
       </h2>

@@ -40,7 +40,7 @@ export function ListingClient({ options, category_name }: { options: any; catego
   return (
     <div className="grid gap-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:items-start">
       {/* Desktop: the filters stay beside the listing. Phones open them in a sheet. */}
-      <aside aria-label={t("catalog.filters")} className="hidden rounded-3xl bg-card p-5 lg:sticky lg:top-24 lg:block lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
+      <aside aria-label={t("catalog.filters")} className="surface hidden lg:sticky lg:top-24 lg:block lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
         <FiltersOptionsClient options={options} />
       </aside>
       <div data-catalog-list className="min-w-0 scroll-mt-24">

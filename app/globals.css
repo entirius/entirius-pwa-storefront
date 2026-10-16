@@ -177,6 +177,16 @@
   --surface-fade: linear-gradient(to bottom, transparent 25%, var(--background) 72%);
   --surface-backdrop: linear-gradient(185deg, var(--brand-white) 55%, var(--brand-light-tint-primary) 160%);
   --surface-glow: 0 12px 32px -12px color-mix(in srgb, var(--brand-light-neutral-900) 18%, transparent);
+
+  /* Section containers (`surface`, `surface-sm`): a flat theme sets the background to transparent and the paddings
+     and radius to 0, so the content lines up with the breadcrumbs. `surface-outline` keeps its border and padding. */
+  --surface-bg: var(--card);
+  --surface-radius: var(--brand-radius-4xl);
+  --surface-padding: 1rem;
+  --surface-padding-lg: 2rem;
+  --surface-padding-sm: 0.5rem;
+  --surface-outline-padding: 1rem;
+  --surface-divider: transparent;
 }
 
 /* html.dark, not .dark: _CONFIG/theme.css loads after this file and its :root would win over .dark. */
@@ -253,6 +263,36 @@ html.dark {
 }
 @utility shadow-glow {
   box-shadow: var(--surface-glow);
+}
+
+/* Section containers; see the --surface-* variables above. */
+@utility surface {
+  background-color: var(--surface-bg);
+  border-radius: var(--surface-radius);
+  padding: var(--surface-padding);
+  @media (width >= 48rem) {
+    padding: var(--surface-padding-lg);
+  }
+}
+@utility surface-sm {
+  background-color: var(--surface-bg);
+  border-radius: var(--surface-radius);
+  padding: var(--surface-padding-sm);
+}
+@utility surface-outline {
+  border: 1px solid var(--border);
+  border-radius: var(--surface-radius);
+  padding: var(--surface-outline-padding);
+}
+/* A surface that follows another in a column (used instead of `surface`): the line a flat theme draws between
+   them, with room under it when the theme has no padding. */
+@utility surface-divided {
+  @apply surface;
+  border-top: 1px solid var(--surface-divider);
+  padding-top: max(var(--surface-padding), 1.5rem);
+  @media (width >= 48rem) {
+    padding-top: max(var(--surface-padding-lg), 1.5rem);
+  }
 }
 
 /* Link (styleguide §6): accent, underline 3 px below, basic-950 on hover. */

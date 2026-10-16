@@ -145,7 +145,7 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
       <Gallery media={media} name={product.name} />
 
       {/* Product info */}
-      <section aria-label={t("product.details")} className="flex flex-col gap-6 rounded-4xl bg-card p-4 md:p-8">
+      <section aria-label={t("product.details")} className="surface flex flex-col gap-6">
         {/* Meta: who, what, which. */}
         <div className="flex flex-col gap-2">
           {product.brands?.length > 0 && (
@@ -251,7 +251,7 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
     </div>
 
       {product.specs?.length > 0 && (
-        <div className="rounded-4xl bg-card p-6 md:p-10">
+        <div className="surface-divided">
           <ProductSpecs groups={product.specs} categories={product.categories} />
         </div>
       )}

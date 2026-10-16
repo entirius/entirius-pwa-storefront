@@ -48,7 +48,7 @@ export function AccountMenu() {
   return (
     <nav
       aria-label={t("header.account")}
-      className="flex gap-1 overflow-x-auto rounded-3xl bg-card p-2 md:flex-col md:overflow-visible"
+      className="flex gap-1 overflow-x-auto surface-sm md:flex-col md:overflow-visible"
     >
       {ITEMS.map(({ href, label, icon: Icon, exact }) => {
         const active = exact ? path === href : path.startsWith(href);

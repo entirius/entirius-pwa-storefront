@@ -107,7 +107,7 @@ export default async function CatalogPage({ params, searchParams }: Props) {
       {category && (
         <header className="mb-6 flex flex-col gap-4">
           <PageBreadcrumbs trail={category_trail(category.breadcrumbs)} />
-          <div className="flex flex-wrap items-end justify-between gap-4 rounded-4xl bg-card bg-gradient-backdrop p-6 md:p-10">
+          <div className="surface flex flex-wrap items-end justify-between gap-4 bg-gradient-backdrop">
             <div>
               <h1 className="text-4xl leading-tight md:text-5xl">{category.name}</h1>
               {category.description && (
