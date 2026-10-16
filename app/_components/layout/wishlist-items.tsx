@@ -15,7 +15,7 @@ export function WishlistItems() {
 
   if (entries.length === 0) {
     return (
-      <div className="flex flex-col gap-1 py-8 text-center">
+      <div className="flex flex-col gap-1 px-4 py-8 text-center">
         <p className="text-muted-foreground">{t("wishlist.empty")}</p>
         <p className="text-sm text-muted-foreground">{t("wishlist.empty_hint")}</p>
       </div>

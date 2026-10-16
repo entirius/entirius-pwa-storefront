@@ -16,7 +16,7 @@ import { useWishlistStore } from "@/stores/wishlist.store";
 import { WishlistItems } from "./wishlist-items";
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { CountBadge } from "./count-badge";
 import { useI18n } from "@/providers/i18n.provider";
 
 export function WishlistSheet() {
@@ -40,13 +40,7 @@ export function WishlistSheet() {
           }
         >
           <Heart />
-          {!mounted ? (
-            <Spinner className="absolute -top-1 -right-1 size-3" />
-          ) : count > 0 ? (
-            <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground">
-              {count}
-            </span>
-          ) : null}
+          <CountBadge count={count} mounted={mounted} />
         </Button>
       </SheetTrigger>
       <SheetContent side="right" aria-describedby={undefined}>
