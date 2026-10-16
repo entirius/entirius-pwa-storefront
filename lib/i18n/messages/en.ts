@@ -195,7 +195,7 @@ export const en = {
   "product.ask_price": "Ask for the price",
   "product.notify_similar": "Tell me when a similar product arrives",
   "product.notify_short": "Notify me",
-  "product.related": "Similar products in stock",
+  "product.related": "Similar products",
   "product.related_sold": "This product is no longer available. Similar ones are in stock now.",
   "product.see_similar": "See similar",
   "product.gallery_open": "Open picture {number} full screen",

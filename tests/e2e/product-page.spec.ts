@@ -86,7 +86,7 @@ test.describe("related products", () => {
   test("an in-stock product closes the page with in-stock tiles, never itself", async ({ page }) => {
     await page.goto("/product/nebula-crimson-sofa");
     const related = page.locator("[data-related-products]");
-    await expect(related.getByRole("heading", { name: "Similar products in stock" })).toBeVisible();
+    await expect(related.getByRole("heading", { name: "Similar products" })).toBeVisible();
     const tiles = related.locator("[data-product-tile]");
     expect(await tiles.count()).toBeGreaterThan(0);
     await expect(related.locator('[data-stock="out"]')).toHaveCount(0);

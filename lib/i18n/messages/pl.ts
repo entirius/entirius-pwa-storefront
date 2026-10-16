@@ -201,7 +201,7 @@ export const pl: Record<MessageKey, Message> = {
   "product.ask_price": "Zapytaj o cenę",
   "product.notify_similar": "Powiadom mnie, gdy pojawi się podobny produkt",
   "product.notify_short": "Powiadom mnie",
-  "product.related": "Podobne produkty dostępne od ręki",
+  "product.related": "Podobne produkty",
   "product.related_sold": "Tego produktu nie ma już w sprzedaży. Podobne są teraz w sklepie.",
   "product.see_similar": "Zobacz podobne",
   "product.gallery_open": "Otwórz zdjęcie {number} na pełnym ekranie",
