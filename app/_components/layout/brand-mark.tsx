@@ -13,7 +13,7 @@ const logo_alt = (BRAND.LOGO_ALT as string | null) ?? SITE_NAME;
 // Fixed height, so swapping identities never shifts the header.
 export function BrandMark() {
   return (
-    <span className="flex h-8 items-center">
+    <span className="flex h-8 min-w-0 items-center">
       {logo ? (
         <Image
           src={`/brand/${logo}`}
@@ -22,10 +22,10 @@ export function BrandMark() {
           height={32}
           unoptimized
           priority
-          className="h-8 w-auto"
+          className="h-8 w-auto max-w-full object-contain object-left"
         />
       ) : (
-        <span className="font-brand text-2xl font-normal tracking-brand text-heading">
+        <span className="truncate font-brand text-2xl font-normal tracking-brand text-heading">
           {SITE_NAME}
         </span>
       )}

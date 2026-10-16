@@ -18,11 +18,11 @@ export async function HeaderComponent() {
   const { t } = await get_i18n();
   return (
     <header className="sticky top-0 z-sticky border-b border-border bg-card">
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4">
-        <LinkDynamic href="/" className="flex items-center" aria-label={t("header.home", { name: SITE_NAME })}>
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-3 px-4">
+        <LinkDynamic href="/" className="flex min-w-0 items-center" aria-label={t("header.home", { name: SITE_NAME })}>
           <BrandMark />
         </LinkDynamic>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <NavigationComponent />
           <SearchSheet />
           <WishlistSheet />
