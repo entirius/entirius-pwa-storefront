@@ -201,7 +201,7 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
               />
             </>
           )}
-          <Button size="lg" className="flex-1 rounded-full" disabled={!canBuy} onClick={add_to_cart}>
+          <Button size="lg" className="flex-1" disabled={!canBuy} onClick={add_to_cart}>
             {cta_label}
           </Button>
           <WishlistButton

@@ -210,7 +210,7 @@ export function FiltersOptionsClient({
 
       <div className="sticky bottom-0 bg-card pt-3 pb-1">
         <Button
-          className="w-full rounded-full"
+          className="w-full"
           size="lg"
           disabled={!has_pending}
           onClick={handle_apply}

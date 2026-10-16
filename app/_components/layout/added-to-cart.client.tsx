@@ -77,12 +77,12 @@ export function AddedToCart() {
             {i18n.t("cart.added_count", { count })}
           </p>
           <div className="grid grid-cols-2 gap-2">
-            <Button variant="outline" className="rounded-full" asChild>
+            <Button variant="outline" asChild>
               <LinkDynamic href="/cart" onClick={hide}>
                 {i18n.t("cart.view")}
               </LinkDynamic>
             </Button>
-            <Button className="rounded-full" asChild>
+            <Button asChild>
               <LinkDynamic href="/checkout" onClick={hide}>
                 {i18n.t("cart.checkout")}
               </LinkDynamic>

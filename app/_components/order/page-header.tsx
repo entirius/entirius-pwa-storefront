@@ -41,7 +41,7 @@ export function EmptyCart({ message, action, hint }: { message: string; action: 
         <p className="text-lg text-heading">{message}</p>
         {hint && <p className="text-sm text-muted-foreground">{hint}</p>}
       </div>
-      <Button asChild className="rounded-full">
+      <Button asChild>
         <LinkDynamic href="/">{action}</LinkDynamic>
       </Button>
     </div>

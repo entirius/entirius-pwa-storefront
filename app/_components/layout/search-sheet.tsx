@@ -74,7 +74,7 @@ export function SearchSheet() {
           variant="ghost"
           size="icon"
           aria-label={t("header.search")}
-          className="cursor-pointer text-foreground md:h-10 md:w-56 md:justify-start md:gap-2 md:rounded-full md:border md:border-border md:bg-background md:px-4 md:text-muted-foreground lg:w-72"
+          className="cursor-pointer text-foreground md:h-10 md:w-56 md:justify-start md:gap-2 md:rounded-control md:border md:border-border md:bg-background md:px-4 md:text-muted-foreground lg:w-72"
         >
           <Search />
           <span className="hidden text-sm font-normal md:inline">{t("search.trigger")}</span>

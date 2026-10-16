@@ -70,7 +70,7 @@ export function ProfileClient() {
               <Button
                 variant="outline"
                 size="sm"
-                className="self-start rounded-full"
+                className="self-start"
                 onClick={() => setEditing(true)}
               >
                 {t("common.edit")}

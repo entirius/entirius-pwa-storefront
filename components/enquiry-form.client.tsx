@@ -73,7 +73,7 @@ export function EnquiryForm({ form_type, slug, context, className, collapsed_lab
         type="button"
         size="lg"
         variant={collapsed_primary ? "default" : "outline"}
-        className={cn("w-full rounded-full", className)}
+        className={cn("w-full", className)}
         data-enquiry-trigger
         onClick={() => setOpen(true)}
       >

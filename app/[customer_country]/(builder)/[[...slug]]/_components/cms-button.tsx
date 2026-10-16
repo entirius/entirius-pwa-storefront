@@ -86,7 +86,7 @@ export default function CmsButton({
     // A bare "#fragment" is an in-page link (for example the cookie preferences marker): same tab.
     const new_tab = !url.startsWith("#");
     return (
-      <Button variant={variant} size={size} className="rounded-full px-5" asChild>
+      <Button variant={variant} size={size} className="px-5" asChild>
         <a
           href={href}
           {...(new_tab && { target: "_blank", rel: "noopener noreferrer" })}
@@ -98,7 +98,7 @@ export default function CmsButton({
   }
 
   return (
-    <Button variant={variant} size={size} className="rounded-full px-5" asChild>
+    <Button variant={variant} size={size} className="px-5" asChild>
       <LinkDynamic href={href}>{label}</LinkDynamic>
     </Button>
   );

@@ -89,7 +89,7 @@ export function CartPageClient() {
               <div className="border-t pt-4">
                 <OrderTotals backend={backend} currency={currency} fetching={isFetching} shipping_pending />
               </div>
-              <Button size="lg" className="hidden h-12 rounded-full text-base lg:inline-flex" asChild>
+              <Button size="lg" className="hidden h-12 text-base lg:inline-flex" asChild>
                 <LinkDynamic href="/checkout">{t("cart.go_to_checkout")}</LinkDynamic>
               </Button>
             </OrderSummaryCard>
@@ -104,7 +104,7 @@ export function CartPageClient() {
             <p className="text-xs text-muted-foreground">{t("cart.total_incl_vat")}</p>
             <p className="text-base font-semibold tabular-nums">{i18n.price(backend?.total_gross, currency)}</p>
           </div>
-          <Button size="lg" className="h-12 rounded-full px-6" asChild>
+          <Button size="lg" className="h-12 px-6" asChild>
             <LinkDynamic href="/checkout">{t("cart.go_to_checkout")}</LinkDynamic>
           </Button>
         </div>

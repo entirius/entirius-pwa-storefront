@@ -87,7 +87,7 @@ export function NotifySimilar({
       <Button
         type="button"
         size="lg"
-        className={cn("w-full rounded-full", className)}
+        className={cn("w-full", className)}
         data-notify-trigger
         onClick={() => setOpen(true)}
       >

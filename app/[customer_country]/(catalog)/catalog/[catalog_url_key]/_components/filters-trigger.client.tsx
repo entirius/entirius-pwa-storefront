@@ -31,7 +31,7 @@ export function FiltersTriggerClient({ options }: { options: any }) {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" size="sm" className="rounded-full lg:hidden">
+        <Button variant="outline" size="sm" className="lg:hidden">
           <div className="relative">
             <FilterIcon className="size-4" />
             {has_active && (
