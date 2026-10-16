@@ -59,7 +59,7 @@ export function Gallery({ media, name }: { media: GalleryMedia; name: string }) 
               tabIndex={i === index ? 0 : -1}
               onClick={() => setViewer(true)}
               aria-label={t("product.gallery_open", { number: i + 1 })}
-              className="relative aspect-square w-full shrink-0 cursor-zoom-in snap-center snap-always overflow-hidden"
+              className="relative aspect-product w-full shrink-0 cursor-zoom-in snap-center snap-always overflow-hidden"
             >
               <MediaImage
                 src={variants[0].uri}
@@ -118,7 +118,7 @@ export function Gallery({ media, name }: { media: GalleryMedia; name: string }) 
               aria-current={i === index ? "true" : undefined}
               onClick={() => go(i)}
               className={cn(
-                "relative aspect-square overflow-hidden rounded-2xl bg-muted ring-1",
+                "relative aspect-product overflow-hidden rounded-2xl bg-muted ring-1",
                 i === index ? "ring-2 ring-primary" : "ring-border hover:ring-primary",
               )}
             >

@@ -124,7 +124,7 @@ export function CartPageClient() {
                 >
                   <LinkDynamic
                     href={`/product/${item.url_key}`}
-                    className="relative aspect-square overflow-hidden rounded-2xl bg-muted"
+                    className="relative aspect-product overflow-hidden rounded-2xl bg-muted"
                     tabIndex={-1}
                     aria-hidden
                   >

@@ -20,7 +20,7 @@ interface TileTypeBProps extends CmsSectionBaseProps {
 function TileShell({ children }: { children?: React.ReactNode }) {
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-      <div className="aspect-square w-full flex items-center justify-center bg-muted">
+      <div className="aspect-product w-full flex items-center justify-center bg-muted">
         {children}
       </div>
       <div className="p-2.5 flex flex-col gap-1">

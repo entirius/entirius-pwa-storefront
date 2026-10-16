@@ -62,7 +62,7 @@ export function AddedToCart() {
             </Button>
           </div>
           <div className="grid grid-cols-[4rem_minmax(0,1fr)_auto] items-center gap-3">
-            <div className="relative size-16 overflow-hidden rounded-2xl bg-muted">
+            <div className="relative w-16 aspect-product overflow-hidden rounded-2xl bg-muted">
               <MediaImage src={item.image ?? image_placeholder} alt="" fill sizes="64px" className="object-cover" />
             </div>
             <div className="min-w-0">

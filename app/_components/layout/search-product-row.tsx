@@ -110,13 +110,13 @@ export function SearchProductRow({
       data-stock={product.on_stock === false ? "out" : "in"}
       className="grid grid-cols-[5rem_1fr] gap-3 rounded-md border border-border p-2 transition-colors hover:bg-accent"
     >
-      <div className="size-20 overflow-hidden rounded-md bg-muted">
+      <div className="relative w-20 aspect-product self-start overflow-hidden rounded-md bg-muted">
         <MediaImage
           src={src}
           alt={product.name ?? i18n.t("search.product_fallback")}
-          width={80}
-          height={80}
-          className="size-full object-cover"
+          fill
+          sizes="80px"
+          className="object-cover"
         />
       </div>
       <div className="min-w-0 self-center">

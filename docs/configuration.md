@@ -55,7 +55,8 @@ Loaded in `app/layout.tsx` right after `app/globals.css`, so it overrides the va
 (`--primary`, `--radius`, …) without touching components. Fonts: set `--font-family-sans`; self-host them with
 `@font-face` and `url("./assets/...")` relative to the file. The dark set sits under `html.dark`, which a `:root`
 rule in the theme cannot beat. `--leading` is the colour of CMS dyes (`bg-leading`, `text-leading`); white text
-sits on it. Layout slot wrappers carry `data-layout-slot="<slot>"` for theme rules, and every CMS section and tile
+sits on it. `--product-image-ratio` (width / height, default `1 / 1`) shapes every product photo: listing, PDP gallery,
+cart, checkout, search, wishlist. Layout slot wrappers carry `data-layout-slot="<slot>"` for theme rules, and every CMS section and tile
 sits in a `display: contents` wrapper with `data-cms-type="<core_type>"`.
 
 ## Message overrides (`messages.config.json`)

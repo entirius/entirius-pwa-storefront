@@ -58,7 +58,7 @@ export function CheckoutSummary({
             : price_lines(i18n, item.price).at(-1);
           return (
             <div key={sku} className="flex gap-3 py-3">
-              <div className="relative size-16 shrink-0 overflow-hidden rounded-md bg-muted">
+              <div className="relative w-16 aspect-product self-start shrink-0 overflow-hidden rounded-md bg-muted">
                 <MediaImage
                   src={uri}
                   alt={item.name}
