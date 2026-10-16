@@ -45,7 +45,7 @@ export async function login(page: Page, email: string) {
 }
 
 const CHECKOUT = `${app_config.API_BASE_URL}/api/checkout/v2/default-europe`;
-const CHECKOUT_KEY = channels["default-europe"].API_CHECKOUT_KEY;
+const CHECKOUT_KEY = (channels as Record<string, { API_CHECKOUT_KEY: string }>)["default-europe"].API_CHECKOUT_KEY;
 
 // A cart the customer saved earlier (another device): created with the customer's token, so the
 // backend binds it to the account.

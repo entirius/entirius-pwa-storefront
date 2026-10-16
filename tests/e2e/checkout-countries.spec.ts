@@ -11,7 +11,7 @@ import channels from "../../_CONFIG/channels.config.json";
 
 test("the address form offers the countries of the checkout channel", async ({ page, request }) => {
   const response = await request.get(`${app_config.API_BASE_URL}/api/checkout/v2/default-europe/countries/`, {
-    headers: { "x-api-key": channels["default-europe"].API_CHECKOUT_KEY },
+    headers: { "x-api-key": (channels as Record<string, { API_CHECKOUT_KEY: string }>)["default-europe"].API_CHECKOUT_KEY },
   });
   const expected: string[] = (await response.json()).countries.map((c: { label: string }) => c.label).sort();
 
