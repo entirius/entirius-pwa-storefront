@@ -145,9 +145,9 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
       <Gallery media={media} name={product.name} />
 
       {/* Product info */}
-      <section aria-label={t("product.details")} className="surface flex flex-col gap-6">
+      <section aria-label={t("product.details")} className="surface flex flex-col gap-8">
         {/* Meta: who, what, which. */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {product.brands?.length > 0 && (
             <p className="text-xs text-muted-foreground">
               {product.brands.map((b: { name: string }) => b.name).join(", ")}
@@ -166,7 +166,7 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
         </div>
 
         {/* Price and whether it can be bought now. */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
             {configurable ? (
               <VariantPrice price={configurable.price} from={configurable.price_from} large />
@@ -241,7 +241,7 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
         </div>
 
         {product.description && (
-          <div className="border-t pt-6">
+          <div className="border-t pt-8">
             <SanitizeHTML html={description_html(product.description)} className="text-muted-foreground" />
           </div>
         )}
