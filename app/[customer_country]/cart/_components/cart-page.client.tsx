@@ -99,7 +99,7 @@ export function CartPageClient() {
 
       {/* Phones and tablets: total and checkout always in reach. */}
       {has_items && (
-        <div className="fixed inset-x-0 bottom-0 z-20 flex items-center gap-3 border-t border-border bg-card px-4 pt-3 pb-5 lg:hidden">
+        <div className="fixed inset-x-0 bottom-0 z-sticky flex items-center gap-3 border-t border-border bg-card px-4 pt-3 pb-5 lg:hidden">
           <div className="flex-1">
             <p className="text-xs text-muted-foreground">{t("cart.total_incl_vat")}</p>
             <p className="text-base font-semibold tabular-nums">{i18n.price(backend?.total_gross, currency)}</p>

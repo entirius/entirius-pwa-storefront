@@ -48,7 +48,7 @@ export function AddedToCart() {
     <div
       role="status"
       aria-live="polite"
-      className="pointer-events-none fixed inset-x-4 top-20 z-40 flex justify-end sm:left-auto sm:w-96"
+      className="pointer-events-none fixed inset-x-4 top-20 z-toast flex justify-end sm:left-auto sm:w-96"
     >
       {item && (
         <div className="pointer-events-auto flex w-full flex-col gap-4 rounded-3xl border border-border bg-card p-5 shadow-glow">

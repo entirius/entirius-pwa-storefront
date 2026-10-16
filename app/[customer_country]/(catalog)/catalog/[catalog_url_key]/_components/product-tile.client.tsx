@@ -52,7 +52,7 @@ export function ProductTile({
     <WishlistButton
       sku={product.sku}
       item={wishlistItem}
-      className={compact ? "absolute top-2 right-2" : "absolute top-2 right-2 z-10"}
+      className={compact ? "absolute top-2 right-2" : "absolute top-2 right-2 z-raised"}
       variant={compact ? "ghost" : "secondary"}
       size={compact ? "icon-xs" : "icon-sm"}
       onClick={(e) => e.preventDefault()}
@@ -86,7 +86,7 @@ export function ProductTile({
         {sold_out && (
           <span
             data-sold-out-label
-            className="absolute bottom-2 right-2 z-[1] rounded-sm bg-background/90 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-foreground"
+            className="absolute bottom-2 right-2 z-raised rounded-sm bg-background/90 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-foreground"
           >
             {t("product.out_of_stock")}
           </span>
@@ -121,7 +121,7 @@ export function ProductTile({
         {sold_out && (
           <span
             data-sold-out-label
-            className="absolute bottom-2.5 left-2.5 z-[1] rounded-sm bg-background/90 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-foreground"
+            className="absolute bottom-2.5 left-2.5 z-raised rounded-sm bg-background/90 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-foreground"
           >
             {t("product.out_of_stock")}
           </span>

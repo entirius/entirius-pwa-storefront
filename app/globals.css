@@ -277,6 +277,22 @@ html.dark {
   box-shadow: var(--surface-glow);
 }
 
+/* Stacking scale for app code (shadcn overlays and popups keep their own z-50):
+   raised = above a card's picture inside the card, sticky = header and fixed bars, toast = above sticky bars,
+   viewer = the full-screen gallery above everything. */
+@utility z-raised {
+  z-index: 1;
+}
+@utility z-sticky {
+  z-index: 30;
+}
+@utility z-toast {
+  z-index: 40;
+}
+@utility z-viewer {
+  z-index: 60;
+}
+
 /* Section containers; see the --surface-* variables above. */
 @utility surface {
   background-color: var(--surface-bg);
