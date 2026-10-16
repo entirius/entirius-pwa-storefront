@@ -108,6 +108,7 @@ export function SearchProductRow({
       onClick={onNavigate}
       data-product-tile
       data-stock={product.on_stock === false ? "out" : "in"}
+      data-available={product.on_stock === false ? "false" : "true"}
       className="grid grid-cols-[5rem_1fr] gap-3 rounded-md border border-border p-2 transition-colors hover:bg-accent"
     >
       <div className="relative w-20 aspect-product self-start overflow-hidden rounded-md bg-muted">
@@ -116,10 +117,10 @@ export function SearchProductRow({
           alt={product.name ?? i18n.t("search.product_fallback")}
           fill
           sizes="80px"
-          className="object-cover"
+          className="object-cover unavailable:opacity-60 unavailable:grayscale"
         />
       </div>
-      <div className="min-w-0 self-center">
+      <div className="min-w-0 self-center unavailable:opacity-70">
         <h4 className="truncate text-sm">{product.name}</h4>
         <div className="mt-0.5 flex items-center gap-1.5">
           {special ? (
@@ -138,7 +139,7 @@ export function SearchProductRow({
         {special && product.sku && <OmnibusNote sku={product.sku} compact />}
         {product.on_stock === false && (
           <span data-sold-out-label className="mt-0.5 block text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-            {i18n.t("product.sold_out")}
+            {i18n.t("product.out_of_stock")}
           </span>
         )}
       </div>
