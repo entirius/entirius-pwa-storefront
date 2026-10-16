@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { MediaImage } from "@/components/ui/media-image.client";
 import { price_lines } from "@/lib/i18n/price-lines";
 import { useI18n } from "@/providers/i18n.provider";
+import { useAuth } from "@/providers/auth.provider";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
@@ -32,6 +33,7 @@ const line_max = (stock: { quantity: number } | undefined) =>
 export function CartPageClient() {
   const { backend, isFetching, error, items, stocks, setQty, remove } = useCartSync();
   const mounted = useHydrated();
+  const { isLoggedIn } = useAuth();
   const i18n = useI18n();
   const { t } = i18n;
 
@@ -53,7 +55,11 @@ export function CartPageClient() {
           // Local storage is read after mount: hold the place of the list instead of a spinner.
           <ListSkeleton />
         ) : entries.length === 0 ? (
-          <EmptyCart message={t("cart.empty")} action={t("cart.start_shopping")} />
+          <EmptyCart
+            message={t("cart.empty")}
+            action={t("cart.start_shopping")}
+            hint={isLoggedIn ? undefined : t("cart.empty_hint")}
+          />
         ) : (
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
             <section aria-label={t("cart.items_label")} className="flex min-w-0 flex-col gap-4">

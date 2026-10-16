@@ -42,6 +42,7 @@ export const en = {
   // cart drawer
   "cart.title": "Cart",
   "cart.empty": "Your cart is empty",
+  "cart.empty_hint": "Have an account? Sign in to see your saved cart.",
   "cart.sync_error": "Couldn’t sync with the server. Showing local items.",
   "cart.needs_attention": "Some items need attention before checkout.",
   "cart.limited": "Limited availability",
@@ -87,6 +88,7 @@ export const en = {
   "cart.error_generic": "Something is wrong with an item in your cart. Check the cart and try again.",
   "wishlist.title": "Wishlist",
   "wishlist.empty": "Your wishlist is empty",
+  "wishlist.empty_hint": "Tap the heart on a product to save it for later.",
   "wishlist.add": "Add to wishlist",
   "wishlist.remove": "Remove from wishlist",
   "wishlist.save": "Save",
@@ -113,8 +115,11 @@ export const en = {
   // account sheet and auth forms
   "auth.sign_in": "Sign in",
   "auth.create_account": "Create account",
+  "auth.sign_in_intro": "Sign in to track your orders and use your saved addresses.",
+  "auth.create_account_intro": "With an account you check out faster and can track your orders.",
   "auth.email": "Email",
   "auth.password": "Password",
+  "auth.password_hint": "At least 8 characters, upper and lower case, 2 digits, 2 special characters.",
   "auth.confirm_password": "Confirm password",
   "auth.accept_terms": "I accept the terms of service and privacy policy.",
   "auth.consent_data": "I consent to the processing of my personal data.",
@@ -197,6 +202,7 @@ export const en = {
 
   // contact forms
   "enquiry.title": "Contact us",
+  "enquiry.intro": "We’ll reply to the email address you give us.",
   "enquiry.name": "Your name",
   "enquiry.email": "Email address",
   "enquiry.message": "Message",
@@ -226,6 +232,8 @@ export const en = {
   "checkout.sync_error": "Couldn’t sync your cart with the server. Showing local items.",
   "checkout.items_attention": "Some items need attention:",
   "checkout.billing_details": "Billing details",
+  "checkout.email_hint": "We’ll send your order confirmation and updates here.",
+  "checkout.phone_hint": "Only used for questions about your delivery.",
   "checkout.shipping_address": "Shipping address",
   "checkout.billing_address": "Billing address",
   "checkout.request_invoice": "Request a VAT invoice",

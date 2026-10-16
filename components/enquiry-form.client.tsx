@@ -97,7 +97,7 @@ export function EnquiryForm({ form_type, slug, context, className, collapsed_lab
       data-enquiry-form
       className={cn("relative flex flex-col gap-3 rounded-2xl border p-4", className)}
     >
-      <FormHeading>{collapsed_label ?? t("enquiry.title")}</FormHeading>
+      <FormHeading description={t("enquiry.intro")}>{collapsed_label ?? t("enquiry.title")}</FormHeading>
       <Field id={`enq-name-${slug}`} label={t("enquiry.name")}>
         <Input id={`enq-name-${slug}`} name="name" autoComplete="name" required />
       </Field>

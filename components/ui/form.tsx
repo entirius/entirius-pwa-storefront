@@ -248,9 +248,22 @@ function CheckLabel({ className, ...props }: React.ComponentProps<"label">) {
   return <label className={cn(CHECK_LABEL, className)} {...props} />;
 }
 
-// The title of a form or of a form step.
-function FormHeading({ className, ...props }: React.ComponentProps<"h2">) {
-  return <h2 data-slot="form-heading" className={cn("text-lg", className)} {...props} />;
+// The title of a form or of a form step, with an optional line under it.
+function FormHeading({
+  className,
+  description,
+  ...props
+}: React.ComponentProps<"h2"> & { description?: React.ReactNode }) {
+  const heading = <h2 data-slot="form-heading" className={cn("text-lg", className)} {...props} />;
+  if (!description) return heading;
+  return (
+    <div className="flex flex-col gap-1">
+      {heading}
+      <p data-slot="form-heading-description" className="text-sm text-muted-foreground">
+        {description}
+      </p>
+    </div>
+  );
 }
 
 // A group of fields under a FormHeading-styled legend.

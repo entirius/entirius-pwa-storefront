@@ -120,7 +120,7 @@ function Row({
   return (
     <div className="flex items-center justify-between gap-4">
       <span className={accent ? "text-positive" : "text-muted-foreground"}>{label}</span>
-      <span className={cn("tabular-nums", accent && "text-positive", muted && "text-muted-foreground")}>{value}</span>
+      <span className={cn("text-right tabular-nums", accent && "text-positive", muted && "text-muted-foreground")}>{value}</span>
     </div>
   );
 }

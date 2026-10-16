@@ -59,7 +59,7 @@ export function RegisterForm({
     <Form {...form}>
       <form onSubmit={submit} className="flex flex-col gap-4 p-4">
         <TextField control={form.control} name="email" label={t("auth.email")} type="email" autoComplete="email" />
-        <TextField control={form.control} name="password" label={t("auth.password")} type="password" autoComplete="new-password" />
+        <TextField control={form.control} name="password" label={t("auth.password")} hint={t("auth.password_hint")} type="password" autoComplete="new-password" />
         <TextField control={form.control} name="confirm_password" label={t("auth.confirm_password")} type="password" autoComplete="new-password" />
         <CheckboxField control={form.control} name="consent_terms" label={t("auth.accept_terms")} />
         <CheckboxField control={form.control} name="consent_data" label={t("auth.consent_data")} />

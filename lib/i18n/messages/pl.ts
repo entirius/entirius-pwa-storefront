@@ -39,6 +39,7 @@ export const pl: Record<MessageKey, Message> = {
   // cart drawer
   "cart.title": "Koszyk",
   "cart.empty": "Twój koszyk jest pusty",
+  "cart.empty_hint": "Masz konto? Zaloguj się, aby zobaczyć zapisany koszyk.",
   "cart.sync_error": "Nie udało się zsynchronizować z serwerem. Pokazujemy produkty zapisane na tym urządzeniu.",
   "cart.needs_attention": "Przed zamówieniem trzeba poprawić niektóre produkty.",
   "cart.limited": "Ograniczona dostępność",
@@ -60,7 +61,7 @@ export const pl: Record<MessageKey, Message> = {
   "cart.items_label": "Produkty w koszyku",
   "cart.remove_short": "Usuń",
   "cart.shipping": "Dostawa",
-  "cart.shipping_at_checkout": "Obliczymy przy składaniu zamówienia",
+  "cart.shipping_at_checkout": "Obliczymy w kolejnym kroku",
   "cart.you_save_order": "Oszczędzasz {amount} na tym zamówieniu",
   "cart.go_to_checkout": "Przejdź do kasy",
   "cart.total_incl_vat": "Razem z VAT",
@@ -90,6 +91,7 @@ export const pl: Record<MessageKey, Message> = {
   "cart.error_generic": "Z jednym z produktów w koszyku jest problem. Sprawdź koszyk i spróbuj ponownie.",
   "wishlist.title": "Ulubione",
   "wishlist.empty": "Nie masz jeszcze ulubionych produktów",
+  "wishlist.empty_hint": "Kliknij serce przy produkcie, aby zapisać go na później.",
   "wishlist.add": "Dodaj do ulubionych",
   "wishlist.remove": "Usuń z ulubionych",
   "wishlist.save": "Zapisz",
@@ -120,8 +122,11 @@ export const pl: Record<MessageKey, Message> = {
   // account sheet and auth forms
   "auth.sign_in": "Zaloguj się",
   "auth.create_account": "Załóż konto",
+  "auth.sign_in_intro": "Zaloguj się, aby śledzić zamówienia i korzystać z zapisanych adresów.",
+  "auth.create_account_intro": "Z kontem szybciej złożysz zamówienie i sprawdzisz jego status.",
   "auth.email": "E-mail",
   "auth.password": "Hasło",
+  "auth.password_hint": "Min. 8 znaków, wielka i mała litera, 2 cyfry, 2 znaki specjalne.",
   "auth.confirm_password": "Powtórz hasło",
   "auth.accept_terms": "Akceptuję regulamin i politykę prywatności.",
   "auth.consent_data": "Wyrażam zgodę na przetwarzanie moich danych osobowych.",
@@ -203,6 +208,7 @@ export const pl: Record<MessageKey, Message> = {
 
   // contact forms
   "enquiry.title": "Napisz do nas",
+  "enquiry.intro": "Odpowiemy na podany adres e-mail.",
   "enquiry.name": "Imię i nazwisko",
   "enquiry.email": "Adres e-mail",
   "enquiry.message": "Wiadomość",
@@ -232,6 +238,8 @@ export const pl: Record<MessageKey, Message> = {
   "checkout.sync_error": "Nie udało się zsynchronizować koszyka z serwerem. Pokazujemy produkty zapisane na tym urządzeniu.",
   "checkout.items_attention": "Niektóre produkty wymagają uwagi:",
   "checkout.billing_details": "Dane do faktury",
+  "checkout.email_hint": "Wyślemy na niego potwierdzenie i informacje o zamówieniu.",
+  "checkout.phone_hint": "Tylko w sprawie dostawy zamówienia.",
   "checkout.shipping_address": "Adres dostawy",
   "checkout.billing_address": "Adres do faktury",
   "checkout.request_invoice": "Chcę fakturę VAT",

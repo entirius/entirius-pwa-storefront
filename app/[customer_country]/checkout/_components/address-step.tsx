@@ -139,6 +139,7 @@ export function AddressStep({
             control={form.control}
             name="billing.email"
             label={t("address.email")}
+            hint={t("checkout.email_hint")}
             type="email"
             autoComplete="email"
           />
@@ -228,7 +229,7 @@ function AddressFields({
           label={t("address.dialling_code")}
           options={dialling.map((d) => ({ value: d, label: d }))}
         />
-        <TextField control={control} name={`${prefix}.telephone` as Path<AddressFormValues>} label={t("address.phone")} type="tel" autoComplete="tel-national" />
+        <TextField control={control} name={`${prefix}.telephone` as Path<AddressFormValues>} label={t("address.phone")} hint={t("checkout.phone_hint")} type="tel" autoComplete="tel-national" />
       </div>
     </>
   );
