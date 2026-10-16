@@ -88,7 +88,7 @@ export function Gallery({ media, name }: { media: GalleryMedia; name: string }) 
               aria-label={t("product.previous_slide")}
               disabled={index === 0}
               onClick={() => go(index - 1)}
-              className="absolute left-2 top-1/2 hidden size-8 -translate-y-1/2 rounded-full md:inline-flex"
+              className="absolute left-2 top-1/2 hidden size-8 -translate-y-1/2 rounded-chip md:inline-flex"
             >
               <ArrowLeft />
             </Button>
@@ -99,7 +99,7 @@ export function Gallery({ media, name }: { media: GalleryMedia; name: string }) 
               aria-label={t("product.next_slide")}
               disabled={index === count - 1}
               onClick={() => go(index + 1)}
-              className="absolute right-2 top-1/2 hidden size-8 -translate-y-1/2 rounded-full md:inline-flex"
+              className="absolute right-2 top-1/2 hidden size-8 -translate-y-1/2 rounded-chip md:inline-flex"
             >
               <ArrowRight />
             </Button>

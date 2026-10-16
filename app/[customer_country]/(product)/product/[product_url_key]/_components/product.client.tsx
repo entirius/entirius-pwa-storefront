@@ -216,7 +216,7 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
             }}
             variant="outline"
             size="icon-lg"
-            className="rounded-full"
+            className="rounded-chip"
           />
         </div>
 

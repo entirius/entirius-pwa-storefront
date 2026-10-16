@@ -123,7 +123,7 @@ export default async function CatalogPage({ params, searchParams }: Props) {
                   <LinkDynamic
                     key={sub.url_key}
                     href={`/catalog/${sub.url_key}`}
-                    className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-heading transition-colors hover:bg-accent hover:text-accent-foreground"
+                    className="rounded-chip border border-border bg-card px-4 py-2 text-sm font-medium text-heading transition-colors hover:bg-accent hover:text-accent-foreground"
                   >
                     {sub.name}
                   </LinkDynamic>

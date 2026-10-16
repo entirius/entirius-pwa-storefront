@@ -26,5 +26,5 @@ Every field goes through a shared component — never `FormField` / `<label>` wi
 - Errors: field messages and `FormError` share `text-xs text-destructive`. Full-width alerts above a form (cart sync, checkout validation) are a separate pattern.
 - Heading: `FormHeading` is `text-lg` with the brand face and weight from the base layer.
 - Border: fields rest on `--field-border`, lighter than `--input` on purpose (below 3:1); hover darkens it to `--input`, focus to `--ring`. Input, textarea, select trigger, input group, checkbox and radio. A client theme that forces `border-color` on fields overrides this.
-- Corners: controls of one height share `rounded-control` (`--control-radius`); a pill (`rounded-full`) only for round icon buttons, chips, statuses and counters, never for a text button.
+- Corners: controls of one height share `rounded-control` (`--control-radius`); outlined round icon buttons and text chips take `rounded-chip` (`--chip-radius`); a plain `rounded-full` only for ghost icons, counters, statuses, the checkout stepper, the slider and radios, never for a text button.
 - Height: `h-9` for input, select and input group, `text-base` on phones and `text-sm` from `md` (16px stops iOS zooming into a field). No local height overrides.

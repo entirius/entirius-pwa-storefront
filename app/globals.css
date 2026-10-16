@@ -73,6 +73,7 @@
   --radius-3xl: var(--brand-radius-3xl);
   --radius-4xl: var(--brand-radius-4xl);
   --radius-control: var(--control-radius);
+  --radius-chip: var(--chip-radius);
   --aspect-product: var(--product-image-ratio);
 }
 
@@ -107,6 +108,8 @@
   --radius: var(--brand-radius-lg);
   /* Corner of every control of one height: buttons, inputs, select, input group, quantity stepper. A theme sets 0 for square. */
   --control-radius: var(--brand-radius-lg);
+  /* Outlined round icon buttons (wishlist, gallery and carousel arrows) and text chips (sort, subcategories). */
+  --chip-radius: var(--brand-radius-full);
   /* Width / height of every product photo (`aspect-product`); a client theme sets e.g. 2 / 3. */
   --product-image-ratio: 1 / 1;
 

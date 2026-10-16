@@ -53,7 +53,9 @@ The template ships the two channels of the reference dataset (`default-europe`, 
 
 Loaded in `app/layout.tsx` right after `app/globals.css`, so it overrides the values of the theme variables
 (`--primary`, `--control-radius`, …) without touching components. `--control-radius` is the corner of every control
-of one height (buttons, inputs, select, input group, quantity stepper; default 8px, `0` = square); panel and card
+of one height (buttons, inputs, select, input group, quantity stepper; default 8px, `0` = square); `--chip-radius` the corner
+of outlined round icon buttons (wishlist, gallery and carousel arrows) and text chips (sort, subcategories; default
+`9999px`, a pill). Panel and card
 corners come from `--brand-radius-*`, and `--radius` only reaches the cookie banner's dialog. Fonts: set `--font-family-sans`; self-host them with
 `@font-face` and `url("./assets/...")` relative to the file. The dark set sits under `html.dark`, which a `:root`
 rule in the theme cannot beat. `--leading` is the colour of CMS dyes (`bg-leading`, `text-leading`); white text
