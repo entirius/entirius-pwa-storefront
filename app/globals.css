@@ -184,10 +184,10 @@
   /* Section containers (`surface`, `surface-sm`): a flat theme sets the background to transparent and the paddings
      and radius to 0, so the content lines up with the breadcrumbs. `surface-outline` keeps its border, padding and the brand radius. */
   --surface-bg: var(--card);
-  --surface-radius: var(--brand-radius-4xl);
+  --surface-radius: var(--brand-radius-3xl);
   --surface-padding: 1rem;
   --surface-padding-lg: 2rem;
-  --surface-padding-sm: 0.5rem;
+  --surface-padding-sm: 0.75rem;
   --surface-outline-padding: 1rem;
   --surface-divider: transparent;
   /* The diagonal over an unavailable colour swatch: a light line with dark edges, visible on any colour. */
