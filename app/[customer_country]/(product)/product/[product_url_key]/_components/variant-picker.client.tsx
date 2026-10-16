@@ -35,7 +35,7 @@ export function VariantPicker({ axes, selection, choose, is_available }: PickerP
         const chosen = axis.options.find((o) => o.value === selection[axis.idx]);
         return (
           <div key={axis.idx} className="flex flex-col gap-2">
-            <p id={label_id} className="text-sm font-medium">
+            <p id={label_id} className="text-xs font-medium text-foreground">
               {axis.label}
               {chosen && <span className="ml-2 font-normal text-muted-foreground">{chosen.label}</span>}
             </p>

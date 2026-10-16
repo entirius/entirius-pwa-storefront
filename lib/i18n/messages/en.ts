@@ -184,6 +184,7 @@ export const en = {
   "product.show_image": "Show image {number}",
   "product.details": "Product details",
   "product.incl_vat": "incl. VAT",
+  "product.sku_line": "SKU: {sku}",
   "product.in_stock": "In stock",
   "product.not_available_online": "Not available online",
   "product.specifications": "Specifications",

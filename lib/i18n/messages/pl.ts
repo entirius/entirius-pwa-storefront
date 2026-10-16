@@ -190,6 +190,7 @@ export const pl: Record<MessageKey, Message> = {
   "product.show_image": "Pokaż zdjęcie {number}",
   "product.details": "Szczegóły produktu",
   "product.incl_vat": "z VAT",
+  "product.sku_line": "SKU: {sku}",
   "product.in_stock": "Dostępny",
   "product.not_available_online": "Niedostępny online",
   "product.specifications": "Specyfikacja",
