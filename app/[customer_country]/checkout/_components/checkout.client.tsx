@@ -22,7 +22,6 @@ import { PaymentStep } from "./payment-step";
 import { ReviewStep } from "./review-step";
 import { order_refs } from "./order-receipt";
 
-const LOCKED: Set<CheckoutStep> = new Set();
 
 export function CheckoutClient() {
   const { mounted, backend, isFetching, error, items, currency } = useCartSync();
@@ -114,7 +113,6 @@ export function CheckoutClient() {
       <CheckoutStepper
         current={step}
         completed={completed}
-        locked={LOCKED}
         onStep={setStep}
       />
 

@@ -48,7 +48,7 @@ export function CartPageClient() {
         title={t("cart.page_title")}
         meta={has_items ? t("cart.items_count", { count: pieces }) : undefined}
       />
-      <CheckoutStepper current="cart" completed={new Set()} locked={new Set()} />
+      <CheckoutStepper current="cart" completed={new Set()} />
 
       <div className="mt-8">
         {!mounted ? (

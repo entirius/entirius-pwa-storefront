@@ -289,6 +289,7 @@ export const pl: Record<MessageKey, Message> = {
   "checkout.copy_details": "Kopiuj dane do przelewu",
   "checkout.copied": "Skopiowano",
   "checkout.steps": "Kroki zamówienia",
+  "checkout.step_of": "Krok {current} z {total} · {label}",
   "checkout.step_unavailable": "Ten krok nie jest jeszcze dostępny - usługa dostawy i płatności jest chwilowo niedostępna. Twój adres został zapisany.",
   "checkout.success_split": {
     one: "Dziękujemy! Twoje zamówienie zostało podzielone na {count} zamówienie: {refs}.",
