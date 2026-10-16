@@ -21,23 +21,10 @@ import {
 } from "@/utils/validation/address.schema";
 import {
   Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
   FormError,
-  FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
+import { CheckboxField, SelectField, TextField } from "@/components/ui/form-fields";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Spinner } from "@/components/ui/spinner";
 import { useCountryOptions } from "@/utils/checkout-countries";
 import { useI18n } from "@/providers/i18n.provider";
@@ -160,23 +147,7 @@ export function AddressStep({
           <AddressFields control={form.control} prefix="billing" form={form} />
         </fieldset>
 
-        <FormField
-          control={form.control}
-          name="requested_invoice"
-          render={({ field }) => (
-            <FormItem>
-              <label className="flex items-center gap-2">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <span className="text-sm">{t("checkout.request_invoice")}</span>
-              </label>
-            </FormItem>
-          )}
-        />
+        <CheckboxField control={form.control} name="requested_invoice" label={t("checkout.request_invoice")} />
         {requested_invoice && (
           <div className="grid gap-4 sm:grid-cols-2">
             <TextField control={form.control} name="company" label={t("address.company")} />
@@ -184,23 +155,7 @@ export function AddressStep({
           </div>
         )}
 
-        <FormField
-          control={form.control}
-          name="ship_to_different"
-          render={({ field }) => (
-            <FormItem>
-              <label className="flex items-center gap-2">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <span className="text-sm">{t("checkout.ship_to_different")}</span>
-              </label>
-            </FormItem>
-          )}
-        />
+        <CheckboxField control={form.control} name="ship_to_different" label={t("checkout.ship_to_different")} />
         {ship_to_different && (
           <fieldset className="flex flex-col gap-4">
             <legend className="mb-2 text-sm font-semibold text-muted-foreground">
@@ -281,87 +236,5 @@ function AddressFields({
         <TextField control={control} name={`${prefix}.telephone` as Path<AddressFormValues>} label={t("address.phone")} type="tel" autoComplete="tel-national" />
       </div>
     </>
-  );
-}
-
-function TextField({
-  control,
-  name,
-  label,
-  type = "text",
-  autoComplete,
-}: {
-  control: Control<AddressFormValues>;
-  name: Path<AddressFormValues>;
-  label: string;
-  type?: string;
-  autoComplete?: string;
-}) {
-  return (
-    <FormField
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>{label}</FormLabel>
-          <FormControl>
-            <Input
-              type={type}
-              autoComplete={autoComplete}
-              {...field}
-              value={(field.value as string) ?? ""}
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  );
-}
-
-function SelectField({
-  control,
-  name,
-  label,
-  options,
-  onSelect,
-}: {
-  control: Control<AddressFormValues>;
-  name: Path<AddressFormValues>;
-  label: string;
-  options: { value: string; label: string }[];
-  onSelect?: (value: string) => void;
-}) {
-  return (
-    <FormField
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>{label}</FormLabel>
-          <Select
-            value={(field.value as string) ?? ""}
-            onValueChange={(v) => {
-              field.onChange(v);
-              onSelect?.(v);
-            }}
-          >
-            <FormControl>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent>
-              {options.map((o) => (
-                <SelectItem key={o.value} value={o.value}>
-                  {o.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
   );
 }

@@ -12,14 +12,9 @@ import { z } from "zod";
 import { client_update_profile, type Profile } from "@/lib/auth-client";
 import {
   Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
   FormError,
-  FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { TextField } from "@/components/ui/form-fields";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { msg } from "@/lib/i18n/translate";
@@ -65,32 +60,8 @@ export function ProfileEditForm({
   return (
     <Form {...form}>
       <form onSubmit={submit} className="flex flex-col gap-4">
-        <FormField
-          control={form.control}
-          name="firstname"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("address.firstname")}</FormLabel>
-              <FormControl>
-                <Input autoComplete="given-name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="lastname"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("address.lastname")}</FormLabel>
-              <FormControl>
-                <Input autoComplete="family-name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <TextField control={form.control} name="firstname" label={t("address.firstname")} autoComplete="given-name" />
+        <TextField control={form.control} name="lastname" label={t("address.lastname")} autoComplete="family-name" />
         <FormError>{form.formState.errors.root?.message}</FormError>
         <div className="flex gap-2">
           <Button type="submit" disabled={pending}>
