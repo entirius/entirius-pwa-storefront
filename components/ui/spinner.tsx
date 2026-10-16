@@ -23,14 +23,14 @@ function Spinner({
 }
 
 // The one loading state for a page or a page section: spinner centred in the space it takes, a caption under it.
-// min-h keeps the footer from jumping up while the content loads (no h-screen, which overshoots).
+// min-h (50svh, stable while the phone's toolbar moves) keeps the footer from jumping up while the content loads (no h-screen, which overshoots).
 function PageLoading({ className }: { className?: string }) {
   const { t } = useI18n()
   return (
     <div
       role="status"
       aria-live="polite"
-      className={cn("flex min-h-[50vh] flex-col items-center justify-center gap-3", className)}
+      className={cn("flex min-h-[50svh] flex-col items-center justify-center gap-3", className)}
     >
       <Spinner decorative className="size-8 text-muted-foreground" />
       <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
