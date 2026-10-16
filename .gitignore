@@ -60,5 +60,15 @@ skills-lock.json
 # local feature implementation notes
 __FEATURES_IMPLEMENTATIONS/
 
+# personal local-dev flow (backend harness glue, notes)
+/scripts/
+/LOCAL-DEV.md
+
 # Secret scanning (forbidden-names blocklist - local symlink, never committed)
 .gitleaks.toml
+
+# playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { useEffect, useMemo, useRef, useTransition } from "react";
@@ -13,8 +17,6 @@ import {
   empty_address_defaults,
   dummy_address_defaults,
   to_addresses_body,
-  COUNTRY_OPTIONS,
-  DIALLING_OPTIONS,
   type AddressFormValues,
 } from "@/utils/validation/address.schema";
 import {
@@ -36,6 +38,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Spinner } from "@/components/ui/spinner";
+import { useCountryOptions } from "@/utils/checkout-countries";
+import { useI18n } from "@/providers/i18n.provider";
 
 // Backend validation field ("billing_address.email") → RHF form path ("billing.email").
 // company/tax_id live at the form root (sent inside billing_address only when invoiced).
@@ -61,6 +65,7 @@ export function AddressStep({
   initial?: AddressFormValues | null;
   onSaved: (cart: unknown) => void;
 }) {
+  const { t } = useI18n();
   const access = useMemo(() => make_client_access(), []);
   const api = useMemo(() => create_api(access), [access]);
   const [pending, startTransition] = useTransition();
@@ -99,7 +104,7 @@ export function AddressStep({
           }
         } else {
           form.setError("root", {
-            message: error.message || "Couldn’t save your address.",
+            message: t("checkout.address_failed"),
           });
         }
         return;
@@ -112,9 +117,9 @@ export function AddressStep({
     <Form {...form}>
       <form onSubmit={submit} className="flex flex-col gap-6">
         {DEBUG_MODE && (
-          <div className="flex flex-col gap-2 rounded-md border border-amber-500/50 bg-amber-500/10 p-3 text-xs">
+          <div className="flex flex-col gap-2 rounded-md border border-notice/50 bg-notice-surface p-3 text-xs">
             <div className="flex items-center gap-2">
-              <span className="rounded bg-amber-500/20 px-1.5 py-0.5 font-semibold tracking-wide text-amber-700 uppercase dark:text-amber-400">
+              <span className="rounded bg-notice-surface px-1.5 py-0.5 font-semibold tracking-wide text-notice uppercase">
                 dev
               </span>
               <Button
@@ -134,7 +139,7 @@ export function AddressStep({
                 Clear
               </Button>
             </div>
-            <p className="text-amber-700/80 dark:text-amber-400/80">
+            <p className="text-notice/80">
               These tools are only visible because DEBUG_MODE is on.
             </p>
           </div>
@@ -142,12 +147,12 @@ export function AddressStep({
 
         <fieldset className="flex flex-col gap-4">
           <legend className="mb-2 text-sm font-semibold text-muted-foreground">
-            Billing details
+            {t("checkout.billing_details")}
           </legend>
           <TextField
             control={form.control}
             name="billing.email"
-            label="Email"
+            label={t("address.email")}
             type="email"
             autoComplete="email"
           />
@@ -166,15 +171,15 @@ export function AddressStep({
                     onCheckedChange={field.onChange}
                   />
                 </FormControl>
-                <span className="text-sm">Request a VAT invoice</span>
+                <span className="text-sm">{t("checkout.request_invoice")}</span>
               </label>
             </FormItem>
           )}
         />
         {requested_invoice && (
           <div className="grid gap-4 sm:grid-cols-2">
-            <TextField control={form.control} name="company" label="Company" />
-            <TextField control={form.control} name="tax_id" label="Tax ID" />
+            <TextField control={form.control} name="company" label={t("address.company")} />
+            <TextField control={form.control} name="tax_id" label={t("address.tax_id")} />
           </div>
         )}
 
@@ -190,7 +195,7 @@ export function AddressStep({
                     onCheckedChange={field.onChange}
                   />
                 </FormControl>
-                <span className="text-sm">Ship to a different address</span>
+                <span className="text-sm">{t("checkout.ship_to_different")}</span>
               </label>
             </FormItem>
           )}
@@ -198,7 +203,7 @@ export function AddressStep({
         {ship_to_different && (
           <fieldset className="flex flex-col gap-4">
             <legend className="mb-2 text-sm font-semibold text-muted-foreground">
-              Shipping address
+              {t("checkout.shipping_address")}
             </legend>
             <AddressFields control={form.control} prefix="shipping" form={form} />
           </fieldset>
@@ -211,10 +216,10 @@ export function AddressStep({
         )}
 
         {!cartReady && (
-          <p className="text-xs text-muted-foreground">Preparing your cart…</p>
+          <p className="text-xs text-muted-foreground">{t("checkout.preparing")}</p>
         )}
         <Button type="submit" disabled={pending || !cartReady} className="w-full sm:w-auto">
-          {pending ? <Spinner className="size-4" /> : "Continue to shipping"}
+          {pending ? <Spinner className="size-4" /> : t("checkout.to_shipping")}
         </Button>
       </form>
     </Form>
@@ -232,8 +237,18 @@ function AddressFields({
   prefix: "billing" | "shipping";
   form: ReturnType<typeof useForm<AddressFormValues>>;
 }) {
+  const { t } = useI18n();
+  const { options: countries, dialling, default_code, ready } = useCountryOptions();
+  // A country the channel does not accept (the form default, an old cart address) gives way to its default.
+  const current = form.watch(`${prefix}.country_code` as Path<AddressFormValues>) as string;
+  useEffect(() => {
+    if (!ready || countries.some((c) => c.code === current)) return;
+    const fallback = countries.find((c) => c.code === default_code) ?? countries[0];
+    form.setValue(`${prefix}.country_code` as Path<AddressFormValues>, fallback.code);
+    form.setValue(`${prefix}.dialling_code` as Path<AddressFormValues>, fallback.dialling_code);
+  }, [ready, countries, current, default_code, form, prefix]);
   const onCountry = (code: string) => {
-    const opt = COUNTRY_OPTIONS.find((c) => c.code === code);
+    const opt = countries.find((c) => c.code === code);
     if (opt)
       form.setValue(
         `${prefix}.dialling_code` as Path<AddressFormValues>,
@@ -244,29 +259,29 @@ function AddressFields({
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2">
-        <TextField control={control} name={`${prefix}.firstname` as Path<AddressFormValues>} label="First name" autoComplete="given-name" />
-        <TextField control={control} name={`${prefix}.lastname` as Path<AddressFormValues>} label="Last name" autoComplete="family-name" />
+        <TextField control={control} name={`${prefix}.firstname` as Path<AddressFormValues>} label={t("address.firstname")} autoComplete="given-name" />
+        <TextField control={control} name={`${prefix}.lastname` as Path<AddressFormValues>} label={t("address.lastname")} autoComplete="family-name" />
       </div>
-      <TextField control={control} name={`${prefix}.street` as Path<AddressFormValues>} label="Street and number" autoComplete="street-address" />
+      <TextField control={control} name={`${prefix}.street` as Path<AddressFormValues>} label={t("address.street")} autoComplete="street-address" />
       <div className="grid gap-4 sm:grid-cols-2">
-        <TextField control={control} name={`${prefix}.postcode` as Path<AddressFormValues>} label="Postal code" autoComplete="postal-code" />
-        <TextField control={control} name={`${prefix}.city` as Path<AddressFormValues>} label="City" autoComplete="address-level2" />
+        <TextField control={control} name={`${prefix}.postcode` as Path<AddressFormValues>} label={t("address.postcode")} autoComplete="postal-code" />
+        <TextField control={control} name={`${prefix}.city` as Path<AddressFormValues>} label={t("address.city")} autoComplete="address-level2" />
       </div>
       <SelectField
         control={control}
         name={`${prefix}.country_code` as Path<AddressFormValues>}
-        label="Country"
-        options={COUNTRY_OPTIONS.map((c) => ({ value: c.code, label: c.name }))}
+        label={t("address.country")}
+        options={countries.map((c) => ({ value: c.code, label: c.label }))}
         onSelect={onCountry}
       />
       <div className="grid gap-4 sm:grid-cols-[7rem_1fr]">
         <SelectField
           control={control}
           name={`${prefix}.dialling_code` as Path<AddressFormValues>}
-          label="Code"
-          options={DIALLING_OPTIONS.map((d) => ({ value: d, label: d }))}
+          label={t("address.dialling_code")}
+          options={dialling.map((d) => ({ value: d, label: d }))}
         />
-        <TextField control={control} name={`${prefix}.telephone` as Path<AddressFormValues>} label="Phone number" type="tel" autoComplete="tel-national" />
+        <TextField control={control} name={`${prefix}.telephone` as Path<AddressFormValues>} label={t("address.phone")} type="tel" autoComplete="tel-national" />
       </div>
     </>
   );

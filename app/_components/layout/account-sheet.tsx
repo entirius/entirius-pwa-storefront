@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { useState } from "react";
@@ -15,12 +19,14 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/providers/auth.provider";
 import { LoginForm } from "./login-form";
 import { RegisterForm } from "./register-form";
+import { useI18n } from "@/providers/i18n.provider";
 
 // Login/register entry point (shown only when logged out — see AccountNav).
 export function AccountSheet() {
   const router = useRouter();
   const params = useParams();
   const { setLoggedIn } = useAuth();
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<"login" | "register">("login");
   const [notice, setNotice] = useState<string | null>(null);
@@ -43,7 +49,7 @@ export function AccountSheet() {
     router.push(href);
   };
 
-  const title = view === "register" ? "Create account" : "Sign in";
+  const title = view === "register" ? t("auth.create_account") : t("auth.sign_in");
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -51,6 +57,7 @@ export function AccountSheet() {
         <Button
           variant="ghost"
           size="icon"
+          aria-label={t("header.sign_in")}
           className="relative cursor-pointer text-foreground"
         >
           <User />
@@ -64,9 +71,7 @@ export function AccountSheet() {
           <RegisterForm
             onSwitchToLogin={() => setView("login")}
             onRegistered={() => {
-              setNotice(
-                "Account created — check your email to confirm, then sign in.",
-              );
+              setNotice(t("auth.registered"));
               setView("login");
             }}
           />

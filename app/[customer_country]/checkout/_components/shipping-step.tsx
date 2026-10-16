@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { useMemo, useState, useTransition, type ReactNode } from "react";
@@ -9,7 +13,6 @@ import {
   API_CART_SHIPPING_ROUTE,
   API_CART_SHIPPING_SELECT_ROUTE,
 } from "@/API/api.routes";
-import { DEBUG_MODE } from "@/_CONFIG/app.config.json";
 import {
   NORM_SHIPPING_METHODS,
   type Cart,
@@ -18,7 +21,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { DevProbeButton } from "./dev-probe-button";
+import { useI18n } from "@/providers/i18n.provider";
 
 export function ShippingStep({
   cart,
@@ -31,6 +34,8 @@ export function ShippingStep({
   onSaved: (cart: unknown) => void;
   onBack: () => void;
 }) {
+  const i18n = useI18n();
+  const { t } = i18n;
   const access = useMemo(() => make_client_access(), []);
   const api = useMemo(() => create_api(access), [access]);
   const [pending, startTransition] = useTransition();
@@ -45,7 +50,7 @@ export function ShippingStep({
   const currency_label = cart?.currency || currency;
   const fmt = (v: string | null) => {
     if (v == null) return null;
-    return parseFloat(v) === 0 ? "Free" : `${v} ${currency_label}`.trim();
+    return parseFloat(v) === 0 ? t("common.free") : i18n.price(v, currency_label);
   };
 
   const {
@@ -71,7 +76,7 @@ export function ShippingStep({
         { method: "PATCH", body: JSON.stringify({ code: selected }) },
       );
       if (error) {
-        setSaveError(error.message || "Couldn’t select that shipping method.");
+        setSaveError(t("checkout.shipping_failed"));
         return;
       }
       onSaved(response);
@@ -86,17 +91,15 @@ export function ShippingStep({
       </div>
     );
   } else if (isError || !methods || methods.length === 0) {
-    // No methods → either the backend still errors for this address (only DE is
-    // served for now) or the address genuinely has none. Degrade gracefully.
+    // No methods for this address, or the request failed. Degrade gracefully.
     body = (
       <div className="rounded-lg border border-dashed p-8 text-center">
-        <h2 className="text-lg font-semibold">Shipping method</h2>
+        <h2 className="text-lg">{t("checkout.shipping_method")}</h2>
         <p className="text-muted-foreground mx-auto mt-2 max-w-sm text-sm">
-          No shipping methods are available for this address yet. Please check
-          your address or try again later.
+          {t("checkout.no_shipping")}
         </p>
         <Button variant="outline" className="mt-4" onClick={onBack}>
-          Back to address
+          {t("checkout.back_to_address")}
         </Button>
       </div>
     );
@@ -142,10 +145,10 @@ export function ShippingStep({
 
         <div className="flex gap-3">
           <Button variant="outline" onClick={onBack} disabled={pending}>
-            Back
+            {t("common.back")}
           </Button>
           <Button onClick={submit} disabled={pending || !selected}>
-            {pending ? <Spinner className="size-4" /> : "Continue to payment"}
+            {pending ? <Spinner className="size-4" /> : t("checkout.to_payment")}
           </Button>
         </div>
       </div>
@@ -154,12 +157,6 @@ export function ShippingStep({
 
   return (
     <div className="flex flex-col gap-4">
-      {DEBUG_MODE && (
-        <DevProbeButton
-          label="GET shipping-methods"
-          route={API_CART_SHIPPING_ROUTE}
-        />
-      )}
       {body}
     </div>
   );

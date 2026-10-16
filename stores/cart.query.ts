@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 import { API_CART_ROUTE, API_CART_ITEMS_ROUTE } from "@/API/api.routes";
 import { NORM_CART } from "@/utils/NORMALIZERS/cart.normalizer";
 import type { CartItem } from "@/stores/cart.store";
@@ -19,8 +23,8 @@ export const cart_query = (
   items: Record<string, CartItem>,
   currency: string,
   // Auth identity (uid, or null when guest). Included in the key so a login /
-  // logout re-syncs the cart: the re-sent POST/PATCH then carries the bearer
-  // token, binding the cart to the customer on the backend.
+  // logout re-syncs the cart with the bearer token. Only a cart created (POST)
+  // with the token belongs to the customer; a PATCH does not bind a guest cart.
   authId: string | null,
 ) => ({
   queryKey: ["cart", to_items(items), currency, authId] as const,

@@ -1,6 +1,60 @@
 {
   "DEBUG_MODE": true,
+  "THEME": "light",
   "API_BASE_URL": "http://localhost:8000",
+  "SITE_URL": "http://localhost:3100",
+  "SITE_NAME": "Entirius",
+  "BRAND": {
+    "LOGO": null,
+    "LOGO_ALT": null,
+    "FAVICON": "favicon.svg",
+    "ICON_192": null,
+    "ICON_512": null,
+    "ICON_MASKABLE": null,
+    "OG_IMAGE": null,
+    "THEME_COLOR": null,
+    "BACKGROUND_COLOR": null,
+    "SHORT_NAME": null
+  },
+  "CHECKOUT": {
+    "TERMS_ROUTE": null,
+    "PRIVACY_ROUTE": null
+  },
+  "CONTACT_FORMS": {
+    "NOTIFY_ATTRIBUTES": []
+  },
+  "CATALOG": {
+    "SORT_IN_STOCK_FIRST": false
+  },
+  "PRODUCT": {
+    "RELATED": ["category"],
+    "KEY_FACTS": [],
+    "STORY_ATTRIBUTES": []
+  },
+  "SEO": {
+    "PRODUCT_META": [
+      ["title", ["meta_title", "name"]],
+      ["url_key", "url_key"]
+    ],
+    "PRODUCT_JSONLD": [
+      ["title", ["meta_title", "name"]],
+      ["sku", "sku"],
+      ["brand", ["brands.0.name", "brands.0"]],
+      ["price", ["price.final_gross", "price.gross"]],
+      ["currency", "price.currency"],
+      ["url_key", "url_key"],
+      ["rating", "review_rating"]
+    ],
+    "CATALOG_META": [
+      ["title", ["meta_title", "name"]],
+      ["url_key", "url_key"]
+    ],
+    "CATALOG_JSONLD": [
+      ["title", ["meta_title", "name"]],
+      ["url_key", "url_key"],
+      ["breadcrumbs", ["breadcrumbs", "path"]]
+    ]
+  },
   "MENU_CINFGURATION": {
     "TYPES": ["hamburger", "megamenu"],
     "CONFIG_QUERY": {

@@ -1,26 +1,29 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 import { z } from "zod";
+import { msg, type MessageKey } from "@/lib/i18n/translate";
 
 // Address-book entry (accounts service). Distinct from the checkout billing+shipping
-// `address_schema` — this is a single customer address. Reuses the shared country/
-// dialling options and validator style from address.schema.ts.
-export { COUNTRY_OPTIONS, DIALLING_OPTIONS } from "./address.schema";
+// `address_schema` — this is a single customer address.
 
-const req = (label: string) => z.string().trim().min(1, `${label} is required`);
+const req = (message: MessageKey) => z.string().trim().min(1, message);
 const phone_field = z
   .string()
   .trim()
-  .min(1, "Phone number is required")
-  .regex(/^[0-9()\s-]{4,}$/, "Enter a valid phone number");
+  .min(1, msg("validation.phone_required"))
+  .regex(/^[0-9()\s-]{4,}$/, msg("validation.phone_invalid"));
 
 export const customer_address_schema = z
   .object({
-    firstname: req("First name"),
-    lastname: req("Last name"),
-    street: req("Street"),
-    city: req("City"),
-    postcode: req("Postal code"),
-    country_code: req("Country"),
-    dialling_code: req("Dialling code"),
+    firstname: req("validation.firstname_required"),
+    lastname: req("validation.lastname_required"),
+    street: req("validation.street_required"),
+    city: req("validation.city_required"),
+    postcode: req("validation.postcode_required"),
+    country_code: req("validation.country_required"),
+    dialling_code: req("validation.dialling_code_required"),
     telephone: phone_field,
     is_company: z.boolean(),
     company: z.string(),
@@ -29,9 +32,9 @@ export const customer_address_schema = z
   .superRefine((v, ctx) => {
     if (v.is_company) {
       if (!v.company.trim())
-        ctx.addIssue({ path: ["company"], code: "custom", message: "Company is required" });
+        ctx.addIssue({ path: ["company"], code: "custom", message: msg("validation.company_required") });
       if (!v.tax_id.trim())
-        ctx.addIssue({ path: ["tax_id"], code: "custom", message: "Tax ID is required" });
+        ctx.addIssue({ path: ["tax_id"], code: "custom", message: msg("validation.tax_id_required") });
     }
   });
 

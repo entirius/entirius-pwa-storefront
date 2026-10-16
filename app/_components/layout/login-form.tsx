@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { useTransition } from "react";
@@ -10,6 +14,7 @@ import {
   dummy_login_defaults,
   type LoginFormValues,
 } from "@/utils/validation/auth.schema";
+import { merge_cart_on_login } from "@/stores/cart-login";
 import { client_login } from "@/lib/auth-client";
 import {
   Form,
@@ -23,6 +28,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { DEBUG_MODE } from "@/_CONFIG/app.config.json";
+import { useI18n } from "@/providers/i18n.provider";
 
 export function LoginForm({
   onSuccess,
@@ -33,13 +39,15 @@ export function LoginForm({
   onSwitchToRegister: () => void;
   notice?: string | null;
 }) {
+  const { t } = useI18n();
   const [pending, startTransition] = useTransition();
   const form = useForm<LoginFormValues>({
     // zodResolver is correct at runtime; the cast bridges a nominal zod type-brand
     // mismatch caused by eslint-config-next pulling a second zod@4 copy into the tree.
     resolver: zodResolver(login_schema as never),
     mode: "onBlur",
-    defaultValues: empty_login_defaults,
+    // DEBUG starts prefilled with the local test account; Clear empties it.
+    defaultValues: DEBUG_MODE ? dummy_login_defaults : empty_login_defaults,
   });
 
   const submit = form.handleSubmit((values) => {
@@ -49,11 +57,13 @@ export function LoginForm({
         form.setError("root", {
           message:
             res.error === "invalid_credentials"
-              ? "Incorrect email or password."
-              : "Something went wrong. Please try again.",
+              ? t("auth.invalid_credentials")
+              : t("common.try_again"),
         });
         return;
       }
+      // Before the app flips to logged in, so the cart sync starts from the merged cart.
+      await merge_cart_on_login();
       onSuccess();
     });
   });
@@ -62,9 +72,9 @@ export function LoginForm({
     <Form {...form}>
       <form onSubmit={submit} className="flex flex-col gap-4 p-4">
         {DEBUG_MODE && (
-          <div className="flex flex-col gap-2 rounded-md border border-amber-500/50 bg-amber-500/10 p-3 text-xs">
+          <div className="flex flex-col gap-2 rounded-md border border-notice/50 bg-notice-surface p-3 text-xs">
             <div className="flex items-center gap-2">
-              <span className="rounded bg-amber-500/20 px-1.5 py-0.5 font-semibold tracking-wide text-amber-700 uppercase dark:text-amber-400">
+              <span className="rounded bg-notice-surface px-1.5 py-0.5 font-semibold tracking-wide text-notice uppercase">
                 dev
               </span>
               <Button
@@ -84,7 +94,7 @@ export function LoginForm({
                 Clear
               </Button>
             </div>
-            <p className="text-amber-700/80 dark:text-amber-400/80">
+            <p className="text-notice/80">
               These tools are only visible because DEBUG_MODE is on.
             </p>
           </div>
@@ -99,7 +109,7 @@ export function LoginForm({
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>{t("auth.email")}</FormLabel>
               <FormControl>
                 <Input type="email" autoComplete="email" {...field} />
               </FormControl>
@@ -112,7 +122,7 @@ export function LoginForm({
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>{t("auth.password")}</FormLabel>
               <FormControl>
                 <Input
                   type="password"
@@ -130,15 +140,15 @@ export function LoginForm({
           </p>
         )}
         <Button type="submit" disabled={pending}>
-          {pending ? <Spinner className="size-4" /> : "Sign in"}
+          {pending ? <Spinner className="size-4" /> : t("auth.sign_in")}
         </Button>
         <button
           type="button"
           onClick={onSwitchToRegister}
           className="text-sm text-muted-foreground hover:text-foreground"
         >
-          Don&apos;t have an account?{" "}
-          <span className="underline">Register</span>
+          {t("auth.no_account")}{" "}
+          <span className="underline">{t("auth.register")}</span>
         </button>
       </form>
     </Form>

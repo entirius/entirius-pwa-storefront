@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client"
 
 import * as React from "react"
@@ -8,6 +12,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { useI18n } from "@/providers/i18n.provider"
 
 type CarouselApi = UseEmblaCarouselType[1]
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>
@@ -177,6 +182,7 @@ function CarouselPrevious({
   size = "icon",
   ...props
 }: React.ComponentProps<typeof Button>) {
+  const { t } = useI18n()
   const { orientation, scrollPrev, canScrollPrev } = useCarousel()
 
   return (
@@ -196,7 +202,7 @@ function CarouselPrevious({
       {...props}
     >
       <ArrowLeft />
-      <span className="sr-only">Previous slide</span>
+      <span className="sr-only">{t("product.previous_slide")}</span>
     </Button>
   )
 }
@@ -207,6 +213,7 @@ function CarouselNext({
   size = "icon",
   ...props
 }: React.ComponentProps<typeof Button>) {
+  const { t } = useI18n()
   const { orientation, scrollNext, canScrollNext } = useCarousel()
 
   return (
@@ -226,7 +233,7 @@ function CarouselNext({
       {...props}
     >
       <ArrowRight />
-      <span className="sr-only">Next slide</span>
+      <span className="sr-only">{t("product.next_slide")}</span>
     </Button>
   )
 }

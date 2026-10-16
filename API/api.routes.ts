@@ -1,12 +1,27 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 export const API_CATEGORIES_ROUTE = "/api/matrix/v2/__CHANNEL__/categories/";
 export const API_PRODUCTS_ROUTE = "/api/matrix/v2/__CHANNEL__/products/";
+// Option axes + variant list of a configurable product. The caller fills __URL_KEY__ before
+// FETCH_METHOD (the engine resolves only cookie-backed placeholders); see variants_query.
+export const API_PRODUCT_VARIANTS_ROUTE =
+  "/api/matrix/v2/__CHANNEL__/products/__URL_KEY__/variants/";
 export const API_PRICES_ROUTE = "/api/matrix/v2/__CHANNEL__/prices/";
 export const API_CATALOG_FILTERS_ROUTE = "/api/matrix/v2/__CHANNEL__/options/";
 export const API_STOCK_ROUTE = "/api/matrix/v2/__CHANNEL__/stock/";
 export const API_SEARCH_ROUTE = "/api/matrix/v2/__CHANNEL__/search/";
+// Lowest price in the 30 days before a reduction (EU Omnibus), batch: ?sku=A&sku=B.
+export const API_OMNIBUS_ROUTE = "/api/matrix/v2/__CHANNEL__/omnibus/";
 export const API_CART_ROUTE = "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/";
+// The logged-in customer's most recent open cart (404 when there is none).
+export const API_CART_LATEST_ROUTE = "/api/checkout/v2/__CHANNEL__/carts/latest/";
 export const API_CART_ITEMS_ROUTE =
   "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/items/";
+// PATCH { codes: [{ code }] } replaces the manual codes; { clear: true } drops them.
+export const API_CART_DISCOUNTS_ROUTE =
+  "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/discounts/";
 export const API_CART_ADDRESS_ROUTE =
   "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/addresses/";
 // LIST endpoints (GET) — currently 500 on the backend (guest path crashes).
@@ -19,14 +34,14 @@ export const API_CART_SHIPPING_SELECT_ROUTE =
   "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/shipping/";
 export const API_CART_PAYMENT_SELECT_ROUTE =
   "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/payment/";
+// POST places an order; GET a single order is this route + `{pretty_id}/`.
+// Countries the channel accepts (public with the checkout key): [{ code, label, prefix }] + default_country.
+export const API_CHECKOUT_COUNTRIES_ROUTE = "/api/checkout/v2/__CHANNEL__/countries/";
 export const API_CART_ORDERS_ROUTE = "/api/checkout/v2/__CHANNEL__/orders/";
-// Documented v2 list endpoint the orders query targets — currently 500s
-// server-side (unhandled exception), same as the other v2 GET-list routes.
+// v2 list — the customer's own orders (401 without a token), summary rows,
+// paginated with `page` / `page_size`.
 export const API_CART_ORDERS_LIST_ROUTE =
   "/api/checkout/v2/__CHANNEL__/orders/list/";
-// v1 orders GET works today (same response shape) — exposed in the DEBUG probe
-// console alongside v2 so the difference is visible while v2 is broken.
-export const API_CART_ORDERS_V1_ROUTE = "/api/checkout/v1/__CHANNEL__/orders/";
 // ----- AUTHENTICATION -----
 export const API_USER_LOGIN_ROUTE =
   "/api/accounts/v1/__CHANNEL__/customer/tokens/";
@@ -44,7 +59,23 @@ export const API_USER_ADDRESSES_DEFAULTS_ROUTE =
 // ----- CMS / CONTENT -----
 export const API_CMS_STATIC_PAGE_ROUTE =
   "/api/contentdb/v1/published/static-page/";
+export const API_CMS_ROUTES_ROUTE = "/api/contentdb/v1/routes/";
+// Published layout extender of type `footer` — link columns edited in the CMS
+// navigation editor.
+export const API_CMS_FOOTER_ROUTE =
+  "/api/contentdb/v1/layout-extender-published/footer/";
 // ----- CMS / CONTENT -----
+// ----- CONTACT FORMS (django_contact_forms; X-API-KEY of the channel, optional) -----
+// Form types the channel defines: { results: [{ code, label, is_default }] }.
+export const API_CONTACT_FORM_TYPES_ROUTE = "/api/contact-forms/v2/__CHANNEL__/form-types/";
+// POST a submission as one form type. The caller fills __TYPE__ with the type code.
+export const API_CONTACT_SUBMIT_ROUTE = "/api/contact-forms/v2/__CHANNEL__/submit/__TYPE__/";
+// ----- COOKIE CONSENT (django-agreements >= 2.2.0) -----
+export const API_COOKIE_BANNER_ROUTE =
+  "/api/agreements/v2/__CHANNEL__/cookie-banner/";
+export const API_COOKIE_CONSENTS_ROUTE =
+  "/api/agreements/v2/__CHANNEL__/cookie-consents/";
+// ----- COOKIE CONSENT -----
 
 
 // ------------------------------------------------------------
@@ -58,6 +89,7 @@ export const API_CMS_STATIC_PAGE_ROUTE =
 export const API_ROUTES_POLICY = {
   [API_CATEGORIES_ROUTE]: { default_querys: ["language"] },
   [API_PRODUCTS_ROUTE]: { default_querys: ["language", "currency", "country"] },
+  [API_PRODUCT_VARIANTS_ROUTE]: { default_querys: ["language", "currency", "country"] },
   [API_SEARCH_ROUTE]: { default_querys: ["language", "currency", "country"] },
   [API_USER_PROFILE_ROUTE]: {
     refresh_on: [401],
@@ -86,6 +118,11 @@ export const API_ROUTES_POLICY = {
     ],
   },
   [API_PRICES_ROUTE]: { default_querys: ["currency", "country"] },
+  [API_COOKIE_BANNER_ROUTE]: { default_querys: ["language"] },
+  [API_COOKIE_CONSENTS_ROUTE]: {
+    default_headers: [{ "Content-Type": "application/json" }],
+  },
+  [API_OMNIBUS_ROUTE]: { default_querys: ["currency", "country"] },
   [API_CATALOG_FILTERS_ROUTE]: { default_querys: ["language"] },
   // Real-time stock (Auth Optional — auth headers intentionally skipped for now).
   [API_STOCK_ROUTE]: { default_querys: ["language"] },
@@ -113,8 +150,26 @@ export const API_ROUTES_POLICY = {
       { "Content-Type": "application/json" },
     ],
   },
+  [API_CART_LATEST_ROUTE]: {
+    default_querys: ["language"],
+    refresh_on: [401],
+    default_headers: [
+      ["x-api-key", "channel_checkout_key"],
+      ["Authorization", "access_token"],
+    ],
+  },
   [API_CART_ITEMS_ROUTE]: {
     // v2 update path: PATCH /carts/{cart_id}/items/ (full-replace of the item set).
+    default_querys: ["language"],
+    refresh_on: [401],
+    optional_refresh: true,
+    default_headers: [
+      ["x-api-key", "channel_checkout_key"],
+      ["Authorization", "access_token"],
+      { "Content-Type": "application/json" },
+    ],
+  },
+  [API_CART_DISCOUNTS_ROUTE]: {
     default_querys: ["language"],
     refresh_on: [401],
     optional_refresh: true,
@@ -177,6 +232,10 @@ export const API_ROUTES_POLICY = {
       { "Content-Type": "application/json" },
     ],
   },
+  [API_CHECKOUT_COUNTRIES_ROUTE]: {
+    default_querys: ["language"],
+    default_headers: [["x-api-key", "channel_checkout_key"]],
+  },
   [API_CART_ORDERS_ROUTE]: {
     // for GET orders language gives 500 error...
     // comented for now at least...
@@ -198,7 +257,15 @@ export const API_ROUTES_POLICY = {
       { "Content-Type": "application/json" },
     ],
   },
-  [API_CART_ORDERS_V1_ROUTE]: {
+  // Policy-only key for the single-order detail `.../orders/{id}/`. Not a route
+  // constant: the id is concatenated onto API_CART_ORDERS_ROUTE at the call site,
+  // and this entry exists so that path still resolves to the checkout auth headers.
+  // (pick_policy anchors patterns with `(?:$|[/?#])`, so API_CART_ORDERS_ROUTE does
+  // NOT match a longer path — without this the request goes out unauthenticated.)
+  // NB: this key is longer than API_CART_ORDERS_LIST_ROUTE's and its `[^/]+` also
+  // matches `/orders/list/`, so longest-match hands the list route this policy too.
+  // The two are deliberately identical, so that is inert.
+  "/api/checkout/v2/__CHANNEL__/orders/__ORDER_ID__/": {
     refresh_on: [401],
     optional_refresh: true,
     default_headers: [
@@ -214,5 +281,13 @@ export const API_ROUTES_POLICY = {
     default_querys: ["language"],
     default_headers: [{ "Content-Type": "application/json" }],
   },
+  [API_CONTACT_FORM_TYPES_ROUTE]: {
+    default_headers: [["X-API-KEY", "contact_forms_key"]],
+  },
+  [API_CONTACT_SUBMIT_ROUTE]: {
+    default_headers: [["X-API-KEY", "contact_forms_key"], { "Content-Type": "application/json" }],
+  },
   [API_CMS_STATIC_PAGE_ROUTE]: {},
+  [API_CMS_ROUTES_ROUTE]: {},
+  [API_CMS_FOOTER_ROUTE]: {},
 };

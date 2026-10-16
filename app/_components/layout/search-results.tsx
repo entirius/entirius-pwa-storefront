@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { Search, Tag } from "lucide-react";
@@ -5,6 +9,7 @@ import { Search, Tag } from "lucide-react";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import type { SearchResponse } from "./search.query";
 import { SearchProductRow } from "./search-product-row";
+import { useI18n } from "@/providers/i18n.provider";
 
 type SearchCategory = {
   idx?: string;
@@ -24,6 +29,7 @@ export function SearchResults({
   onNavigate: () => void;
   onPhrase: (text: string) => void;
 }) {
+  const { t } = useI18n();
   const phrases = data.phrases ?? [];
   const categories = (data.categories?.results ?? []) as SearchCategory[];
   const products = data.products?.results ?? [];
@@ -32,7 +38,7 @@ export function SearchResults({
   if (!phrases.length && !categories.length && !products.length) {
     return (
       <p className="px-1 py-6 text-center text-sm text-muted-foreground">
-        No results found.
+        {t("search.no_results")}
       </p>
     );
   }
@@ -57,8 +63,8 @@ export function SearchResults({
 
       {categories.length > 0 && (
         <section className="flex flex-col gap-2">
-          <h3 className="px-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-            Categories
+          <h3 className="px-1 text-xs tracking-wide text-muted-foreground uppercase">
+            {t("search.categories")}
           </h3>
           <div className="flex flex-col gap-1">
             {categories.map((c) => (
@@ -86,8 +92,8 @@ export function SearchResults({
 
       {products.length > 0 && (
         <section className="flex flex-col gap-2">
-          <h3 className="px-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-            Products ({total})
+          <h3 className="px-1 text-xs tracking-wide text-muted-foreground uppercase">
+            {t("search.products", { total })}
           </h3>
           <div className="flex flex-col gap-2">
             {products.map((p, i) => (

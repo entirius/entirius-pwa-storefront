@@ -1,6 +1,13 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 import { cn } from "@/lib/utils";
+import { SanitizeHTML } from "@/components/ui/sanitize-html";
 import ChildrenWrapper, { type ChildrenLayout } from "../children-wrapper";
 import CmsButton, { type CmsButtonData } from "../cms-button";
+import { EnquiryForm } from "@/components/enquiry-form.client";
+import { split_enquiry_marker } from "@/lib/enquiry-marker";
 
 const section_dyes: Record<
   number,
@@ -12,22 +19,22 @@ const section_dyes: Record<
   }
 > = {
   1: {
-    container_bg: "bg-leading",
-    title_color: "text-primary-foreground",
-    subtitle_color: "text-primary-foreground/70",
-    html_text_color: "#fafafa",
+    container_bg: "bg-gradient-backdrop",
+    title_color: "text-heading",
+    subtitle_color: "text-foreground",
+    html_text_color: "var(--foreground)",
   },
   2: {
-    container_bg: "bg-secondary border border-border",
-    title_color: "text-foreground",
-    subtitle_color: "text-leading",
-    html_text_color: "#71717a",
+    container_bg: "bg-card bg-gradient-card border border-border",
+    title_color: "text-heading",
+    subtitle_color: "text-link",
+    html_text_color: "var(--muted-foreground)",
   },
   3: {
     container_bg: "",
-    title_color: "text-leading",
+    title_color: "text-heading",
     subtitle_color: "text-muted-foreground",
-    html_text_color: "#71717a",
+    html_text_color: "var(--muted-foreground)",
   },
 };
 
@@ -36,6 +43,7 @@ const section_variants: Record<
   {
     container: string;
     header: string;
+    buttons: string;
     title: string;
     subtitle: string;
     description: string;
@@ -45,6 +53,7 @@ const section_variants: Record<
   1: {
     container: "p-5",
     header: "flex flex-row items-center justify-between",
+    buttons: "flex flex-row gap-2",
     title: "text-3xl font-bold",
     subtitle: "text-sm",
     description: "mt-3 text-lg",
@@ -53,6 +62,7 @@ const section_variants: Record<
   2: {
     container: "p-5",
     header: "flex flex-row items-center justify-between",
+    buttons: "flex flex-row gap-2",
     title: "text-3xl font-bold",
     subtitle: "text-sm",
     description: "mt-3 text-lg",
@@ -61,9 +71,21 @@ const section_variants: Record<
   3: {
     container: "p-5",
     header: "flex flex-row items-center justify-between",
+    buttons: "flex flex-row gap-2",
     title: "text-3xl font-bold",
     subtitle: "text-sm",
     description: "mt-3 text-lg",
+    children_layout: "vertical",
+  },
+  // Column of links (footer): title above, buttons as a vertical list. A column without buttons
+  // (a bottom line, for example) takes the whole row of the grid it sits in.
+  4: {
+    container: "px-0 py-2",
+    header: "flex flex-col gap-3",
+    buttons: "flex flex-col items-start gap-1",
+    title: "text-sm font-semibold uppercase tracking-wide",
+    subtitle: "text-xs",
+    description: "text-sm",
     children_layout: "vertical",
   },
 };
@@ -87,9 +109,18 @@ export default function SectionTypeA({
 }) {
   const dye_styles = section_dyes[dye] ?? section_dyes[1];
   const variant_styles = section_variants[variant] ?? section_variants[1];
+  const spans_row = variant === 4 && !buttons?.length;
+  const enquiry = description ? split_enquiry_marker(description) : null;
+  const description_props = { className: variant_styles.description, style: { color: dye_styles.html_text_color } };
 
   return (
-    <div className={cn(variant_styles.container, dye_styles.container_bg)}>
+    <div
+      className={cn(
+        variant_styles.container,
+        dye_styles.container_bg,
+        spans_row && "col-span-full",
+      )}
+    >
       <div className={variant_styles.header}>
         <div className="flex-1">
           {title && (
@@ -104,7 +135,7 @@ export default function SectionTypeA({
           )}
         </div>
         {buttons && buttons.length > 0 && (
-          <div className="flex flex-row gap-2">
+          <div className={variant_styles.buttons}>
             {buttons.map((button) => (
               <CmsButton key={button.url} button={button} />
             ))}
@@ -113,11 +144,15 @@ export default function SectionTypeA({
       </div>
 
       {description && (
-        <div
-          className={cn("prose prose-sm max-w-none", variant_styles.description)}
-          style={{ color: dye_styles.html_text_color }}
-          dangerouslySetInnerHTML={{ __html: description }}
-        />
+        <>
+          {enquiry?.before && <SanitizeHTML html={enquiry.before} {...description_props} />}
+          {enquiry ? (
+            <EnquiryForm form_type={enquiry.form_type} slug={enquiry.slug} className="mt-4 max-w-xl" />
+          ) : (
+            <SanitizeHTML html={description} {...description_props} />
+          )}
+          {enquiry?.after && <SanitizeHTML html={enquiry.after} {...description_props} />}
+        </>
       )}
 
       {children && (

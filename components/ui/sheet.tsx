@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client"
 
 import * as React from "react"
@@ -5,6 +9,7 @@ import { XIcon } from "lucide-react"
 import { Dialog as SheetPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
+import { useI18n } from "@/providers/i18n.provider"
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />
@@ -36,7 +41,7 @@ function SheetOverlay({
     <SheetPrimitive.Overlay
       data-slot="sheet-overlay"
       className={cn(
-        "fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
+        "fixed inset-0 z-50 bg-background/70 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
         className
       )}
       {...props}
@@ -54,6 +59,7 @@ function SheetContent({
   side?: "top" | "right" | "bottom" | "left"
   showCloseButton?: boolean
 }) {
+  const { t } = useI18n()
   return (
     <SheetPortal>
       <SheetOverlay />
@@ -77,7 +83,7 @@ function SheetContent({
         {showCloseButton && (
           <SheetPrimitive.Close className="absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-secondary">
             <XIcon className="size-4" />
-            <span className="sr-only">Close</span>
+            <span className="sr-only">{t("common.close")}</span>
           </SheetPrimitive.Close>
         )}
       </SheetPrimitive.Content>
@@ -112,7 +118,7 @@ function SheetTitle({
   return (
     <SheetPrimitive.Title
       data-slot="sheet-title"
-      className={cn("font-semibold text-foreground", className)}
+      className={cn("font-brand font-normal text-heading", className)}
       {...props}
     />
   )

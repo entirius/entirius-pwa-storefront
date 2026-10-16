@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { useTransition } from "react";
@@ -28,7 +32,9 @@ export function PaginationClient({ pagination, current_page, className }: Props)
     const params = new URLSearchParams(search_params.toString());
     params.set("page", String(page));
     start_transition(() => {
-      router.push(`?${params.toString()}`);
+      router.push(`?${params.toString()}`, { scroll: false });
+      // Both bars page the same list: always land at its top, whichever bar was used.
+      document.querySelector("[data-catalog-list]")?.scrollIntoView({ block: "start" });
     });
   };
 

@@ -1,0 +1,16 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+/* Client theme. Override the values of the theme variables from app/globals.css here, for example:
+
+   :root {
+     --primary: #1d4ed8;
+     --radius: 0;
+     --font-family-sans: "My Font", sans-serif;
+   }
+
+   Self-hosted fonts: @font-face with url("./assets/...") relative to this file.
+   Empty file = the default look. */

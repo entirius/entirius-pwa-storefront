@@ -1,14 +1,26 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "@entirius/brand-tokens/tokens.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* next/font variables first, the token stacks (with the metric-matched Arial
+     fallback faces from tokens.css) after. */
+  /* --font-family-sans: a client font from _CONFIG/theme.css. */
+  --font-sans: var(--font-family-sans, var(--font-inter), var(--brand-font-family-ui));
+  --font-brand: var(--font-lexend-deca), var(--brand-font-family-brand);
+  --font-mono: var(--brand-font-family-mono);
+  --tracking-brand: var(--brand-font-tracking-brand);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -34,86 +46,191 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  --color-leading: var(--leading);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
+  --color-heading: var(--heading);
+  --color-link: var(--link);
+  --color-highlight: var(--highlight);
+  --color-glass-hover: var(--glass-hover);
+  --color-positive: var(--positive);
+  --color-notice: var(--notice);
+  --color-informative: var(--informative);
+  /* Backgrounds for status text: badges, notes, error boxes. */
+  --color-positive-surface: var(--positive-surface);
+  --color-notice-surface: var(--notice-surface);
+  --color-informative-surface: var(--informative-surface);
+  --color-destructive-surface: var(--destructive-surface);
+  /* Radius scale = the brand scale (px on purpose, see the package README). */
+  --radius-sm: var(--brand-radius-base);
+  --radius-md: var(--brand-radius-lg);
+  --radius-lg: var(--brand-radius-lg);
+  --radius-xl: var(--brand-radius-xl);
+  --radius-2xl: var(--brand-radius-2xl);
+  --radius-3xl: var(--brand-radius-3xl);
+  --radius-4xl: var(--brand-radius-4xl);
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.13 0.028 261.692);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.13 0.028 261.692);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.13 0.028 261.692);
-  --primary: oklch(0.21 0.034 264.665);
-  --primary-foreground: oklch(0.985 0.002 247.839);
-  --secondary: oklch(0.967 0.003 264.542);
-  --secondary-foreground: oklch(0.21 0.034 264.665);
-  --muted: oklch(0.967 0.003 264.542);
-  --muted-foreground: oklch(0.551 0.027 264.364);
-  --accent: oklch(0.967 0.003 264.542);
-  --accent-foreground: oklch(0.21 0.034 264.665);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.928 0.006 264.531);
-  --input: oklch(0.928 0.006 264.531);
-  --ring: oklch(0.707 0.022 261.325);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0.002 247.839);
-  --sidebar-foreground: oklch(0.13 0.028 261.692);
-  --sidebar-primary: oklch(0.21 0.034 264.665);
-  --sidebar-primary-foreground: oklch(0.985 0.002 247.839);
-  --sidebar-accent: oklch(0.967 0.003 264.542);
-  --sidebar-accent-foreground: oklch(0.21 0.034 264.665);
-  --sidebar-border: oklch(0.928 0.006 264.531);
-  --sidebar-ring: oklch(0.707 0.022 261.325);
+  /* Semantic layer: shadcn variables -> @entirius/brand-tokens. The only place in
+     the storefront that names brand values; components use the semantic names
+     (bg-background, text-primary...). A client theme overrides these blocks, not
+     the components. Light is the default; `THEME: "dark"` in _CONFIG/app.config.json
+     puts `dark` on <html> and the second block applies. Contrast (WCAG AA) for every
+     text/background pair is checked by tests/e2e/contrast.spec.ts. */
+  color-scheme: light;
+
+  --radius: var(--brand-radius-lg);
+
+  /* Light theme: the package's light.neutral greys and light.tint backgrounds. */
+  --background: var(--brand-light-neutral-100);
+  --foreground: var(--brand-light-neutral-800);
+  --heading: var(--brand-light-neutral-900);
+
+  --card: var(--brand-white);
+  --card-foreground: var(--brand-light-neutral-900);
+  --popover: var(--brand-white);
+  --popover-foreground: var(--brand-light-neutral-900);
+
+  /* Filled accent surface carries white text (4.95:1). */
+  --primary: var(--brand-accent-fill);
+  --primary-foreground: var(--brand-on-accent-fill);
+  --secondary: var(--brand-light-neutral-150);
+  --secondary-foreground: var(--brand-light-neutral-900);
+  --muted: var(--brand-light-neutral-150);
+  --muted-foreground: var(--brand-light-neutral-600);
+  /* shadcn "accent" = hover/selected surface: the primary tint, whose only AA text
+     colour is tertiary-200 (package README). */
+  --accent: var(--brand-light-tint-primary);
+  --accent-foreground: var(--brand-tertiary-200);
+  --destructive: var(--brand-light-negative-600);
+
+  --border: var(--brand-light-neutral-300);
+  --input: var(--brand-light-basic-400); /* form control boundary, 3:1 */
+  --ring: var(--brand-accent-fill);
+  /* Leading colour of CMS sections and tiles (bg-leading, text-leading); white text sits on it, so keep it dark. */
+  --leading: var(--primary);
+  --link: var(--brand-tertiary-200);
+  --highlight: var(--brand-accent-fill);
+  --glass-hover: var(--brand-light-neutral-200);
+
+  --positive: var(--brand-light-positive-600);
+  --notice: var(--brand-light-notice-600);
+  --informative: var(--brand-light-informative-600);
+  /* The package's light tints: status text keeps AA (4.7-4.9:1) on them. */
+  --positive-surface: var(--brand-light-tint-positive);
+  --notice-surface: var(--brand-light-tint-notice);
+  --informative-surface: var(--brand-light-tint-informative);
+  --destructive-surface: var(--brand-light-tint-negative);
+
+  --chart-1: var(--brand-accent-fill);
+  --chart-2: var(--brand-light-positive-600);
+  --chart-3: var(--brand-light-informative-600);
+  --chart-4: var(--brand-light-notice-600);
+  --chart-5: var(--brand-light-negative-600);
+
+  --sidebar: var(--brand-white);
+  --sidebar-foreground: var(--brand-light-neutral-800);
+  --sidebar-primary: var(--brand-accent-fill);
+  --sidebar-primary-foreground: var(--brand-on-accent-fill);
+  --sidebar-accent: var(--brand-light-tint-primary);
+  --sidebar-accent-foreground: var(--brand-tertiary-200);
+  --sidebar-border: var(--brand-light-neutral-300);
+  --sidebar-ring: var(--brand-accent-fill);
+
+  /* Surfaces behind the bg-gradient-* utilities: flat cards, scrims fading to the
+     page, a faint accent wash for backdrops. */
+  --surface-card: none;
+  --surface-fade: linear-gradient(to bottom, transparent 25%, var(--background) 72%);
+  --surface-backdrop: linear-gradient(185deg, var(--brand-white) 55%, var(--brand-light-tint-primary) 160%);
+  --surface-glow: 0 12px 32px -12px color-mix(in srgb, var(--brand-light-neutral-900) 18%, transparent);
 }
 
-.dark {
-  --background: oklch(0.13 0.028 261.692);
-  --foreground: oklch(0.985 0.002 247.839);
-  --card: oklch(0.21 0.034 264.665);
-  --card-foreground: oklch(0.985 0.002 247.839);
-  --popover: oklch(0.21 0.034 264.665);
-  --popover-foreground: oklch(0.985 0.002 247.839);
-  --primary: oklch(0.928 0.006 264.531);
-  --primary-foreground: oklch(0.21 0.034 264.665);
-  --secondary: oklch(0.278 0.033 256.848);
-  --secondary-foreground: oklch(0.985 0.002 247.839);
-  --muted: oklch(0.278 0.033 256.848);
-  --muted-foreground: oklch(0.707 0.022 261.325);
-  --accent: oklch(0.278 0.033 256.848);
-  --accent-foreground: oklch(0.985 0.002 247.839);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.21 0.034 264.665);
-  --sidebar-foreground: oklch(0.985 0.002 247.839);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0.002 247.839);
-  --sidebar-accent: oklch(0.278 0.033 256.848);
-  --sidebar-accent-foreground: oklch(0.985 0.002 247.839);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+/* html.dark, not .dark: _CONFIG/theme.css loads after this file and its :root would win over .dark. */
+html.dark {
+  /* Dark theme: the brand's own (black ground, gradient cards). */
+  color-scheme: dark;
+
+  --background: var(--brand-black);
+  --foreground: var(--brand-basic-900); /* body text, 12.1:1 on black */
+  --heading: var(--brand-basic-950); /* headings, 16.8:1 */
+
+  --card: var(--brand-basic-200);
+  --card-foreground: var(--brand-basic-950);
+  --popover: var(--brand-basic-200);
+  --popover-foreground: var(--brand-basic-950);
+
+  --primary: var(--brand-accent-fill);
+  --primary-foreground: var(--brand-on-accent-fill);
+  --secondary: var(--brand-glass);
+  --secondary-foreground: var(--brand-basic-950);
+  --muted: var(--brand-basic-300);
+  --muted-foreground: var(--brand-basic-750); /* 5.0-5.9:1; basic-700 fails AA as text */
+  --accent: var(--brand-glass-tint);
+  --accent-foreground: var(--brand-basic-950);
+  --destructive: var(--brand-negative-100);
+
+  --border: var(--brand-hairline);
+  --input: var(--brand-basic-700); /* 3.8:1 */
+  --ring: var(--brand-accent);
+  --link: var(--brand-accent); /* 7.2:1 */
+  --highlight: var(--brand-accent);
+  --glass-hover: var(--brand-glass-hover);
+
+  --positive: var(--brand-positive-100);
+  --notice: var(--brand-notice-200);
+  --informative: var(--brand-informative-100);
+  --positive-surface: color-mix(in srgb, var(--positive) 15%, transparent);
+  --notice-surface: color-mix(in srgb, var(--notice) 15%, transparent);
+  --informative-surface: color-mix(in srgb, var(--informative) 15%, transparent);
+  --destructive-surface: color-mix(in srgb, var(--destructive) 15%, transparent);
+
+  --chart-1: var(--brand-accent);
+  --chart-2: var(--brand-positive-100);
+  --chart-3: var(--brand-informative-100);
+  --chart-4: var(--brand-notice-200);
+  --chart-5: var(--brand-negative-100);
+
+  --sidebar: var(--brand-basic-100);
+  --sidebar-foreground: var(--brand-basic-900);
+  --sidebar-primary: var(--brand-accent-fill);
+  --sidebar-primary-foreground: var(--brand-on-accent-fill);
+  --sidebar-accent: var(--brand-glass-tint);
+  --sidebar-accent-foreground: var(--brand-basic-950);
+  --sidebar-border: var(--brand-hairline);
+  --sidebar-ring: var(--brand-accent);
+
+  --surface-card: var(--brand-gradient-card);
+  --surface-fade: var(--brand-gradient-fade);
+  --surface-backdrop: var(--brand-gradient-backdrop);
+  --surface-glow: var(--brand-glow);
+}
+
+/* Brand surfaces (styleguide §3, §6), per theme: dark cards sit on gradient-card,
+   light ones are flat. */
+@utility bg-gradient-card {
+  background-image: var(--surface-card);
+}
+@utility bg-gradient-fade {
+  background-image: var(--surface-fade);
+}
+@utility bg-gradient-backdrop {
+  background-image: var(--surface-backdrop);
+}
+@utility shadow-glow {
+  box-shadow: var(--surface-glow);
+}
+
+/* Link (styleguide §6): accent, underline 3 px below, basic-950 on hover. */
+@utility link {
+  color: var(--link);
+  text-decoration-line: underline;
+  text-underline-offset: 3px;
+  &:hover {
+    color: var(--heading);
+  }
 }
 
 @layer base {
@@ -121,6 +238,76 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background font-sans text-foreground;
+  }
+  /* Lexend Deca: titles at 300, smaller headings at 400, never bold; -2 % tracking. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply text-heading font-brand;
+    letter-spacing: var(--brand-font-tracking-brand);
+  }
+  h1,
+  h2 {
+    font-weight: var(--brand-font-weight-light);
+  }
+  /* Links inside API/CMS rich text (SanitizeHTML output). */
+  [data-rich-text] a {
+    @apply link;
+  }
+  /* Headings and paragraphs an editor types into a description. */
+  [data-rich-text] h2 {
+    @apply mb-2 text-2xl;
+  }
+  [data-rich-text] h3 {
+    @apply mb-1 text-lg;
+  }
+  [data-rich-text] p + p {
+    @apply mt-2;
+  }
+  [data-rich-text] :is(ul, ol) {
+    @apply my-2 pl-5;
+  }
+  [data-rich-text] ul {
+    @apply list-disc;
+  }
+  [data-rich-text] ol {
+    @apply list-decimal;
+  }
+  [data-rich-text] > :first-child {
+    @apply mt-0;
+  }
+  [data-rich-text] > :last-child {
+    @apply mb-0;
+  }
+  h3,
+  h4 {
+    font-weight: var(--brand-font-weight-regular);
+  }
+}
+
+/* Links that reopen the cookie preferences (href ending with #cookie-consents, for example in a CMS
+   footer) stay hidden until a banner runs: consent-banner.ts sets the attribute. */
+html:not([data-consent-ready]) a[href$="#cookie-consents"] {
+  display: none;
+}
+
+/* Order confirmation (/checkout/success): printing or saving as PDF outputs the receipt only. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  [data-order-receipt],
+  [data-order-receipt] * {
+    visibility: visible;
+  }
+  [data-order-receipt] {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+  }
+  [data-print-hide] {
+    display: none;
   }
 }

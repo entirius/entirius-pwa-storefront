@@ -1,95 +1,86 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 import type { NextRequest } from "next/server";
-import { _LOGGER } from "@/lib/logger";
 
 import countries from "@/_CONFIG/countries.config.json";
+import channels from "@/_CONFIG/channels.config.json";
+import { DEFAULT_PROFILE } from "@/lib/profile-path";
 
-const READ_COOKIES_NAMES: [string, string | null][] = [
-  // language
-  ["lg", "default_language"],
-  // currency
-  ["cr", "default_currency"],
-  // theme
-  ["th", "light"],
-  // channel
-  ["ch", "default_channel"],
-  // access token
-  ["at", null],
-  // refresh token
-  ["rt", null],
-  // user id
-  ["uid", null],
-  // cart id
-  ["cid", null],
-];
-const READ_CF_HEADERS_NAMES = ["cf-ipcountry"];
-const COUNTRIES_APP_SETTINGS = countries as any;
+type Profile = {
+  languages?: string[];
+  default_language?: string;
+  currencies?: string[];
+  default_currency?: string;
+  channels?: string[];
+  default_channel?: string;
+};
 
-export default function geo_CF_helper(
-  request: NextRequest,
-  CH_HEADER: string = "cf-ipcountry", // Cloudflare IP Country Header
-) {
-  // ------------------------------------------------------------
-  // Read headers from request
-  // ------------------------------------------------------------
-  const _headers: Record<string, string | null> = {};
+const PROFILES = countries as Record<string, Profile>;
+const SERVED_CHANNELS = new Set(Object.keys(channels));
 
-  for (const _name of READ_CF_HEADERS_NAMES) {
-    const _value = request.headers.get(_name as string) ?? null;
-    _headers[_name as string] = _value;
+// The country profile a path names (`/pl/catalog/x` → "pl"); a path without one belongs to `default`.
+export function profile_from_path(pathname: string): string | null {
+  const segment = pathname.match(/^\/([a-z]{2,})(?:\/|$)/i)?.[1]?.toLowerCase();
+  return segment && segment in PROFILES ? segment : null;
+}
+
+// A cookie value the profile allows, else the profile's default.
+function allowed(value: string | undefined, list: string[] | undefined, fallback: string | undefined) {
+  return value && (!list || list.includes(value)) ? value : (fallback ?? null);
+}
+
+// The channel goes into the API path: only one this shop serves (channels.config.json) and the profile lists.
+function channel_for(profile: Profile, cookie: string | undefined): string | null {
+  const own = (profile.channels ?? []).filter((c) => SERVED_CHANNELS.has(c));
+  if (cookie && own.includes(cookie)) return cookie;
+  for (const candidate of [profile.default_channel, ...own, PROFILES[DEFAULT_PROFILE]?.default_channel]) {
+    if (candidate && SERVED_CHANNELS.has(candidate)) return candidate;
   }
-  // ------------------------------------------------------------
+  return null;
+}
 
-  // ------------------------------------------------------------
-  // Read cookies from request
-  // ------------------------------------------------------------
-  // Check if country is set in cookies
-  // if true -> set from cookies
-  // if false -> check from headers
-  // if still false -> set to default
-  // ------------------------------------------------------------
-  const _cookies: Record<string, string | null> = {};
+// Every configured profile, `default` first.
+export const PROFILE_NAMES = [DEFAULT_PROFILE, ...Object.keys(PROFILES).filter((name) => name !== DEFAULT_PROFILE)];
 
-  // ------------------------------------------------------------
+// What a visitor without cookies gets in a profile (a crawler, too): its own language, currency and channel.
+export function profile_defaults(name: string) {
+  const profile = PROFILES[name] ?? PROFILES[DEFAULT_PROFILE] ?? {};
+  return {
+    language: profile.default_language ?? null,
+    currency: profile.default_currency ?? null,
+    channel: channel_for(profile, undefined),
+  };
+}
 
-  const _COUNTRY =
-    request.cookies.get("ct")?.value ?? _headers["cf-ipcountry"] ?? "default";
+// The request's profile and the values the shop runs with, as proxy.ts writes them back as cookies.
+//
+// The profile always comes from the path, never from the visitor's IP: one address shows one country to
+// everybody (crawlers included). Language, currency and channel come from the cookies when the profile
+// offers them (a choice made in the switch survives), else from the profile's defaults. `geo` is the
+// visitor's country profile by Cloudflare (`cf-ipcountry`, lower-cased), only used to send a first visit
+// of `/` to its country.
+export default function geo_CF_helper(request: NextRequest) {
+  const cookie = (name: string) => request.cookies.get(name)?.value || undefined;
+  const ct = profile_from_path(request.nextUrl.pathname) ?? DEFAULT_PROFILE;
+  const profile = PROFILES[ct] ?? PROFILES[DEFAULT_PROFILE] ?? {};
+  const cf = request.headers.get("cf-ipcountry")?.toLowerCase();
 
-  _cookies["ct"] = _COUNTRY;
-  // ------------------------------------------------------------
-  // ------------------------------------------------------------
-  // ------------------------------------------------------------
-  _LOGGER({ type: "info", message: "setted COUNTRY", print: _COUNTRY });
-  for (const [_name, _default_value_codename] of READ_COOKIES_NAMES) {
-    let _value: string | null =
-      request.cookies.get(_name as string)?.value ?? null;
-    // _LOGGER({
-    //   type: "info",
-    //   message: "Cookie",
-    //   print: {
-    //     _name,
-    //     _default_value_codename,
-    //     _value,
-    //   },
-    // });
-    if (!_value && _default_value_codename) {
-      _value = COUNTRIES_APP_SETTINGS[_COUNTRY]
-        ? COUNTRIES_APP_SETTINGS[_COUNTRY][_default_value_codename]
-        : COUNTRIES_APP_SETTINGS["default"][_default_value_codename];
-    }
-    _cookies[_name as string] = _value;
-  }
-  // ------------------------------------------------------------
-  // ------------------------------------------------------------
-
-  // if (!cf_country) {
-  //   data.data = "default";
-  //   data.set_cookie = "default";
-  //   data.cookie_name = COOKIE_NAME;
-  //   return data;
-  // }
-
-  // data.data = cf_country;
-  // data.set_cookie = cf_country;
-  // data.cookie_name = COOKIE_NAME;
-  return _cookies;
+  return {
+    ct,
+    lg: allowed(cookie("lg"), profile.languages, profile.default_language),
+    // The profile's own language: what a visitor without a choice of their own gets.
+    profile_language: profile.default_language ?? null,
+    cr: allowed(cookie("cr"), profile.currencies, profile.default_currency),
+    ch: channel_for(profile, cookie("ch")),
+    th: cookie("th") ?? null,
+    at: cookie("at") ?? null,
+    rt: cookie("rt") ?? null,
+    uid: cookie("uid") ?? null,
+    cid: cookie("cid") ?? null,
+    // The profile of the visitor's previous visit, if any (the cookie this function's `ct` is written to).
+    visited: cookie("ct") ?? null,
+    geo: cf && cf in PROFILES ? cf : null,
+  };
 }

@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { memo, useCallback, useEffect, useState } from "react";
@@ -6,6 +10,7 @@ import { X } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { useFiltersStore } from "./filters.store";
+import { useI18n } from "@/providers/i18n.provider";
 
 type FilterRangeProps = {
   filter_idx: string;
@@ -20,6 +25,7 @@ const FilterRange = memo(function FilterRange({
   min,
   max,
 }: FilterRangeProps) {
+  const { t } = useI18n();
   const { stored_value, range_set, range_clear } = useFiltersStore(
     useShallow((s) => ({
       stored_value: s.active_ranges[filter_idx] ?? null,
@@ -57,16 +63,14 @@ const FilterRange = memo(function FilterRange({
   return (
     <div>
       <div className="flex justify-between items-center mb-3">
-        <h3 className="font-bold">{label}</h3>
+        <h3 className="text-base">{label}</h3>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground tabular-nums">
-            {local_value[0]} — {local_value[1]}
-          </span>
           {is_modified && (
             <Button
               variant="ghost"
               size="xs"
-              className="h-5 px-1.5 text-xs text-muted-foreground hover:text-destructive"
+              aria-label={t("catalog.reset_filter", { label })}
+              className="h-6 px-1.5 text-xs text-muted-foreground hover:text-destructive"
               onClick={handle_reset}
             >
               <X className="size-3" />
@@ -82,9 +86,15 @@ const FilterRange = memo(function FilterRange({
         onValueChange={handle_change}
         onValueCommit={handle_commit}
       />
-      <div className="flex justify-between text-xs text-muted-foreground mt-2">
-        <span>{min}</span>
-        <span>{max}</span>
+      <div className="mt-3 grid grid-cols-2 gap-2 text-sm tabular-nums">
+        <span className="rounded-xl border border-border px-3 py-2">
+          <span className="block text-xs text-muted-foreground">{t("catalog.range_from")}</span>
+          {local_value[0]}
+        </span>
+        <span className="rounded-xl border border-border px-3 py-2">
+          <span className="block text-xs text-muted-foreground">{t("catalog.range_to")}</span>
+          {local_value[1]}
+        </span>
       </div>
     </div>
   );

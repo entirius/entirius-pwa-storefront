@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import * as React from "react";
@@ -7,6 +11,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useWishlistStore } from "@/stores/wishlist.store";
+import { useI18n } from "@/providers/i18n.provider";
 
 // ─── variants ────────────────────────────────────────────────────────────────
 
@@ -25,11 +30,11 @@ const heartVariants = cva(
         lg: "size-5",
       },
       isActive: {
-        true: "fill-red-500 text-red-500",
-        false: "fill-transparent text-current group-hover:text-red-400",
+        true: "fill-highlight text-highlight",
+        false: "fill-transparent text-current group-hover:text-highlight",
       },
       variant: {
-        default: "group-hover:text-red-300",
+        default: "group-hover:text-highlight",
         destructive: "",
         outline: "",
         secondary: "",
@@ -83,6 +88,7 @@ const WishlistButton = React.forwardRef<HTMLButtonElement, WishlistButtonProps>(
     },
     ref
   ) => {
+    const { t } = useI18n();
     const [mounted, setMounted] = React.useState(false);
     React.useEffect(() => setMounted(true), []);
 
@@ -101,7 +107,7 @@ const WishlistButton = React.forwardRef<HTMLButtonElement, WishlistButtonProps>(
       <Button
         ref={ref}
         data-active={isActive}
-        aria-label={ariaLabel ?? (isActive ? "Remove from wishlist" : "Add to wishlist")}
+        aria-label={ariaLabel ?? (isActive ? t("wishlist.remove") : t("wishlist.add"))}
         aria-pressed={isActive}
         variant={variant ?? "ghost"}
         size={size ?? "icon"}
@@ -115,7 +121,7 @@ const WishlistButton = React.forwardRef<HTMLButtonElement, WishlistButtonProps>(
           )}
         />
         {!isIconOnly && (
-          <span>{label ?? (isActive ? "Saved" : "Save")}</span>
+          <span>{label ?? (isActive ? t("wishlist.saved") : t("wishlist.save"))}</span>
         )}
       </Button>
     );

@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 // Normalizes the checkout/v2 cart response (a flat object — no {meta,data}
 // envelope) into the shape the cart drawer + checkout render. Prices are strings
 // ("0.00"); the currency is separate.
@@ -7,8 +11,10 @@
 //   2. Auto-applied cart discount (discounts[] code): per-line discount_gross, summed
 //      into total_discount_gross. Kicks in at qty>=2 on this channel.
 // Line final_total_gross is AFTER the special price but BEFORE the code discount;
-// cart total_gross is after both. `item_savings_gross` = subtotal_gross - Σfinal_total_gross
+// cart total_gross is after both. `item_savings_gross` = Σ list price - Σfinal_total_gross
 // captures the special-price saving so the two can be shown as distinct rows.
+
+import { resolve_media_url } from "@/utils/media-url";
 
 type CartLine = {
   sku: string;
@@ -72,6 +78,7 @@ type PaymentMethod = {
   image: string | null; // logo URL, when the method carries one
   provider: string | null; // gateway provider, e.g. "payu_card"
   fee: string | null; // extra fee (e.g. cash-on-delivery), when > 0
+  is_transfer: boolean; // offline bank transfer (provider "transfer"): the customer pays after the order
 };
 
 type Cart = {
@@ -80,7 +87,10 @@ type Cart = {
   validation_status: string;
   currency: string;
   allowed_guest_checkout: boolean;
-  subtotal_gross: string | null; // Σ list price (pre any reduction)
+  subtotal_gross: string | null; // backend subtotal; may already include delivery once one is chosen
+  items_subtotal_gross: string | null; // Σ list price of the items only (pre any reduction)
+  shipping_gross: string | null; // price of the chosen delivery method, when one is chosen
+  fee_gross: string | null; // payment surcharge, when the backend reports one
   total_gross: string | null; // payable (post special + code discount)
   total_tax: string | null;
   total_discount_gross: string | null; // Σ code discounts
@@ -134,8 +144,9 @@ function norm_method(m: any): ShippingMethod | null {
   return {
     code: String(m.code),
     name: str(m.name) ?? String(m.code),
-    // The list uses `price` or `total_price` depending on the backend build.
-    price: str(m.price ?? m.total_price),
+    // The list uses `price` or `total_price` depending on the backend build; the cart's own
+    // method carries `final_gross` (after free delivery).
+    price: str(m.price ?? m.total_price ?? m.final_gross),
     description: str(m.description),
     free_delivery_above: str(m.free_delivery_above),
   };
@@ -159,9 +170,10 @@ function norm_payment(m: any): PaymentMethod | null {
     code: String(m.code),
     name: str(m.name) ?? String(m.code),
     description: str(m.description),
-    image: str(m.image),
+    image: resolve_media_url(str(m.image)) || null,
     provider: str(m.provider),
-    fee: str(m.cash_on_delivery_fee ?? m.fee),
+    fee: str(m.cash_on_delivery_fee ?? m.fee ?? m.fee_gross),
+    is_transfer: m.provider === "transfer",
   };
 }
 
@@ -178,9 +190,11 @@ function NORM_CART(data: any): Cart {
   const raw_items: any[] = Array.isArray(data?.items) ? data.items : [];
   const lines: Record<string, CartLine> = {};
   let sum_final = 0;
+  let sum_list = 0;
   for (const it of raw_items) {
     if (!it?.sku) continue;
     sum_final += num(it.final_total_gross);
+    sum_list += num(it.total_gross ?? num(it.unit_gross) * num(it.quantity));
     lines[it.sku] = {
       sku: it.sku,
       quantity: Number(it.quantity ?? 0),
@@ -200,8 +214,8 @@ function NORM_CART(data: any): Cart {
     };
   }
 
-  // Special-price saving = list subtotal − Σ line finals (before code discounts).
-  const item_savings = num(data?.subtotal_gross) - sum_final;
+  // Special-price saving = list price of the items − Σ line finals (before code discounts).
+  const item_savings = sum_list - sum_final;
 
   const raw_discounts: any[] = Array.isArray(data?.discounts)
     ? data.discounts
@@ -241,6 +255,9 @@ function NORM_CART(data: any): Cart {
     currency: data?.currency ?? "",
     allowed_guest_checkout: Boolean(data?.allowed_guest_checkout),
     subtotal_gross: data?.subtotal_gross ?? null,
+    items_subtotal_gross: raw_items.length ? sum_list.toFixed(2) : (data?.subtotal_gross ?? null),
+    shipping_gross: str(data?.shipping_method?.final_gross),
+    fee_gross: str(data?.fee_gross ?? data?.payment_method?.fee_gross),
     total_gross: data?.total_gross ?? null,
     total_tax: data?.total_tax ?? null,
     total_discount_gross: data?.total_discount_gross ?? null,

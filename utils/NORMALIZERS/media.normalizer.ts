@@ -1,7 +1,18 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+import { resolve_media_url } from "@/utils/media-url";
+
 const placeholder_width = 600;
 const placeholder_height = 600;
-//export const image_placeholder = `https://placehold.co/${placeholder_width}x${placeholder_height}/111/ddd/png`;
-export const image_placeholder = `https://picsum.photos/seed/picsum/${placeholder_width}/${placeholder_height}?grayscale`;
+export const image_placeholder = "/placeholder.svg";
+
+// A picture for <img>/next/image: the API source resolved against the API host
+// (resolve_media_url), or the placeholder when there is none.
+export function resolve_media_uri(source: unknown): string {
+  return resolve_media_url(typeof source === "string" ? source : null) || image_placeholder;
+}
 
 // ------------------------------------------------------------
 // sort_by - sort by position, type, source_set
@@ -74,7 +85,7 @@ function NORM_MEDIA_DATA(
   return media.map((item: any) => {
     return item.source_set.map((n: any) => {
       return {
-        uri: n.source,
+        uri: resolve_media_uri(n.source),
         width: n.width,
         height: n.height,
       };

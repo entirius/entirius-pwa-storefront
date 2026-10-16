@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { memo, useCallback, useLayoutEffect, useMemo } from "react";
@@ -12,6 +16,7 @@ import { FilterItem } from "./filter-item.client";
 import { FilterSortItem } from "./filter-sort-item.client";
 import { FilterRange } from "./filter-range.client";
 import { useFiltersStore } from "./filters.store";
+import { useI18n } from "@/providers/i18n.provider";
 
 const FILTER_PREFIXES = ["q_", "s_", "r_"];
 
@@ -25,9 +30,9 @@ const FilterGroup = memo(function FilterGroup({
   filter: any;
 }) {
   return (
-    <div>
-      <h3 className="text-sm font-semibold">{filter.label}</h3>
-      <div className="flex flex-col gap-2 mt-2">
+    <div className="flex flex-col gap-2 border-t border-border pt-4">
+      <h3 className="text-base">{filter.label}</h3>
+      <div className="-mx-2 flex flex-col">
         {filter.options?.map((option: any) => (
           <FilterItem
             key={option.idx}
@@ -47,10 +52,11 @@ const SortGroup = memo(function SortGroup({
 }: {
   filter: any;
 }) {
+  const { t } = useI18n();
   return (
-    <div>
-      <h3 className="text-sm font-semibold">{filter.label}</h3>
-      <div className="flex flex-col gap-2 mt-2">
+    <div className="flex flex-col gap-3">
+      <h3 className="text-base">{t("catalog.sort")}</h3>
+      <div className="flex flex-col gap-2">
         {filter.options?.map((option: any) => (
           <FilterSortItem
             key={option.idx}
@@ -65,9 +71,18 @@ const SortGroup = memo(function SortGroup({
 
 // ------------------------------------------------------------
 
-export function FiltersOptionsClient({ options }: { options: any }) {
+export function FiltersOptionsClient({
+  options,
+  in_sheet = false,
+}: {
+  options: any;
+  // In the sheet the dialog title names the panel; the visible line is not a
+  // second heading.
+  in_sheet?: boolean;
+}) {
   const router = useRouter();
   const search_params = useSearchParams();
+  const { t } = useI18n();
 
   const api = useMemo(() => create_api(make_client_access()), []);
 
@@ -107,6 +122,19 @@ export function FiltersOptionsClient({ options }: { options: any }) {
     router.push(`?${params.toString()}`);
   }, [router, search_params]);
 
+  const has_applied = FILTER_PREFIXES.some((p) =>
+    Array.from(search_params.keys()).some((k) => k.startsWith(p)),
+  );
+
+  const handle_clear = useCallback(() => {
+    const params = new URLSearchParams(search_params.toString());
+    Array.from(params.keys())
+      .filter((k) => FILTER_PREFIXES.some((p) => k.startsWith(p)))
+      .forEach((k) => params.delete(k));
+    useFiltersStore.getState().clear();
+    router.push(`?${params.toString()}`);
+  }, [router, search_params]);
+
   const query_options = useMemo(
     () => ({ ...filters_query(api, options), refetchOnWindowFocus: false }),
     [api, options],
@@ -116,7 +144,7 @@ export function FiltersOptionsClient({ options }: { options: any }) {
 
   if (isLoading) return <Spinner className="size-6 mx-auto mt-4" />;
   if (!response || isError)
-    return <p className="text-sm text-destructive p-4">Failed to load filters</p>;
+    return <p className="text-sm text-destructive p-4">{t("catalog.filters_failed")}</p>;
 
   const { q_, s_, r_ } = response.data ?? {};
 
@@ -127,11 +155,23 @@ export function FiltersOptionsClient({ options }: { options: any }) {
   if (!has_sort && !has_range && !has_query) return null;
 
   return (
-    <div className="flex flex-col gap-4 p-4 overflow-y-auto">
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center justify-between gap-2">
+        {in_sheet ? (
+          <p aria-hidden className="font-brand text-xl text-heading">{t("catalog.filters")}</p>
+        ) : (
+          <h2 className="text-xl">{t("catalog.filters")}</h2>
+        )}
+        {(has_applied || has_pending) && (
+          <Button variant="link" size="sm" className="h-auto px-0" onClick={handle_clear}>
+            {t("catalog.clear_all")}
+          </Button>
+        )}
+      </div>
       {isFetching && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Spinner className="size-3" />
-          <span>Updating…</span>
+          <span>{t("catalog.updating")}</span>
         </div>
       )}
       {has_sort && (
@@ -142,12 +182,11 @@ export function FiltersOptionsClient({ options }: { options: any }) {
               filter={filter}
             />
           ))}
-          <hr className="border-border" />
         </div>
       )}
 
       {has_range && (
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-5 border-t border-border pt-4">
           {Object.entries(r_).map(([filter_idx, filter]: any) => (
             <FilterRange
               key={filter_idx}
@@ -157,7 +196,6 @@ export function FiltersOptionsClient({ options }: { options: any }) {
               max={Math.ceil(parseFloat(filter.max_value))}
             />
           ))}
-          <hr className="border-border" />
         </div>
       )}
 
@@ -170,13 +208,16 @@ export function FiltersOptionsClient({ options }: { options: any }) {
           />
         ))}
 
-      <Button
-        className="w-full mt-2 sticky bottom-4"
-        disabled={!has_pending}
-        onClick={handle_apply}
-      >
-        Apply ({active_filters_count + active_ranges_count})
-      </Button>
+      <div className="sticky bottom-0 bg-card pt-3 pb-1">
+        <Button
+          className="w-full rounded-full"
+          size="lg"
+          disabled={!has_pending}
+          onClick={handle_apply}
+        >
+          {t("catalog.apply", { count: active_filters_count + active_ranges_count })}
+        </Button>
+      </div>
     </div>
   );
 }

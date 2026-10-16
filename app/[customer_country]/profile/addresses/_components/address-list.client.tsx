@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
 import { useState } from "react";
@@ -21,6 +25,7 @@ import {
   type CustomerAddressFormValues,
 } from "@/utils/validation/customer-address.schema";
 import { AddressFormSheet } from "./address-form";
+import { useI18n } from "@/providers/i18n.provider";
 
 function to_form_values(a: CustomerAddress): CustomerAddressFormValues {
   return {
@@ -40,6 +45,7 @@ function to_form_values(a: CustomerAddress): CustomerAddressFormValues {
 
 export function AddressList() {
   const queryClient = useQueryClient();
+  const { t } = useI18n();
   const { data: addresses, isLoading } = useQuery(addresses_query());
   const { data: defaults } = useQuery(defaults_query());
   const [formOpen, setFormOpen] = useState(false);
@@ -59,7 +65,7 @@ export function AddressList() {
   };
 
   const onDelete = async (id: string) => {
-    if (!window.confirm("Delete this address?")) return;
+    if (!window.confirm(t("profile.confirm_delete"))) return;
     await remove_address(id);
     invalidate();
   };
@@ -77,11 +83,11 @@ export function AddressList() {
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <Button asChild variant="ghost" size="icon">
-            <LinkDynamic href="/profile" aria-label="Back to account">
+            <LinkDynamic href="/profile" aria-label={t("profile.back")}>
               <ChevronLeft className="size-5" />
             </LinkDynamic>
           </Button>
-          <h1 className="text-2xl font-bold">Delivery addresses</h1>
+          <h1 className="text-2xl">{t("profile.addresses")}</h1>
         </div>
         <Button
           size="sm"
@@ -90,7 +96,7 @@ export function AddressList() {
             setFormOpen(true);
           }}
         >
-          Add address
+          {t("profile.add_address")}
         </Button>
       </div>
 
@@ -98,10 +104,10 @@ export function AddressList() {
         <Spinner className="size-5" />
       ) : !addresses?.length ? (
         <p className="text-sm text-muted-foreground">
-          You have no saved addresses yet.
+          {t("profile.no_addresses")}
         </p>
       ) : (
-        <ul className="flex flex-col gap-3">
+        <ul aria-label={t("profile.saved_addresses")} className="flex flex-col gap-3">
           {addresses.map((a) => (
             <li
               key={a.address_id}
@@ -112,7 +118,7 @@ export function AddressList() {
                   {a.firstname} {a.lastname}
                   {isDefault(a.address_id) && (
                     <span className="inline-flex items-center gap-1 rounded bg-accent px-1.5 py-0.5 text-xs text-accent-foreground">
-                      <Star className="size-3" /> Default
+                      <Star className="size-3" /> {t("profile.default")}
                     </span>
                   )}
                 </span>
@@ -136,14 +142,14 @@ export function AddressList() {
                     size="sm"
                     onClick={() => onSetDefault(a.address_id)}
                   >
-                    Set default
+                    {t("profile.set_default")}
                   </Button>
                 )}
                 <div className="flex gap-1">
                   <Button
                     variant="ghost"
                     size="icon"
-                    aria-label="Edit address"
+                    aria-label={t("profile.edit_address")}
                     onClick={() => {
                       setEditing(a);
                       setFormOpen(true);
@@ -154,7 +160,7 @@ export function AddressList() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    aria-label="Delete address"
+                    aria-label={t("profile.delete_address")}
                     onClick={() => onDelete(a.address_id)}
                   >
                     <Trash2 className="size-4" />
@@ -169,7 +175,7 @@ export function AddressList() {
       <AddressFormSheet
         open={formOpen}
         onOpenChange={setFormOpen}
-        title={editing ? "Edit address" : "Add address"}
+        title={editing ? t("profile.edit_address") : t("profile.add_address")}
         initial={editing ? to_form_values(editing) : empty_customer_address}
         onSubmit={onSubmit}
       />

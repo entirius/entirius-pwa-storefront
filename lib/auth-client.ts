@@ -1,6 +1,11 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 import { create_api } from "@/API/api.context";
 import { abort_session } from "@/API/api.setup";
 import { make_client_access } from "@/API/access/api.client-access";
+import { msg } from "@/lib/i18n/translate";
 import {
   API_USER_LOGIN_ROUTE,
   API_USER_SIGNUP_ROUTE,
@@ -70,7 +75,7 @@ export type RegisterResult =
   | { ok: true }
   | { ok: false; field: "email" | "password" | "root"; message: string };
 
-const REGISTER_GENERIC = "Could not create the account. Please try again.";
+const REGISTER_GENERIC = msg("auth.register_failed");
 
 function map_signup_error(
   status: number | undefined,
@@ -96,7 +101,7 @@ export async function client_register(
 ): Promise<RegisterResult> {
   const parsed = register_schema.safeParse(input);
   if (!parsed.success) {
-    return { ok: false, field: "root", message: "Please check the form and try again." };
+    return { ok: false, field: "root", message: msg("auth.check_form") };
   }
 
   const access = make_client_access();
@@ -128,8 +133,7 @@ export async function client_register(
 
 export type ActivateResult = { ok: true } | { ok: false; message: string };
 
-const ACTIVATE_GENERIC =
-  "Something went wrong verifying your account. Please try again.";
+const ACTIVATE_GENERIC = msg("auth.activation_failed");
 
 // Completes the double-opt-in: after signup the backend emails a link
 // (/user-handler?key=&uid=) and the account stays inactive until this fires.

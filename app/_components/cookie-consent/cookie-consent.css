@@ -1,0 +1,134 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+/* vanilla-cookieconsent in the storefront's theme. Loaded with the banner chunk (consent-banner.ts).
+
+   Everything sits in one cascade layer, the library's stylesheet included: a client theme
+   (_CONFIG/theme.css, unlayered) overrides any of it without a specificity fight. Colours, font and
+   radius come from the theme variables of app/globals.css; the buttons also carry the data attributes
+   of the storefront's <Button> (consent-banner.ts), so theme rules written for buttons apply here. */
+@import "vanilla-cookieconsent/dist/cookieconsent.css" layer(cookie-consent);
+
+@layer cookie-consent {
+  #cc-main {
+    /* Not --cc-font-family: a custom property set to `inherit` takes the library's own default. */
+    font-family: inherit;
+    --cc-modal-border-radius: max(0px, var(--radius));
+    --cc-btn-border-radius: max(0px, calc(var(--radius) - 2px));
+    --cc-bg: var(--popover);
+    --cc-primary-color: var(--popover-foreground);
+    --cc-secondary-color: var(--muted-foreground);
+    --cc-link-color: var(--foreground);
+
+    /* Accept and reject are the same primary button; settings is the outline one. */
+    --cc-btn-primary-bg: var(--primary);
+    --cc-btn-primary-color: var(--primary-foreground);
+    --cc-btn-primary-border-color: var(--primary);
+    --cc-btn-primary-hover-bg: color-mix(in oklab, var(--primary) 90%, transparent);
+    --cc-btn-primary-hover-color: var(--primary-foreground);
+    --cc-btn-primary-hover-border-color: var(--primary);
+    --cc-btn-secondary-bg: var(--background);
+    --cc-btn-secondary-color: var(--foreground);
+    --cc-btn-secondary-border-color: var(--input);
+    --cc-btn-secondary-hover-bg: var(--accent);
+    --cc-btn-secondary-hover-color: var(--accent-foreground);
+    --cc-btn-secondary-hover-border-color: var(--input);
+
+    --cc-separator-border-color: var(--border);
+    --cc-toggle-on-bg: var(--primary);
+    --cc-toggle-off-bg: var(--input);
+    --cc-toggle-on-knob-bg: var(--primary-foreground);
+    --cc-toggle-off-knob-bg: var(--background);
+    --cc-toggle-readonly-bg: var(--secondary);
+    --cc-toggle-readonly-knob-bg: var(--muted-foreground);
+    --cc-toggle-enabled-icon-color: var(--primary);
+    --cc-toggle-disabled-icon-color: var(--background);
+    --cc-cookie-category-block-bg: var(--muted);
+    --cc-cookie-category-block-border: var(--muted);
+    --cc-cookie-category-block-hover-bg: var(--accent);
+    --cc-cookie-category-block-hover-border: var(--accent);
+    --cc-cookie-category-expanded-block-bg: var(--background);
+    --cc-cookie-category-expanded-block-hover-bg: var(--accent);
+    --cc-footer-bg: var(--popover);
+    --cc-footer-color: var(--muted-foreground);
+    --cc-footer-border-color: var(--border);
+    --cc-overlay-bg: rgb(0 0 0 / 0.5);
+  }
+
+  #cc-main .cm,
+  #cc-main .pm {
+    border: 1px solid var(--border);
+    box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.08);
+  }
+
+  /* The size of the storefront's default <Button>. */
+  #cc-main .cm__btn,
+  #cc-main .pm__btn {
+    min-height: 0;
+    height: 2.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  #cc-main .pm__title {
+    font-weight: 600;
+  }
+
+  #cc-main a {
+    text-underline-offset: 0.2em;
+  }
+
+  /* Desktop: a small box in the corner. */
+  #cc-main .cm.cm--box {
+    max-width: 22rem;
+  }
+
+  /* The preferences dialog is as tall as its content, not a fixed panel. */
+  @media (min-width: 641px) {
+    #cc-main .pm.pm--box {
+      height: auto;
+    }
+  }
+
+  /* Mobile: a quiet bottom bar, the three buttons in one row. !important beats the library's own
+     mobile rules (max-width: 640px), which are !important too, and keeps the row intact when a
+     theme widens its buttons. */
+  @media (max-width: 767px) {
+    #cc-main .cm.cm--bar {
+      border-width: 1px 0 0;
+      border-radius: 0;
+    }
+
+    #cc-main .cm.cm--bar .cm__texts {
+      padding-top: 0.75rem;
+    }
+
+    #cc-main .cm.cm--bar .cm__desc {
+      padding: 0 1rem 0.5rem !important;
+      font-size: 0.75rem;
+      line-height: 1.5;
+    }
+
+    #cc-main .cm.cm--bar .cm__btns {
+      display: grid !important;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.375rem;
+      padding: 0.5rem 1rem 0.75rem !important;
+    }
+
+    #cc-main .cm.cm--bar .cm__btn-group {
+      display: contents !important;
+    }
+
+    #cc-main .cm.cm--bar .cm__btn {
+      min-width: 0;
+      margin: 0 !important;
+      padding-inline: 0.5rem !important;
+      white-space: normal;
+    }
+  }
+}

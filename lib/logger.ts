@@ -1,7 +1,8 @@
-// import { DEBUG } from '@/config/app-pref.config.json';
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-const DEBUG_MODE = true;
-
+import { DEBUG_MODE } from '@/_CONFIG/app.config.json';
 
 const ANSI_COLORS = {
   reset: '\x1b[0m',
@@ -20,7 +21,8 @@ type LOGGER_ARGS = {
 };
 
 export const _LOGGER = ({ type = 'info', message, print }: LOGGER_ARGS) => {
-  if (!DEBUG_MODE) return;
+  // Errors and warnings are always logged; requests, responses and notes only in debug mode.
+  if (!DEBUG_MODE && (type === 'info' || type === 'success')) return;
   console.log(
     `${ANSI_COLORS[type]}-------------- --- --- -- - - -- - - ---- - --- - --  - - - - -- ---  - - -   -  -${ANSI_COLORS.reset}`
   );

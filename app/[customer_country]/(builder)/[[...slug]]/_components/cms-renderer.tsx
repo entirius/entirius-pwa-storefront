@@ -1,13 +1,32 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 import React from "react";
 import SectionTypeA from "./sections/section-type-a";
 import TileTypeA from "./tiles/tile-type-a";
 import TileTypeB from "./tiles/tile-type-b";
+import SectionHeroSlider from "./sections/section-hero-slider";
+import SectionText from "./sections/section-text";
+import SectionAccordion from "./sections/section-accordion";
+import TileHero from "./tiles/tile-hero";
+import TileTxtBtn from "./tiles/tile-txt-btn";
+import TileAccordion from "./tiles/tile-accordion";
+import SectionIconGrid from "./sections/section-icon-grid";
+import SectionBanner from "./sections/section-banner";
+import SectionImageText from "./sections/section-image-text";
+import SectionProductSliderViaSku from "./sections/section-product-slider-via-sku";
+import SectionProductSliderCategory from "./sections/section-product-slider-category.client";
+import TileTitleDescImg from "./tiles/tile-title-desc-img";
+import TileImage from "./tiles/tile-image";
+import TileProduct from "./tiles/tile-product.client";
 import type {
   CmsSectionComponent,
   CmsSectionData,
   CmsDocumentContent,
 } from "@/types/cms.types";
 import { _LOGGER } from "@/lib/logger";
+import { DEBUG_MODE } from "@/_CONFIG/app.config.json";
 
 const warned_unknown_types = new Set<string>();
 
@@ -15,12 +34,28 @@ export const cms_components_map: Record<string, CmsSectionComponent> = {
   "section-type-a": SectionTypeA,
   "tile-type-a": TileTypeA,
   "tile-type-b": TileTypeB as CmsSectionComponent,
+  // Types the CMS editor (entirius-pwa-cms) produces — the zeno/Emporium seed.
+  "section-hero-slider": SectionHeroSlider,
+  "section-text": SectionText,
+  "section-image-text": SectionImageText,
+  "section-accordion": SectionAccordion,
+  "section-icon-grid": SectionIconGrid,
+  "section-banner": SectionBanner as CmsSectionComponent,
+  "section-product-slider-via-sku": SectionProductSliderViaSku,
+  "section-product-slider-category": SectionProductSliderCategory as CmsSectionComponent,
+  "tile-hero": TileHero as CmsSectionComponent,
+  "tile-txt-btn": TileTxtBtn as CmsSectionComponent,
+  "tile-accordion": TileAccordion as CmsSectionComponent,
+  "tile-title-desc-img": TileTitleDescImg as CmsSectionComponent,
+  "tile-image": TileImage as CmsSectionComponent,
+  "tile-product": TileProduct as CmsSectionComponent,
 };
 
 export const render_cms_component = (
   data: CmsSectionData,
   index: number,
   children?: React.ReactNode,
+  section_width?: string,
 ): React.ReactNode => {
   const Component = cms_components_map[data.core_type];
   if (!Component) {
@@ -31,12 +66,22 @@ export const render_cms_component = (
       warned_unknown_types.add(data.core_type);
       _LOGGER({ type: "warning", message: `[CMS] Unknown component type: ${data.core_type}` });
     }
-    return null;
+    // Make the gap visible while developing; production stays silent.
+    return DEBUG_MODE ? (
+      <div
+        key={data.id ?? `cms-unknown-${index}`}
+        className="rounded-md border border-dashed border-destructive p-3 text-xs text-destructive"
+      >
+        Unknown CMS component: {data.core_type}
+      </div>
+    ) : null;
   }
+  // The wrapper names the type for a client theme (`[data-cms-type="section-hero-slider"] > section`);
+  // `display: contents` keeps it out of the layout.
   return (
-    <Component key={data.id ?? `cms-${index}`} {...(data as any)}>
-      {children}
-    </Component>
+    <div key={data.id ?? `cms-${index}`} data-cms-type={data.core_type} className="contents">
+      <Component {...(data as any)} section_width={section_width}>{children}</Component>
+    </div>
   );
 };
 
@@ -53,7 +98,7 @@ export const render_cms_document = (
     const rendered_tiles = tile_uids.map((tile_uid, tile_index) => {
       const tile = content.tiles?.[tile_uid];
       if (!tile) return null;
-      return render_cms_component(tile, tile_index);
+      return render_cms_component(tile, tile_index, undefined, section.width);
     });
 
     return render_cms_component(section, section_index, rendered_tiles);

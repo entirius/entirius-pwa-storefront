@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -16,6 +20,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { useI18n } from "@/providers/i18n.provider";
 
 function useApi() {
   return useMemo(() => create_api(make_client_access()), []);
@@ -74,6 +79,7 @@ function MegamenuPanel({ mainKey }: { mainKey: string }) {
 }
 
 export function Megamenu({ query }: { query: CONFIG_QUERY }) {
+  const { t } = useI18n();
   const api = useApi();
   // Top-level request uses the shared CONFIG_QUERY; deeper levels load lazily.
   const { data, isLoading, isError, error } = useQuery({
@@ -85,7 +91,7 @@ export function Megamenu({ query }: { query: CONFIG_QUERY }) {
   if (isError)
     return (
       <span className="text-sm text-destructive">
-        Error: {(error as Error)?.message}
+        {t("common.error", { message: (error as Error)?.message })}
       </span>
     );
 
@@ -97,7 +103,7 @@ export function Megamenu({ query }: { query: CONFIG_QUERY }) {
         {mainItems.map((item) =>
           item.has_children ? (
             <NavigationMenuItem key={item.id ?? item.url_key}>
-              <NavigationMenuTrigger className="capitalize">
+              <NavigationMenuTrigger>
                 {item.name}
               </NavigationMenuTrigger>
               <NavigationMenuContent>
@@ -108,7 +114,7 @@ export function Megamenu({ query }: { query: CONFIG_QUERY }) {
             <NavigationMenuItem key={item.id ?? item.url_key}>
               <NavigationMenuLink
                 asChild
-                className={navigationMenuTriggerStyle() + " capitalize"}
+                className={navigationMenuTriggerStyle()}
               >
                 <LinkDynamic href={`/catalog/${item.url_key}`}>
                   {item.name}

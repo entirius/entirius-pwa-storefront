@@ -38,7 +38,8 @@ Category item: `{ idx, name, url_key, image_url, products_count }` (vs catalog `
 - **No shared normalizer, no shared-flow coupling.** `search_query`'s `queryFn` returns the **raw** response. No `NORM_*` reuse, no `seed`/`["product", url_key]` cache warming.
 - **Local mapping** lives in `search-product-row.tsx`:
   - `resolve_image(main_image)` — `try/catch JSON.parse`, picks a ~320px `source_set` thumb, falls back to `image_placeholder`.
-  - `format_price({ gross, final_gross, has_special_price }, currency)` — base + optional struck-through special.
+  - `to_price(product, currency)` — the lite price fields (including `range_from` of a configurable product) as a `Price`, rendered by `price_lines()` in the active language; base + optional struck-through special.
+  - `product_href(product)` — a variant (no `url_key`) links to its parent's page with `?variant=<sku>`.
 - **Overlay:** shadcn `Sheet` `side="top"` (the only overlay primitive available). **Input:** `InputGroup`. **Live query:** 300ms debounce, gated `enabled: q.trim().length >= 2`, `placeholderData: (prev) => prev`.
 
 ## Files
@@ -56,7 +57,7 @@ Category item: `{ idx, name, url_key, image_url, products_count }` (vs catalog `
 
 - Click header search icon → top sheet opens with an autofocused input.
 - < 2 chars → "type at least 2 characters" hint. ≥ 2 chars → debounced fetch.
-- Phrase click → refills input (re-runs). Category click → `/catalog/{url_key}`. Product click → `/product/{url_key}` (closes sheet).
+- Phrase click → refills input (re-runs). Category click → `/catalog/{url_key}`. Product click → `/product/{url_key}`, a variant → `/product/{parent_url_key}?variant={sku}` (closes sheet).
 - Loading spinner in the input; error and empty states handled.
 
 ## Follow-ups (not built)

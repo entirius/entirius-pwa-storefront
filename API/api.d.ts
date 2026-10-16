@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 type TOKENS = { access_token: string; refresh_token: string };
 
 // register routes to catch refresh_on
@@ -18,6 +22,7 @@ type API_ACCESS = {
   get_user_id?: () => string | null;
   get_cart_id?: () => string | null;
   get_channel_checkout_key?: () => string | null;
+  get_contact_forms_key?: () => string | null;
   set_tokens?: (tokens: TOKENS) => void | Promise<void>;
   clear_tokens?: () => void | Promise<void>;
 };

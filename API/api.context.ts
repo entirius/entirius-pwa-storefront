@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 import { create_fetch_engine } from "./api.setup";
 import type { COOKIE_ACCESS } from "./api.d.ts";
 
@@ -12,6 +16,7 @@ export function create_api(cookie_access: COOKIE_ACCESS) {
     get_user_id: () => cookie_access.get("uid"),
     get_cart_id: () => cookie_access.get("cid"),
     get_channel_checkout_key: () => cookie_access.get("ch_key"),
+    get_contact_forms_key: () => cookie_access.get("cf_key"),
     set_tokens: (tokens: { access_token: string; refresh_token: string }) => {
       cookie_access.set?.("at", tokens.access_token);
       cookie_access.set?.("rt", tokens.refresh_token);

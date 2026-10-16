@@ -1,9 +1,21 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 
-import Image from "next/image";
+import { MediaImage } from "@/components/ui/media-image.client";
 
 import { LinkDynamic } from "@/lib/link-dynamic";
-import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
+import {
+  image_placeholder,
+  resolve_media_uri,
+} from "@/utils/NORMALIZERS/media.normalizer";
+import { OmnibusNote } from "@/lib/omnibus/omnibus-note.client";
+import type { Price } from "@/utils/NORMALIZERS/price.normalizer";
+import { price_lines } from "@/lib/i18n/price-lines";
+import { useI18n } from "@/providers/i18n.provider";
+import { VARIANT_PARAM } from "@/app/[customer_country]/(product)/product/[product_url_key]/_components/variant-selection";
 
 // --- Local normalization (search results are a "lite" shape; see search-feature.md) ---
 
@@ -19,40 +31,62 @@ function resolve_image(main_image: unknown): string {
     if (!set.length) return image_placeholder;
     // Prefer a ~320px thumb, else the first available source.
     const pick = set.find((s) => s.width === 320) ?? set[0];
-    return pick?.source ?? image_placeholder;
+    return resolve_media_uri(pick?.source);
   } catch {
     return image_placeholder;
   }
 }
 
-// Prices are flat numbers with no currency on the item. Build a display pair:
-// [base] or [base, special] when discounted.
-function format_price(
+// Prices are flat numbers with no currency on the item: the active currency is passed in.
+// Range prices (CONFIGURABLE) use their own field names here — `range_from`,
+// `special_price_range_from` — not the products/ ones; same rules as NORM_PRICE_DATA.
+function to_price(
   product: {
     gross?: number | string | null;
     final_gross?: number | string | null;
     has_special_price?: boolean;
+    is_range?: boolean;
+    range_from?: number | string | null;
+    special_price_range_from?: number | string | null;
   },
   currency: string,
-): { base: string | null; special: string | null } {
-  const fmt = (v: number | string | null | undefined) =>
-    v === null || v === undefined || v === "" ? null : `${v} ${currency}`.trim();
-  const base = fmt(product.gross);
-  const special =
-    product.has_special_price && product.final_gross != null
-      ? fmt(product.final_gross)
-      : null;
-  return { base, special };
+): Price | null {
+  const amount = (v: number | string | null | undefined) =>
+    v === null || v === undefined || v === "" ? null : String(v);
+  if (product.is_range) {
+    const from = amount(product.range_from);
+    if (!from) return null;
+    const special_from = amount(product.special_price_range_from);
+    return { gross: from, currency, from: true, ...(special_from ? { final_gross: special_from } : {}) };
+  }
+  const gross = amount(product.gross);
+  if (!gross) return null;
+  const special = product.has_special_price ? amount(product.final_gross) : null;
+  return { gross, currency, ...(special ? { final_gross: special } : {}) };
+}
+
+// A variant has no page of its own: link to its parent's page with the variant chosen.
+function product_href(product: { sku?: string; url_key?: string | null; parent_url_key?: string | null }): string {
+  if (product.url_key) return `/product/${product.url_key}`;
+  if (!product.parent_url_key) return "#";
+  const variant = product.sku ? `?${VARIANT_PARAM}=${encodeURIComponent(product.sku)}` : "";
+  return `/product/${product.parent_url_key}${variant}`;
 }
 
 export type SearchProduct = {
   sku?: string;
   name?: string;
-  url_key?: string;
+  url_key?: string | null;
+  // Set on a variant of a configurable product (its own url_key is null).
+  parent_url_key?: string | null;
   main_image?: unknown;
   gross?: number | string | null;
   final_gross?: number | string | null;
   has_special_price?: boolean;
+  is_range?: boolean;
+  range_from?: number | string | null;
+  special_price_range_from?: number | string | null;
+  on_stock?: boolean;
 };
 
 export function SearchProductRow({
@@ -65,25 +99,28 @@ export function SearchProductRow({
   onNavigate: () => void;
 }) {
   const src = resolve_image(product.main_image);
-  const { base, special } = format_price(product, currency);
+  const i18n = useI18n();
+  const [base, special] = price_lines(i18n, to_price(product, currency));
 
   return (
     <LinkDynamic
-      href={`/product/${product.url_key}`}
+      href={product_href(product)}
       onClick={onNavigate}
+      data-product-tile
+      data-stock={product.on_stock === false ? "out" : "in"}
       className="grid grid-cols-[5rem_1fr] gap-3 rounded-md border border-border p-2 transition-colors hover:bg-accent"
     >
       <div className="size-20 overflow-hidden rounded-md bg-muted">
-        <Image
+        <MediaImage
           src={src}
-          alt={product.name ?? "Product"}
+          alt={product.name ?? i18n.t("search.product_fallback")}
           width={80}
           height={80}
-          className="size-full object-cover grayscale dark:brightness-20"
+          className="size-full object-cover"
         />
       </div>
       <div className="min-w-0 self-center">
-        <h4 className="truncate text-sm font-semibold">{product.name}</h4>
+        <h4 className="truncate text-sm">{product.name}</h4>
         <div className="mt-0.5 flex items-center gap-1.5">
           {special ? (
             <>
@@ -95,9 +132,15 @@ export function SearchProductRow({
               </span>
             </>
           ) : (
-            <span className="text-xs font-semibold">{base ?? "—"}</span>
+            <span className="text-xs font-semibold">{base}</span>
           )}
         </div>
+        {special && product.sku && <OmnibusNote sku={product.sku} compact />}
+        {product.on_stock === false && (
+          <span data-sold-out-label className="mt-0.5 block text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+            {i18n.t("product.sold_out")}
+          </span>
+        )}
       </div>
     </LinkDynamic>
   );

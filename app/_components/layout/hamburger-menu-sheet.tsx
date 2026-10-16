@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 "use client";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,14 +22,24 @@ import { make_client_access } from "@/API/access/api.client-access";
 import { categories_query } from "./api.query";
 import { type CATEGORY, type CONFIG_QUERY } from "./menu-config";
 import { LinkDynamic } from "@/lib/link-dynamic";
+import { useI18n } from "@/providers/i18n.provider";
 
 type Level = { url_key: string | null; name: string };
 
-export function HamburgerMenuSheet({ query }: { query: CONFIG_QUERY }) {
+// `footer` is rendered under the list (the language and currency switch on small screens).
+export function HamburgerMenuSheet({
+  query,
+  footer,
+}: {
+  query: CONFIG_QUERY;
+  footer?: React.ReactNode;
+}) {
+  const { t } = useI18n();
   const api = useMemo(() => create_api(make_client_access()), []);
 
   // Drill-down stack — root level has a null url_key (fetches the configured roots).
-  const [stack, setStack] = useState<Level[]>([{ url_key: null, name: "Menu" }]);
+  const root_level: Level = { url_key: null, name: t("header.menu") };
+  const [stack, setStack] = useState<Level[]>([root_level]);
   const current = stack[stack.length - 1];
 
   // Root uses the shared CONFIG_QUERY; deeper levels lazily list children by parent.
@@ -56,7 +70,7 @@ export function HamburgerMenuSheet({ query }: { query: CONFIG_QUERY }) {
 
   // Reset to root whenever the sheet is closed so it reopens at the top level.
   const onOpenChange = (open: boolean) => {
-    if (!open) setStack([{ url_key: null, name: "Menu" }]);
+    if (!open) setStack([root_level]);
   };
 
   return (
@@ -65,6 +79,7 @@ export function HamburgerMenuSheet({ query }: { query: CONFIG_QUERY }) {
         <Button
           variant="ghost"
           size="icon"
+          aria-label={t("header.menu")}
           className="relative cursor-pointer text-foreground"
         >
           <Menu />
@@ -79,7 +94,7 @@ export function HamburgerMenuSheet({ query }: { query: CONFIG_QUERY }) {
               className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
             >
               <ChevronLeft className="size-4" />
-              Back
+              {t("common.back")}
             </button>
           ) : null}
           <SheetTitle>{current.name}</SheetTitle>
@@ -89,11 +104,11 @@ export function HamburgerMenuSheet({ query }: { query: CONFIG_QUERY }) {
           {isLoading && <Spinner className="size-4 mx-4" />}
           {isError && (
             <span className="px-4 text-sm text-destructive">
-              Error: {(error as Error)?.message}
+              {t("common.error", { message: (error as Error)?.message })}
             </span>
           )}
           {!isLoading && !isError && items.length === 0 && (
-            <p className="px-4 text-sm text-muted-foreground">No data</p>
+            <p className="px-4 text-sm text-muted-foreground">{t("common.no_data")}</p>
           )}
           {items.map((category: CATEGORY) =>
             category.has_children ? (
@@ -118,6 +133,7 @@ export function HamburgerMenuSheet({ query }: { query: CONFIG_QUERY }) {
             ),
           )}
         </div>
+        {footer}
       </SheetContent>
     </Sheet>
   );

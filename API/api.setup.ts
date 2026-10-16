@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 // context/Api/API.config.ts
 import { API_BASE_URL } from "@/_CONFIG/app.config.json";
 import { _LOGGER } from "@/lib/logger";
@@ -100,7 +104,8 @@ export function create_fetch_engine(access: API_ACCESS) {
 
       if (val === undefined) throw new Error(`missing-route-param:${ph}`);
       if (val === null) val = "";
-      out = out.replace(new RegExp(ph, "g"), String(val));
+      // Cookie values: encoded, so a forged one stays a single path segment (`../../x` cannot climb).
+      out = out.replace(new RegExp(ph, "g"), encodeURIComponent(String(val)));
       // delete doubled slashes that could appear in the path because of last params could be empty
       out = out.replace(/([^:])\/\//g, "$1/");
     }
@@ -408,7 +413,8 @@ export function create_fetch_engine(access: API_ACCESS) {
     return fetch(`${API_BASE_URL}${path}${querys ? `${querys}` : ""}`, {
       ...init,
       headers,
-      signal: session_controller.signal,
+      // A caller's own signal (e.g. a timeout) counts too; logout still cancels everything.
+      signal: init.signal ? AbortSignal.any([session_controller.signal, init.signal]) : session_controller.signal,
     });
   }
 
@@ -492,12 +498,13 @@ export function create_fetch_engine(access: API_ACCESS) {
       return [err, undefined, meta];
     }
 
-    const data = (await res.json()) as T;
+    // 204 No Content (DELETE) has no body: parsing it would throw past the [error, data] contract.
+    const data = (res.status === 204 ? undefined : await res.json()) as T;
 
     _LOGGER({
       message: "REQUEST SUCCESSFUL => ",
       type: "success",
-      print: data,
+      print: null,
     });
 
     return [undefined, data, meta];
