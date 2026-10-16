@@ -8,7 +8,6 @@ import { useHydrated } from "@/lib/use-hydrated";
 import { Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
 import { MediaImage } from "@/components/ui/media-image.client";
 import { price_lines } from "@/lib/i18n/price-lines";
 import { useI18n } from "@/providers/i18n.provider";
@@ -16,249 +15,185 @@ import { QuantityStepper } from "@/components/ui/quantity-stepper";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
 import { useCartSync } from "@/stores/use-cart-sync";
+import type { CartItem } from "@/stores/cart.store";
+import type { Cart } from "@/utils/NORMALIZERS/cart.normalizer";
 import { UnitPrice } from "@/app/_components/layout/cart-price";
 import { DiscountCode } from "@/app/_components/layout/discount-code.client";
+import { CartAlerts } from "@/app/[customer_country]/checkout/_components/cart-alerts";
 import { CheckoutStepper } from "@/app/[customer_country]/checkout/_components/checkout-stepper";
+import { OrderSummaryCard, OrderTotals } from "@/app/[customer_country]/checkout/_components/order-totals";
+import { EmptyCart, OrderPageHeader } from "@/app/[customer_country]/checkout/_components/page-header";
 
-const num = (v: string | null | undefined) => {
-  const n = parseFloat(String(v));
-  return Number.isFinite(n) ? n : 0;
-};
-
-// Upper bound of a line: the available stock where it is known, else a soft limit
-// (the backend validation flags catch the rest).
 const SOFT_MAX = 99;
 const line_max = (stock: { quantity: number } | undefined) =>
   typeof stock?.quantity === "number" && stock.quantity > 0 ? stock.quantity : SOFT_MAX;
 
-// The cart as a page: lines on the left, the order summary beside them (below on
-// phones, with the total and "Go to checkout" pinned to the bottom).
+// Same frame as checkout: title, stepper, then a list column and a 20rem summary column.
 export function CartPageClient() {
   const { backend, isFetching, error, items, stocks, setQty, remove } = useCartSync();
   const mounted = useHydrated();
+  const i18n = useI18n();
+  const { t } = i18n;
 
   const entries = Object.entries(items);
   const pieces = entries.reduce((n, [, item]) => n + item.quantity, 0);
   const currency = backend?.currency || "";
-  const i18n = useI18n();
-  const { t } = i18n;
-  const fmt = (v: string | null | undefined) => i18n.price(v, currency);
-  const validation_ok = backend?.validation_status === "valid";
-  const total_savings = num(backend?.item_savings_gross) + num(backend?.total_discount_gross);
-  const applied_codes = (backend?.discounts ?? [])
-    .filter((d) => d.status === "valid" && d.code)
-    .map((d) => d.code);
-  const has_discount = !!backend?.total_discount_gross && backend.total_discount_gross !== "0.00";
-  const to_free_shipping =
-    backend?.amount_missing_for_free_shipping &&
-    backend.amount_missing_for_free_shipping !== "0.00"
-      ? backend.amount_missing_for_free_shipping
-      : null;
-
-  const heading = (
-    <div className="flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <h1 className="text-4xl md:text-5xl">{t("cart.page_title")}</h1>
-        {mounted && entries.length > 0 && (
-          <p className="mt-1 text-muted-foreground">
-            {t("cart.items_count", { count: pieces })}
-          </p>
-        )}
-      </div>
-      <CheckoutStepper current="cart" completed={new Set()} locked={new Set()} />
-    </div>
-  );
-
-  // Local storage is read after mount; until then nothing to say.
-  if (!mounted) {
-    return (
-      <div className="flex flex-col gap-6 py-4">
-        {heading}
-        <Spinner className="size-6" />
-      </div>
-    );
-  }
-
-  if (entries.length === 0) {
-    return (
-      <div className="flex flex-col gap-6 py-4">
-        {heading}
-        <div className="flex flex-col items-start gap-4 rounded-3xl bg-card p-8">
-          <p className="text-lg text-heading">{t("cart.empty")}</p>
-          <Button className="rounded-full" asChild>
-            <LinkDynamic href="/">{t("cart.start_shopping")}</LinkDynamic>
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  const has_items = mounted && entries.length > 0;
 
   return (
-    <div className="flex flex-col gap-6 pt-4 pb-28 lg:pb-4">
-      {heading}
+    <div className="mx-auto max-w-5xl pt-4 pb-28 lg:pb-4">
+      <OrderPageHeader
+        title={t("cart.page_title")}
+        meta={has_items ? t("cart.items_count", { count: pieces }) : undefined}
+      />
+      <CheckoutStepper current="cart" completed={new Set()} locked={new Set()} />
 
-      {error && (
-        <p className="rounded-2xl border border-destructive/50 bg-destructive-surface px-4 py-3 text-sm text-destructive">
-          {t("cart.sync_error")}
-        </p>
-      )}
-      {backend && !validation_ok && backend.errors.length > 0 && (
-        <p className="rounded-2xl border border-destructive/50 bg-destructive-surface px-4 py-3 text-sm text-destructive">
-          {t("cart.needs_attention")}
-        </p>
-      )}
+      <div className="mt-8">
+        {!mounted ? (
+          // Local storage is read after mount: hold the place of the list instead of a spinner.
+          <ListSkeleton />
+        ) : entries.length === 0 ? (
+          <EmptyCart message={t("cart.empty")} action={t("cart.start_shopping")} />
+        ) : (
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+            <section aria-label={t("cart.items_label")} className="flex min-w-0 flex-col gap-4">
+              <CartAlerts backend={backend} sync_failed={!!error} sync_message={t("cart.sync_error")} />
+              <ul className="flex flex-col divide-y rounded-lg border px-4">
+                {entries.map(([sku, item]) => (
+                  <CartLine
+                    key={sku}
+                    sku={sku}
+                    item={item}
+                    backend={backend}
+                    max={line_max(stocks?.[sku])}
+                    onQty={(q) => setQty(sku, q, line_max(stocks?.[sku]))}
+                    onRemove={() => remove(sku)}
+                  />
+                ))}
+              </ul>
+              <LinkDynamic href="/" className="link self-start text-sm font-semibold">
+                {t("common.continue_shopping")}
+              </LinkDynamic>
+            </section>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start">
-        <section aria-label={t("cart.items_label")} className="flex flex-col gap-3">
-          <ul className="flex flex-col gap-3">
-            {entries.map(([sku, item]) => {
-              const line = backend?.lines[sku];
-              const flagged = line?.is_limited || backend?.error_skus.has(sku);
-              const line_total = line
-                ? fmt(line.final_total_gross)
-                : price_lines(i18n, item.price).at(-1);
-              return (
-                <li
-                  key={sku}
-                  className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-4 rounded-3xl bg-card p-4 md:grid-cols-[6.5rem_minmax(0,1fr)_auto] md:items-center"
-                >
-                  <LinkDynamic
-                    href={`/product/${item.url_key}`}
-                    className="relative aspect-product overflow-hidden rounded-2xl bg-muted"
-                    tabIndex={-1}
-                    aria-hidden
-                  >
-                    <MediaImage
-                      src={item.media?.[0]?.[0]?.uri ?? image_placeholder}
-                      alt=""
-                      fill
-                      sizes="104px"
-                      className="object-cover"
-                    />
-                  </LinkDynamic>
-                  <div className="flex min-w-0 flex-col gap-1">
-                    <LinkDynamic
-                      href={`/product/${item.url_key}`}
-                      className="font-brand text-lg leading-snug text-heading hover:underline"
-                    >
-                      {item.name}
-                    </LinkDynamic>
-                    {line && <UnitPrice line={line} currency={currency} className="text-sm" />}
-                    {flagged && (
-                      <span className="self-start rounded-full bg-notice-surface px-2.5 py-0.5 text-xs font-semibold text-notice">
-                        {line?.status === "out_of_stock" ? t("product.out_of_stock") : t("cart.limited")}
-                      </span>
-                    )}
-                  </div>
-                  <div className="col-span-2 flex items-center justify-between gap-4 border-t border-border pt-3 md:col-span-1 md:border-0 md:pt-0">
-                    <QuantityStepper
-                      size="lg"
-                      value={item.quantity}
-                      onChange={(q) => setQty(sku, q, line_max(stocks?.[sku]))}
-                      min={0}
-                      max={line_max(stocks?.[sku])}
-                    />
-                    <div className="flex items-center gap-2 md:min-w-36 md:flex-col md:items-end md:gap-0">
-                      <span className="font-brand text-lg tabular-nums text-heading">{line_total}</span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="rounded-full text-muted-foreground"
-                        aria-label={t("cart.remove", { name: item.name })}
-                        onClick={() => remove(sku)}
-                      >
-                        <Trash2 aria-hidden />
-                        <span className="hidden md:inline">{t("cart.remove_short")}</span>
-                      </Button>
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-          <LinkDynamic href="/" className="link mt-2 self-start font-semibold">
-            {t("common.continue_shopping")}
-          </LinkDynamic>
-        </section>
-
-        <aside
-          aria-label={t("checkout.summary")}
-          className="flex flex-col gap-4 rounded-4xl bg-card p-6 lg:sticky lg:top-24"
-        >
-          <h2 className="text-2xl">{t("checkout.summary")}</h2>
-          <DiscountCode backend={backend} />
-          <dl className="flex flex-col gap-2 border-t border-border pt-4 text-sm">
-            <div className="flex justify-between gap-4">
-              <dt className="flex items-center gap-2 text-muted-foreground">
-                {t("cart.subtotal")}
-                {isFetching && <Spinner className="size-3" />}
-              </dt>
-              <dd className="tabular-nums">{fmt(backend?.items_subtotal_gross)}</dd>
-            </div>
-            {has_discount && (
-              <div className="flex justify-between gap-4">
-                <dt className="text-muted-foreground">
-                  {applied_codes.length
-                    ? t("checkout.discount_codes", { codes: applied_codes.join(", ") })
-                    : t("checkout.discount")}
-                </dt>
-                <dd className="tabular-nums text-positive">−{fmt(backend?.total_discount_gross)}</dd>
+            <OrderSummaryCard className="lg:sticky lg:top-24">
+              <div className="border-t pt-4">
+                <DiscountCode backend={backend} />
               </div>
-            )}
-            {/* Once checkout has chosen a method, the total includes it: show it so the rows add up. */}
-            <div className="flex justify-between gap-4">
-              <dt className="text-muted-foreground">{t("cart.shipping")}</dt>
-              {backend?.shipping_method && backend.shipping_gross != null ? (
-                <dd className="tabular-nums">
-                  {num(backend.shipping_gross) === 0 ? t("common.free") : fmt(backend.shipping_gross)}
-                </dd>
-              ) : (
-                <dd className="text-muted-foreground">{t("cart.shipping_at_checkout")}</dd>
-              )}
-            </div>
-            {num(backend?.fee_gross) > 0 && (
-              <div className="flex justify-between gap-4">
-                <dt className="text-muted-foreground">{t("checkout.payment_fee")}</dt>
-                <dd className="tabular-nums">{fmt(backend?.fee_gross)}</dd>
+              <div className="border-t pt-4">
+                <OrderTotals backend={backend} currency={currency} fetching={isFetching} shipping_pending />
               </div>
-            )}
-          </dl>
-          {to_free_shipping && (
-            <p className="-mt-2 text-xs text-muted-foreground">
-              {t("checkout.free_shipping_away", { amount: fmt(to_free_shipping) })}
-            </p>
-          )}
-          <div className="flex items-baseline justify-between gap-4 border-t border-border pt-4">
-            <span className="font-semibold text-heading">{t("cart.total")}</span>
-            <span className="font-brand text-3xl tabular-nums text-heading">{fmt(backend?.total_gross)}</span>
+              <Button size="lg" className="hidden h-12 rounded-full text-base lg:inline-flex" asChild>
+                <LinkDynamic href="/checkout">{t("cart.go_to_checkout")}</LinkDynamic>
+              </Button>
+            </OrderSummaryCard>
           </div>
-          {backend?.total_tax && (
-            <p className="-mt-3 text-right text-sm text-muted-foreground">
-              {t("cart.incl_vat", { amount: fmt(backend.total_tax) })}
-            </p>
-          )}
-          {total_savings > 0.005 && (
-            <p className="rounded-2xl bg-positive-surface px-4 py-2.5 text-sm font-semibold text-positive">
-              {t("cart.you_save_order", { amount: fmt(total_savings.toFixed(2)) })}
-            </p>
-          )}
-          <Button size="lg" className="hidden h-12 rounded-full text-base lg:inline-flex" asChild>
-            <LinkDynamic href="/checkout">{t("cart.go_to_checkout")}</LinkDynamic>
-          </Button>
-        </aside>
+        )}
       </div>
 
       {/* Phones and tablets: total and checkout always in reach. */}
-      <div className="fixed inset-x-0 bottom-0 z-20 flex items-center gap-3 border-t border-border bg-card px-4 pt-3 pb-5 lg:hidden">
-        <div className="flex-1">
-          <p className="text-xs text-muted-foreground">{t("cart.total_incl_vat")}</p>
-          <p className="font-brand text-xl tabular-nums text-heading">{fmt(backend?.total_gross)}</p>
+      {has_items && (
+        <div className="fixed inset-x-0 bottom-0 z-20 flex items-center gap-3 border-t border-border bg-card px-4 pt-3 pb-5 lg:hidden">
+          <div className="flex-1">
+            <p className="text-xs text-muted-foreground">{t("cart.total_incl_vat")}</p>
+            <p className="text-base font-semibold tabular-nums">{i18n.price(backend?.total_gross, currency)}</p>
+          </div>
+          <Button size="lg" className="h-12 rounded-full px-6" asChild>
+            <LinkDynamic href="/checkout">{t("cart.go_to_checkout")}</LinkDynamic>
+          </Button>
         </div>
-        <Button size="lg" className="h-12 rounded-full px-6" asChild>
-          <LinkDynamic href="/checkout">{t("cart.go_to_checkout")}</LinkDynamic>
-        </Button>
+      )}
+    </div>
+  );
+}
+
+// One line: picture, then name / unit price / availability with the line total on the right,
+// and quantity + remove under them. The total keeps one column, so amounts line up across lines.
+function CartLine({
+  sku,
+  item,
+  backend,
+  max,
+  onQty,
+  onRemove,
+}: {
+  sku: string;
+  item: CartItem;
+  backend: Cart | null | undefined;
+  max: number;
+  onQty: (quantity: number) => void;
+  onRemove: () => void;
+}) {
+  const i18n = useI18n();
+  const { t } = i18n;
+  const currency = backend?.currency || "";
+  const line = backend?.lines[sku];
+  const flagged = line?.is_limited || backend?.error_skus.has(sku);
+  const line_total = line ? i18n.price(line.final_total_gross, currency) : price_lines(i18n, item.price).at(-1);
+  const href = `/product/${item.url_key}`;
+
+  return (
+    <li className="flex gap-4 py-4">
+      <LinkDynamic
+        href={href}
+        className="relative aspect-product w-20 shrink-0 self-start overflow-hidden rounded-md bg-muted md:w-24"
+        tabIndex={-1}
+        aria-hidden
+      >
+        <MediaImage
+          src={item.media?.[0]?.[0]?.uri ?? image_placeholder}
+          alt=""
+          fill
+          sizes="96px"
+          className="object-cover"
+        />
+      </LinkDynamic>
+      <div className="flex min-w-0 flex-1 flex-col gap-3">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex min-w-0 flex-col gap-1">
+            <LinkDynamic href={href} className="text-base font-medium leading-snug text-heading hover:underline">
+              {item.name}
+            </LinkDynamic>
+            {line && <UnitPrice line={line} currency={currency} className="text-sm text-muted-foreground" />}
+            {flagged && (
+              <p className="text-xs text-destructive">
+                {line?.status === "out_of_stock" ? t("product.out_of_stock") : t("cart.limited")}
+              </p>
+            )}
+          </div>
+          <span className="shrink-0 text-right text-base font-medium tabular-nums">{line_total}</span>
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <QuantityStepper value={item.quantity} onChange={onQty} min={0} max={max} />
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="relative touch-target text-muted-foreground"
+            aria-label={t("cart.remove", { name: item.name })}
+            onClick={onRemove}
+          >
+            <Trash2 aria-hidden />
+            <span className="hidden md:inline">{t("cart.remove_short")}</span>
+          </Button>
+        </div>
       </div>
+    </li>
+  );
+}
+
+function ListSkeleton() {
+  return (
+    <div aria-hidden className="flex flex-col divide-y rounded-lg border px-4 lg:mr-[22rem]">
+      {[0, 1].map((i) => (
+        <div key={i} className="flex gap-4 py-4">
+          <div className="aspect-product w-20 shrink-0 animate-pulse rounded-md bg-muted md:w-24" />
+          <div className="flex flex-1 flex-col gap-2 pt-1">
+            <div className="h-4 w-2/3 animate-pulse rounded bg-muted" />
+            <div className="h-3 w-1/3 animate-pulse rounded bg-muted" />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
