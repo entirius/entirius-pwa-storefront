@@ -25,6 +25,8 @@ export const en = {
   "common.error": "Error: {message}",
   "common.try_again": "Something went wrong. Please try again.",
   "common.continue_shopping": "Continue shopping",
+  "common.show_more": "Show more",
+  "common.show_less": "Show less",
   "common.back_to_store": "Back to store",
   "common.pagination": "pagination",
 

@@ -22,6 +22,8 @@ export const pl: Record<MessageKey, Message> = {
   "common.error": "Błąd: {message}",
   "common.try_again": "Coś poszło nie tak. Spróbuj ponownie.",
   "common.continue_shopping": "Kontynuuj zakupy",
+  "common.show_more": "Rozwiń",
+  "common.show_less": "Zwiń",
   "common.back_to_store": "Wróć do sklepu",
   "common.pagination": "Paginacja",
 
