@@ -135,7 +135,7 @@ export function SearchProductRow({
         {special && product.sku && <OmnibusNote sku={product.sku} compact />}
         {product.on_stock === false && (
           <span data-sold-out-label className="mt-0.5 block text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-            {i18n.t("product.out_of_stock")}
+            {i18n.t("product.sold_out")}
           </span>
         )}
       </div>

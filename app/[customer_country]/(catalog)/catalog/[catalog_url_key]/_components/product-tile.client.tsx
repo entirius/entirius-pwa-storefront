@@ -87,7 +87,7 @@ export function ProductTile({
             data-sold-out-label
             className="absolute bottom-2 right-2 z-raised rounded-sm bg-background/90 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-foreground"
           >
-            {t("product.out_of_stock")}
+            {t("product.sold_out")}
           </span>
         )}
         {wishlist}
@@ -121,7 +121,7 @@ export function ProductTile({
             data-sold-out-label
             className="absolute bottom-2.5 left-2.5 z-raised rounded-sm bg-background/90 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-foreground"
           >
-            {t("product.out_of_stock")}
+            {t("product.sold_out")}
           </span>
         )}
         <ProductBadges
