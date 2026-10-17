@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+"use client"
+
 import * as React from "react"
 import { NavigationMenu as NavigationMenuPrimitive } from "radix-ui"
 import { cva } from "class-variance-authority"
@@ -103,20 +105,40 @@ function NavigationMenuContent({
   )
 }
 
+// The panel opens under the page header, whatever a theme puts above it or however tall it makes it:
+// the header's bottom edge is measured (it moves while a sticky header settles on scroll). Radix mounts the
+// viewport only while a panel is open, so the listeners live only that long (a ref callback's cleanup).
+function placeUnderHeader(viewport: HTMLDivElement | null) {
+  const wrap = viewport?.parentElement
+  const anchor = wrap?.closest("header") ?? wrap?.parentElement
+  if (!wrap || !anchor) return
+  const place = () => wrap.style.setProperty("--nav-panel-top", `${Math.max(0, anchor.getBoundingClientRect().bottom)}px`)
+  place()
+  const resize = new ResizeObserver(place)
+  resize.observe(anchor)
+  window.addEventListener("scroll", place, { passive: true })
+  window.addEventListener("resize", place)
+  return () => {
+    resize.disconnect()
+    window.removeEventListener("scroll", place)
+    window.removeEventListener("resize", place)
+  }
+}
+
 function NavigationMenuViewport({
   className,
   ...props
 }: React.ComponentProps<typeof NavigationMenuPrimitive.Viewport>) {
   return (
     <div
-      className={cn(
-        "fixed inset-x-0 top-16 isolate z-50 flex justify-center"
-      )}
+      className="fixed inset-x-0 top-[var(--nav-panel-top,4rem)] isolate z-50 flex justify-center"
     >
       <NavigationMenuPrimitive.Viewport
+        ref={placeUnderHeader}
         data-slot="navigation-menu-viewport"
         className={cn(
-          "origin-top bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 relative h-[var(--radix-navigation-menu-viewport-height)] w-full overflow-hidden border-x-0 border-b shadow",
+          // A long menu scrolls inside the panel; the page under it stays put.
+          "origin-top bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 relative h-[var(--radix-navigation-menu-viewport-height)] max-h-[calc(100dvh-var(--nav-panel-top,4rem))] w-full overflow-x-hidden overflow-y-auto overscroll-contain border-x-0 border-b shadow",
           className
         )}
         {...props}

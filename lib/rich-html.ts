@@ -19,6 +19,11 @@ export function description_html(text: string): string {
     .join("");
 }
 
+// Whether product text shows anything: a description of empty tags (`<p></p>`, `<p>&nbsp;</p>`) does not.
+export function has_text(html: string | null | undefined): boolean {
+  return !!html && /\S/.test(html.replace(/<[^>]*>|&nbsp;/g, ""));
+}
+
 type Attribute = { feature_idx?: string; feature_type?: string; value?: string | null; is_visible?: boolean };
 
 // A long-text attribute shown as its own section after the specification: a TEXT attribute whose value is

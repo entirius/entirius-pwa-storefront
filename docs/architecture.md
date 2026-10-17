@@ -172,7 +172,7 @@ Real-time stock of all variants is one `stock/` call with repeated `sku`.
   (link to `#related-products`) and the notify-similar action when the channel offers it. Hidden while the cookie
   banner is open (`html.show--consent`).
 - No quantity stepper when the real-time stock is exactly 1. Key facts: `PRODUCT.KEY_FACTS` (`key-facts.ts`).
-- Specification (`product-specs.tsx`): a value links to `/catalog/<category>?q_<idx>=<value>` when that attribute is a
+- Specification (`product-specs.tsx`), in the details column under the description (group names only when there are two or more groups; an empty description is not rendered): a value links to `/catalog/<category>?q_<idx>=<value>` when that attribute is a
   filter of the product's broadest category (`options/`) and offers the value. Long text: a TEXT attribute whose value
   is HTML, or an idx of `PRODUCT.STORY_ATTRIBUTES`, becomes a section of its own (`product-stories.tsx`,
   `is_story` in `lib/rich-html.ts`); external links open in a new tab. A description without HTML keeps its paragraphs.
