@@ -10,6 +10,7 @@ type ROUTE_POLICY = {
   optional_refresh?: boolean;
   default_querys?: string[];
   default_headers?: ([string, string] | Record<string, string | null>)[];
+  shared_cache?: boolean; // public GET, the same answer for every visitor: cached across requests (SHARED_CACHE_SECONDS)
 };
 
 type API_ACCESS = {

@@ -86,8 +86,15 @@ export const API_COOKIE_CONSENTS_ROUTE =
 // ------------------------------------------------------------
 // ------------------------------------------------------------
 
+// Server fetches of `shared_cache` routes go through the Next data cache, keyed on the full URL (channel in the
+// path, language in the query) and the headers. Only public catalogue and content GETs belong there: menu, footer,
+// layout slots and CMS pages, asked on every SSR. 60 s: a CMS publish shows within a minute, and under load the
+// layout costs one backend call per minute instead of five per page view. Never a cart, customer, checkout or
+// stock route; fetch_builder also skips any request that carries credentials.
+export const SHARED_CACHE_SECONDS = 60;
+
 export const API_ROUTES_POLICY = {
-  [API_CATEGORIES_ROUTE]: { default_querys: ["language"] },
+  [API_CATEGORIES_ROUTE]: { default_querys: ["language"], shared_cache: true },
   [API_PRODUCTS_ROUTE]: { default_querys: ["language", "currency", "country"] },
   [API_PRODUCT_VARIANTS_ROUTE]: { default_querys: ["language", "currency", "country"] },
   [API_SEARCH_ROUTE]: { default_querys: ["language", "currency", "country"] },
@@ -287,7 +294,7 @@ export const API_ROUTES_POLICY = {
   [API_CONTACT_SUBMIT_ROUTE]: {
     default_headers: [["X-API-KEY", "contact_forms_key"], { "Content-Type": "application/json" }],
   },
-  [API_CMS_STATIC_PAGE_ROUTE]: {},
-  [API_CMS_ROUTES_ROUTE]: {},
-  [API_CMS_FOOTER_ROUTE]: {},
+  [API_CMS_STATIC_PAGE_ROUTE]: { shared_cache: true },
+  [API_CMS_ROUTES_ROUTE]: { shared_cache: true },
+  [API_CMS_FOOTER_ROUTE]: { shared_cache: true },
 };

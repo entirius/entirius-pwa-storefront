@@ -3,6 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { profile_path } from "@/lib/profile-path";
 import { PROFILE_VIEWS, catalog_alternates, hreflang, language_alternates, page_alternates } from "./alternates";
 
 const EN = { profile: "default", language: "en", currency: "eur", channel: "c" };
@@ -64,6 +65,19 @@ describe("catalog_alternates", () => {
       ),
     );
     const found = await catalog_alternates("product", "a", first.language);
+    expect(found?.[hreflang(second)]).toBe(`/${second.profile}/product/b`);
+  });
+
+  it("does not ask again for the page's own profile when the page passes its key", async () => {
+    const [first, second] = PROFILE_VIEWS;
+    if (!second) return;
+    const fetch = vi.fn(async () =>
+      Response.json({ results: [{ url_key: "x", url_keys: { [second.language]: "b" } }] }),
+    );
+    vi.stubGlobal("fetch", fetch);
+    const found = await catalog_alternates("product", "a", first.language, first.profile, "a");
+    expect(fetch).toHaveBeenCalledTimes(PROFILE_VIEWS.length - 1);
+    expect(found?.[hreflang(first)]).toBe(profile_path(first.profile, "/product/a"));
     expect(found?.[hreflang(second)]).toBe(`/${second.profile}/product/b`);
   });
 });
