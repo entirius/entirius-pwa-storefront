@@ -13,6 +13,7 @@ import { SanitizeHTML } from "@/components/ui/sanitize-html";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { make_client_access } from "@/API/access/api.client-access";
 import { useCartStore } from "@/stores/cart.store";
+import { Alert } from "@/components/ui/alert";
 import { useI18n } from "@/providers/i18n.provider";
 import { transfer_details, useOrderReceipt, type OrderReceipt } from "./order-receipt";
 
@@ -45,9 +46,7 @@ export function CheckoutSuccessClient() {
             : t("checkout.success_text")}
       </p>
       {payment_failed && (
-        <p className="mb-6 rounded-md border border-destructive/50 bg-destructive-surface px-3 py-2 text-sm text-destructive">
-          {t("checkout.payment_start_failed")}
-        </p>
+        <Alert className="mb-6">{t("checkout.payment_start_failed")}</Alert>
       )}
       {transfer_note && (
         <p data-transfer-next className="mb-6 rounded-lg border bg-muted p-4 text-sm">

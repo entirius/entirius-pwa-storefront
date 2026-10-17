@@ -6,24 +6,22 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
-import { LinkDynamic } from "@/lib/link-dynamic";
+import { PageLoading } from "@/components/ui/spinner";
 import { NORM_CART, type Cart } from "@/utils/NORMALIZERS/cart.normalizer";
 import type { PlacedOrder } from "@/utils/NORMALIZERS/order.normalizer";
 import { cart_to_address_form } from "@/utils/validation/address.schema";
 import { useCartSync } from "@/stores/use-cart-sync";
 import { useI18n } from "@/providers/i18n.provider";
-import { cart_error_texts } from "@/utils/cart-errors";
 import { CheckoutStepper, type CheckoutStep } from "./checkout-stepper";
 import { CheckoutSummary } from "./checkout-summary";
+import { CartAlerts } from "@/app/_components/order/cart-alerts";
+import { EmptyCart, OrderPageHeader } from "@/app/_components/order/page-header";
 import { AddressStep } from "./address-step";
 import { ShippingStep } from "./shipping-step";
 import { PaymentStep } from "./payment-step";
 import { ReviewStep } from "./review-step";
 import { order_refs } from "./order-receipt";
 
-const LOCKED: Set<CheckoutStep> = new Set();
 
 export function CheckoutClient() {
   const { mounted, backend, isFetching, error, items, currency } = useCartSync();
@@ -58,30 +56,20 @@ export function CheckoutClient() {
 
   if (!mounted) {
     return (
-      <div className="flex justify-center py-16">
-        <Spinner />
-      </div>
+      <PageLoading />
     );
   }
 
   if (entries.length === 0) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-12">
-        <h1 className="mb-6 text-2xl">{t("checkout.title")}</h1>
-        <p className="text-muted-foreground py-8 text-center">
-          {t("checkout.empty")}
-        </p>
-        <div className="flex justify-center">
-          <Button asChild variant="outline">
-            <LinkDynamic href="/">{t("common.continue_shopping")}</LinkDynamic>
-          </Button>
-        </div>
+      <div className="mx-auto max-w-5xl py-4">
+        <OrderPageHeader title={t("checkout.title")} />
+        <EmptyCart message={t("checkout.empty")} action={t("common.continue_shopping")} />
       </div>
     );
   }
 
   const cart_ready = !!backend?.cart_id;
-  const validation_ok = backend?.validation_status === "valid";
 
   const onAddressSaved = (resp: unknown) => {
     setServerCart(NORM_CART(resp));
@@ -118,35 +106,22 @@ export function CheckoutClient() {
 
   return (
     <div className="mx-auto max-w-5xl py-4">
-      <div className="mb-6 flex items-center gap-3">
-        <h1 className="text-4xl md:text-5xl">{t("checkout.title")}</h1>
-        {isFetching && <Spinner className="size-4" />}
-      </div>
+      <OrderPageHeader title={t("checkout.title")} busy={isFetching} />
 
       <CheckoutStepper
         current={step}
         completed={completed}
-        locked={LOCKED}
         onStep={setStep}
       />
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_20rem]">
+      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="min-w-0">
-          {error && (
-            <p className="mb-4 rounded-md border border-destructive/50 bg-destructive-surface px-3 py-2 text-sm text-destructive">
-              {t("checkout.sync_error")}
-            </p>
-          )}
-          {backend && !validation_ok && backend.errors.length > 0 && (
-            <div className="mb-4 rounded-md border border-destructive/50 bg-destructive-surface px-3 py-2 text-sm text-destructive">
-              <p className="font-medium">{t("checkout.items_attention")}</p>
-              <ul className="mt-1 list-disc pl-5">
-                {cart_error_texts(backend.errors, t).map((text) => (
-                  <li key={text}>{text}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+          <CartAlerts
+            className="mb-4"
+            backend={backend}
+            sync_failed={!!error}
+            sync_message={t("checkout.sync_error")}
+          />
 
           {step === "address" ? (
             <AddressStep

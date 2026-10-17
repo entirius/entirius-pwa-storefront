@@ -7,7 +7,6 @@
 import { MediaImage } from "@/components/ui/media-image.client";
 import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
 import { LinkDynamic } from "@/lib/link-dynamic";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { WishlistButton } from "@/components/ui/wishlist-button";
 import { ProductPrice } from "./product-price.client";
 import { ProductBadges } from "./product-badges";
@@ -53,7 +52,7 @@ export function ProductTile({
     <WishlistButton
       sku={product.sku}
       item={wishlistItem}
-      className={compact ? "absolute top-2 right-2" : "absolute top-2 right-2 z-10"}
+      className={compact ? "absolute top-2 right-2" : "absolute top-2 right-2 z-raised"}
       variant={compact ? "ghost" : "secondary"}
       size={compact ? "icon-xs" : "icon-sm"}
       onClick={(e) => e.preventDefault()}
@@ -68,16 +67,16 @@ export function ProductTile({
         data-stock={sold_out ? "out" : "in"}
         className="grid grid-cols-[5rem_1fr] gap-3 rounded-xl bg-card bg-gradient-card p-2 group relative"
       >
-        <div className="size-20 rounded-md bg-muted overflow-hidden">
+        <div className="relative w-20 aspect-product self-start rounded-md bg-muted overflow-hidden">
           <MediaImage
             src={firstMedia.uri}
             alt={product.name}
-            width={80}
-            height={80}
-            className="object-cover size-full"
+            fill
+            sizes="80px"
+            className="object-cover unavailable:opacity-60 unavailable:grayscale"
           />
         </div>
-        <div className="min-w-0 self-center">
+        <div className="min-w-0 self-center unavailable:opacity-70">
           <h3 className="text-sm truncate">{product.name}</h3>
           <div className="mt-0.5">
             <ProductPrice price={product.price} sku={product.sku} compact />
@@ -86,9 +85,9 @@ export function ProductTile({
         {sold_out && (
           <span
             data-sold-out-label
-            className="absolute bottom-2 right-2 z-[1] rounded-sm bg-background/90 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-foreground"
+            className="absolute bottom-2 right-2 z-raised rounded-sm bg-background/90 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-foreground"
           >
-            {t("product.sold_out")}
+            {t("product.out_of_stock")}
           </span>
         )}
         {wishlist}
@@ -98,7 +97,7 @@ export function ProductTile({
 
   // In stock and with a price: the "+" quick add. Out of stock or price on request
   // leaves only the link to the product page.
-  const can_quick_add = product.purchasable && product.on_stock !== false;
+  const can_quick_add = product.purchasable && !sold_out;
 
   return (
     <LinkDynamic
@@ -108,21 +107,21 @@ export function ProductTile({
       data-single-piece={single_piece ? "" : undefined}
       className="flex h-full flex-col gap-3 rounded-3xl bg-card bg-gradient-card p-3 group relative transition-shadow hover:shadow-glow"
     >
-      <AspectRatio ratio={1 / 1} className="w-full rounded-2xl bg-muted overflow-hidden relative">
+      <div className="relative w-full aspect-product rounded-2xl bg-muted overflow-hidden">
         {wishlist}
         <MediaImage
           src={firstMedia.uri}
           alt={product.name}
           sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
           fill
-          className="object-cover group-hover:scale-105 transition-transform duration-300"
+          className="object-cover group-hover:scale-105 transition-transform duration-300 unavailable:opacity-60 unavailable:grayscale"
         />
         {sold_out && (
           <span
             data-sold-out-label
-            className="absolute bottom-2.5 left-2.5 z-[1] rounded-sm bg-background/90 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-foreground"
+            className="absolute bottom-2.5 left-2.5 z-raised rounded-sm bg-background/90 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-foreground"
           >
-            {t("product.sold_out")}
+            {t("product.out_of_stock")}
           </span>
         )}
         <ProductBadges
@@ -130,16 +129,16 @@ export function ProductTile({
           percent_off={product.percent_off}
           className="absolute top-2.5 left-2.5 right-12"
         />
-      </AspectRatio>
+      </div>
 
-      <div className="flex flex-1 flex-col gap-1 px-1">
+      <div className="flex flex-1 flex-col gap-1 px-1 unavailable:opacity-70">
         <h3 className="text-base leading-snug line-clamp-2 text-heading">{product.name}</h3>
         {product.description && (
           <p className="text-xs text-muted-foreground line-clamp-2">{plain_text(product.description)}</p>
         )}
         {single_piece && <p className="text-xs font-medium text-heading">{single_piece}</p>}
       </div>
-      <div className="flex items-end justify-between gap-2 px-1 pb-1">
+      <div className="flex items-end justify-between gap-2 px-1 pb-1 unavailable:opacity-70">
         <ProductPrice price={product.price} sku={product.sku} />
         {can_quick_add && (
           <QuickAdd

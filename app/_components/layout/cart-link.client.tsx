@@ -9,7 +9,7 @@ import { ShoppingBag } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { LinkDynamic } from "@/lib/link-dynamic";
-import { Spinner } from "@/components/ui/spinner";
+import { CountBadge } from "./count-badge";
 import { useCartStore } from "@/stores/cart.store";
 import { useI18n } from "@/providers/i18n.provider";
 
@@ -30,18 +30,12 @@ export function CartLink() {
         mounted && count > 0 ? t("cart.link_label", { count }) : t("header.cart")
       }
       className={cn(
-        "relative inline-flex size-9 items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent hover:text-accent-foreground [&_svg]:size-4",
+        "relative inline-flex size-9 touch-target items-center justify-center rounded-control text-foreground transition-colors hover:bg-accent hover:text-accent-foreground [&_svg]:size-4",
         on_cart && "bg-accent text-accent-foreground",
       )}
     >
       <ShoppingBag />
-      {!mounted ? (
-        <Spinner className="absolute -top-1 -right-1 size-3" />
-      ) : count > 0 ? (
-        <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground">
-          {count}
-        </span>
-      ) : null}
+      <CountBadge count={count} mounted={mounted} />
     </LinkDynamic>
   );
 }

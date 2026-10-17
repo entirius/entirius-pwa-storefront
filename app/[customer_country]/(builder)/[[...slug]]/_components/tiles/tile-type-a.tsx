@@ -124,7 +124,7 @@ export default function TileTypeA({
         )}
         <div
           className={cn(
-            "relative z-10",
+            "relative z-raised",
             variant_styles.content,
             dye_styles.content_bg,
           )}

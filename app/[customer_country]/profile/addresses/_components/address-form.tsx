@@ -5,7 +5,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { useForm, useWatch, type Control, type Path } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
@@ -21,21 +21,9 @@ import {
 } from "@/components/ui/sheet";
 import {
   Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+  FormError,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+import { CheckboxField, SelectField, TextField } from "@/components/ui/form-fields";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useCountryOptions } from "@/utils/checkout-countries";
@@ -113,20 +101,7 @@ export function AddressFormSheet({
               <TextField control={form.control} name="telephone" label={t("address.phone")} type="tel" autoComplete="tel-national" />
             </div>
 
-            <FormField
-              control={form.control}
-              name="is_company"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex items-center gap-2">
-                    <FormControl>
-                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                    </FormControl>
-                    <FormLabel className="text-sm font-normal">{t("profile.company_address")}</FormLabel>
-                  </div>
-                </FormItem>
-              )}
-            />
+            <CheckboxField control={form.control} name="is_company" label={t("profile.company_address")} />
             {is_company && (
               <div className="grid gap-4 sm:grid-cols-2">
                 <TextField control={form.control} name="company" label={t("address.company")} autoComplete="organization" />
@@ -134,9 +109,7 @@ export function AddressFormSheet({
               </div>
             )}
 
-            {form.formState.errors.root && (
-              <p className="text-sm text-destructive">{form.formState.errors.root.message}</p>
-            )}
+            <FormError>{form.formState.errors.root?.message}</FormError>
             <Button type="submit" disabled={pending}>
               {pending ? <Spinner className="size-4" /> : t("profile.save_address")}
             </Button>
@@ -144,87 +117,5 @@ export function AddressFormSheet({
         </Form>
       </SheetContent>
     </Sheet>
-  );
-}
-
-function TextField({
-  control,
-  name,
-  label,
-  type = "text",
-  autoComplete,
-}: {
-  control: Control<CustomerAddressFormValues>;
-  name: Path<CustomerAddressFormValues>;
-  label: string;
-  type?: string;
-  autoComplete?: string;
-}) {
-  return (
-    <FormField
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>{label}</FormLabel>
-          <FormControl>
-            <Input
-              type={type}
-              autoComplete={autoComplete}
-              {...field}
-              value={(field.value as string) ?? ""}
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  );
-}
-
-function SelectField({
-  control,
-  name,
-  label,
-  options,
-  onSelect,
-}: {
-  control: Control<CustomerAddressFormValues>;
-  name: Path<CustomerAddressFormValues>;
-  label: string;
-  options: { value: string; label: string }[];
-  onSelect?: (value: string) => void;
-}) {
-  return (
-    <FormField
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>{label}</FormLabel>
-          <Select
-            value={(field.value as string) ?? ""}
-            onValueChange={(v) => {
-              field.onChange(v);
-              onSelect?.(v);
-            }}
-          >
-            <FormControl>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent>
-              {options.map((o) => (
-                <SelectItem key={o.value} value={o.value}>
-                  {o.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
   );
 }

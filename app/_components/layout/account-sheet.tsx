@@ -12,6 +12,7 @@ import {
   Sheet,
   SheetContent,
   SheetHeader,
+  SheetDescription,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
@@ -63,9 +64,12 @@ export function AccountSheet() {
           <User />
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" aria-describedby={undefined}>
+      <SheetContent side="right">
         <SheetHeader>
           <SheetTitle>{title}</SheetTitle>
+          <SheetDescription>
+            {view === "register" ? t("auth.create_account_intro") : t("auth.sign_in_intro")}
+          </SheetDescription>
         </SheetHeader>
         {view === "register" ? (
           <RegisterForm

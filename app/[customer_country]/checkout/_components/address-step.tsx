@@ -21,22 +21,11 @@ import {
 } from "@/utils/validation/address.schema";
 import {
   Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+  FormError,
+  FormSection,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
+import { CheckboxField, SelectField, TextField } from "@/components/ui/form-fields";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Spinner } from "@/components/ui/spinner";
 import { useCountryOptions } from "@/utils/checkout-countries";
 import { useI18n } from "@/providers/i18n.provider";
@@ -145,37 +134,19 @@ export function AddressStep({
           </div>
         )}
 
-        <fieldset className="flex flex-col gap-4">
-          <legend className="mb-2 text-sm font-semibold text-muted-foreground">
-            {t("checkout.billing_details")}
-          </legend>
+        <FormSection title={t("checkout.billing_details")}>
           <TextField
             control={form.control}
             name="billing.email"
             label={t("address.email")}
+            hint={t("checkout.email_hint")}
             type="email"
             autoComplete="email"
           />
           <AddressFields control={form.control} prefix="billing" form={form} />
-        </fieldset>
+        </FormSection>
 
-        <FormField
-          control={form.control}
-          name="requested_invoice"
-          render={({ field }) => (
-            <FormItem>
-              <label className="flex items-center gap-2">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <span className="text-sm">{t("checkout.request_invoice")}</span>
-              </label>
-            </FormItem>
-          )}
-        />
+        <CheckboxField control={form.control} name="requested_invoice" label={t("checkout.request_invoice")} />
         {requested_invoice && (
           <div className="grid gap-4 sm:grid-cols-2">
             <TextField control={form.control} name="company" label={t("address.company")} />
@@ -183,37 +154,14 @@ export function AddressStep({
           </div>
         )}
 
-        <FormField
-          control={form.control}
-          name="ship_to_different"
-          render={({ field }) => (
-            <FormItem>
-              <label className="flex items-center gap-2">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <span className="text-sm">{t("checkout.ship_to_different")}</span>
-              </label>
-            </FormItem>
-          )}
-        />
+        <CheckboxField control={form.control} name="ship_to_different" label={t("checkout.ship_to_different")} />
         {ship_to_different && (
-          <fieldset className="flex flex-col gap-4">
-            <legend className="mb-2 text-sm font-semibold text-muted-foreground">
-              {t("checkout.shipping_address")}
-            </legend>
+          <FormSection title={t("checkout.shipping_address")}>
             <AddressFields control={form.control} prefix="shipping" form={form} />
-          </fieldset>
+          </FormSection>
         )}
 
-        {form.formState.errors.root && (
-          <p className="text-sm text-destructive">
-            {form.formState.errors.root.message}
-          </p>
-        )}
+        <FormError>{form.formState.errors.root?.message}</FormError>
 
         {!cartReady && (
           <p className="text-xs text-muted-foreground">{t("checkout.preparing")}</p>
@@ -281,90 +229,8 @@ function AddressFields({
           label={t("address.dialling_code")}
           options={dialling.map((d) => ({ value: d, label: d }))}
         />
-        <TextField control={control} name={`${prefix}.telephone` as Path<AddressFormValues>} label={t("address.phone")} type="tel" autoComplete="tel-national" />
+        <TextField control={control} name={`${prefix}.telephone` as Path<AddressFormValues>} label={t("address.phone")} hint={t("checkout.phone_hint")} type="tel" autoComplete="tel-national" />
       </div>
     </>
-  );
-}
-
-function TextField({
-  control,
-  name,
-  label,
-  type = "text",
-  autoComplete,
-}: {
-  control: Control<AddressFormValues>;
-  name: Path<AddressFormValues>;
-  label: string;
-  type?: string;
-  autoComplete?: string;
-}) {
-  return (
-    <FormField
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>{label}</FormLabel>
-          <FormControl>
-            <Input
-              type={type}
-              autoComplete={autoComplete}
-              {...field}
-              value={(field.value as string) ?? ""}
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  );
-}
-
-function SelectField({
-  control,
-  name,
-  label,
-  options,
-  onSelect,
-}: {
-  control: Control<AddressFormValues>;
-  name: Path<AddressFormValues>;
-  label: string;
-  options: { value: string; label: string }[];
-  onSelect?: (value: string) => void;
-}) {
-  return (
-    <FormField
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>{label}</FormLabel>
-          <Select
-            value={(field.value as string) ?? ""}
-            onValueChange={(v) => {
-              field.onChange(v);
-              onSelect?.(v);
-            }}
-          >
-            <FormControl>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent>
-              {options.map((o) => (
-                <SelectItem key={o.value} value={o.value}>
-                  {o.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
   );
 }

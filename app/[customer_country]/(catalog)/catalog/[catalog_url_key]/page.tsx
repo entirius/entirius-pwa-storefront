@@ -12,6 +12,7 @@ import { build_catalog_metadata, build_catalog_jsonld } from "@/lib/seo/build";
 import { catalog_alternates } from "@/lib/seo/alternates";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { SanitizeHTML } from "@/components/ui/sanitize-html";
+import { ExpandableText } from "@/components/ui/expandable-text.client";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 import { ListingClient } from "./_components/listing.client";
 import { LinkDynamic } from "@/lib/link-dynamic";
@@ -46,6 +47,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     languages: await catalog_alternates("catalog", category.url_key ?? catalog_url_key, language),
   });
 }
+
+// Plain-text length above which the category description is expected to need the "Show more" link.
+const LONG_DESCRIPTION = 160;
 
 export default async function CatalogPage({ params, searchParams }: Props) {
   const { customer_country, ...route } = await params;
@@ -105,16 +109,19 @@ export default async function CatalogPage({ params, searchParams }: Props) {
     >
       {jsonLd && <JsonLd data={jsonLd} />}
       {category && (
-        <header className="mb-6 flex flex-col gap-4">
+        <header data-catalog-header className="mb-6 flex flex-col gap-4">
           <PageBreadcrumbs trail={category_trail(category.breadcrumbs)} />
-          <div className="flex flex-wrap items-end justify-between gap-4 rounded-4xl bg-card bg-gradient-backdrop p-6 md:p-10">
+          <div className="surface flex flex-wrap items-end justify-between gap-4 bg-gradient-backdrop">
             <div>
               <h1 className="text-4xl leading-tight md:text-5xl">{category.name}</h1>
               {category.description && (
-                <SanitizeHTML
-                  html={category.description}
+                // Size and colour sit on the wrapper (the h1's next sibling, a theme hook); the text inherits them.
+                <ExpandableText
                   className="mt-1 text-muted-foreground md:text-lg"
-                />
+                  likely_long={category.description.replace(/<[^>]*>/g, "").length > LONG_DESCRIPTION}
+                >
+                  <SanitizeHTML html={category.description} />
+                </ExpandableText>
               )}
             </div>
             {subcategories.length > 0 && (
@@ -123,7 +130,7 @@ export default async function CatalogPage({ params, searchParams }: Props) {
                   <LinkDynamic
                     key={sub.url_key}
                     href={`/catalog/${sub.url_key}`}
-                    className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-heading transition-colors hover:bg-accent hover:text-accent-foreground"
+                    className="rounded-chip border border-border bg-card px-4 py-2 text-sm font-medium text-heading transition-colors hover:bg-accent hover:text-accent-foreground"
                   >
                     {sub.name}
                   </LinkDynamic>

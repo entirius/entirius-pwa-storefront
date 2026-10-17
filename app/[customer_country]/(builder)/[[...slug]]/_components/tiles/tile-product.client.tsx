@@ -14,7 +14,7 @@ import { cms_product_by_sku_query } from "../../api.query";
 export function ProductTileSkeleton() {
   return (
     <div className="flex flex-col gap-2" aria-hidden>
-      <div className="aspect-square w-full animate-pulse rounded-xl bg-muted" />
+      <div className="aspect-product w-full animate-pulse rounded-xl bg-muted" />
       <div className="h-4 w-3/4 rounded bg-muted" />
       <div className="h-5 w-1/3 rounded bg-muted" />
     </div>

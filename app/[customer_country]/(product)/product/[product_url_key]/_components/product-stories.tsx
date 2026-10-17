@@ -12,7 +12,7 @@ export function ProductStories({ stories }: { stories: Story[] }) {
       key={story.idx}
       data-product-story={story.idx}
       aria-labelledby={`story-${story.idx}`}
-      className="grid gap-6 rounded-4xl bg-card p-6 md:grid-cols-[minmax(12rem,1fr)_3fr] md:p-10"
+      className="surface-divided grid gap-6 md:grid-cols-[minmax(12rem,1fr)_3fr]"
     >
       <h2 id={`story-${story.idx}`} className="text-2xl md:text-3xl">
         {story.name}

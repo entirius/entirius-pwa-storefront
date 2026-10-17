@@ -19,8 +19,9 @@ import {
 } from "@/utils/NORMALIZERS/cart.normalizer";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { PageLoading, Spinner } from "@/components/ui/spinner";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { FormError, FormHeading } from "@/components/ui/form";
 import { useI18n } from "@/providers/i18n.provider";
 // Payment methods offered for the cart; the review step reads the same entry for the method text.
 export function usePaymentMethods(cart_id: string | undefined) {
@@ -87,15 +88,13 @@ export function PaymentStep({
   let body: ReactNode;
   if (isLoading) {
     body = (
-      <div className="flex justify-center py-12">
-        <Spinner />
-      </div>
+      <PageLoading className="min-h-48" />
     );
   } else if (isError || !methods || methods.length === 0) {
     // No methods, or the request failed. Degrade gracefully.
     body = (
       <div className="rounded-lg border border-dashed p-8 text-center">
-        <h2 className="text-lg">{t("checkout.step_payment")}</h2>
+        <FormHeading>{t("checkout.step_payment")}</FormHeading>
         <p className="text-muted-foreground mx-auto mt-2 max-w-sm text-sm">
           {t("checkout.no_payment")}
         </p>
@@ -151,7 +150,7 @@ export function PaymentStep({
           })}
         </RadioGroup>
 
-        {saveError && <p className="text-destructive text-sm">{saveError}</p>}
+        <FormError>{saveError}</FormError>
 
         <div className="flex gap-3">
           <Button variant="outline" onClick={onBack} disabled={pending}>

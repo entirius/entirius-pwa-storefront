@@ -21,6 +21,7 @@ import { TokenLinks } from "@/components/ui/token-links";
 import { PRIVACY_ROUTE, TERMS_ROUTE } from "@/lib/checkout-config";
 import { order_refs, save_receipt, type OrderReceipt } from "./order-receipt";
 import { usePaymentMethods } from "./payment-step";
+import { CheckLabel, FormError } from "@/components/ui/form";
 import { useI18n } from "@/providers/i18n.provider";
 
 export function ReviewStep({
@@ -139,11 +140,10 @@ export function ReviewStep({
         </p>
       )}
 
-      <label className="flex items-start gap-3 text-sm" data-terms-consent>
+      <CheckLabel data-terms-consent>
         <Checkbox
           checked={accepted}
           onCheckedChange={(v) => setAccepted(v === true)}
-          className="mt-0.5"
           aria-required
         />
         <span>
@@ -155,9 +155,9 @@ export function ReviewStep({
             }}
           />
         </span>
-      </label>
+      </CheckLabel>
 
-      {error && <p className="text-destructive text-sm">{error}</p>}
+      <FormError>{error}</FormError>
 
       <div className="flex gap-3">
         <Button variant="outline" onClick={onBack} disabled={pending}>
@@ -181,7 +181,7 @@ function AddressCard({ title, a }: { title: string; a: CartAddress }) {
   const name = [a.firstname, a.lastname].filter(Boolean).join(" ");
   const phone = [a.dialling_code, a.telephone].filter(Boolean).join(" ");
   return (
-    <section className="rounded-lg border p-4 text-sm">
+    <section className="surface-outline text-sm">
       <h3 className="text-muted-foreground mb-2 text-xs uppercase">
         {title}
       </h3>
@@ -212,7 +212,7 @@ function InfoCard({
 }) {
   const { t } = useI18n();
   return (
-    <section className="rounded-lg border p-4 text-sm">
+    <section className="surface-outline text-sm">
       <h3 className="text-muted-foreground mb-2 text-xs uppercase">
         {title}
       </h3>

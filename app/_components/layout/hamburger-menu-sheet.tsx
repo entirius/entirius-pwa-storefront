@@ -91,7 +91,7 @@ export function HamburgerMenuSheet({
             <button
               type="button"
               onClick={goBack}
-              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+              className="relative flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground touch-target"
             >
               <ChevronLeft className="size-4" />
               {t("common.back")}

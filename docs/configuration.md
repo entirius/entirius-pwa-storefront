@@ -52,11 +52,25 @@ The template ships the two channels of the reference dataset (`default-europe`, 
 ## Client theme (`theme.css`)
 
 Loaded in `app/layout.tsx` right after `app/globals.css`, so it overrides the values of the theme variables
-(`--primary`, `--radius`, …) without touching components. Fonts: set `--font-family-sans`; self-host them with
+(`--primary`, `--control-radius`, …) without touching components. `--control-radius` is the corner of every control
+of one height (buttons, inputs, select, input group, quantity stepper; default 8px, `0` = square); `--chip-radius` the corner
+of outlined round icon buttons (wishlist, gallery and carousel arrows) and text chips (sort, subcategories; default
+`9999px`, a pill). Also overridable: `--spacing-touch` (minimum touch target) and `--swatch-cross` (the stroke over an unavailable colour
+swatch). Migration: text buttons used to be pills (`rounded-full`); they now take `--control-radius` (8px). A theme that
+wants pill buttons sets `--control-radius: 9999px`, which rounds the inputs, select and stepper the same way. Section containers (`surface`, `surface-sm`, `surface-divided`) read `--surface-bg`, `--surface-radius`,
+`--surface-padding` / `--surface-padding-lg` / `--surface-padding-sm` and `--surface-divider`; a flat theme sets the
+background to `transparent`, paddings and radius to `0` and the divider to `var(--border)`, and the content lines up
+with the breadcrumbs. `surface-outline` keeps its border, the brand radius (`rounded-lg`) and `--surface-outline-padding`; `--surface-backdrop` is the
+category header's gradient (`none` turns it off). Other panel and card
+corners come from `--brand-radius-*`, and `--radius` only reaches the cookie banner's dialog. Fonts: set `--font-family-sans` (text) and `--font-family-brand` (headings, prices, wordmark; defaults to Lexend Deca);
+self-host them with
 `@font-face` and `url("./assets/...")` relative to the file. The dark set sits under `html.dark`, which a `:root`
 rule in the theme cannot beat. `--leading` is the colour of CMS dyes (`bg-leading`, `text-leading`); white text
-sits on it. Layout slot wrappers carry `data-layout-slot="<slot>"` for theme rules, and every CMS section and tile
-sits in a `display: contents` wrapper with `data-cms-type="<core_type>"`.
+sits on it. `--product-image-ratio` (width / height, default `1 / 1`) shapes every product photo: listing, PDP gallery,
+cart, checkout, search, wishlist. Layout slot wrappers carry `data-layout-slot="<slot>"` for theme rules, and every CMS section and tile
+sits in a `display: contents` wrapper with `data-cms-type="<core_type>"`. The product page root carries `data-product-page`,
+the category header `data-catalog-header`; product tiles and search rows carry `data-product-tile` and
+`data-stock="in|out"`, and an out-of-stock tile's label `data-sold-out-label`.
 
 ## Message overrides (`messages.config.json`)
 

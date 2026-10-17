@@ -70,7 +70,7 @@ const FilterRange = memo(function FilterRange({
               variant="ghost"
               size="xs"
               aria-label={t("catalog.reset_filter", { label })}
-              className="h-6 px-1.5 text-xs text-muted-foreground hover:text-destructive"
+              className="relative h-6 px-1.5 text-xs touch-target text-muted-foreground hover:text-destructive"
               onClick={handle_reset}
             >
               <X className="size-3" />

@@ -18,13 +18,9 @@ import { merge_cart_on_login } from "@/stores/cart-login";
 import { client_login } from "@/lib/auth-client";
 import {
   Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+  FormError,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { TextField } from "@/components/ui/form-fields";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { DEBUG_MODE } from "@/_CONFIG/app.config.json";
@@ -104,41 +100,9 @@ export function LoginForm({
             {notice}
           </p>
         )}
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("auth.email")}</FormLabel>
-              <FormControl>
-                <Input type="email" autoComplete="email" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("auth.password")}</FormLabel>
-              <FormControl>
-                <Input
-                  type="password"
-                  autoComplete="current-password"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {form.formState.errors.root && (
-          <p className="text-sm text-destructive">
-            {form.formState.errors.root.message}
-          </p>
-        )}
+        <TextField control={form.control} name="email" label={t("auth.email")} type="email" autoComplete="email" />
+        <TextField control={form.control} name="password" label={t("auth.password")} type="password" autoComplete="current-password" />
+        <FormError>{form.formState.errors.root?.message}</FormError>
         <Button type="submit" disabled={pending}>
           {pending ? <Spinner className="size-4" /> : t("auth.sign_in")}
         </Button>

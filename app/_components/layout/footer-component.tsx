@@ -47,7 +47,7 @@ export async function FooterComponent() {
           </p>
         </div>
         {columns.length > 0 && (
-          <nav aria-label={t("footer.nav")} className="col-span-2 grid grid-cols-2 gap-8 md:col-span-3 md:grid-cols-3">
+          <nav aria-label={t("footer.nav")} className="col-span-2 grid grid-cols-2 gap-8 md:col-span-3 md:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))]">
             {columns.map((column, i) => (
               <div key={`${i}-${column.heading}`} className="flex flex-col gap-3">
                 {column.heading && (

@@ -6,7 +6,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -22,6 +23,7 @@ import {
 import {
   InputGroup,
   InputGroupAddon,
+  InputGroupButton,
   InputGroupInput,
   InputGroupText,
 } from "@/components/ui/input-group";
@@ -72,7 +74,7 @@ export function SearchSheet() {
           variant="ghost"
           size="icon"
           aria-label={t("header.search")}
-          className="cursor-pointer text-foreground md:h-10 md:w-56 md:justify-start md:gap-2 md:rounded-full md:border md:border-border md:bg-background md:px-4 md:text-muted-foreground lg:w-72"
+          className="cursor-pointer text-foreground md:h-10 md:w-56 md:justify-start md:gap-2 md:rounded-control md:border md:border-border md:bg-background md:px-4 md:text-muted-foreground lg:w-72"
         >
           <Search />
           <span className="hidden text-sm font-normal md:inline">{t("search.trigger")}</span>
@@ -81,6 +83,7 @@ export function SearchSheet() {
       <SheetContent
         side="top"
         aria-describedby={undefined}
+        showCloseButton={false}
         className="max-h-[85vh] gap-0 overflow-y-auto"
       >
         <SheetHeader className="border-b border-border">
@@ -97,11 +100,18 @@ export function SearchSheet() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
             />
-            {isFetching && enabled && (
-              <InputGroupAddon align="inline-end">
-                <Spinner className="size-4" />
-              </InputGroupAddon>
-            )}
+            <InputGroupAddon align="inline-end">
+              {isFetching && enabled && <Spinner className="size-4" />}
+              <SheetClose asChild>
+                <InputGroupButton
+                  size="icon-sm"
+                  aria-label={t("common.close")}
+                  className="relative touch-target cursor-pointer"
+                >
+                  <X />
+                </InputGroupButton>
+              </SheetClose>
+            </InputGroupAddon>
           </InputGroup>
         </SheetHeader>
 

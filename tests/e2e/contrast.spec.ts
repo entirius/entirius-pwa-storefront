@@ -38,6 +38,8 @@ const PAIRS: Record<string, Pair> = {
   // Product labels (product-badges.tsx); sale/bestseller reuse the button pairs above.
   "new label": { fg: "background", bg: "informative", min: TEXT },
   "neutral label": { fg: "foreground", bg: "muted", min: TEXT },
+  // --input is the field border on hover; the resting --field-border is lighter on purpose (below 3:1, a design
+  // decision) and is left out of this check.
   "form control boundary": { fg: "input", bg: "background", min: UI },
   "focus ring": { fg: "ring", bg: "background", min: UI },
   "active indicator": { fg: "highlight", bg: "card", min: UI },

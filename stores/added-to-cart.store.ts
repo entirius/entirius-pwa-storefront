@@ -12,6 +12,8 @@ export type AddedItem = {
   // Price of one unit, as the product shows it (rendered with price_lines).
   price: Price | null;
   image: string | null;
+  // The chosen variant as "axis: option" pairs (Rozmiar: S/M); empty for a simple product.
+  options?: { axis: string; value: string }[];
 };
 
 type AddedToCartStore = {

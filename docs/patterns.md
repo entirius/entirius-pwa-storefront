@@ -84,6 +84,11 @@ The catalog page's `build_params()` helper strips prefixes before forwarding to 
   `{ gross, currency, final_gross?, from? }` (or `null`: price on request); `price_lines(i18n, price)` turns it
   into the list price and the special price.
 - Dates follow `i18n.language`; country names `i18n.country(code)`.
+- Review checklist for any UI change: no literal text in JSX or in `aria-*`, `placeholder`, `title`, `alt`, `sr-only`,
+  toasts, `generateMetadata`; an existing key reused before a new one is added (`grep` `en.ts`); the new key sits in
+  `en.ts` and every other language file; no key a client override in `messages.config.json` would collide with
+  (a client overrides existing keys by name, so renaming or repurposing a key breaks them silently). Debug-only
+  tooling behind `DEBUG_MODE` is exempt.
 
 ## Gotchas
 

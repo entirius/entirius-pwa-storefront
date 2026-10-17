@@ -52,7 +52,7 @@ export function SearchResults({
               key={p.text}
               type="button"
               onClick={() => onPhrase(p.text)}
-              className="flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-accent"
+              className="flex items-center gap-2 rounded-md px-2 py-1.5 pointer-coarse:min-h-touch text-left text-sm transition-colors hover:bg-accent"
             >
               <Search className="size-3.5 shrink-0 text-muted-foreground" />
               <span className="truncate">{p.text}</span>
@@ -72,7 +72,7 @@ export function SearchResults({
                 key={c.idx ?? c.url_key}
                 href={`/catalog/${c.url_key}`}
                 onClick={onNavigate}
-                className="flex items-center justify-between gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-accent"
+                className="flex items-center justify-between gap-2 rounded-md px-2 py-1.5 pointer-coarse:min-h-touch text-sm transition-colors hover:bg-accent"
               >
                 <span className="flex items-center gap-2 truncate">
                   <Tag className="size-3.5 shrink-0 text-muted-foreground" />

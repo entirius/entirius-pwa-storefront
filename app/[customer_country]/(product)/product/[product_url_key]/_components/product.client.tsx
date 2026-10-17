@@ -6,6 +6,7 @@
 import Link from "next/link";
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { PageLoading } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { SanitizeHTML } from "@/components/ui/sanitize-html";
@@ -41,6 +42,11 @@ const PLACEHOLDER_MEDIA = [[{ uri: image_placeholder, width: 600, height: 600 }]
 
 // `related`: the streamed similar-products section (it renders nothing when there are none), placed here by
 // stock. Whether it holds any is read from the DOM by CSS (`has-[[data-related-products]]`).
+// Long names step the title down one size, so a two-line name does not dominate the column.
+const LONG_TITLE = 40;
+const title_size = (name: string) =>
+  name.length > LONG_TITLE ? "text-xl md:text-2xl" : "text-2xl md:text-3xl";
+
 export function ProductClient({ product_url_key, related }: { product_url_key: string; related: ReactNode }) {
   const { t, language } = useI18n();
   const api = useMemo(() => create_api(make_client_access()), []);
@@ -71,7 +77,7 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
   const [notify_open, setNotifyOpen] = useState(false);
   const buy_area = useRef<HTMLDivElement>(null);
 
-  if (isLoading) return <div>{t("common.loading")}</div>;
+  if (isLoading) return <PageLoading />;
   if (error || !product) return <div>{t("product.not_found")}</div>;
 
   const purchasable = !!configurable || product.purchasable;
@@ -101,10 +107,15 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
     add(buy, qty, max);
     show_added({
       sku: buy.sku,
-      name: buy.name,
+      // The variant goes on its own line, so the product name without the "(S/M)" suffix.
+      name: configurable ? product.name : buy.name,
       quantity: qty,
       price: buy.price,
       image: media[0]?.[0]?.uri ?? null,
+      options: configurable?.axes.flatMap((axis) => {
+        const option = axis.options.find((o) => o.value === configurable.selection[axis.idx]);
+        return option ? [{ axis: axis.label, value: option.label }] : [];
+      }),
     });
   };
   // Until stock answers the button stays "Add to cart" (disabled), so an
@@ -140,111 +151,113 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
       <Gallery media={media} name={product.name} />
 
       {/* Product info */}
-      <section aria-label={t("product.details")} className="flex flex-col gap-5 rounded-4xl bg-card p-6 md:p-8">
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">
-            {product.brands?.length > 0 ? (
-              <span>{product.brands.map((b: { name: string }) => b.name).join(", ")}</span>
-            ) : (
-              <span />
-            )}
-            <span className="font-mono text-xs">{product.sku}</span>
-          </div>
+      <section aria-label={t("product.details")} className="surface flex flex-col gap-8">
+        {/* Meta: who, what, which. */}
+        <div className="flex flex-col gap-3">
+          {product.brands?.length > 0 && (
+            <p className="text-xs text-muted-foreground">
+              {product.brands.map((b: { name: string }) => b.name).join(", ")}
+            </p>
+          )}
           <ProductBadges badges={product.badges} percent_off={product.percent_off} />
-          <h1 className="text-3xl leading-tight md:text-4xl">{product.name}</h1>
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
-            {configurable ? (
-              <VariantPrice price={configurable.price} from={configurable.price_from} large />
-            ) : (
-              <ProductPrice price={product.price} sku={product.sku} large />
-            )}
-            {purchasable && (
-              <span className="pb-1.5 text-sm text-muted-foreground">{t("product.incl_vat")}</span>
-            )}
-          </div>
+          <h1 className={cn("text-balance leading-tight", title_size(product.name))}>{product.name}</h1>
           {facts && (
             <p data-key-facts className="text-sm text-muted-foreground">
               {facts}
             </p>
           )}
+          <p data-product-sku className="text-xs text-muted-foreground">
+            {t("product.sku_line", { sku: product.sku })}
+          </p>
         </div>
 
-        {configurable && <VariantPicker {...configurable} />}
+        {/* Price and whether it can be bought now. */}
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            {configurable ? (
+              <VariantPrice price={configurable.price} from={configurable.price_from} large />
+            ) : (
+              <ProductPrice price={product.price} sku={product.sku} large />
+            )}
+            {purchasable && <span className="text-xs text-muted-foreground">{t("product.incl_vat")}</span>}
+          </div>
+          {purchasable && !stockPending && (!configurable || configurable.buy) && (
+            <p className="flex items-center gap-2 text-sm">
+              <span
+                aria-hidden
+                className={inStock ? "size-2 rounded-full bg-positive" : "size-2 rounded-full bg-muted-foreground"}
+              />
+              {inStock ? t("product.in_stock") : t("product.out_of_stock")}
+            </p>
+          )}
+        </div>
+
+        {/* Actions. */}
+        <div className="flex flex-col gap-3">
+          {configurable && <VariantPicker {...configurable} />}
+          <div ref={buy_area} data-buy-area className="flex items-center gap-2 md:gap-3">
+            {!single_piece && (
+              <>
+                <span className="sr-only">{t("product.quantity")}</span>
+                <QuantityStepper
+                  size="lg"
+                  value={Math.min(qty, Math.max(max, 1))}
+                  onChange={setQty}
+                  max={Math.max(max, 1)}
+                  disabled={!canBuy}
+                />
+              </>
+            )}
+            <Button size="lg" className="min-w-0 flex-1 px-4 md:px-6" disabled={!canBuy} onClick={add_to_cart}>
+              {cta_label}
+            </Button>
+            <WishlistButton
+              sku={product.sku}
+              item={{
+                sku: product.sku,
+                name: product.name,
+                url_key: product_url_key,
+                price: product.price,
+                description: product.description ?? "",
+                media: media,
+              }}
+              variant="outline"
+              size="icon-lg"
+              className="shrink-0 rounded-chip"
+            />
+          </div>
+          {sold_out && (
+            <NotifySimilar
+              body={notify_body(product, category?.name, NOTIFY_ATTRIBUTES)}
+              code={product.sku}
+              trigger_label={t("product.notify_similar")}
+              open={notify_open}
+              onOpenChange={setNotifyOpen}
+            />
+          )}
+
+          {/* Without a price the enquiry is the way to buy; with one it stays a quiet question. */}
+          <EnquiryForm
+            form_type={PRODUCT_ENQUIRY_TYPE}
+            slug={PRODUCT_ENQUIRY_TYPE}
+            context={{ sku: product.sku, name: product.name }}
+            collapsed_label={purchasable ? t("product.ask_about") : t("product.ask_price")}
+            collapsed_primary={!purchasable}
+          />
+        </div>
 
         {product.description && (
-          <SanitizeHTML html={description_html(product.description)} className="text-muted-foreground" />
+          <div className="border-t pt-8">
+            <SanitizeHTML html={description_html(product.description)} className="text-muted-foreground" />
+          </div>
         )}
-
-        {purchasable && !stockPending && (!configurable || configurable.buy) && (
-          <p className="flex items-center gap-2 text-sm">
-            <span
-              aria-hidden
-              className={inStock ? "size-2 rounded-full bg-positive" : "size-2 rounded-full bg-muted-foreground"}
-            />
-            {inStock ? t("product.in_stock") : t("product.out_of_stock")}
-          </p>
-        )}
-
-        <div ref={buy_area} data-buy-area className="flex flex-wrap items-center gap-3">
-          {!single_piece && (
-            <>
-              <span className="sr-only">{t("product.quantity")}</span>
-              <QuantityStepper
-                size="lg"
-                value={Math.min(qty, Math.max(max, 1))}
-                onChange={setQty}
-                max={Math.max(max, 1)}
-                disabled={!canBuy}
-              />
-            </>
-          )}
-          <Button size="lg" className="flex-1 rounded-full" disabled={!canBuy} onClick={add_to_cart}>
-            {cta_label}
-          </Button>
-          <WishlistButton
-            sku={product.sku}
-            item={{
-              sku: product.sku,
-              name: product.name,
-              url_key: product_url_key,
-              price: product.price,
-              description: product.description ?? "",
-              media: media,
-            }}
-            variant="outline"
-            size="icon-lg"
-            className="rounded-full"
-          />
-        </div>
-
-        {sold_out && (
-          <NotifySimilar
-            body={notify_body(product, category?.name, NOTIFY_ATTRIBUTES)}
-            code={product.sku}
-            trigger_label={t("product.notify_similar")}
-            open={notify_open}
-            onOpenChange={setNotifyOpen}
-          />
-        )}
-
-        {/* Without a price the enquiry is the way to buy; with one it stays a quiet question. */}
-        <EnquiryForm
-          form_type={PRODUCT_ENQUIRY_TYPE}
-          slug={PRODUCT_ENQUIRY_TYPE}
-          context={{ sku: product.sku, name: product.name }}
-          collapsed_label={purchasable ? t("product.ask_about") : t("product.ask_price")}
-          collapsed_primary={!purchasable}
-        />
 
         {sold && related_section}
       </section>
     </div>
 
       {product.specs?.length > 0 && (
-        <div className="rounded-4xl bg-card p-6 md:p-10">
+        <div className="surface-divided">
           <ProductSpecs groups={product.specs} categories={product.categories} />
         </div>
       )}

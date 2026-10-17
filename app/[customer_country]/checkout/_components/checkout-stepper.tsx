@@ -4,7 +4,7 @@
 
 "use client";
 
-import { Check, Lock } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import type { MessageKey } from "@/lib/i18n/translate";
@@ -19,80 +19,82 @@ export const CHECKOUT_STEPS: { id: CheckoutStep; label: MessageKey }[] = [
   { id: "review", label: "checkout.step_review" },
 ];
 
-const pill = "flex h-9 items-center gap-2 rounded-full border px-3 text-sm";
-const badge = "flex size-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold";
+type Crumb = { key: string; label: string; state: "done" | "current" | "next"; go?: () => void; href?: string };
 
-// The order steps as pills: the cart first (a link back from checkout), then the
-// checkout steps. `current="cart"` is the cart page.
+// The order steps as breadcrumbs: done steps are links back (the cart, completed checkout steps), the current one
+// is plain bold text, the next ones muted text. Phones get "Step 2 of 5 · Address" and a segment bar instead.
+// `current="cart"` is the cart page.
 export function CheckoutStepper({
   current,
   completed,
-  locked,
   onStep,
 }: {
   current: CheckoutStep | "cart";
   completed: Set<CheckoutStep>;
-  locked: Set<CheckoutStep>;
   onStep?: (step: CheckoutStep) => void;
 }) {
   const { t } = useI18n();
-  const on_cart = current === "cart";
+  const crumbs: Crumb[] = [
+    current === "cart"
+      ? { key: "cart", label: t("cart.title"), state: "current" }
+      : { key: "cart", label: t("cart.title"), state: "done", href: "/cart" },
+    ...CHECKOUT_STEPS.map((step): Crumb => {
+      const state = step.id === current ? "current" : completed.has(step.id) ? "done" : "next";
+      return {
+        key: step.id,
+        label: t(step.label),
+        state,
+        go: state === "done" && onStep ? () => onStep(step.id) : undefined,
+      };
+    }),
+  ];
+  const position = crumbs.findIndex((c) => c.state === "current");
+
   return (
-    <ol aria-label={t("checkout.steps")} className="flex flex-wrap items-center gap-2">
-      <li>
-        {on_cart ? (
-          <span aria-current="step" className={cn(pill, "border-primary bg-primary text-primary-foreground")}>
-            <span className={cn(badge, "bg-primary-foreground/20")}>1</span>
-            {t("cart.title")}
-          </span>
-        ) : (
-          <LinkDynamic href="/cart" className={cn(pill, "border-border bg-card text-heading hover:bg-accent")}>
-            <span className={cn(badge, "bg-accent text-accent-foreground")}>
-              <Check className="size-3.5" aria-hidden />
-            </span>
-            {t("cart.title")}
-          </LinkDynamic>
-        )}
-      </li>
-      {CHECKOUT_STEPS.map((step, i) => {
-        const is_current = step.id === current;
-        const is_done = completed.has(step.id);
-        const is_locked = locked.has(step.id);
-        const can_go = !!onStep && (is_done || is_current) && !is_locked;
-        return (
-          <li key={step.id}>
-            <button
-              type="button"
-              disabled={!can_go}
-              aria-current={is_current ? "step" : undefined}
-              onClick={can_go ? () => onStep!(step.id) : undefined}
-              className={cn(
-                pill,
-                is_current && "border-primary bg-primary text-primary-foreground",
-                is_done && !is_current && "border-border bg-card text-heading",
-                !is_current && !is_done && "border-border bg-card text-muted-foreground",
-                can_go && !is_current ? "cursor-pointer hover:bg-accent" : "cursor-default",
-              )}
-            >
-              <span
-                className={cn(
-                  badge,
-                  is_current ? "bg-primary-foreground/20" : is_done ? "bg-accent text-accent-foreground" : "bg-muted",
-                )}
-              >
-                {is_locked ? (
-                  <Lock className="size-3" aria-hidden />
-                ) : is_done && !is_current ? (
-                  <Check className="size-3.5" aria-hidden />
-                ) : (
-                  i + 2
-                )}
-              </span>
-              <span className={cn(!is_current && "hidden sm:inline")}>{t(step.label)}</span>
-            </button>
+    <nav aria-label={t("checkout.steps")}>
+      <ol className="hidden flex-wrap items-center gap-x-2 gap-y-1 text-sm sm:flex">
+        {crumbs.map((crumb, i) => (
+          <li key={crumb.key} className="flex items-center gap-2">
+            {i > 0 && <ChevronRight className="size-3.5 text-muted-foreground" aria-hidden />}
+            <CrumbLabel crumb={crumb} />
           </li>
-        );
-      })}
-    </ol>
+        ))}
+      </ol>
+      <div className="flex flex-col gap-2 sm:hidden">
+        <p className="text-sm">
+          {t("checkout.step_of", { current: position + 1, total: crumbs.length, label: crumbs[position]?.label ?? "" })}
+        </p>
+        <div aria-hidden className="grid grid-flow-col gap-1">
+          {crumbs.map((crumb, i) => (
+            <span key={crumb.key} className={cn("h-0.5 rounded-full", i <= position ? "bg-foreground" : "bg-border")} />
+          ))}
+        </div>
+      </div>
+    </nav>
   );
+}
+
+function CrumbLabel({ crumb }: { crumb: Crumb }) {
+  if (crumb.state === "current") {
+    return (
+      <span aria-current="step" className="font-semibold text-heading">
+        {crumb.label}
+      </span>
+    );
+  }
+  if (crumb.href) {
+    return (
+      <LinkDynamic href={crumb.href} className="link relative touch-target">
+        {crumb.label}
+      </LinkDynamic>
+    );
+  }
+  if (crumb.go) {
+    return (
+      <button type="button" onClick={crumb.go} className="link relative touch-target cursor-pointer">
+        {crumb.label}
+      </button>
+    );
+  }
+  return <span className="text-muted-foreground">{crumb.label}</span>;
 }

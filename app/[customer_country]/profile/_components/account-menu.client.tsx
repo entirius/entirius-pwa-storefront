@@ -41,14 +41,14 @@ export function AccountMenu() {
 
   const item_class = (active: boolean) =>
     cn(
-      "flex min-h-11 shrink-0 items-center gap-3 rounded-2xl px-3 text-sm font-medium transition-colors",
+      "flex min-h-touch shrink-0 items-center gap-3 rounded-2xl px-3 text-sm font-medium transition-colors",
       active ? "bg-accent text-accent-foreground" : "text-heading hover:bg-muted",
     );
 
   return (
     <nav
       aria-label={t("header.account")}
-      className="flex gap-1 overflow-x-auto rounded-3xl bg-card p-2 md:flex-col md:overflow-visible"
+      className="flex gap-1 overflow-x-auto surface-sm md:flex-col md:overflow-visible"
     >
       {ITEMS.map(({ href, label, icon: Icon, exact }) => {
         const active = exact ? path === href : path.startsWith(href);

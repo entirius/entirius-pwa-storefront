@@ -5,6 +5,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { Spinner } from "@/components/ui/spinner";
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
 import { API_PRODUCTS_ROUTE } from "@/API/api.routes";
@@ -20,7 +21,7 @@ interface TileTypeBProps extends CmsSectionBaseProps {
 function TileShell({ children }: { children?: React.ReactNode }) {
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-      <div className="aspect-square w-full flex items-center justify-center bg-muted">
+      <div className="aspect-product w-full flex items-center justify-center bg-muted">
         {children}
       </div>
       <div className="p-2.5 flex flex-col gap-1">
@@ -57,7 +58,7 @@ export default function TileTypeB({ url_key }: TileTypeBProps) {
   if (isLoading) {
     return (
       <TileShell>
-        <div className="size-5 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
+        <Spinner className="size-5 text-muted-foreground" />
       </TileShell>
     );
   }

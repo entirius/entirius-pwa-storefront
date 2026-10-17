@@ -15,15 +15,10 @@ import {
 import { client_register } from "@/lib/auth-client";
 import {
   Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+  FormError,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { CheckboxField, TextField } from "@/components/ui/form-fields";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Spinner } from "@/components/ui/spinner";
 import { useI18n } from "@/providers/i18n.provider";
 
@@ -63,90 +58,12 @@ export function RegisterForm({
   return (
     <Form {...form}>
       <form onSubmit={submit} className="flex flex-col gap-4 p-4">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("auth.email")}</FormLabel>
-              <FormControl>
-                <Input type="email" autoComplete="email" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("auth.password")}</FormLabel>
-              <FormControl>
-                <Input type="password" autoComplete="new-password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="confirm_password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("auth.confirm_password")}</FormLabel>
-              <FormControl>
-                <Input type="password" autoComplete="new-password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="consent_terms"
-          render={({ field }) => (
-            <FormItem>
-              <div className="flex items-start gap-2">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <FormLabel className="text-sm font-normal leading-snug">
-                  {t("auth.accept_terms")}
-                </FormLabel>
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="consent_data"
-          render={({ field }) => (
-            <FormItem>
-              <div className="flex items-start gap-2">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <FormLabel className="text-sm font-normal leading-snug">
-                  {t("auth.consent_data")}
-                </FormLabel>
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {form.formState.errors.root && (
-          <p className="text-sm text-destructive">
-            {form.formState.errors.root.message}
-          </p>
-        )}
+        <TextField control={form.control} name="email" label={t("auth.email")} type="email" autoComplete="email" />
+        <TextField control={form.control} name="password" label={t("auth.password")} hint={t("auth.password_hint")} type="password" autoComplete="new-password" />
+        <TextField control={form.control} name="confirm_password" label={t("auth.confirm_password")} type="password" autoComplete="new-password" />
+        <CheckboxField control={form.control} name="consent_terms" label={t("auth.accept_terms")} />
+        <CheckboxField control={form.control} name="consent_data" label={t("auth.consent_data")} />
+        <FormError>{form.formState.errors.root?.message}</FormError>
         <Button type="submit" disabled={pending}>
           {pending ? <Spinner className="size-4" /> : t("auth.create_account")}
         </Button>

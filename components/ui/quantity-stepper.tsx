@@ -35,7 +35,7 @@ export function QuantityStepper({
     <div
       className={cn(
         "flex items-center",
-        large ? "h-10 rounded-full border border-border bg-card" : "gap-1",
+        large ? "h-10 rounded-control border border-border bg-card" : "gap-1",
         className,
       )}
     >
@@ -43,7 +43,6 @@ export function QuantityStepper({
         type="button"
         variant={large ? "ghost" : "outline"}
         size={large ? "icon-lg" : "icon-sm"}
-        className={cn(large && "rounded-full")}
         aria-label={t("cart.decrease")}
         disabled={disabled || value <= min}
         onClick={() => onChange(clamp(value - 1))}
@@ -52,7 +51,7 @@ export function QuantityStepper({
       </Button>
       <span
         aria-live="polite"
-        className={cn("min-w-8 text-center tabular-nums", large ? "font-semibold" : "text-sm")}
+        className="min-w-8 text-center text-sm tabular-nums"
       >
         {value}
       </span>
@@ -60,7 +59,6 @@ export function QuantityStepper({
         type="button"
         variant={large ? "ghost" : "outline"}
         size={large ? "icon-lg" : "icon-sm"}
-        className={cn(large && "rounded-full")}
         aria-label={t("cart.increase")}
         disabled={disabled || value >= max}
         onClick={() => onChange(clamp(value + 1))}

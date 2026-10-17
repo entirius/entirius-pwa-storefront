@@ -50,7 +50,7 @@ export function OrderDetails({ order }: { order: Order }) {
           <SectionHeader icon={<Package className="size-3.5 text-primary" />}>
             {t("orders.items_heading", { count: items.length })}
           </SectionHeader>
-          <div className="overflow-hidden rounded-xl border border-border bg-card">
+          <div className="overflow-hidden rounded-lg border border-border bg-card">
             {items.map((item, idx) => (
               <div
                 key={item.sku ?? idx}
@@ -117,7 +117,7 @@ export function OrderDetails({ order }: { order: Order }) {
           <SectionHeader icon={<Truck className="size-3.5 text-primary" />}>
             {t("checkout.shipping_address")}
           </SectionHeader>
-          <div className="rounded-xl border border-border bg-card px-5 py-3">
+          <div className="surface-outline bg-card">
             <p className="text-sm font-bold">
               {shipping.firstname} {shipping.lastname}
             </p>
@@ -162,7 +162,7 @@ export function OrderDetails({ order }: { order: Order }) {
           <SectionHeader icon={<CreditCard className="size-3.5 text-primary" />}>
             {t("orders.payment")}
           </SectionHeader>
-          <div className="overflow-hidden rounded-xl border border-border bg-card">
+          <div className="overflow-hidden rounded-lg border border-border bg-card">
             {order.payment_methods.map((method, idx) => (
               <div
                 key={method.code ?? idx}
@@ -190,7 +190,7 @@ export function OrderDetails({ order }: { order: Order }) {
           <SectionHeader icon={<CreditCard className="size-3.5 text-primary" />}>
             {t("checkout.billing_address")}
           </SectionHeader>
-          <div className="rounded-xl border border-border bg-card px-5 py-3">
+          <div className="surface-outline bg-card">
             <p className="text-sm font-bold">
               {billing.firstname} {billing.lastname}
             </p>
@@ -215,7 +215,7 @@ export function OrderDetails({ order }: { order: Order }) {
         <SectionHeader icon={<Receipt className="size-3.5 text-primary" />}>
           {t("orders.summary")}
         </SectionHeader>
-        <div className="rounded-xl border border-border bg-card px-5 py-3">
+        <div className="surface-outline bg-card">
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">{t("orders.items_net")}</span>
             <span className="text-sm">
@@ -261,7 +261,7 @@ export function OrderDetails({ order }: { order: Order }) {
           <SectionHeader icon={<Receipt className="size-3.5 text-primary" />}>
             {t("orders.comment")}
           </SectionHeader>
-          <div className="rounded-xl border border-border bg-card px-5 py-3">
+          <div className="surface-outline bg-card">
             <p className="text-sm text-muted-foreground">{order.comment}</p>
           </div>
         </section>

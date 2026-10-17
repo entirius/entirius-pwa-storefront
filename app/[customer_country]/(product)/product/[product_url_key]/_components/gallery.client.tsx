@@ -44,13 +44,13 @@ export function Gallery({ media, name }: { media: GalleryMedia; name: string }) 
     <div
       data-gallery
       onKeyDown={on_key}
-      className="rounded-4xl bg-card p-3 md:sticky md:top-24 md:self-start"
+      className="surface-sm md:sticky md:top-24 md:self-start"
     >
       <div className="relative">
         <div
           ref={track}
           onScroll={() => track.current && setIndex(slide_index(track.current))}
-          className="flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain rounded-3xl bg-muted [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain rounded-[max(0px,calc(var(--surface-radius)-var(--surface-padding-sm)))] bg-muted [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {media.map((variants, i) => (
             <button
@@ -59,7 +59,7 @@ export function Gallery({ media, name }: { media: GalleryMedia; name: string }) 
               tabIndex={i === index ? 0 : -1}
               onClick={() => setViewer(true)}
               aria-label={t("product.gallery_open", { number: i + 1 })}
-              className="relative aspect-square w-full shrink-0 cursor-zoom-in snap-center snap-always overflow-hidden"
+              className="relative aspect-product w-full shrink-0 cursor-zoom-in snap-center snap-always overflow-hidden"
             >
               <MediaImage
                 src={variants[0].uri}
@@ -88,7 +88,7 @@ export function Gallery({ media, name }: { media: GalleryMedia; name: string }) 
               aria-label={t("product.previous_slide")}
               disabled={index === 0}
               onClick={() => go(index - 1)}
-              className="absolute left-2 top-1/2 hidden size-8 -translate-y-1/2 rounded-full md:inline-flex"
+              className="absolute left-2 top-1/2 hidden size-8 -translate-y-1/2 rounded-chip md:inline-flex"
             >
               <ArrowLeft />
             </Button>
@@ -99,7 +99,7 @@ export function Gallery({ media, name }: { media: GalleryMedia; name: string }) 
               aria-label={t("product.next_slide")}
               disabled={index === count - 1}
               onClick={() => go(index + 1)}
-              className="absolute right-2 top-1/2 hidden size-8 -translate-y-1/2 rounded-full md:inline-flex"
+              className="absolute right-2 top-1/2 hidden size-8 -translate-y-1/2 rounded-chip md:inline-flex"
             >
               <ArrowRight />
             </Button>
@@ -118,11 +118,12 @@ export function Gallery({ media, name }: { media: GalleryMedia; name: string }) 
               aria-current={i === index ? "true" : undefined}
               onClick={() => go(i)}
               className={cn(
-                "relative aspect-square overflow-hidden rounded-2xl bg-muted ring-1",
+                "relative aspect-product overflow-hidden rounded-2xl bg-muted ring-1",
                 i === index ? "ring-2 ring-primary" : "ring-border hover:ring-primary",
               )}
             >
-              <MediaImage src={variants[0].uri} alt="" fill sizes="96px" className="object-cover" />
+              {/* One of five columns in the half-width gallery: about a tenth of the viewport, at most 128px. */}
+              <MediaImage src={variants[0].uri} alt="" fill sizes="(min-width: 1280px) 128px, 10vw" className="object-cover" />
             </button>
           ))}
         </div>

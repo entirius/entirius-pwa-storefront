@@ -14,7 +14,7 @@ import { scroll_behavior, slide_index, type GalleryMedia } from "./gallery-utils
 const MAX_SCALE = 4;
 const DOUBLE_TAP_MS = 300;
 const EDGE_BUTTON =
-  "absolute top-1/2 z-[1] hidden h-16 w-12 -translate-y-1/2 items-center justify-center text-heading " +
+  "absolute top-1/2 z-raised hidden h-16 w-12 -translate-y-1/2 items-center justify-center text-heading " +
   "outline-none focus-visible:ring-1 focus-visible:ring-ring md:flex";
 
 // One picture that zooms by double tap / double click (2.5x) and by pinch (up to 4x). The zoomed picture is a
@@ -164,7 +164,7 @@ export function GalleryViewer({
       aria-modal="true"
       aria-label={t("product.gallery_viewer", { name })}
       onKeyDown={on_key}
-      className="fixed inset-0 z-[60] bg-background outline-none"
+      className="fixed inset-0 z-viewer bg-background outline-none"
     >
       <div
         ref={track}
@@ -186,7 +186,7 @@ export function GalleryViewer({
         type="button"
         aria-label={t("common.close")}
         onClick={() => onClose(index)}
-        className="absolute right-[max(0.5rem,env(safe-area-inset-right))] top-[max(0.5rem,env(safe-area-inset-top))] grid size-11 place-items-center rounded-full bg-background/70 text-heading outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="absolute right-[max(0.5rem,env(safe-area-inset-right))] top-[max(0.5rem,env(safe-area-inset-top))] grid size-touch place-items-center rounded-full bg-background/70 text-heading outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <X className="size-6" strokeWidth={1.5} />
       </button>

@@ -15,6 +15,7 @@ export const en = {
   // common
   "common.loading": "Loading",
   "common.close": "Close",
+  "common.more_info": "More information",
   "common.back": "Back",
   "common.save": "Save",
   "common.cancel": "Cancel",
@@ -24,8 +25,12 @@ export const en = {
   "common.error": "Error: {message}",
   "common.try_again": "Something went wrong. Please try again.",
   "common.continue_shopping": "Continue shopping",
+  "common.show_more": "Show more",
+  "common.show_less": "Show less",
   "common.back_to_store": "Back to store",
   "common.pagination": "pagination",
+  "common.carousel": "carousel",
+  "common.slide": "slide",
 
   // header
   "header.menu": "Menu",
@@ -41,6 +46,7 @@ export const en = {
   // cart drawer
   "cart.title": "Cart",
   "cart.empty": "Your cart is empty",
+  "cart.empty_hint": "Have an account? Sign in to see your saved cart.",
   "cart.sync_error": "Couldn’t sync with the server. Showing local items.",
   "cart.needs_attention": "Some items need attention before checkout.",
   "cart.limited": "Limited availability",
@@ -86,6 +92,7 @@ export const en = {
   "cart.error_generic": "Something is wrong with an item in your cart. Check the cart and try again.",
   "wishlist.title": "Wishlist",
   "wishlist.empty": "Your wishlist is empty",
+  "wishlist.empty_hint": "Tap the heart on a product to save it for later.",
   "wishlist.add": "Add to wishlist",
   "wishlist.remove": "Remove from wishlist",
   "wishlist.save": "Save",
@@ -112,8 +119,11 @@ export const en = {
   // account sheet and auth forms
   "auth.sign_in": "Sign in",
   "auth.create_account": "Create account",
+  "auth.sign_in_intro": "Sign in to track your orders and use your saved addresses.",
+  "auth.create_account_intro": "With an account you check out faster and can track your orders.",
   "auth.email": "Email",
   "auth.password": "Password",
+  "auth.password_hint": "At least 8 characters, upper and lower case, 2 digits, 2 special characters.",
   "auth.confirm_password": "Confirm password",
   "auth.accept_terms": "I accept the terms of service and privacy policy.",
   "auth.consent_data": "I consent to the processing of my personal data.",
@@ -178,6 +188,7 @@ export const en = {
   "product.show_image": "Show image {number}",
   "product.details": "Product details",
   "product.incl_vat": "incl. VAT",
+  "product.sku_line": "SKU: {sku}",
   "product.in_stock": "In stock",
   "product.not_available_online": "Not available online",
   "product.specifications": "Specifications",
@@ -186,7 +197,7 @@ export const en = {
   "product.ask_price": "Ask for the price",
   "product.notify_similar": "Tell me when a similar product arrives",
   "product.notify_short": "Notify me",
-  "product.related": "Similar products in stock",
+  "product.related": "Similar products",
   "product.related_sold": "This product is no longer available. Similar ones are in stock now.",
   "product.see_similar": "See similar",
   "product.gallery_open": "Open picture {number} full screen",
@@ -196,6 +207,7 @@ export const en = {
 
   // contact forms
   "enquiry.title": "Contact us",
+  "enquiry.intro": "We’ll reply to the email address you give us.",
   "enquiry.name": "Your name",
   "enquiry.email": "Email address",
   "enquiry.message": "Message",
@@ -225,6 +237,8 @@ export const en = {
   "checkout.sync_error": "Couldn’t sync your cart with the server. Showing local items.",
   "checkout.items_attention": "Some items need attention:",
   "checkout.billing_details": "Billing details",
+  "checkout.email_hint": "We’ll send your order confirmation and updates here.",
+  "checkout.phone_hint": "Only used for questions about your delivery.",
   "checkout.shipping_address": "Shipping address",
   "checkout.billing_address": "Billing address",
   "checkout.request_invoice": "Request a VAT invoice",
@@ -273,6 +287,7 @@ export const en = {
   "checkout.copy_details": "Copy payment details",
   "checkout.copied": "Copied",
   "checkout.steps": "Order steps",
+  "checkout.step_of": "Step {current} of {total} · {label}",
   "checkout.step_unavailable": "This step isn’t available yet — the shipping & payment service is temporarily unavailable. Your address has been saved.",
   "checkout.success_split": {
     one: "Thank you! Your order was split into {count} order: {refs}.",

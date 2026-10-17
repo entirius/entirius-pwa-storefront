@@ -25,8 +25,9 @@ pnpm only, never npm or yarn.
 - Files `kebab-case.tsx`; client components `*.client.tsx`. No barrel imports; `next/dynamic` for heavy client components. `@/` is the repo root.
 - API paths are a backend contract — never rewrite route constants or placeholders ad hoc.
 - `pnpm lint` stays green: legacy errors sit in `eslint-suppressions.json` and may only shrink (`pnpm exec eslint --prune-suppressions` after fixing one); never suppress new code.
-- Interface text only through message keys (`t()`; `lib/i18n/messages/en.ts` + `pl.ts`), prices only through `price()` / `price_lines()` — never a hand-built "12.00 EUR".
+- Interface text only through message keys (`t()`; `lib/i18n/messages/en.ts` + `pl.ts`), prices only through `price()` / `price_lines()` — never a hand-built "12.00 EUR". "Text" includes `aria-label`, `aria-roledescription`, `placeholder`, `title`, `alt`, `sr-only`, validation, errors, metadata. Grep `en.ts` for an existing key before adding one; a new key goes into every language file at once. Client overrides: `_CONFIG/messages.config.json`. Rules and checklist: [patterns](docs/patterns.md#translations-and-prices).
 - Colors only through semantic tokens (`app/globals.css` maps `@entirius/brand-tokens`); lint rejects raw values. Light theme by default, dark via `THEME` in `_CONFIG/app.config.json`.
+- A new form field is a shared component (`TextField` / `SelectField` / `CheckboxField`, `Field` outside react-hook-form), errors go through `FormError`, titles through `FormHeading`: never `FormField` or `<label>` with local classes. Pattern: [styling](docs/styling.md#forms).
 
 ## Commit Message Format
 

@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { HONEYPOT_NAME, HoneypotField } from "@/components/ui/honeypot-field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { CheckLabel, Field, FormError, FormHeading } from "@/components/ui/form";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { TokenLinks } from "@/components/ui/token-links";
@@ -87,7 +87,7 @@ export function NotifySimilar({
       <Button
         type="button"
         size="lg"
-        className={cn("w-full rounded-full", className)}
+        className={cn("w-full", className)}
         data-notify-trigger
         onClick={() => setOpen(true)}
       >
@@ -111,28 +111,25 @@ export function NotifySimilar({
       data-notify-form
       className={cn("relative flex flex-col gap-3 rounded-2xl border p-4 text-left", className)}
     >
-      <h2 className="text-base font-semibold">{t(title_key)}</h2>
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="notify-email">{t("notify.email")}</Label>
+      <FormHeading>{t(title_key)}</FormHeading>
+      <Field id="notify-email" label={t("notify.email")}>
         <Input id="notify-email" name="email" type="email" autoComplete="email" required />
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="notify-note">{t("notify.note")}</Label>
+      </Field>
+      <Field id="notify-note" label={t("notify.note")} hint={t("notify.note_hint")}>
         <Textarea id="notify-note" name="note" rows={3} aria-describedby="notify-note-hint" />
-        <p id="notify-note-hint" className="text-xs text-muted-foreground">{t("notify.note_hint")}</p>
-      </div>
+      </Field>
       <HoneypotField />
-      <label className="flex items-start gap-3 text-sm" data-notify-consent>
-        <Checkbox checked={consent} onCheckedChange={(v) => setConsent(v === true)} className="mt-0.5" aria-required />
+      <CheckLabel data-notify-consent>
+        <Checkbox checked={consent} onCheckedChange={(v) => setConsent(v === true)} aria-required />
         <span>
           <TokenLinks
             text={t("notify.consent", { privacy: "{privacy}" })}
             links={{ privacy: { route: PRIVACY_ROUTE, label: t("checkout.privacy_link") } }}
           />
         </span>
-      </label>
-      {state === "invalid" && <p role="alert" className="text-sm text-destructive">{t("notify.invalid")}</p>}
-      {state === "failed" && <p role="alert" className="text-sm text-destructive">{t("notify.failed")}</p>}
+      </CheckLabel>
+      {state === "invalid" && <FormError>{t("notify.invalid")}</FormError>}
+      {state === "failed" && <FormError>{t("notify.failed")}</FormError>}
       <Button type="submit" disabled={state === "sending"}>
         {state === "sending" ? <Spinner className="size-4" /> : t("notify.send")}
       </Button>

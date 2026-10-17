@@ -10,15 +10,19 @@
 @import "@entirius/brand-tokens/tokens.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
+/* Inside an out-of-stock product tile or search row (data-stock="out"): dimmed picture, muted text. Scoped to the
+   tile: sections and the product page also carry data-stock. */
+@custom-variant unavailable (&:where([data-product-tile][data-stock="out"] *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   /* next/font variables first, the token stacks (with the metric-matched Arial
      fallback faces from tokens.css) after. */
-  /* --font-family-sans: a client font from _CONFIG/theme.css. */
+  /* --font-family-sans / --font-family-brand: client fonts from _CONFIG/theme.css. They come first because
+     next/font sets --font-inter / --font-lexend-deca on <html>, which a theme's :root cannot override. */
   --font-sans: var(--font-family-sans, var(--font-inter), var(--brand-font-family-ui));
-  --font-brand: var(--font-lexend-deca), var(--brand-font-family-brand);
+  --font-brand: var(--font-family-brand, var(--font-lexend-deca), var(--brand-font-family-brand));
   --font-mono: var(--brand-font-family-mono);
   --tracking-brand: var(--brand-font-tracking-brand);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -36,6 +40,7 @@
   --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
+  --color-field-border: var(--field-border);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
@@ -71,6 +76,28 @@
   --radius-2xl: var(--brand-radius-2xl);
   --radius-3xl: var(--brand-radius-3xl);
   --radius-4xl: var(--brand-radius-4xl);
+  --radius-control: var(--control-radius);
+  --radius-chip: var(--chip-radius);
+  --aspect-product: var(--product-image-ratio);
+}
+
+@theme {
+  /* Minimum touch target (WCAG 2.5.5, Apple HIG): `size-touch`, `min-h-touch`, `touch-target`. */
+  --spacing-touch: 2.75rem;
+}
+
+/* Grows the tappable area to at least --spacing-touch without changing the look.
+   The element must be positioned (relative/absolute); neighbours need >= 44px pitch. */
+@utility touch-target {
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, var(--spacing-touch));
+    height: max(100%, var(--spacing-touch));
+    translate: -50% -50%;
+  }
 }
 
 :root {
@@ -83,6 +110,12 @@
   color-scheme: light;
 
   --radius: var(--brand-radius-lg);
+  /* Corner of every control of one height: buttons, inputs, select, input group, quantity stepper. A theme sets 0 for square. */
+  --control-radius: var(--brand-radius-lg);
+  /* Outlined round icon buttons (wishlist, gallery and carousel arrows) and text chips (sort, subcategories). */
+  --chip-radius: var(--brand-radius-full);
+  /* Width / height of every product photo (`aspect-product`); a client theme sets e.g. 2 / 3. */
+  --product-image-ratio: 1 / 1;
 
   /* Light theme: the package's light.neutral greys and light.tint backgrounds. */
   --background: var(--brand-light-neutral-100);
@@ -109,6 +142,8 @@
 
   --border: var(--brand-light-neutral-300);
   --input: var(--brand-light-basic-400); /* form control boundary, 3:1 */
+  /* Resting field border, lighter than --input on purpose (below 3:1); hover darkens to --input, focus to --ring. */
+  --field-border: var(--brand-light-basic-300);
   --ring: var(--brand-accent-fill);
   /* Leading colour of CMS sections and tiles (bg-leading, text-leading); white text sits on it, so keep it dark. */
   --leading: var(--primary);
@@ -146,6 +181,25 @@
   --surface-fade: linear-gradient(to bottom, transparent 25%, var(--background) 72%);
   --surface-backdrop: linear-gradient(185deg, var(--brand-white) 55%, var(--brand-light-tint-primary) 160%);
   --surface-glow: 0 12px 32px -12px color-mix(in srgb, var(--brand-light-neutral-900) 18%, transparent);
+
+  /* Section containers (`surface`, `surface-sm`): a flat theme sets the background to transparent and the paddings
+     and radius to 0, so the content lines up with the breadcrumbs. `surface-outline` keeps its border, padding and the brand radius. */
+  --surface-bg: var(--card);
+  --surface-radius: var(--brand-radius-3xl);
+  --surface-padding: 1rem;
+  --surface-padding-lg: 2rem;
+  --surface-padding-sm: 0.75rem;
+  --surface-outline-padding: 1rem;
+  --surface-divider: transparent;
+  /* The diagonal over an unavailable colour swatch: a light line with dark edges, visible on any colour. */
+  --swatch-cross: linear-gradient(
+    to top right,
+    transparent calc(50% - 1.5px),
+    var(--foreground) calc(50% - 1.5px) calc(50% - 0.75px),
+    var(--background) calc(50% - 0.75px) calc(50% + 0.75px),
+    var(--foreground) calc(50% + 0.75px) calc(50% + 1.5px),
+    transparent calc(50% + 1.5px)
+  );
 }
 
 /* html.dark, not .dark: _CONFIG/theme.css loads after this file and its :root would win over .dark. */
@@ -174,6 +228,7 @@ html.dark {
 
   --border: var(--brand-hairline);
   --input: var(--brand-basic-700); /* 3.8:1 */
+  --field-border: var(--brand-basic-500);
   --ring: var(--brand-accent);
   --link: var(--brand-accent); /* 7.2:1 */
   --highlight: var(--brand-accent);
@@ -221,6 +276,52 @@ html.dark {
 }
 @utility shadow-glow {
   box-shadow: var(--surface-glow);
+}
+
+/* Stacking scale for app code (shadcn overlays and popups keep their own z-50):
+   raised = above a card's picture inside the card, sticky = header and fixed bars, toast = above sticky bars,
+   viewer = the full-screen gallery above everything. */
+@utility z-raised {
+  z-index: 1;
+}
+@utility z-sticky {
+  z-index: 30;
+}
+@utility z-toast {
+  z-index: 40;
+}
+@utility z-viewer {
+  z-index: 60;
+}
+
+/* Section containers; see the --surface-* variables above. */
+@utility surface {
+  background-color: var(--surface-bg);
+  border-radius: var(--surface-radius);
+  padding: var(--surface-padding);
+  @media (width >= 48rem) {
+    padding: var(--surface-padding-lg);
+  }
+}
+@utility surface-sm {
+  background-color: var(--surface-bg);
+  border-radius: var(--surface-radius);
+  padding: var(--surface-padding-sm);
+}
+@utility surface-outline {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--surface-outline-padding);
+}
+/* A surface that follows another in a column (used instead of `surface`): the line a flat theme draws between
+   them, with room under it when the theme has no padding. */
+@utility surface-divided {
+  @apply surface;
+  border-top: 1px solid var(--surface-divider);
+  padding-top: max(var(--surface-padding), 1.5rem);
+  @media (width >= 48rem) {
+    padding-top: max(var(--surface-padding-lg), 1.5rem);
+  }
 }
 
 /* Link (styleguide §6): accent, underline 3 px below, basic-950 on hover. */

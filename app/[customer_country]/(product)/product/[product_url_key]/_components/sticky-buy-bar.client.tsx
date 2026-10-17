@@ -43,7 +43,7 @@ export function StickyBuyBar({ target, children }: { target: RefObject<HTMLEleme
         data-shown={shown ? "" : undefined}
         inert={!shown}
         className={cn(
-          "fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-border bg-background px-4 pt-2 md:hidden",
+          "fixed inset-x-0 bottom-0 z-sticky flex items-center gap-3 border-t border-border bg-background px-4 pt-2 md:hidden",
           "pb-[max(0.5rem,env(safe-area-inset-bottom))] motion-safe:transition-transform motion-safe:duration-200",
           shown ? "translate-y-0" : "translate-y-full",
         )}

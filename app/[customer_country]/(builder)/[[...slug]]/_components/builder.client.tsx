@@ -12,6 +12,7 @@ import { pick_static_page, static_page_query } from "../api.query";
 import { render_cms_document } from "./cms-renderer";
 import type { CmsDocumentContent } from "@/types/cms.types";
 import { useI18n } from "@/providers/i18n.provider";
+import { PageLoading } from "@/components/ui/spinner";
 
 interface Props {
   routes: string[];
@@ -25,11 +26,7 @@ export function BuilderClient({ routes }: Props) {
   const document = pick_static_page(data?.data, language);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="size-8 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
-      </div>
-    );
+    return <PageLoading />;
   }
 
   if (error) {
