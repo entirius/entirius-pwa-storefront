@@ -22,6 +22,7 @@ import {
 import {
   Form,
   FormError,
+  PHONE_ROW,
 } from "@/components/ui/form";
 import { CheckboxField, SelectField, TextField } from "@/components/ui/form-fields";
 import { Button } from "@/components/ui/button";
@@ -91,7 +92,7 @@ export function AddressFormSheet({
                 if (opt) form.setValue("dialling_code", opt.dialling_code);
               }}
             />
-            <div className="grid gap-4 sm:grid-cols-[7rem_1fr]">
+            <div className={PHONE_ROW}>
               <SelectField
                 control={form.control}
                 name="dialling_code"

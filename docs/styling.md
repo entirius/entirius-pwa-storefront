@@ -29,6 +29,7 @@ Every field goes through a shared component — never `FormField` / `<label>` wi
 - Section containers: `surface` (`surface-sm` for a menu strip, `surface-divided` for one that follows another, `surface-outline` for a bordered card; a bordered list whose rows carry their own padding takes `rounded-lg border`), never local `bg-card rounded-* p-*`; a theme flattens them through the `--surface-*` variables.
 - Not surfaces: product tiles and CMS tiles (content cards with their own gradient and hover) and layers above the page (the added-to-cart notice). Selectable option rows (shipping and payment methods, filter options) are `<label>` rows with their own classes on purpose: the whole row is the hit area and shows the selected state, which `CheckLabel` does not.
 - Corners: controls of one height share `rounded-control` (`--control-radius`); outlined round icon buttons and text chips take `rounded-chip` (`--chip-radius`); a plain `rounded-full` only for ghost icons, counters, statuses, the checkout stepper, the slider and radios, never for a text button.
+- Phone: dialling code and number sit in one `PHONE_ROW` (`components/ui/form.tsx`, `6rem` + the rest) at every width, never stacked; checkout and profile addresses share it.
 - Height: `h-9` for input, select and input group, `text-base` on phones and `text-sm` from `md` (16px stops iOS zooming into a field). No local height overrides.
 
 ## Stacking and touch
