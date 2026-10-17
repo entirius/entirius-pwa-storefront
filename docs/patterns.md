@@ -17,6 +17,8 @@ const [error, data] = await api.FETCH_METHOD(API_PRODUCTS_ROUTE, {
 
 Route placeholders `__CHANNEL__`, `__USER_ID__`, `__CART_ID__` are resolved from cookies via the access adapter. Never call `fetch()` directly — always use `FETCH_METHOD`.
 
+Shared cache: server fetches of routes marked `shared_cache: true` in `API_ROUTES_POLICY` (categories, contentdb routes / static-page / footer) are cached across requests for `SHARED_CACHE_SECONDS` (60 s), keyed on the URL, so channel and language must be in the path or query. Add a route there only when it is a public GET whose answer is the same for every visitor: never a cart, customer, checkout or stock route; a request with credentials is never cached anyway.
+
 ## PrefetchBoundary
 
 Server Component prefetches TanStack Query data; Client Component reads it via `useQuery` with the same query key (no extra network request).
