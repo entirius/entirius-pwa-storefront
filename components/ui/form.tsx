@@ -246,6 +246,9 @@ function Field({
 // A checkbox with its sentence-long label (consents, options): body size, box aligned to the first line.
 const CHECK_LABEL = "flex items-start gap-2 text-sm leading-snug [&>[data-slot=checkbox]]:mt-0.5";
 
+// Dialling code and phone number side by side at every width: 6rem holds "+380" and the arrow on a 320 px screen.
+const PHONE_ROW = "grid grid-cols-[6rem_1fr] gap-4";
+
 function CheckLabel({ className, ...props }: React.ComponentProps<"label">) {
   return <label className={cn(CHECK_LABEL, className)} {...props} />;
 }
@@ -302,5 +305,6 @@ export {
   FormDescription,
   FormMessage,
   FormField,
+  PHONE_ROW,
   useFormField,
 };
