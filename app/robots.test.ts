@@ -23,6 +23,7 @@ describe("robots disallow rules", () => {
     "/uk/checkout?ref=1",
     "/default/profile/orders/5",
     "/default/user-handler",
+    "/default/reset-password?key=abc",
     "/default/catalog/chairs?q_color=red",
     "/default/catalog/chairs?page=2&s_price=asc",
     "/default/catalog/chairs?r_price=10-20",

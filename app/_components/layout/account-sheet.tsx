@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/providers/auth.provider";
 import { LoginForm } from "./login-form";
 import { RegisterForm } from "./register-form";
+import { ForgotPasswordForm } from "./forgot-password-form";
 import { useI18n } from "@/providers/i18n.provider";
 
 // Login/register entry point (shown only when logged out — see AccountNav).
@@ -29,7 +30,7 @@ export function AccountSheet() {
   const { setLoggedIn } = useAuth();
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
-  const [view, setView] = useState<"login" | "register">("login");
+  const [view, setView] = useState<"login" | "register" | "forgot">("login");
   const [notice, setNotice] = useState<string | null>(null);
 
   const onOpenChange = (next: boolean) => {
@@ -50,7 +51,18 @@ export function AccountSheet() {
     router.push(href);
   };
 
-  const title = view === "register" ? t("auth.create_account") : t("auth.sign_in");
+  const title =
+    view === "register"
+      ? t("auth.create_account")
+      : view === "forgot"
+        ? t("auth.forgot_title")
+        : t("auth.sign_in");
+  const intro =
+    view === "register"
+      ? t("auth.create_account_intro")
+      : view === "forgot"
+        ? t("auth.forgot_intro")
+        : t("auth.sign_in_intro");
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -67,11 +79,17 @@ export function AccountSheet() {
       <SheetContent side="right">
         <SheetHeader>
           <SheetTitle>{title}</SheetTitle>
-          <SheetDescription>
-            {view === "register" ? t("auth.create_account_intro") : t("auth.sign_in_intro")}
-          </SheetDescription>
+          <SheetDescription>{intro}</SheetDescription>
         </SheetHeader>
-        {view === "register" ? (
+        {view === "forgot" ? (
+          <ForgotPasswordForm
+            onBack={() => setView("login")}
+            onSent={() => {
+              setNotice(t("auth.reset_sent"));
+              setView("login");
+            }}
+          />
+        ) : view === "register" ? (
           <RegisterForm
             onSwitchToLogin={() => setView("login")}
             onRegistered={() => {
@@ -90,6 +108,10 @@ export function AccountSheet() {
             onSwitchToRegister={() => {
               setNotice(null);
               setView("register");
+            }}
+            onForgotPassword={() => {
+              setNotice(null);
+              setView("forgot");
             }}
           />
         )}

@@ -10,7 +10,7 @@ import { SITE_URL } from "@/lib/seo/config";
 // everything else is open. Rules are prefixes and `*` crosses slashes, so `/*/cart` would also close
 // `/default/product/cartoon-mug`: each private path is listed under every country profile and closed off
 // as the whole address (`$`), its subpages (`/`) or its query (`?`).
-const PRIVATE = ["cart", "checkout", "profile", "user-handler"];
+const PRIVATE = ["cart", "checkout", "profile", "user-handler", "reset-password"];
 const PREFIXES = ["", ...Object.keys(countries).map((profile) => `/${profile}`)];
 const QUERY_PARAMS = ["q_", "s_", "r_"];
 

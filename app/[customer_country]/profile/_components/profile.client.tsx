@@ -18,8 +18,9 @@ import { profile_query } from "../api.query";
 import { orders_query } from "../orders/api.query";
 import { addresses_query, defaults_query } from "../addresses/api.query";
 import { ProfileEditForm } from "./profile-edit-form";
+import { ChangePasswordForm } from "./change-password-form";
 
-// Account overview: details (editable), the latest order, the default address.
+// Account overview: details (editable), the latest order, the default address, the password.
 export function ProfileClient() {
   const queryClient = useQueryClient();
   const { t } = useI18n();
@@ -79,8 +80,51 @@ export function ProfileClient() {
           )}
         </section>
         <DefaultAddress />
+        <Password />
       </div>
     </div>
+  );
+}
+
+function Password() {
+  const { t } = useI18n();
+  const [editing, setEditing] = useState(false);
+  const [changed, setChanged] = useState(false);
+
+  return (
+    <section aria-labelledby="password" className="surface flex flex-col gap-4">
+      <h2 id="password" className="text-xl">
+        {t("profile.password")}
+      </h2>
+      {editing ? (
+        <ChangePasswordForm
+          onCancel={() => setEditing(false)}
+          onChanged={() => {
+            setEditing(false);
+            setChanged(true);
+          }}
+        />
+      ) : (
+        <>
+          {changed && (
+            <p role="status" className="text-sm text-muted-foreground">
+              {t("profile.password_changed")}
+            </p>
+          )}
+          <Button
+            variant="outline"
+            size="sm"
+            className="self-start"
+            onClick={() => {
+              setChanged(false);
+              setEditing(true);
+            }}
+          >
+            {t("profile.change_password")}
+          </Button>
+        </>
+      )}
+    </section>
   );
 }
 

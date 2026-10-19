@@ -29,10 +29,12 @@ import { useI18n } from "@/providers/i18n.provider";
 export function LoginForm({
   onSuccess,
   onSwitchToRegister,
+  onForgotPassword,
   notice,
 }: {
   onSuccess: () => void;
   onSwitchToRegister: () => void;
+  onForgotPassword: () => void;
   notice?: string | null;
 }) {
   const { t } = useI18n();
@@ -102,6 +104,13 @@ export function LoginForm({
         )}
         <TextField control={form.control} name="email" label={t("auth.email")} type="email" autoComplete="email" />
         <TextField control={form.control} name="password" label={t("auth.password")} type="password" autoComplete="current-password" />
+        <button
+          type="button"
+          onClick={onForgotPassword}
+          className="self-start text-sm text-muted-foreground underline hover:text-foreground"
+        >
+          {t("auth.forgot_password")}
+        </button>
         <FormError>{form.formState.errors.root?.message}</FormError>
         <Button type="submit" disabled={pending}>
           {pending ? <Spinner className="size-4" /> : t("auth.sign_in")}

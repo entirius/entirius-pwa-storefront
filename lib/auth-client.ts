@@ -10,12 +10,20 @@ import {
   API_USER_LOGIN_ROUTE,
   API_USER_SIGNUP_ROUTE,
   API_USER_PROFILE_ROUTE,
+  API_USER_PASSWORD_RESET_ROUTE,
+  API_USER_PASSWORD_CHANGE_ROUTE,
 } from "@/API/api.routes";
 import {
   login_schema,
   register_schema,
+  forgot_password_schema,
+  reset_password_schema,
+  change_password_schema,
   type LoginFormValues,
   type RegisterFormValues,
+  type ForgotPasswordFormValues,
+  type ResetPasswordFormValues,
+  type ChangePasswordFormValues,
 } from "@/utils/validation/auth.schema";
 
 // Client-side auth. Tokens (`at`/`rt`/`uid`) live in readable cookies so the
@@ -155,6 +163,86 @@ export async function client_activate(
   });
 
   if (error) return { ok: false, message: ACTIVATE_GENERIC };
+  return { ok: true };
+}
+
+// Password errors come as a 403 with a code in meta.status; the backend's text is English only, so the
+// forms show catalogue messages chosen by the code.
+export type PasswordError =
+  | "invalid_key"
+  | "old_password_invalid"
+  | "passwords_mismatch"
+  | "password_rejected"
+  | "unknown";
+
+export type PasswordResult = { ok: true } | { ok: false; error: PasswordError };
+
+function password_error(status: number | undefined, body: unknown): PasswordError {
+  const code = (body as ApiEnvelope | undefined)?.meta?.status ?? "";
+  if (status !== 403) return "unknown";
+  if (code === "invalid_key") return "invalid_key";
+  if (code === "old_pw_invalid") return "old_password_invalid";
+  if (code === "pw_dont_match" || code === "new_pw_dont_match") return "passwords_mismatch";
+  // Django's and the module's password validators (too common, too similar to the e-mail, …).
+  if (code.startsWith("password_") || /capital|symbol|number|space/i.test(code)) return "password_rejected";
+  return "unknown";
+}
+
+// Asks for the reset mail. An unknown e-mail answers 403 `wrong_account`; the result says "sent" for it
+// too, so the form does not tell who has an account.
+export async function client_request_password_reset(
+  input: ForgotPasswordFormValues,
+): Promise<{ ok: boolean }> {
+  const parsed = forgot_password_schema.safeParse(input);
+  if (!parsed.success) return { ok: false };
+
+  const api = create_api(make_client_access());
+  const [error] = await api.FETCH_METHOD(API_USER_PASSWORD_RESET_ROUTE, {
+    method: "POST",
+    body: JSON.stringify({ email: parsed.data.email }),
+  });
+  const code = (error?.body as ApiEnvelope | undefined)?.meta?.status;
+  return { ok: !error || (error.status === 403 && code === "wrong_account") };
+}
+
+// Sets the new password from the mailed key (/reset-password?key=). Returns no tokens; login is next.
+export async function client_reset_password(
+  key: string,
+  input: ResetPasswordFormValues,
+): Promise<PasswordResult> {
+  const parsed = reset_password_schema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "password_rejected" };
+  if (!key) return { ok: false, error: "invalid_key" };
+
+  const api = create_api(make_client_access());
+  const [error] = await api.FETCH_METHOD(`${API_USER_PASSWORD_RESET_ROUTE}${encodeURIComponent(key)}/`, {
+    method: "POST",
+    body: JSON.stringify({
+      new_password: parsed.data.password,
+      new_password_check: parsed.data.confirm_password,
+    }),
+  });
+  if (error) return { ok: false, error: password_error(error.status, error.body) };
+  return { ok: true };
+}
+
+// Changes the password of the signed-in customer (Bearer from the route policy); the session stays.
+export async function client_change_password(
+  input: ChangePasswordFormValues,
+): Promise<PasswordResult> {
+  const parsed = change_password_schema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "password_rejected" };
+
+  const api = create_api(make_client_access());
+  const [error] = await api.FETCH_METHOD(API_USER_PASSWORD_CHANGE_ROUTE, {
+    method: "POST",
+    body: JSON.stringify({
+      old_password: parsed.data.old_password,
+      new_password: parsed.data.password,
+      new_password_check: parsed.data.confirm_password,
+    }),
+  });
+  if (error) return { ok: false, error: password_error(error.status, error.body) };
   return { ok: true };
 }
 

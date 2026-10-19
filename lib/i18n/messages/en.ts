@@ -141,6 +141,25 @@ export const en = {
   "auth.verify_failed_title": "Verification failed",
   "auth.verify_failed_text":
     "Something went wrong verifying your account. The link may be invalid or expired.",
+  "auth.forgot_password": "Forgot your password?",
+  "auth.forgot_title": "Reset password",
+  "auth.forgot_intro": "Enter the email of your account and we'll send you a link to set a new password.",
+  "auth.send_reset_link": "Send link",
+  "auth.reset_sent": "If an account exists for this email, we've sent it a link to set a new password.",
+  "auth.back_to_sign_in": "Back to sign in",
+  "auth.reset_title": "Set a new password",
+  "auth.reset_intro": "Choose a new password for your account.",
+  "auth.current_password": "Current password",
+  "auth.new_password": "New password",
+  "auth.confirm_new_password": "Confirm new password",
+  "auth.set_password": "Set password",
+  "auth.reset_done_title": "Password changed",
+  "auth.reset_done_text": "Your new password is set. You can now sign in with it.",
+  "auth.reset_invalid_title": "This link does not work",
+  "auth.reset_invalid_text":
+    "The link is invalid or has expired. Ask for a new one with \"Forgot your password?\" when you sign in.",
+  "auth.old_password_invalid": "The current password is incorrect.",
+  "auth.password_rejected": "Choose a different password: this one is too common or too close to your email.",
 
   // catalogue
   "catalog.title": "Catalog",
@@ -335,6 +354,9 @@ export const en = {
   "profile.no_saved_addresses": "No saved addresses yet.",
   "profile.manage_addresses": "Manage addresses",
   "profile.saved_addresses": "Saved addresses",
+  "profile.password": "Password",
+  "profile.change_password": "Change password",
+  "profile.password_changed": "Your password has been changed.",
 
   // orders
   "orders.title": "My orders",

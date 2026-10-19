@@ -2,44 +2,14 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import { expect, test, type APIRequestContext } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import { link_path, mail } from "./support/mail";
 
 // Registration with the e-mail confirmation, as a customer goes through it: the
 // form in the account sheet, the "Signup Confirmation" mail, its link to
-// /user-handler, then signing in. The local backend sends mail to GreenMail
-// (zeno `make mail`); its REST API keeps one mailbox per recipient.
+// /user-handler, then signing in.
 
-const GREENMAIL = process.env.GREENMAIL_API_URL ?? "http://localhost:8380";
 const PASSWORD = "E2e-Signup-2026!";
-
-// The mail is multipart; the HTML part is quoted-printable (soft breaks, =3D) and
-// the link's & is an entity.
-function activation_path(mime: string): string | null {
-  const decoded = mime
-    .replace(/=\r?\n/g, "")
-    .replace(/=([0-9A-F]{2})/g, (_, hex: string) => String.fromCharCode(parseInt(hex, 16)));
-  const link = decoded.match(/https?:\/\/[^"\s<>]*\/user-handler\?[^"\s<>]+/)?.[0];
-  if (!link) return null;
-  const url = new URL(link.replaceAll("&amp;", "&"));
-  return `${url.pathname}${url.search}`;
-}
-
-async function confirmation_mail(request: APIRequestContext, email: string): Promise<string> {
-  let mime = "";
-  await expect
-    .poll(
-      async () => {
-        const res = await request.get(`${GREENMAIL}/api/user/${encodeURIComponent(email)}/messages/INBOX`);
-        if (!res.ok()) return null;
-        const messages: { subject: string; mimeMessage: string }[] = await res.json();
-        mime = messages.find((m) => m.subject === "Signup Confirmation")?.mimeMessage ?? "";
-        return mime ? "received" : null;
-      },
-      { message: `no confirmation mail for ${email} in GreenMail (${GREENMAIL}) — is \`make mail\` up?` },
-    )
-    .toBe("received");
-  return mime;
-}
 
 test("a new customer registers, confirms the e-mail and signs in", async ({ page, request }) => {
   const email = `e2e-signup-${Date.now()}@example.com`;
@@ -57,7 +27,7 @@ test("a new customer registers, confirms the e-mail and signs in", async ({ page
   await sheet.getByRole("button", { name: "Create account" }).click();
   await expect(sheet.getByText("Account created — check your email to confirm, then sign in.")).toBeVisible();
 
-  const path = activation_path(await confirmation_mail(request, email));
+  const path = link_path(await mail(request, email, "Signup Confirmation"), "user-handler");
   expect(path, "activation link in the mail").not.toBeNull();
   await page.goto(path!);
   await expect(page.getByRole("heading", { name: "Verification complete" })).toBeVisible();

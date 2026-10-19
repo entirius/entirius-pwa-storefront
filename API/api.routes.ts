@@ -55,6 +55,12 @@ export const API_USER_ADDRESSES_ROUTE =
   "/api/accounts/v1/__CHANNEL__/customer/__USER_ID__/addresses/";
 export const API_USER_ADDRESSES_DEFAULTS_ROUTE =
   "/api/accounts/v1/__CHANNEL__/customer/__USER_ID__/addresses/defaults/";
+// POST { email } mails a link to the backend's RESET_PASSWORD_REDIRECT_URL (`/reset-password?key=`);
+// POST `<this route><key>/` sets the new password. No token for either.
+export const API_USER_PASSWORD_RESET_ROUTE =
+  "/api/accounts/v1/__CHANNEL__/customer/password/reset/";
+export const API_USER_PASSWORD_CHANGE_ROUTE =
+  "/api/accounts/v1/__CHANNEL__/customer/password/change/";
 // ----- AUTHENTICATION -----
 // ----- CMS / CONTENT -----
 export const API_CMS_STATIC_PAGE_ROUTE =
@@ -287,6 +293,16 @@ export const API_ROUTES_POLICY = {
   [API_USER_LOGIN_ROUTE]: {
     default_querys: ["language"],
     default_headers: [{ "Content-Type": "application/json" }],
+  },
+  [API_USER_PASSWORD_RESET_ROUTE]: {
+    default_headers: [{ "Content-Type": "application/json" }],
+  },
+  [API_USER_PASSWORD_CHANGE_ROUTE]: {
+    refresh_on: [401],
+    default_headers: [
+      ["Authorization", "access_token"],
+      { "Content-Type": "application/json" },
+    ],
   },
   [API_CONTACT_FORM_TYPES_ROUTE]: {
     default_headers: [["X-API-KEY", "contact_forms_key"]],
