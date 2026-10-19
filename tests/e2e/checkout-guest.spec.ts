@@ -42,7 +42,7 @@ test("guest places an order with bank transfer", async ({ page, context }) => {
 
   await expect(page).toHaveURL(/\/checkout$/);
   await expect(page.getByRole("heading", { name: "Checkout" })).toBeVisible();
-  const summary = page.locator("section", { hasText: "Order summary" });
+  const summary = page.getByRole("complementary", { name: "Order summary" });
   await expect(summary).toContainText(PRODUCT.name);
 
   // Address. The submit button waits for the backend cart (cid) to exist.
@@ -68,7 +68,7 @@ test("guest places an order with bank transfer", async ({ page, context }) => {
   await expect(page.locator("section", { hasText: "Payment method" })).toContainText(/bank transfer/i);
 
   // The summary adds up: delivery has its own row, the total is the one of the cart.
-  const summary_review = page.locator("section", { hasText: "Order summary" });
+  const summary_review = page.getByRole("complementary", { name: "Order summary" });
   await expect(summary_review).toContainText("Delivery");
   await expect(summary_review).toContainText(/Total\s*€/);
 
