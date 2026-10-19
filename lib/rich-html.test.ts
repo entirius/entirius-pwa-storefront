@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { describe, expect, it } from "vitest";
-import { description_html, is_story } from "./rich-html";
+import { description_html, has_text, is_story } from "./rich-html";
 
 describe("description_html", () => {
   it("turns blank lines into paragraphs and single breaks into <br>", () => {
@@ -12,6 +12,14 @@ describe("description_html", () => {
 
   it("leaves HTML alone", () => {
     expect(description_html("<p>Hi</p>")).toBe("<p>Hi</p>");
+  });
+});
+
+describe("has_text", () => {
+  it("is false for nothing and for empty markup, true for any visible text", () => {
+    for (const empty of [null, undefined, "", "  ", "<p></p>", "<p>&nbsp;</p><br>"]) expect(has_text(empty)).toBe(false);
+    expect(has_text("<p>Wool</p>")).toBe(true);
+    expect(has_text("Wool")).toBe(true);
   });
 });
 

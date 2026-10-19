@@ -82,6 +82,8 @@ const FormItemContext = React.createContext<FormItemContextValue>(
 const FORM_ERROR = "text-xs text-destructive";
 const FIELD_LABEL = "text-xs text-foreground";
 const FIELD_HINT = "text-xs text-muted-foreground";
+// Top-aligned: in a row of fields, one with a hint or error must not stretch its neighbour's label.
+const FIELD_ITEM = "grid content-start gap-1";
 
 function FormItem({ className, ...props }: React.ComponentProps<"div">) {
   const id = React.useId();
@@ -90,7 +92,7 @@ function FormItem({ className, ...props }: React.ComponentProps<"div">) {
     <FormItemContext.Provider value={{ id }}>
       <div
         data-slot="form-item"
-        className={cn("grid gap-1", className)}
+        className={cn(FIELD_ITEM, className)}
         {...props}
       />
     </FormItemContext.Provider>
@@ -224,7 +226,7 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <div data-slot="form-item" className={cn("grid gap-1", className)}>
+    <div data-slot="form-item" className={cn(FIELD_ITEM, className)}>
       <div className="flex items-center gap-1.5">
         <Label htmlFor={id} className={FIELD_LABEL}>
           {label}
@@ -243,6 +245,9 @@ function Field({
 
 // A checkbox with its sentence-long label (consents, options): body size, box aligned to the first line.
 const CHECK_LABEL = "flex items-start gap-2 text-sm leading-snug [&>[data-slot=checkbox]]:mt-0.5";
+
+// Dialling code and phone number side by side at every width: 6rem holds "+380" and the arrow on a 320 px screen.
+const PHONE_ROW = "grid grid-cols-[6rem_1fr] gap-4";
 
 function CheckLabel({ className, ...props }: React.ComponentProps<"label">) {
   return <label className={cn(CHECK_LABEL, className)} {...props} />;
@@ -300,5 +305,6 @@ export {
   FormDescription,
   FormMessage,
   FormField,
+  PHONE_ROW,
   useFormField,
 };

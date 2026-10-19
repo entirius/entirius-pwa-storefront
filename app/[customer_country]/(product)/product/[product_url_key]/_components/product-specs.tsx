@@ -34,58 +34,49 @@ function useSpecLinks(categories: Category[] | undefined) {
   };
 }
 
-// Product parameters from the PIM (see NORM_SPEC_GROUPS). Ungrouped attributes
-// go under the section heading itself. A value that is a filter of the product's
+// Product parameters from the PIM (see NORM_SPEC_GROUPS), in the product details column: a heading, then
+// label / value pairs, the label muted in a column of its own. Group names show only when there is more than
+// one group: a lone group's name would just repeat the heading. A value that is a filter of the product's
 // category links to the filtered listing.
 export function ProductSpecs({ groups, categories }: { groups: SpecGroup[]; categories?: Category[] }) {
   const { t } = useI18n();
   const link_for = useSpecLinks(categories);
   if (!groups.length) return null;
+  const named = groups.length > 1;
   return (
-    <section
-      aria-labelledby="product-specs"
-      className="grid gap-6 md:grid-cols-[minmax(12rem,1fr)_3fr]"
-    >
-      <h2 id="product-specs" className="text-2xl md:text-3xl">
+    <section aria-labelledby="product-specs" className="flex flex-col gap-4">
+      <h2 id="product-specs" className="text-xl">
         {t("product.specifications")}
       </h2>
-      <div className="flex flex-col gap-6">
-        {groups.map((group, i) => (
-          <div key={group.name ?? i} className="flex flex-col gap-2">
-            {group.name && (
-              <h3 className="text-base text-muted-foreground">{group.name}</h3>
-            )}
-            <dl className="grid gap-x-8 text-sm md:grid-cols-2">
-              {group.rows.map((row) => (
-                <div
-                  key={row.name}
-                  data-attribute={row.idx ?? undefined}
-                  className="flex justify-between gap-4 border-b border-border py-3"
-                >
-                  <dt className="text-muted-foreground">{row.name}</dt>
-                  <dd className="text-right font-medium text-heading">
-                    {row.parts.map((part, n) => {
-                      const href = link_for(row.idx, part.value_idx);
-                      return (
-                        <span key={part.label}>
-                          {n > 0 && ", "}
-                          {href ? (
-                            <LinkDynamic href={href} className="underline underline-offset-2">
-                              {part.label}
-                            </LinkDynamic>
-                          ) : (
-                            part.label
-                          )}
-                        </span>
-                      );
-                    })}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        ))}
-      </div>
+      {groups.map((group, i) => (
+        <div key={group.name ?? i} className="flex flex-col gap-2">
+          {named && group.name && <h3 className="text-sm font-medium text-heading">{group.name}</h3>}
+          <dl className="grid grid-cols-[minmax(0,8rem)_1fr] gap-x-4 gap-y-2 text-sm md:grid-cols-[minmax(0,10rem)_1fr]">
+            {group.rows.map((row) => (
+              <div key={row.name} data-attribute={row.idx ?? undefined} className="col-span-2 grid grid-cols-subgrid">
+                <dt className="text-muted-foreground">{row.name}</dt>
+                <dd className="text-heading">
+                  {row.parts.map((part, n) => {
+                    const href = link_for(row.idx, part.value_idx);
+                    return (
+                      <span key={part.label}>
+                        {n > 0 && ", "}
+                        {href ? (
+                          <LinkDynamic href={href} className="underline underline-offset-2">
+                            {part.label}
+                          </LinkDynamic>
+                        ) : (
+                          part.label
+                        )}
+                      </span>
+                    );
+                  })}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      ))}
     </section>
   );
 }

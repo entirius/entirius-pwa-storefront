@@ -35,7 +35,7 @@ import { NotifySimilar, useNotifySimilarAvailable } from "@/components/notify-si
 import { NOTIFY_ATTRIBUTES } from "@/lib/contact-forms-config";
 import { notify_body } from "@/lib/notify-body";
 import { KEY_FACTS } from "@/lib/product-config";
-import { description_html } from "@/lib/rich-html";
+import { description_html, has_text } from "@/lib/rich-html";
 
 const PLACEHOLDER_MEDIA = [[{ uri: image_placeholder, width: 600, height: 600 }]];
 
@@ -246,21 +246,21 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
           />
         </div>
 
-        {product.description && (
+        {has_text(product.description) && (
           <div className="border-t pt-8">
             <SanitizeHTML html={description_html(product.description)} className="text-muted-foreground" />
+          </div>
+        )}
+
+        {product.specs?.length > 0 && (
+          <div className="border-t pt-8">
+            <ProductSpecs groups={product.specs} categories={product.categories} />
           </div>
         )}
 
         {sold && related_section}
       </section>
     </div>
-
-      {product.specs?.length > 0 && (
-        <div className="surface-divided">
-          <ProductSpecs groups={product.specs} categories={product.categories} />
-        </div>
-      )}
 
       <ProductStories stories={product.stories ?? []} />
 

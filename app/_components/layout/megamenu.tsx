@@ -36,7 +36,7 @@ function MegamenuColumn({ child }: { child: CATEGORY }) {
   });
 
   return (
-    <div className="min-w-40">
+    <div className="mb-4 break-inside-avoid">
       <NavigationMenuLink asChild>
         <LinkDynamic
           href={`/catalog/${child.url_key}`}
@@ -70,7 +70,9 @@ function MegamenuPanel({ mainKey }: { mainKey: string }) {
   if (isLoading) return <Spinner className="size-4 m-4" />;
 
   return (
-    <div className="mx-auto flex max-w-screen-xl flex-wrap gap-6 p-6">
+    // Columns fill top to bottom, so a parent with many children leaves no empty row next to it;
+    // a parent and its children always stay in one column.
+    <div className="mx-auto max-w-screen-xl columns-3xs gap-6 p-6 pb-2">
       {data?.data?.map((child: CATEGORY) => (
         <MegamenuColumn key={child.id ?? child.url_key} child={child} />
       ))}
@@ -106,7 +108,7 @@ export function Megamenu({ query }: { query: CONFIG_QUERY }) {
               <NavigationMenuTrigger>
                 {item.name}
               </NavigationMenuTrigger>
-              <NavigationMenuContent>
+              <NavigationMenuContent className="md:w-full">
                 <MegamenuPanel mainKey={item.url_key} />
               </NavigationMenuContent>
             </NavigationMenuItem>

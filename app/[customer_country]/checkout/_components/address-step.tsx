@@ -23,6 +23,7 @@ import {
   Form,
   FormError,
   FormSection,
+  PHONE_ROW,
 } from "@/components/ui/form";
 import { CheckboxField, SelectField, TextField } from "@/components/ui/form-fields";
 import { Button } from "@/components/ui/button";
@@ -222,7 +223,7 @@ function AddressFields({
         options={countries.map((c) => ({ value: c.code, label: c.label }))}
         onSelect={onCountry}
       />
-      <div className="grid gap-4 sm:grid-cols-[7rem_1fr]">
+      <div className={PHONE_ROW}>
         <SelectField
           control={control}
           name={`${prefix}.dialling_code` as Path<AddressFormValues>}
