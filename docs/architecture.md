@@ -26,11 +26,12 @@ entirius-pwa-storefront/
 │       ├── (product)/product/[product_url_key]/  # PDP
 │       ├── checkout/             # Address → shipping → payment → review stepper
 │       ├── profile/              # Account: profile, addresses, orders
+│       ├── reset-password/       # Landing of the password reset mail (new password from ?key=)
 │       └── user-handler/         # Double-opt-in activation landing
 ├── components/ui/                # shadcn/ui components
 ├── lib/
 │   ├── i18n/                     # Messages (messages/en.ts, pl.ts), t(), price(), server loader
-│   ├── auth-client.ts            # Login/signup/activate/logout against Accounts
+│   ├── auth-client.ts            # Login/signup/activate/password/logout against Accounts
 │   ├── prefetch_boundary.tsx     # Server-side TanStack Query prefetch + hydration
 │   ├── link-dynamic.tsx          # Dynamic import wrapper
 │   ├── logger.ts                 # _LOGGER (respects DEBUG_MODE from config)
@@ -63,7 +64,7 @@ entirius-pwa-storefront/
 | `proxy.ts` | Middleware: reads `ct` cookie or `cf-ipcountry`, rewrites URL to `/{country}/...`, sets session cookies |
 | `app/robots.ts`, `app/sitemap.ts` | `/robots.txt` (private flows and filter URLs disallowed, sitemap named by `SITE_URL`) and `/sitemap.xml` (CMS pages, categories, products incl. sold out, read from the API at request time; every profile in its own language with hreflang alternates, each address in its canonical form, `/catalog/x` for the `default` profile, pure helpers in `lib/seo/sitemap.ts`). Dotted paths are outside the `proxy.ts` matcher |
 | `lib/prefetch_boundary.tsx` | `PrefetchBoundary` — server prefetches TanStack queries, dehydrates, wraps children in `HydrationBoundary` |
-| `lib/auth-client.ts` | Client-side auth flows: login, signup, double-opt-in activation, logout |
+| `lib/auth-client.ts` | Client-side auth flows: login, signup, double-opt-in activation, password reset and change, logout |
 | `app/[customer_country]/.../{page}/api.query.ts` | Co-located query definitions (`queryKey`, `queryFn`) + `cache()`-wrapped loaders |
 | `stores/cart.store.ts` | Zustand cart (flat localStorage serialization) |
 | `stores/use-cart-sync.ts` | Shared create-or-patch cart sync (cart page + checkout dedupe to one backend call) |

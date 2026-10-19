@@ -147,6 +147,25 @@ export const pl: Record<MessageKey, Message> = {
   "auth.verified_text": "Twoje konto zostało zweryfikowane. Możesz się już zalogować.",
   "auth.verify_failed_title": "Weryfikacja nie powiodła się",
   "auth.verify_failed_text": "Coś poszło nie tak przy weryfikacji konta. Link może być nieprawidłowy lub wygasły.",
+  "auth.forgot_password": "Nie pamiętasz hasła?",
+  "auth.forgot_title": "Reset hasła",
+  "auth.forgot_intro": "Podaj e-mail swojego konta, a wyślemy link do ustawienia nowego hasła.",
+  "auth.send_reset_link": "Wyślij link",
+  "auth.reset_sent": "Jeśli konto z tym e-mailem istnieje, wysłaliśmy na niego link do ustawienia nowego hasła.",
+  "auth.back_to_sign_in": "Wróć do logowania",
+  "auth.reset_title": "Ustaw nowe hasło",
+  "auth.reset_intro": "Wybierz nowe hasło do swojego konta.",
+  "auth.current_password": "Obecne hasło",
+  "auth.new_password": "Nowe hasło",
+  "auth.confirm_new_password": "Powtórz nowe hasło",
+  "auth.set_password": "Ustaw hasło",
+  "auth.reset_done_title": "Hasło zmienione",
+  "auth.reset_done_text": "Nowe hasło jest ustawione. Możesz się nim zalogować.",
+  "auth.reset_invalid_title": "Ten link nie działa",
+  "auth.reset_invalid_text":
+    "Link jest nieprawidłowy lub wygasł. Poproś o nowy przez „Nie pamiętasz hasła?” przy logowaniu.",
+  "auth.old_password_invalid": "Obecne hasło jest nieprawidłowe.",
+  "auth.password_rejected": "Wybierz inne hasło: to jest zbyt popularne lub za bardzo przypomina twój e-mail.",
 
   // catalogue
   "catalog.title": "Katalog",
@@ -343,6 +362,9 @@ export const pl: Record<MessageKey, Message> = {
   "profile.no_saved_addresses": "Nie masz jeszcze zapisanych adresów.",
   "profile.manage_addresses": "Zarządzaj adresami",
   "profile.saved_addresses": "Zapisane adresy",
+  "profile.password": "Hasło",
+  "profile.change_password": "Zmień hasło",
+  "profile.password_changed": "Hasło zostało zmienione.",
 
   // orders
   "orders.title": "Moje zamówienia",

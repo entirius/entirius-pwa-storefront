@@ -26,7 +26,16 @@ const pending = new Map<string, Promise<Answer>>();
 
 // First path segments that are app routes, not CMS pages (catch-all `(builder)/[[...slug]]`).
 // A new top-level app route must be added here.
-const APP_ROUTES = new Set(["cart", "checkout", "profile", "user-handler", "stylesheets", "catalog", "product"]);
+const APP_ROUTES = new Set([
+  "cart",
+  "checkout",
+  "profile",
+  "user-handler",
+  "reset-password",
+  "stylesheets",
+  "catalog",
+  "product",
+]);
 
 const CHANNELS = new Set(Object.keys(channels));
 

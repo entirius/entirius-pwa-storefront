@@ -61,3 +61,26 @@ export const register_schema = z
   });
 
 export type RegisterFormValues = z.infer<typeof register_schema>;
+
+export const forgot_password_schema = z.object({ email: email_field });
+
+export type ForgotPasswordFormValues = z.infer<typeof forgot_password_schema>;
+
+// A new password follows the registration rules (the backend enforces the same policy on reset and change).
+const new_password_fields = {
+  password: register_password_field,
+  confirm_password: z.string().min(1, msg("validation.confirm_required")),
+};
+const passwords_mismatch = { path: ["confirm_password"], message: msg("validation.passwords_mismatch") };
+
+export const reset_password_schema = z
+  .object(new_password_fields)
+  .refine((v) => v.password === v.confirm_password, passwords_mismatch);
+
+export type ResetPasswordFormValues = z.infer<typeof reset_password_schema>;
+
+export const change_password_schema = z
+  .object({ old_password: password_field, ...new_password_fields })
+  .refine((v) => v.password === v.confirm_password, passwords_mismatch);
+
+export type ChangePasswordFormValues = z.infer<typeof change_password_schema>;
