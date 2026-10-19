@@ -12,7 +12,7 @@ import {
   API_META,
   API_REQUEST_INIT,
 } from "./api.d";
-import { API_ROUTES_POLICY } from "./api.routes";
+import { API_ROUTES_POLICY, SHARED_CACHE_SECONDS } from "./api.routes";
 
 let access: API_ACCESS;
 export function configure_auth(a: API_ACCESS) {
@@ -48,6 +48,15 @@ function pick_policy(path: string): ROUTE_POLICY | undefined {
     }
   }
   return best?.policy;
+}
+
+// Cached across requests (see SHARED_CACHE_SECONDS): an allowlisted route, a plain GET, no credentials and no
+// cache mode chosen by the caller. A request with a token, a cookie or an API key is never shared.
+const PRIVATE_HEADER = /^(authorization|cookie|x-api-key)$/i;
+function is_shared(policy: ROUTE_POLICY | undefined, init: API_REQUEST_INIT, headers: Record<string, string>) {
+  if (!policy?.shared_cache || init.cache) return false;
+  if (init.method && init.method.toUpperCase() !== "GET") return false;
+  return !Object.keys(headers).some((name) => PRIVATE_HEADER.test(name));
 }
 
 // ------------------------------------------------------------
@@ -412,6 +421,7 @@ export function create_fetch_engine(access: API_ACCESS) {
     // const base = typeof window === "undefined" ? API_BASE_URL : "";
     return fetch(`${API_BASE_URL}${path}${querys ? `${querys}` : ""}`, {
       ...init,
+      ...(is_shared(policy, init, headers) && { next: { revalidate: SHARED_CACHE_SECONDS } }),
       headers,
       // A caller's own signal (e.g. a timeout) counts too; logout still cancels everything.
       signal: init.signal ? AbortSignal.any([session_controller.signal, init.signal]) : session_controller.signal,

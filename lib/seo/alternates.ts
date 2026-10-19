@@ -65,12 +65,15 @@ async function key_in(view: ProfileView, kind: "product" | "catalog", key: strin
 }
 
 // hreflang alternates of a product or category page, one lookup per profile (per request: React cache).
+// `own_profile` / `own_key`: the page's own profile and its key there, when the page already loaded it (the product page has the
+// product's `url_keys` from load_product): that profile is not asked again.
 export const catalog_alternates = cache(
-  async (kind: "product" | "catalog", key: string, page_language: string) =>
+  async (kind: "product" | "catalog", key: string, page_language: string, own_profile?: string, own_key?: string | null) =>
     language_alternates(
       await Promise.all(
         PROFILE_VIEWS.map(async (view): Promise<[ProfileView, string | null]> => {
-          const found = await key_in(view, kind, key, page_language);
+          const found =
+            own_profile === view.profile && own_key !== undefined ? own_key : await key_in(view, kind, key, page_language);
           return [view, found ? profile_path(view.profile, `/${kind}/${found}`) : null];
         }),
       ),

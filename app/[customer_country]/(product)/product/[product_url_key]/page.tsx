@@ -15,7 +15,7 @@ import {
   build_breadcrumbs_jsonld,
 } from "@/lib/seo/build";
 import { JsonLd } from "@/lib/seo/json-ld";
-import { catalog_alternates } from "@/lib/seo/alternates";
+import { PROFILE_VIEWS, catalog_alternates } from "@/lib/seo/alternates";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 import { ProductClient } from "./_components/product.client";
 import { RelatedSection } from "./related-products";
@@ -37,10 +37,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (error || !raw) return { title: (await get_i18n()).t("product.title") };
 
   const { language } = await get_i18n();
+  // The page's own profile reads its key from this response instead of asking the API again.
+  const own_language = PROFILE_VIEWS.find((view) => view.profile === customer_country)?.language;
+  const own_key = own_language ? (raw.url_keys?.[own_language] ?? null) : undefined;
   return build_product_metadata(raw, {
     country: customer_country,
     url_key: product_url_key,
-    languages: await catalog_alternates("product", raw.url_key ?? product_url_key, language),
+    languages: await catalog_alternates("product", raw.url_key ?? product_url_key, language, customer_country, own_key),
   });
 }
 
