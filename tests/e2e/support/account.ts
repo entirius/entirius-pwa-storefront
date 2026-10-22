@@ -33,8 +33,13 @@ export async function create_account(request: APIRequestContext): Promise<string
 
 export async function login(page: Page, email: string) {
   await page.goto("/");
-  await page.locator("header").getByRole("button", { name: "Sign in" }).click();
   const sheet = page.getByRole("dialog");
+  // The header is server-rendered: a click before hydration does nothing (a busy dev server hydrates late), so
+  // click until the sheet is open.
+  await expect(async () => {
+    await page.locator("header").getByRole("button", { name: "Sign in" }).click({ timeout: 2_000 });
+    await expect(sheet.getByLabel("Email")).toBeVisible({ timeout: 2_000 });
+  }).toPass({ timeout: 20_000 });
   await sheet.getByLabel("Email").fill(email);
   await sheet.getByLabel("Password").fill(PASSWORD);
   await sheet.getByRole("button", { name: "Sign in", exact: true }).click();
