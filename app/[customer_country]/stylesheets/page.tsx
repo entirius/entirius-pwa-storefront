@@ -5,7 +5,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Mail, Lock, Eye, DollarSign } from "lucide-react";
+import { Search, Mail, Eye, DollarSign } from "lucide-react";
 import type { VariantAxis } from "@/utils/NORMALIZERS/variant.normalizer";
 import { VariantPicker } from "@/app/[customer_country]/(product)/product/[product_url_key]/_components/variant-picker.client";
 

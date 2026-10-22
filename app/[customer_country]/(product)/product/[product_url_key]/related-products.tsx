@@ -7,9 +7,9 @@ import { PrefetchBoundary } from "@/lib/prefetch_boundary";
 import { omnibus_prefetch, is_discounted } from "@/lib/omnibus/omnibus.query";
 import { get_server_api } from "@/lib/seo/server-api";
 import { get_i18n } from "@/lib/i18n/i18n.server";
-import { NORM_PRODUCTS_DATA } from "@/utils/NORMALIZERS/product.normalizer";
+import { NORM_PRODUCTS_DATA, type RawProduct } from "@/utils/NORMALIZERS/product.normalizer";
 import { ProductTile } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-tile.client";
-import { load_related, type RawProduct } from "./related";
+import { load_related } from "./related";
 
 const strip_html = (html: string) => html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 

@@ -14,11 +14,6 @@ import {
 } from "./api.d";
 import { API_ROUTES_POLICY, SHARED_CACHE_SECONDS } from "./api.routes";
 
-let access: API_ACCESS;
-export function configure_auth(a: API_ACCESS) {
-  access = a;
-}
-
 // Session-scoped abort. Shared across every create_api instance so a single
 // logout can cancel all in-flight requests AND the token refresh — otherwise a
 // request that 401s mid-logout refreshes and re-writes the just-cleared tokens.
@@ -79,14 +74,18 @@ export function create_fetch_engine(access: API_ACCESS) {
 
   // map special placeholders to resolvers.
   // you can extend this map (e.g., '__USER_ID__': () => access.get_user_id?.())
-  const special_param_resolvers: Record<
-    string,
-    () => Promise<string | undefined> | string | undefined
-  > = {
-    __CHANNEL__: () => access.get_channel?.() as any,
-    __USER_ID__: () => access.get_user_id?.() as any,
-    __CHANNEL_CHECKOUT_KEY__: () => access.get_channel_checkout_key?.() as any,
-    __CART_ID__: () => access.get_cart_id?.() as any,
+  // null = the value is known to be empty (resolves to ""), undefined = no value at all (the request fails).
+  const special_param_resolvers: Record<string, () => string | null | undefined> = {
+    __CHANNEL__: () => access.get_channel?.(),
+    __USER_ID__: () => access.get_user_id?.(),
+    __CHANNEL_CHECKOUT_KEY__: () => access.get_channel_checkout_key?.(),
+    __CART_ID__: () => access.get_cart_id?.(),
+  };
+
+  // The access getter behind a default query or header (`language` → get_language), if there is one.
+  const access_getter = (key: string) => {
+    const getter = (access as Record<string, unknown>)[`get_${key}`];
+    return typeof getter === "function" ? (getter as () => unknown) : undefined;
   };
 
   // ------------------------------------------------------------
@@ -101,14 +100,14 @@ export function create_fetch_engine(access: API_ACCESS) {
       const resolver = special_param_resolvers[ph];
 
       // 1) explicit resolver
-      let val: any = resolver ? await resolver() : undefined;
+      let val = resolver ? resolver() : undefined;
 
       // 2) implicit fallback: __FOO__ → try get_foo() or access.foo
       // if (val == null) {
       //   const key = ph.slice(2, -2).toLowerCase(); // "__CHANNEL__" => "channel"
       //   const getter_name = `get_${key}`;
-      //   const getter = (access as any)?.[getter_name];
-      //   val = typeof getter === 'function' ? await getter() : (access as any)?.[key];
+      //   const getter = access_getter(key);
+      //   val = getter ? await getter() : undefined;
       // }
 
       if (val === undefined) throw new Error(`missing-route-param:${ph}`);
@@ -125,10 +124,11 @@ export function create_fetch_engine(access: API_ACCESS) {
   // ------------------------------------------------------------
   // ------------------------------------------------------------
   // helper function to convert params to query string
-  async function to_query_string(...inputs: any[]): Promise<string> {
-    let querys: any = [];
-
-    const [default_querys, init_querys] = inputs;
+  async function to_query_string(
+    default_querys: string[],
+    init_querys: API_REQUEST_INIT["querys"],
+  ): Promise<string> {
+    const querys: [string, string][] = [];
 
     // init querys should be an object
     // they could override default querys so be careful
@@ -168,7 +168,7 @@ export function create_fetch_engine(access: API_ACCESS) {
           }
           for (const v of compacted) {
             const normalized =
-              typeof v === "object" && v !== null ? JSON.stringify(v) : v;
+              typeof v === "object" && v !== null ? JSON.stringify(v) : String(v);
             querys.push([key, normalized]);
           }
           continue;
@@ -181,7 +181,7 @@ export function create_fetch_engine(access: API_ACCESS) {
         }
 
         // Primitives go as-is
-        querys.push([key, value]);
+        querys.push([key, String(value)]);
       }
     }
     // default querys sould be simple from access
@@ -190,12 +190,12 @@ export function create_fetch_engine(access: API_ACCESS) {
     if (default_querys && Array.isArray(default_querys)) {
       for (const query of default_querys) {
         // if querys already has this query, skip
-        if (querys.find(([k]: any) => k === query)) continue;
+        if (querys.find(([k]) => k === query)) continue;
         // ------------------------------------------------------------
         // ------------------------------------------------------------
-        const getter = (access as any)[`get_${query}`];
+        const getter = access_getter(query);
 
-        if (typeof getter !== "function") {
+        if (!getter) {
           _LOGGER({
             message: "Cannot find getter for query => ",
             type: "error",
@@ -204,7 +204,7 @@ export function create_fetch_engine(access: API_ACCESS) {
           continue;
         }
         const access_query = await getter();
-        querys.push([query, access_query]);
+        querys.push([query, String(access_query)]);
       }
     }
 
@@ -236,13 +236,13 @@ export function create_fetch_engine(access: API_ACCESS) {
 
     // 1) from route default_headers
     if (default_headers && Array.isArray(default_headers)) {
-      for (const item of default_headers as any[]) {
+      for (const item of default_headers) {
         // Tuple: [header_key, access_key]
         if (Array.isArray(item) && item.length === 2) {
-          const [header_key, access_key] = item as [string, string];
-          const getter = (access as any)[`get_${access_key}`];
+          const [header_key, access_key] = item;
+          const getter = access_getter(access_key);
 
-          if (typeof getter !== "function") {
+          if (!getter) {
             _LOGGER({
               message: "Cannot find getter for header => ",
               type: "error",
@@ -260,10 +260,8 @@ export function create_fetch_engine(access: API_ACCESS) {
         }
 
         // Object: complete header map, used as-is (no access lookup)
-        if (item && typeof item === "object") {
-          for (const [key, value] of Object.entries(
-            item as Record<string, string | null>,
-          )) {
+        if (item && typeof item === "object" && !Array.isArray(item)) {
+          for (const [key, value] of Object.entries(item)) {
             if (value == null) continue;
             headers[key] = String(value);
           }
@@ -460,8 +458,8 @@ export function create_fetch_engine(access: API_ACCESS) {
     let res: Response | undefined;
     try {
       res = await do_req();
-    } catch (e: any) {
-      const err: API_ERROR = { message: e?.message || "request-build-failed" };
+    } catch (e) {
+      const err: API_ERROR = { message: (e as Error)?.message || "request-build-failed" };
       _LOGGER({
         message: "REQUEST BUILD FAILED => ",
         type: "warning",
@@ -474,7 +472,7 @@ export function create_fetch_engine(access: API_ACCESS) {
       try {
         await _REFRESH_TOKEN();
         res = await do_req();
-      } catch (error: any) {
+      } catch (error) {
         _LOGGER({
           message: "Everything failed => ",
           type: "error",
@@ -482,9 +480,10 @@ export function create_fetch_engine(access: API_ACCESS) {
         });
 
         access.clear_tokens?.();
+        const failed = error as { message?: string; status?: number } | undefined;
         const err: API_ERROR = {
-          message: error?.message || "refresh-failed",
-          status: error?.status ?? "app error (?)",
+          message: failed?.message || "refresh-failed",
+          status: failed?.status,
         };
         return [err, undefined, undefined];
       }
@@ -495,13 +494,13 @@ export function create_fetch_engine(access: API_ACCESS) {
       : undefined;
 
     if (!res.ok) {
-      let body: any;
+      let body: unknown;
       try {
         body = await res.json();
       } catch {}
       const err: API_ERROR = {
-        message: body?.message || `HTTP ${res.status}`,
-        status: res.status ?? "app error (?)",
+        message: (body as { message?: string } | undefined)?.message || `HTTP ${res.status}`,
+        status: res.status,
         body,
       };
       _LOGGER({ message: "REQUEST ERROR => ", type: "error", print: err });

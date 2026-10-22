@@ -6,11 +6,11 @@ import type { MetadataRoute } from "next";
 import countries from "@/_CONFIG/countries.config.json";
 import { SITE_URL } from "@/lib/seo/config";
 
-// Private flows and filtered listings (`q_` filters, `s_` sorting, `r_` ranges) stay out of the index;
-// everything else is open. Rules are prefixes and `*` crosses slashes, so `/*/cart` would also close
+// Private flows, search results and filtered listings (`q_` filters, `s_` sorting, `r_` ranges) stay out of
+// the index; everything else is open. Rules are prefixes and `*` crosses slashes, so `/*/cart` would also close
 // `/default/product/cartoon-mug`: each private path is listed under every country profile and closed off
 // as the whole address (`$`), its subpages (`/`) or its query (`?`).
-const PRIVATE = ["cart", "checkout", "profile", "user-handler", "reset-password"];
+const PRIVATE = ["cart", "checkout", "profile", "user-handler", "reset-password", "search"];
 const PREFIXES = ["", ...Object.keys(countries).map((profile) => `/${profile}`)];
 const QUERY_PARAMS = ["q_", "s_", "r_"];
 

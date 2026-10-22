@@ -6,6 +6,7 @@
 
 import { MediaImage } from "@/components/ui/media-image.client";
 import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
+import type { Product } from "@/utils/NORMALIZERS/product.normalizer";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { WishlistButton } from "@/components/ui/wishlist-button";
 import { ProductPrice } from "./product-price.client";
@@ -15,6 +16,10 @@ import { useI18n } from "@/providers/i18n.provider";
 import { useSinglePiece } from "./use-single-piece";
 
 const PLACEHOLDER_MEDIA = [{ uri: image_placeholder, width: 600, height: 600 }];
+
+// A listing product, or a wishlist item (compact), which lacks the stock, badge and quick-add fields.
+export type TileProduct = Pick<Product, "sku" | "name" | "url_key" | "price" | "media"> &
+  Partial<Pick<Product, "on_stock" | "description" | "purchasable" | "badges" | "percent_off">>;
 
 // The description is HTML (the product page sanitizes and renders it); the tile shows it as plain text.
 const plain_text = (html: string) =>
@@ -27,9 +32,12 @@ const plain_text = (html: string) =>
 export function ProductTile({
   product,
   variant = "default",
+  action,
 }: {
-  product: any;
+  product: TileProduct;
   variant?: "default" | "compact";
+  // Compact only: a control under the price (the wishlist's "Move to cart").
+  action?: React.ReactNode;
 }) {
   const { t } = useI18n();
   // Only an explicit `false` counts as sold out: items without the field (wishlist) stay neutral.
@@ -81,6 +89,7 @@ export function ProductTile({
           <div className="mt-0.5">
             <ProductPrice price={product.price} sku={product.sku} compact />
           </div>
+          {action && <div className="mt-2">{action}</div>}
         </div>
         {sold_out && (
           <span
@@ -140,7 +149,7 @@ export function ProductTile({
       </div>
       <div className="flex items-end justify-between gap-2 px-1 pb-1 unavailable:opacity-70">
         <ProductPrice price={product.price} sku={product.sku} />
-        {can_quick_add && (
+        {can_quick_add && product.price && (
           <QuickAdd
             item={{
               sku: product.sku,

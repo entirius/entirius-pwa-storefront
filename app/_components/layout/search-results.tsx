@@ -7,7 +7,8 @@
 import { Search, Tag } from "lucide-react";
 
 import { LinkDynamic } from "@/lib/link-dynamic";
-import type { SearchResponse } from "./search.query";
+import { Button } from "@/components/ui/button";
+import { search_path, type SearchResponse } from "./search.query";
 import { SearchProductRow } from "./search-product-row";
 import { useI18n } from "@/providers/i18n.provider";
 
@@ -20,11 +21,14 @@ type SearchCategory = {
 
 export function SearchResults({
   data,
+  query,
   currency,
   onNavigate,
   onPhrase,
 }: {
   data: SearchResponse;
+  // The searched phrase: the products end with a link to all its results.
+  query?: string;
   currency: string;
   onNavigate: () => void;
   onPhrase: (text: string) => void;
@@ -105,6 +109,13 @@ export function SearchResults({
               />
             ))}
           </div>
+          {query && (
+            <Button asChild variant="link" size="sm" className="self-start px-1">
+              <LinkDynamic href={search_path(query)} onClick={onNavigate} data-search-all>
+                {t("search.show_all")}
+              </LinkDynamic>
+            </Button>
+          )}
         </section>
       )}
     </div>

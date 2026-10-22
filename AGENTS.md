@@ -24,7 +24,7 @@ pnpm only, never npm or yarn.
 - Agents never push, open PRs or merge; they hand the operator the commands. Before that: review every outgoing commit against the Entirius Handbook, `gitleaks git --log-opts="origin/<base>..HEAD" --redact` clean, committer `<login>@entirius.com`, `pnpm lint` not growing, build and E2E green. A finding blocks the push.
 - Files `kebab-case.tsx`; client components `*.client.tsx`. No barrel imports; `next/dynamic` for heavy client components. `@/` is the repo root.
 - API paths are a backend contract — never rewrite route constants or placeholders ad hoc.
-- `pnpm lint` stays green: legacy errors sit in `eslint-suppressions.json` and may only shrink (`pnpm exec eslint --prune-suppressions` after fixing one); never suppress new code.
+- `pnpm lint` stays at zero errors and zero warnings (CI runs `--max-warnings=0`); no `any`, no `eslint-disable`, no suppressions file — type the API response instead.
 - Interface text only through message keys (`t()`; `lib/i18n/messages/en.ts` + `pl.ts`), prices only through `price()` / `price_lines()` — never a hand-built "12.00 EUR". "Text" includes `aria-label`, `aria-roledescription`, `placeholder`, `title`, `alt`, `sr-only`, validation, errors, metadata. Grep `en.ts` for an existing key before adding one; a new key goes into every language file at once. Client overrides: `_CONFIG/messages.config.json`. Rules and checklist: [patterns](docs/patterns.md#translations-and-prices).
 - Colors only through semantic tokens (`app/globals.css` maps `@entirius/brand-tokens`); lint rejects raw values. Light theme by default, dark via `THEME` in `_CONFIG/app.config.json`.
 - A new form field is a shared component (`TextField` / `SelectField` / `CheckboxField`, `Field` outside react-hook-form), errors go through `FormError`, titles through `FormHeading`: never `FormField` or `<label>` with local classes. Pattern: [styling](docs/styling.md#forms).
@@ -44,7 +44,7 @@ Same rule applies to PR descriptions: no `Generated with [Claude Code]` footer.
 - `app/[customer_country]/**/api.query.ts` — co-located queries and `React.cache()` loaders: one `api` per request, primitive cache keys.
 - `lib/` — `PrefetchBoundary` (server prefetch + hydration), `seo/`, `omnibus/`, auth client.
 - `utils/NORMALIZERS/` — API → view shapes; raw API data stays out of components.
-- `stores/` — Zustand cart and wishlist, cart sync with the backend.
+- `stores/` — Zustand cart and wishlist, both synced with the backend (the wishlist for a signed-in customer).
 - `components/ui/` — shadcn/ui primitives.
 - `lib/i18n/` — message catalogues, `t()`, `price()`; `providers/i18n.provider.tsx` for client components.
 - `_CONFIG/` (gitignored, from `_CONFIG.example/`) — backend URL, channels, countries, brand assets, client `theme.css`.

@@ -12,6 +12,7 @@ import { API_PRODUCTS_ROUTE } from "@/API/api.routes";
 import { NORM_PRODUCTS_DATA } from "@/utils/NORMALIZERS/product.normalizer";
 import { ProductTile } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-tile.client";
 import type { CmsSectionBaseProps } from "@/types/cms.types";
+import type { ProductsResponse } from "../../api.query";
 import { useI18n } from "@/providers/i18n.provider";
 
 interface TileTypeBProps extends CmsSectionBaseProps {
@@ -38,11 +39,11 @@ export default function TileTypeB({ url_key }: TileTypeBProps) {
     queryKey: ["product", url_key],
     queryFn: async () => {
       const api = create_api(make_client_access());
-      const [err, response] = await api.FETCH_METHOD(API_PRODUCTS_ROUTE, {
+      const [err, response] = await api.FETCH_METHOD<ProductsResponse>(API_PRODUCTS_ROUTE, {
         querys: { url_key, include: "full" },
       });
       if (err) throw new Error(err.message);
-      return NORM_PRODUCTS_DATA((response as any)?.results ?? [])[0] ?? null;
+      return NORM_PRODUCTS_DATA(response?.results ?? [])[0] ?? null;
     },
     enabled: !!url_key,
   });

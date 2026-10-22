@@ -81,7 +81,7 @@ app/
     └── profile/        Account: profile, addresses, orders
 components/ui/          shadcn/ui primitives
 lib/                    Auth server actions, prefetch boundary, logger, cn()
-stores/                 Zustand stores (cart, wishlist) + cart sync
+stores/                 Zustand stores (cart, wishlist) + cart and wishlist sync
 utils/                  NORMALIZERS (API → view shapes), Zod schemas, cookie helper
 proxy.ts                Middleware: geo routing + session cookie injection
 ```

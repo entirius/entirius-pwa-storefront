@@ -28,7 +28,7 @@ type API_ACCESS = {
   clear_tokens?: () => void | Promise<void>;
 };
 
-type API_ERROR = { message: string; status?: number; body?: any };
+type API_ERROR = { message: string; status?: number; body?: unknown };
 type API_META = { status: number; headers: Headers };
 
 interface COOKIE_ACCESS {
@@ -38,7 +38,8 @@ interface COOKIE_ACCESS {
 }
 
 type API_REQUEST_INIT = RequestInit & {
-  querys?: any;
+  // Arrays repeat the param (?k=a&k=b), objects go JSON-encoded, empty values are left out.
+  querys?: Record<string, unknown>;
   headers?: Record<string, string | null>;
 };
 

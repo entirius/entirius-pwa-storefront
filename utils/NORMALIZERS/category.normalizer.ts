@@ -4,9 +4,18 @@
 
 import type { CATEGORY } from "@/app/_components/layout/menu-config";
 
-function NORM_CATEGORIES_DATA(rows: any): CATEGORY[] {
+// A category row of matrix `categories/`: the fields read here.
+type RawCategory = {
+  id?: string | number;
+  idx?: string;
+  url_key: string;
+  name: string;
+  has_children?: boolean;
+};
+
+function NORM_CATEGORIES_DATA(rows: unknown): CATEGORY[] {
   if (!Array.isArray(rows)) return [];
-  return rows.map((row: any) => ({
+  return (rows as RawCategory[]).map((row) => ({
     id: row.id ?? row.idx,
     url_key: row.url_key,
     name: row.name,

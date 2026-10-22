@@ -16,7 +16,7 @@ const attr = (feature_idx: string, feature_name: string, value: string, extra: o
   ...extra,
 });
 
-const one = (product: object) => NORM_PRODUCTS_DATA([{ sku: "S", media: [], ...product }])[0];
+const one = (product: object) => NORM_PRODUCTS_DATA([{ sku: "S", name: "", url_key: "", media: [], ...product }])[0];
 
 describe("NORM_PRODUCTS_DATA specs", () => {
   it("keeps visible attributes and joins a multi-select into one row", () => {

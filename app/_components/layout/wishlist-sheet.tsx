@@ -4,7 +4,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import {
   Sheet,
   SheetTrigger,
@@ -13,17 +13,24 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useWishlistStore } from "@/stores/wishlist.store";
+import { load_account_wishlist } from "@/stores/wishlist-sync";
+import { useAuth } from "@/providers/auth.provider";
 import { WishlistItems } from "./wishlist-items";
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CountBadge } from "./count-badge";
+import { useHydrated } from "@/lib/use-hydrated";
 import { useI18n } from "@/providers/i18n.provider";
 
 export function WishlistSheet() {
   const { t } = useI18n();
   const count = useWishlistStore((s) => s.count());
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useHydrated();
+  // Signed in, the account's list replaces the device's once per page load (and after sign-in).
+  const { isLoggedIn } = useAuth();
+  useEffect(() => {
+    if (isLoggedIn) void load_account_wishlist();
+  }, [isLoggedIn]);
 
   return (
     <Sheet>

@@ -40,7 +40,7 @@ entirius-pwa-storefront/
 │   ├── auth.provider.tsx         # Per-request logged-in flag (seeded server-side)
 │   ├── i18n.provider.tsx         # useI18n() for client components (seeded by the root layout)
 │   └── Tanstack-query.provider.tsx
-├── stores/                       # Zustand cart + wishlist, cart query & sync hook
+├── stores/                       # Zustand cart + wishlist, cart query & sync hook, wishlist account sync
 ├── utils/
 │   ├── NORMALIZERS/              # Data transformation (product, price, media, cart, order)
 │   ├── validation/               # Zod schemas (auth, address, customer address)
@@ -69,6 +69,7 @@ entirius-pwa-storefront/
 | `stores/cart.store.ts` | Zustand cart (flat localStorage serialization) |
 | `stores/use-cart-sync.ts` | Shared create-or-patch cart sync (cart page + checkout dedupe to one backend call) |
 | `stores/wishlist.store.ts` | Zustand wishlist with flat localStorage serialization (key `WL`) |
+| `stores/wishlist-sync.ts` | Signed in, the wishlist lives on the account (accounts `wishlist/`, SKUs only): the heart writes there too, a page load takes the account's list, sign-in adds the guest's list to it, sign-out clears the device's; product snapshots come from `products/?sku=` |
 | `utils/NORMALIZERS/` | `NORM_PRODUCTS_DATA`, `NORM_FILTERS_DATA`, `NORM_MEDIA_DATA`, cart/order/price normalizers |
 
 ## Configuration

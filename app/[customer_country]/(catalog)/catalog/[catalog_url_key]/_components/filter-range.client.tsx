@@ -4,7 +4,7 @@
 
 "use client";
 
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { X } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
@@ -34,13 +34,15 @@ const FilterRange = memo(function FilterRange({
     })),
   );
 
-  const [local_value, setLocalValue] = useState<[number, number]>(
-    stored_value ?? [min, max],
-  );
-
-  useEffect(() => {
-    setLocalValue(stored_value ?? [min, max]);
-  }, [stored_value, min, max]);
+  // The slider keeps its own value while dragged and follows the store (apply, reset, clear all) and the range;
+  // the follow happens during render, not in an effect (no extra paint with the old value).
+  const target: [number, number] = stored_value ?? [min, max];
+  const [local_value, setLocalValue] = useState<[number, number]>(target);
+  const [followed, setFollowed] = useState<[number, number]>(target);
+  if (target[0] !== followed[0] || target[1] !== followed[1]) {
+    setFollowed(target);
+    setLocalValue(target);
+  }
 
   const handle_change = useCallback((vals: number[]) => {
     setLocalValue([vals[0], vals[1]]);

@@ -5,7 +5,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { catalog_query } from "../api.query";
+import { catalog_query, type ListingOptions } from "../api.query";
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
 import { useMemo } from "react";
@@ -17,7 +17,16 @@ import { Spinner } from "@/components/ui/spinner";
 import { NotifySimilar } from "@/components/notify-similar.client";
 import { useI18n } from "@/providers/i18n.provider";
 
-export function ListingClient({ options, category_name }: { options: any; category_name?: string }) {
+export function ListingClient({
+  options,
+  category_name,
+  empty_text,
+}: {
+  options: ListingOptions;
+  category_name?: string;
+  // Replaces "No products" (the search page); the notify form, which asks about a category, is then left out.
+  empty_text?: string;
+}) {
   const { t } = useI18n();
   const api_access_context = useMemo(
     () => create_api(make_client_access()),
@@ -54,8 +63,8 @@ export function ListingClient({ options, category_name }: { options: any; catego
         </div>
         {products.length === 0 ? (
           <div className="flex flex-col items-center gap-4 py-12 text-center text-muted-foreground" data-catalog-empty>
-            <p>{t("catalog.no_products")}</p>
-            {!has_filters && (
+            <p>{empty_text ?? t("catalog.no_products")}</p>
+            {!has_filters && !empty_text && (
               <NotifySimilar
                 body={{ category: category_name }}
                 trigger_label={t("catalog.notify_cta")}
@@ -66,7 +75,7 @@ export function ListingClient({ options, category_name }: { options: any; catego
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-            {products.map((product: any) => (
+            {products.map((product) => (
               <ProductTile key={product.sku ?? "no-sku-error"} product={product} />
             ))}
           </div>

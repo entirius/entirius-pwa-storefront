@@ -59,7 +59,8 @@ export const useFiltersStore = create<FiltersStore>()((set) => ({
 
   range_clear: (filter_idx) =>
     set((s) => {
-      const { [filter_idx]: _, ...rest } = s.active_ranges;
+      const rest = { ...s.active_ranges };
+      delete rest[filter_idx];
       return { active_ranges: rest };
     }),
 

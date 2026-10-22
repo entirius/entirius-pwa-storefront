@@ -4,7 +4,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { PageLoading } from "@/components/ui/spinner";
 import { NORM_CART, type Cart } from "@/utils/NORMALIZERS/cart.normalizer";
@@ -42,17 +42,11 @@ export function CheckoutClient() {
 
   const hydrate_cart = serverCart ?? backend ?? null;
 
-  // Reflect fields the cart already has filled in the stepper (no auto-advance).
-  useEffect(() => {
-    if (!hydrate_cart) return;
-    setCompleted((c) => {
-      const next = new Set(c);
-      if (hydrate_cart.billing_address) next.add("address");
-      if (hydrate_cart.shipping_method) next.add("shipping");
-      if (hydrate_cart.payment_method) next.add("payment");
-      return next.size === c.size ? c : next;
-    });
-  }, [hydrate_cart]);
+  // The stepper also shows as done what the cart already has filled in (no auto-advance).
+  const done = new Set(completed);
+  if (hydrate_cart?.billing_address) done.add("address");
+  if (hydrate_cart?.shipping_method) done.add("shipping");
+  if (hydrate_cart?.payment_method) done.add("payment");
 
   if (!mounted) {
     return (
@@ -110,7 +104,7 @@ export function CheckoutClient() {
 
       <CheckoutStepper
         current={step}
-        completed={completed}
+        completed={done}
         onStep={setStep}
       />
 

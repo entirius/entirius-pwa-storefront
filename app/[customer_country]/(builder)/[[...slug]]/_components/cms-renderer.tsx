@@ -80,7 +80,7 @@ export const render_cms_component = (
   // `display: contents` keeps it out of the layout.
   return (
     <div key={data.id ?? `cms-${index}`} data-cms-type={data.core_type} className="contents">
-      <Component {...(data as any)} section_width={section_width}>{children}</Component>
+      <Component {...data} section_width={section_width}>{children}</Component>
     </div>
   );
 };

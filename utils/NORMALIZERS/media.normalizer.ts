@@ -29,12 +29,21 @@ type MEDIA = {
   height: number;
 };
 
+// One media object of the API: a picture in several widths (`source_set`) plus fields to sort and filter by.
+type RawMedia = {
+  source_set?: { source?: string | null; width: number; height: number }[];
+  position?: number;
+  type?: string;
+  [key: string]: unknown;
+};
+
 // [ [{uri, width, height}, {uri, width, height}, {uri, width, height}], [{uri, width, height}, {uri, width, height}, {uri, width, height}] ]
 
 function NORM_MEDIA_DATA(
-  media: any[],
+  raw: unknown[] | null | undefined,
   options: NORM_MEDIA_DATA_OPTIONS = { sort_by: 'position' }
 ): MEDIA[][] {
+  let media = raw as RawMedia[] | null | undefined;
   if (!media) {
     return [
       [
@@ -55,10 +64,7 @@ function NORM_MEDIA_DATA(
   if (options.remove_kvp && options.remove_kvp.length) {
     media = media.filter((item) => {
       // check if the item has the key value pair f.e. [['type', 'video']]
-      const test = options.remove_kvp!.some(([key, value]) => {
-        const itemValue = item[key as keyof typeof item] as unknown as string;
-        return itemValue === value;
-      });
+      const test = options.remove_kvp!.some(([key, value]) => item[key] === value);
 
       // ------------------------------------------------------------
       // if test is true, remove the item
@@ -71,19 +77,15 @@ function NORM_MEDIA_DATA(
   // sort by position, type, source_set
   // ------------------------------------------------------------
   if (options.sort_by && media.length) {
-    media = media.sort((a, b) => {
-      return (
-        (a[options.sort_by as keyof typeof a] as number) -
-        (b[options.sort_by as keyof typeof b] as number)
-      );
-    });
+    const key = options.sort_by;
+    media = media.sort((a, b) => (a[key] as number) - (b[key] as number));
   }
 
   // ------------------------------------------------------------
   // return media
   // ------------------------------------------------------------
-  return media.map((item: any) => {
-    return item.source_set.map((n: any) => {
+  return media.map((item) => {
+    return (item.source_set ?? []).map((n) => {
       return {
         uri: resolve_media_uri(n.source),
         width: n.width,

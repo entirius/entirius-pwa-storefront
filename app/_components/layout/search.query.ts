@@ -2,20 +2,27 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import type { create_api } from "@/API/api.context";
 import { API_SEARCH_ROUTE } from "@/API/api.routes";
+import type { SearchProduct } from "./search-product-row";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Api = { FETCH_METHOD: (path: string, options?: any) => Promise<any> };
+type Api = ReturnType<typeof create_api>;
 
 // Raw unified-search response. Product/category items are a "lite" shape that
 // differs from the catalog endpoints — intentionally NOT normalized here. All
 // shape-mapping happens locally inside the search components so the divergence
 // stays contained (see search-feature.md).
 export type SearchResponse = {
-  products?: { total?: number; results?: any[]; has_next_page?: boolean };
-  categories?: { results?: any[] };
+  products?: { total?: number; results?: SearchProduct[]; has_next_page?: boolean };
+  categories?: { results?: unknown[] };
   phrases?: { text: string; type: string }[];
 };
+
+// The search endpoint answers from this many characters on.
+export const SEARCH_MIN_CHARS = 2;
+
+// The results page of a phrase (app/[customer_country]/search), before the profile prefix.
+export const search_path = (q: string) => `/search?q=${encodeURIComponent(q)}`;
 
 export const search_query = (
   api: Api,
@@ -23,10 +30,11 @@ export const search_query = (
 ) => ({
   queryKey: ["search", q, scope] as const,
   queryFn: async (): Promise<SearchResponse> => {
-    const [error, response] = await api.FETCH_METHOD(API_SEARCH_ROUTE, {
-      querys: { q, scope, limit: 6 },
+    // `limit` caps the categories, `page_size` the products: six of each, the rest on the results page.
+    const [error, response] = await api.FETCH_METHOD<SearchResponse>(API_SEARCH_ROUTE, {
+      querys: { q, scope, limit: 6, page_size: 6 },
     });
     if (error) throw new Error(error.message ?? "Search failed");
-    return (response ?? {}) as SearchResponse;
+    return response ?? {};
   },
 });

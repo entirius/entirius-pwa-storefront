@@ -35,6 +35,7 @@ const APP_ROUTES = new Set([
   "stylesheets",
   "catalog",
   "product",
+  "search",
 ]);
 
 const CHANNELS = new Set(Object.keys(channels));

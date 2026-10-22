@@ -5,7 +5,7 @@
 import { Metadata } from "next";
 import { PrefetchBoundary } from "@/lib/prefetch_boundary";
 import { decode_param } from "@/lib/route-params";
-import { catalog_query, load_catalog, load_category } from "./api.query";
+import { catalog_query, listing_filters, load_catalog, load_category } from "./api.query";
 import { omnibus_prefetch, is_discounted } from "@/lib/omnibus/omnibus.query";
 import { get_server_api } from "@/lib/seo/server-api";
 import { build_catalog_metadata, build_catalog_jsonld } from "@/lib/seo/build";
@@ -72,19 +72,11 @@ export default async function CatalogPage({ params, searchParams }: Props) {
       })
     : null;
 
-  // q_/s_/r_ params are passed to the backend as-is (prefix kept) — the v2
-  // backend parses them directly, so no strip/nest is needed anymore.
-  const filters = Object.fromEntries(
-    Object.entries(search_params).filter(([key]) =>
-      ["q_", "s_", "r_"].some((p) => key.startsWith(p)),
-    ),
-  );
-
   const options = {
     category: catalog_url_key,
     page,
     page_size: limit,
-    ...filters,
+    ...listing_filters(search_params),
   };
 
   // Omnibus lines for the reduced prices on this page, in the server HTML. The
