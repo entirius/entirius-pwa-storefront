@@ -5,7 +5,7 @@
 import { make_client_access } from "@/API/access/api.client-access";
 import { create_api } from "@/API/api.context";
 import { API_CART_LATEST_ROUTE, API_CART_ROUTE, API_PRODUCTS_ROUTE } from "@/API/api.routes";
-import { NORM_PRODUCTS_DATA } from "@/utils/NORMALIZERS/product.normalizer";
+import { NORM_PRODUCTS_DATA, type RawProduct } from "@/utils/NORMALIZERS/product.normalizer";
 import { useCartStore, type CartItem } from "@/stores/cart.store";
 import { _LOGGER } from "@/lib/logger";
 
@@ -60,7 +60,7 @@ export async function merge_cart_on_login(): Promise<void> {
       const missing = lines.map((l) => l.sku).filter((sku) => !local[sku]);
       const products: Record<string, Omit<CartItem, "quantity">> = {};
       if (missing.length) {
-        const [products_error, response] = await api.FETCH_METHOD<{ results?: unknown[] }>(
+        const [products_error, response] = await api.FETCH_METHOD<{ results?: RawProduct[] }>(
           API_PRODUCTS_ROUTE,
           { querys: { sku: missing, page_size: missing.length } },
         );

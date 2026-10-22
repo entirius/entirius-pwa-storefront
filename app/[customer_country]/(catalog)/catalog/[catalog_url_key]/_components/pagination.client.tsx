@@ -13,9 +13,10 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import type { ListingPagination } from "../api.query";
 
 interface Props {
-  pagination: any;
+  pagination: ListingPagination;
   current_page: number;
   className?: string;
 }

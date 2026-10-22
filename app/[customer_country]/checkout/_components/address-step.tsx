@@ -108,8 +108,8 @@ export function AddressStep({
     form.reset(values);
   }, [initial, cartReady, book, form]);
 
-  const requested_invoice = form.watch("requested_invoice");
-  const ship_to_different = form.watch("ship_to_different");
+  const requested_invoice = useWatch({ control: form.control, name: "requested_invoice" });
+  const ship_to_different = useWatch({ control: form.control, name: "ship_to_different" });
 
   const submit = form.handleSubmit((values) => {
     startTransition(async () => {
@@ -271,7 +271,7 @@ function AddressFields({
   const { t } = useI18n();
   const { options: countries, dialling, default_code, ready } = useCountryOptions();
   // A country the channel does not accept (the form default, an old cart address) gives way to its default.
-  const current = form.watch(`${prefix}.country_code` as Path<AddressFormValues>) as string;
+  const current = useWatch({ control, name: `${prefix}.country_code` });
   const postcode_sample = postcode_example(current ?? "");
   useEffect(() => {
     if (!ready || countries.some((c) => c.code === current)) return;

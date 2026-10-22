@@ -31,8 +31,11 @@ export type SeoField = [string, string | string[]];
 export const SEO_FIELDS = SEO as unknown as Record<string, SeoField[]>;
 
 // Dot-walk a raw object: get_path(p, "brands.0.name").
-export function get_path(obj: any, path: string): any {
+export function get_path(obj: unknown, path: string): unknown {
   return path
     .split(".")
-    .reduce((acc, key) => (acc == null ? undefined : acc[key]), obj);
+    .reduce<unknown>(
+      (acc, key) => (acc == null ? undefined : (acc as Record<string, unknown>)[key]),
+      obj,
+    );
 }

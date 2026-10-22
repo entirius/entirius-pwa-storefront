@@ -2,12 +2,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-type Attribute = { feature_idx: string; value: string | null; is_visible: boolean };
+type Attribute = { feature_idx?: string; value?: string | null; is_visible?: boolean };
 
 // The facts of a "tell me when a similar product arrives" request: what the shopper looked at, so the seller
 // can match it later. Values of the configured attribute idxs are joined per idx (a multi-select has several).
 export function notify_body(
-  product: { sku: string; name: string; attributes?: Attribute[] },
+  product: { sku: string; name: string; attributes?: Attribute[] | null },
   category_name: string | undefined,
   attribute_idxs: string[],
 ): Record<string, string | undefined> {

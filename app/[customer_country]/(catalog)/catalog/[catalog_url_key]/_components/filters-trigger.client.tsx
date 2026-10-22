@@ -14,13 +14,14 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { FiltersOptionsClient } from "./filters-options.client";
+import type { ListingOptions } from "../api.query";
 import { FilterIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/providers/i18n.provider";
 
 const FILTER_PREFIXES = ["q_", "s_", "r_"];
 
-export function FiltersTriggerClient({ options }: { options: any }) {
+export function FiltersTriggerClient({ options }: { options: ListingOptions }) {
   const search_params = useSearchParams();
   const { t } = useI18n();
 

@@ -17,7 +17,7 @@ const ANSI_COLORS = {
 type LOGGER_ARGS = {
   type: 'info' | 'error' | 'warning' | 'success';
   message?: string;
-  print?: any;
+  print?: unknown;
 };
 
 export const _LOGGER = ({ type = 'info', message, print }: LOGGER_ARGS) => {

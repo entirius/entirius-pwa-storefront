@@ -3,7 +3,8 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { NORM_MEDIA_DATA } from "@/utils/NORMALIZERS/media.normalizer";
-import { NORM_PRICE_DATA } from "@/utils/NORMALIZERS/price.normalizer";
+import { NORM_PRICE_DATA, type RawPrice } from "@/utils/NORMALIZERS/price.normalizer";
+import type { ProductCategory } from "@/lib/categories";
 import { is_story } from "@/lib/rich-html";
 
 function main_media(product: { media?: unknown[]; main_image?: unknown }): unknown[] {
@@ -14,7 +15,7 @@ function main_media(product: { media?: unknown[]; main_image?: unknown }): unkno
 // Only a fixed list price can go to the cart. A range price belongs to a
 // CONFIGURABLE parent (a variant is bought, and variants are not selectable
 // yet); no price means CUSTOM, sold through an individual offer.
-function is_purchasable(price: { gross?: unknown; is_range?: boolean } | null | undefined): boolean {
+function is_purchasable(price: RawPrice | null | undefined): boolean {
   return !!price && !price.is_range && !!price.gross;
 }
 
@@ -83,7 +84,30 @@ function NORM_STORIES(attributes: RawAttribute[] | null | undefined): Story[] {
     .map((a) => ({ idx: a.feature_idx as string, name: a.feature_name as string, html: String(a.value) }));
 }
 
-function NORM_PRODUCTS_DATA(products: any[]) {
+// A product of matrix `products/` (list answers, and `include=full` for the product page): the fields the
+// storefront reads.
+export type RawProduct = {
+  sku: string;
+  name: string;
+  url_key: string;
+  description?: string | null;
+  short_description?: string | null;
+  on_stock?: boolean;
+  product_type?: string;
+  parent_url_key?: string | null;
+  price?: RawPrice | null;
+  media?: unknown[];
+  main_image?: unknown;
+  attributes?: RawAttribute[] | null;
+  badges?: { idx: string; name: string }[] | null;
+  brands?: { idx?: string; name: string }[] | null;
+  categories?: ProductCategory[];
+  url_keys?: Record<string, string> | null;
+};
+
+export type Product = ReturnType<typeof NORM_PRODUCTS_DATA>[number];
+
+function NORM_PRODUCTS_DATA(products: RawProduct[] | null | undefined) {
   if (!products) {
     return [];
   }

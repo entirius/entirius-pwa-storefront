@@ -3,11 +3,19 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { cache } from "react";
+import type { create_api } from "@/API/api.context";
 import { API_STOCK_ROUTE } from "@/API/api.routes";
 
-type Api = { FETCH_METHOD: (path: string, options?: any) => Promise<any> };
+type Api = ReturnType<typeof create_api>;
 
 type Stock = { quantity: number; is_in_stock: boolean };
+
+// A dict keyed by SKU, bare or wrapped in { data }.
+type StockDict = Record<string, Stock>;
+type StockResponse = StockDict | { data?: StockDict };
+
+const stock_dict = (response: StockResponse | undefined): StockDict =>
+  (response as { data?: StockDict } | undefined)?.data ?? (response as StockDict | undefined) ?? {};
 
 export const stock_query = (api: Api, options: { sku: string }) => ({
   queryKey: ["stock", options.sku],
@@ -19,15 +27,14 @@ export const stock_query = (api: Api, options: { sku: string }) => ({
     if (error) throw new Error(error.message);
     // Response is a dict keyed by SKU: { "<sku>": { quantity, is_in_stock } }.
     // Missing SKU = absent from response.
-    const dict = response?.data ?? response ?? {};
-    return dict[options.sku] ?? { quantity: 0, is_in_stock: false };
+    return stock_dict(response)[options.sku] ?? { quantity: 0, is_in_stock: false };
   },
 });
 
 // Keyed on the sku string — React.cache() compares arguments with Object.is, so
 // an options object would be a fresh reference at every call site and miss.
 const _load_stock = cache(async (api: Api, sku: string) => {
-  return api.FETCH_METHOD(API_STOCK_ROUTE, { querys: { sku } });
+  return api.FETCH_METHOD<StockResponse>(API_STOCK_ROUTE, { querys: { sku } });
 });
 
 export const load_stock = (api: Api, options: { sku: string }) =>
@@ -39,11 +46,11 @@ export const stocks_query = (api: Api, options: { skus: string[] }) => ({
   staleTime: 0,
   refetchOnMount: true,
   queryFn: async (): Promise<Record<string, Stock>> => {
-    const [error, response] = await api.FETCH_METHOD(API_STOCK_ROUTE, {
+    const [error, response] = await api.FETCH_METHOD<StockResponse>(API_STOCK_ROUTE, {
       querys: { sku: options.skus },
     });
     if (error) throw new Error(error.message);
-    return response?.data ?? response ?? {};
+    return stock_dict(response);
   },
 });
 

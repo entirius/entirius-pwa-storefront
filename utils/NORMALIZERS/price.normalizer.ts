@@ -16,7 +16,19 @@ type Price = {
 // `null` — no list price (CUSTOM: priced per offer) or no amount: "Price on request".
 // `is_range` — CONFIGURABLE: `gross` is null, the span of its variants sits in
 // `range_from_*` / `range_to_*`; shown as the lowest price.
-function NORM_PRICE_DATA(price: any): Price | null {
+// The price object of matrix `products/` (and of a cart line): the fields the storefront reads.
+type RawPrice = {
+  currency: string;
+  gross?: string | null;
+  final_gross?: string | null;
+  has_special_price?: boolean;
+  percent_off?: string | number | null;
+  is_range?: boolean;
+  range_from_gross?: string | null;
+  range_from_special_gross?: string | null;
+};
+
+function NORM_PRICE_DATA(price: RawPrice | null | undefined): Price | null {
   if (!price) return null;
   const { currency } = price;
   if (price.is_range) {
@@ -46,4 +58,4 @@ function stored_price(value: unknown): Price | null {
 }
 
 export { NORM_PRICE_DATA, stored_price };
-export type { Price };
+export type { Price, RawPrice };

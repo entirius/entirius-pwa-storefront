@@ -3,11 +3,12 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { API_CART_ROUTE, API_CART_ITEMS_ROUTE } from "@/API/api.routes";
-import { NORM_CART } from "@/utils/NORMALIZERS/cart.normalizer";
+import { NORM_CART, type RawCart } from "@/utils/NORMALIZERS/cart.normalizer";
 import type { CartItem } from "@/stores/cart.store";
 import type { COOKIE_ACCESS } from "@/API/api";
+import type { create_api } from "@/API/api.context";
 
-type Api = { FETCH_METHOD: (path: string, options?: any) => Promise<any> };
+type Api = ReturnType<typeof create_api>;
 
 const to_items = (items: Record<string, CartItem>) =>
   Object.values(items).map((i) => ({ sku: i.sku, quantity: i.quantity }));
@@ -43,7 +44,7 @@ export const cart_query = (
     }
 
     if (cid) {
-      const [error, response] = await api.FETCH_METHOD(API_CART_ITEMS_ROUTE, {
+      const [error, response] = await api.FETCH_METHOD<RawCart>(API_CART_ITEMS_ROUTE, {
         method: "PATCH",
         body,
       });
@@ -51,7 +52,7 @@ export const cart_query = (
       return NORM_CART(response);
     }
 
-    const [error, response] = await api.FETCH_METHOD(API_CART_ROUTE, {
+    const [error, response] = await api.FETCH_METHOD<RawCart>(API_CART_ROUTE, {
       method: "POST",
       body,
     });

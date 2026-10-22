@@ -5,7 +5,7 @@
 import { make_client_access } from "@/API/access/api.client-access";
 import { create_api } from "@/API/api.context";
 import { API_PRODUCTS_ROUTE, API_WISHLIST_PRODUCT_ROUTE, API_WISHLIST_ROUTE } from "@/API/api.routes";
-import { NORM_PRODUCTS_DATA } from "@/utils/NORMALIZERS/product.normalizer";
+import { NORM_PRODUCTS_DATA, type RawProduct } from "@/utils/NORMALIZERS/product.normalizer";
 import { useWishlistStore, type WishlistItem } from "@/stores/wishlist.store";
 import { _LOGGER } from "@/lib/logger";
 
@@ -37,7 +37,7 @@ async function write(api: Api, method: "POST" | "DELETE", skus: string[]) {
 // Snapshots of products the device has not seen, from the catalogue (the account knows only SKUs).
 async function snapshots(api: Api, skus: string[]): Promise<Items> {
   if (!skus.length) return {};
-  const [error, response] = await api.FETCH_METHOD<{ results?: unknown[] }>(API_PRODUCTS_ROUTE, {
+  const [error, response] = await api.FETCH_METHOD<{ results?: RawProduct[] }>(API_PRODUCTS_ROUTE, {
     querys: { sku: skus, page_size: skus.length },
   });
   if (error) throw new Error(error.message);

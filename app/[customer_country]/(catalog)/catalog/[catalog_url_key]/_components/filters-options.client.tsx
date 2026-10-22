@@ -9,7 +9,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
-import { filters_query } from "../api.query";
+import {
+  filters_query,
+  type ListingOptions,
+  type SortFilter,
+  type ValueFilter,
+} from "../api.query";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { FilterItem } from "./filter-item.client";
@@ -27,13 +32,13 @@ const FilterGroup = memo(function FilterGroup({
   filter,
 }: {
   prefix_filter_idx: string;
-  filter: any;
+  filter: ValueFilter;
 }) {
   return (
     <div className="flex flex-col gap-2 border-t border-border pt-4">
       <h3 className="text-base">{filter.label}</h3>
       <div className="-mx-2 flex flex-col">
-        {filter.options?.map((option: any) => (
+        {filter.options?.map((option) => (
           <FilterItem
             key={option.idx}
             prefix_filter_idx={prefix_filter_idx}
@@ -50,14 +55,14 @@ const FilterGroup = memo(function FilterGroup({
 const SortGroup = memo(function SortGroup({
   filter,
 }: {
-  filter: any;
+  filter: SortFilter;
 }) {
   const { t } = useI18n();
   return (
     <div className="flex flex-col gap-3">
       <h3 className="text-base">{t("catalog.sort")}</h3>
       <div className="flex flex-col gap-2">
-        {filter.options?.map((option: any) => (
+        {filter.options?.map((option) => (
           <FilterSortItem
             key={option.idx}
             option_idx={option.idx}
@@ -75,7 +80,7 @@ export function FiltersOptionsClient({
   options,
   in_sheet = false,
 }: {
-  options: any;
+  options: ListingOptions;
   // In the sheet the dialog title names the panel; the visible line is not a
   // second heading.
   in_sheet?: boolean;
@@ -146,11 +151,12 @@ export function FiltersOptionsClient({
   if (!response || isError)
     return <p className="text-sm text-destructive p-4">{t("catalog.filters_failed")}</p>;
 
-  const { q_, s_, r_ } = response.data ?? {};
+  const { q_, s_, r_ } = response.data;
 
-  const has_sort = s_ && Object.keys(s_).length;
-  const has_range = r_ && Object.keys(r_).length;
-  const has_query = q_ && Object.keys(q_).length;
+  // Booleans, not counts: `{0 && …}` would print a stray "0" for an empty group.
+  const has_sort = Object.keys(s_).length > 0;
+  const has_range = Object.keys(r_).length > 0;
+  const has_query = Object.keys(q_).length > 0;
 
   if (!has_sort && !has_range && !has_query) return null;
 
@@ -176,7 +182,7 @@ export function FiltersOptionsClient({
       )}
       {has_sort && (
         <div className="flex flex-col gap-3">
-          {Object.entries(s_).map(([prefix_filter_idx, filter]: any) => (
+          {Object.entries(s_).map(([prefix_filter_idx, filter]) => (
             <SortGroup
               key={prefix_filter_idx}
               filter={filter}
@@ -187,20 +193,20 @@ export function FiltersOptionsClient({
 
       {has_range && (
         <div className="flex flex-col gap-5 border-t border-border pt-4">
-          {Object.entries(r_).map(([filter_idx, filter]: any) => (
+          {Object.entries(r_).map(([filter_idx, filter]) => (
             <FilterRange
               key={filter_idx}
               filter_idx={filter_idx}
               label={filter.label}
-              min={Math.floor(parseFloat(filter.min_value))}
-              max={Math.ceil(parseFloat(filter.max_value))}
+              min={Math.floor(filter.min_value)}
+              max={Math.ceil(filter.max_value)}
             />
           ))}
         </div>
       )}
 
       {has_query &&
-        Object.entries(q_).map(([prefix_filter_idx, filter]: any) => (
+        Object.entries(q_).map(([prefix_filter_idx, filter]) => (
           <FilterGroup
             key={prefix_filter_idx}
             prefix_filter_idx={prefix_filter_idx}

@@ -111,6 +111,100 @@ type Cart = {
   need_full_address: boolean;
 };
 
+// The checkout/v2 cart as the backend sends it: the fields read here.
+type RawCartItem = {
+  sku?: string;
+  quantity?: number | string;
+  status?: string;
+  unit_gross?: string | null;
+  total_gross?: string | null;
+  final_unit_gross?: string | null;
+  final_total_gross?: string | null;
+  unit_tax?: string | null;
+  has_special_price?: boolean;
+  percent_off?: number | string | null;
+  discount_gross?: string | null;
+};
+
+type RawCartDiscount = {
+  code?: string;
+  modifier?: string;
+  status?: string;
+  is_automatic?: boolean;
+  free_shipping?: boolean;
+};
+
+type RawCartError = { code?: string; message?: string; meta?: { sku?: string | null } | null };
+
+type RawCartAddress = {
+  email?: string | null;
+  firstname?: string | null;
+  lastname?: string | null;
+  street?: string | null;
+  city?: string | null;
+  postcode?: string | null;
+  country_code?: string | null;
+  dialling_code?: string | null;
+  telephone?: string | null;
+  company?: string | null;
+  tax_id?: string | null;
+  requested_invoice?: boolean;
+};
+
+type RawCartAddresses = {
+  billing_address?: RawCartAddress | null;
+  shipping_address?: RawCartAddress | null;
+};
+
+type RawShippingMethod = {
+  code?: string;
+  name?: string | null;
+  price?: string | null;
+  total_price?: string | null;
+  final_gross?: string | null;
+  description?: string | null;
+  free_delivery_above?: string | null;
+};
+
+type RawPaymentMethod = {
+  code?: string;
+  name?: string | null;
+  description?: string | null;
+  image?: string | null;
+  provider?: string | null;
+  cash_on_delivery_fee?: string | null;
+  fee?: string | null;
+  fee_gross?: string | null;
+};
+
+type RawCart = {
+  cart_id?: string;
+  cart_status?: string;
+  validation_status?: string;
+  currency?: string;
+  allowed_guest_checkout?: boolean;
+  subtotal_gross?: string | null;
+  fee_gross?: string | null;
+  total_gross?: string | null;
+  total_tax?: string | null;
+  total_discount_gross?: string | null;
+  free_shipping?: boolean;
+  amount_missing_for_free_shipping?: string | null;
+  tax_rates?: Record<string, string> | null;
+  items?: RawCartItem[];
+  discounts?: RawCartDiscount[];
+  _errors?: RawCartError[];
+  addresses?: RawCartAddresses | null;
+  billing_address?: RawCartAddress | null;
+  shipping_address?: RawCartAddress | null;
+  shipping_method?: RawShippingMethod | null;
+  payment_method?: RawPaymentMethod | null;
+  need_full_address?: boolean;
+};
+
+// The method lists, either bare or wrapped in { data }.
+type RawMethodList<T> = T[] | { data?: T[] } | null | undefined;
+
 const num = (v: unknown) => {
   const n = parseFloat(String(v));
   return Number.isFinite(n) ? n : 0;
@@ -120,7 +214,7 @@ const str = (v: unknown): string | null =>
   v == null || v === "" ? null : String(v);
 
 // A cart address object → typed CartAddress, or null when absent/empty.
-function norm_address(a: any): CartAddress | null {
+function norm_address(a: RawCartAddress | null | undefined): CartAddress | null {
   if (!a || typeof a !== "object" || !Object.keys(a).length) return null;
   return {
     email: str(a.email),
@@ -139,7 +233,7 @@ function norm_address(a: any): CartAddress | null {
 }
 
 // One shipping method entry (from the list GET or the cart's selected method).
-function norm_method(m: any): ShippingMethod | null {
+function norm_method(m: RawShippingMethod | null | undefined): ShippingMethod | null {
   if (!m || typeof m !== "object" || !m.code) return null;
   return {
     code: String(m.code),
@@ -155,8 +249,9 @@ function norm_method(m: any): ShippingMethod | null {
 // GET /shipping-methods/ response → ShippingMethod[]. The envelope is inconsistent
 // across this API (carts are flat, but this GET may come back wrapped in { data }),
 // so accept both a bare array and a { data } wrapper. Entries without a code drop.
-function NORM_SHIPPING_METHODS(resp: any): ShippingMethod[] {
-  const list = Array.isArray(resp) ? resp : (resp?.data ?? []);
+function NORM_SHIPPING_METHODS(resp: unknown): ShippingMethod[] {
+  const body = resp as RawMethodList<RawShippingMethod>;
+  const list = Array.isArray(body) ? body : (body?.data ?? []);
   if (!Array.isArray(list)) return [];
   return list
     .map(norm_method)
@@ -164,7 +259,7 @@ function NORM_SHIPPING_METHODS(resp: any): ShippingMethod[] {
 }
 
 // One payment method entry (from the list GET or the cart's selected method).
-function norm_payment(m: any): PaymentMethod | null {
+function norm_payment(m: RawPaymentMethod | null | undefined): PaymentMethod | null {
   if (!m || typeof m !== "object" || !m.code) return null;
   return {
     code: String(m.code),
@@ -178,16 +273,18 @@ function norm_payment(m: any): PaymentMethod | null {
 }
 
 // GET /payment-methods/ response → PaymentMethod[]. Same dual-envelope unwrap.
-function NORM_PAYMENT_METHODS(resp: any): PaymentMethod[] {
-  const list = Array.isArray(resp) ? resp : (resp?.data ?? []);
+function NORM_PAYMENT_METHODS(resp: unknown): PaymentMethod[] {
+  const body = resp as RawMethodList<RawPaymentMethod>;
+  const list = Array.isArray(body) ? body : (body?.data ?? []);
   if (!Array.isArray(list)) return [];
   return list
     .map(norm_payment)
     .filter((m): m is PaymentMethod => m !== null);
 }
 
-function NORM_CART(data: any): Cart {
-  const raw_items: any[] = Array.isArray(data?.items) ? data.items : [];
+function NORM_CART(resp: unknown): Cart {
+  const data = resp as RawCart | null | undefined;
+  const raw_items: RawCartItem[] = Array.isArray(data?.items) ? data.items : [];
   const lines: Record<string, CartLine> = {};
   let sum_final = 0;
   let sum_list = 0;
@@ -217,10 +314,10 @@ function NORM_CART(data: any): Cart {
   // Special-price saving = list price of the items − Σ line finals (before code discounts).
   const item_savings = sum_list - sum_final;
 
-  const raw_discounts: any[] = Array.isArray(data?.discounts)
+  const raw_discounts: RawCartDiscount[] = Array.isArray(data?.discounts)
     ? data.discounts
     : [];
-  const discounts: CartDiscount[] = raw_discounts.map((d: any) => ({
+  const discounts: CartDiscount[] = raw_discounts.map((d) => ({
     code: d?.code ?? "",
     modifier: d?.modifier ?? "",
     status: d?.status ?? "",
@@ -228,8 +325,8 @@ function NORM_CART(data: any): Cart {
     free_shipping: Boolean(d?.free_shipping),
   }));
 
-  const raw_errors: any[] = Array.isArray(data?._errors) ? data._errors : [];
-  const errors: CartError[] = raw_errors.map((e: any) => ({
+  const raw_errors: RawCartError[] = Array.isArray(data?._errors) ? data._errors : [];
+  const errors: CartError[] = raw_errors.map((e) => ({
     code: e?.code ?? "UNKNOWN",
     message: e?.message ?? "",
     sku: e?.meta?.sku ?? null,
@@ -240,7 +337,7 @@ function NORM_CART(data: any): Cart {
 
   // Addresses nest under `addresses`; fall back to top-level in case the backend
   // returns them flat on some responses.
-  const addresses = data?.addresses ?? {};
+  const addresses: RawCartAddresses = data?.addresses ?? {};
   const billing_address = norm_address(
     addresses.billing_address ?? data?.billing_address,
   );
@@ -281,6 +378,7 @@ function NORM_CART(data: any): Cart {
 
 export { NORM_CART, NORM_SHIPPING_METHODS, NORM_PAYMENT_METHODS };
 export type {
+  RawCart,
   Cart,
   CartLine,
   CartDiscount,

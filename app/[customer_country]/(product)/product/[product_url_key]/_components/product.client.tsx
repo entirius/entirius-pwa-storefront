@@ -154,7 +154,7 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
       <section aria-label={t("product.details")} className="surface flex flex-col gap-8">
         {/* Meta: who, what, which. */}
         <div className="flex flex-col gap-3">
-          {product.brands?.length > 0 && (
+          {!!product.brands?.length && (
             <p className="text-xs text-muted-foreground">
               {product.brands.map((b: { name: string }) => b.name).join(", ")}
             </p>
@@ -248,7 +248,7 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
 
         {has_text(product.description) && (
           <div className="border-t pt-8">
-            <SanitizeHTML html={description_html(product.description)} className="text-muted-foreground" />
+            <SanitizeHTML html={description_html(product.description ?? "")} className="text-muted-foreground" />
           </div>
         )}
 

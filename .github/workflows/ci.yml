@@ -27,8 +27,7 @@ jobs:
       - run: cp -r _CONFIG.example _CONFIG
       - run: pnpm build
 
-  # Types + ESLint. Legacy errors are listed in eslint-suppressions.json, so
-  # only new ones fail; the warning count may not grow either.
+  # Types + ESLint: no error and no warning.
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -45,7 +44,7 @@ jobs:
       # Route types (e.g. RouteContext) that `next dev` / `next build` would generate.
       - run: pnpm exec next typegen
       - run: pnpm exec tsc --noEmit
-      - run: pnpm lint --max-warnings=5
+      - run: pnpm lint --max-warnings=0
 
   # Unit tests (Vitest). E2E need the live backend and run locally (docs/testing.md).
   test:

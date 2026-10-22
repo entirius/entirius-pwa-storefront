@@ -96,7 +96,71 @@ export function status_label_for(status: string, label: string | null): string {
 const str = (v: unknown): string | null =>
   v === null || v === undefined || v === "" ? null : String(v);
 
-function norm_address(a: any): OrderAddress | null {
+// An order as the backend sends it (the detail with `order_body` lifted, or a v1 order): the fields read here.
+type RawOrderAddress = {
+  firstname?: string | null;
+  lastname?: string | null;
+  street?: string | null;
+  city?: string | null;
+  postcode?: string | null;
+  country_code?: string | null;
+  dialling_code?: string | null;
+  telephone?: string | null;
+  email?: string | null;
+  company?: string | null;
+  tax_id?: string | null;
+};
+
+type RawOrderSubItem = { sku?: string | null; quantity?: number | string; option_title?: string | null };
+
+type RawOrderItem = {
+  sku?: string | null;
+  name?: string | null;
+  quantity?: number | string;
+  unit_price?: string | null;
+  price?: string | null;
+  base_unit_price?: string | null;
+  special_percent?: number | string | null;
+  total_price?: string | null;
+  image_url?: string | null;
+  sub_items?: RawOrderSubItem[];
+};
+
+type RawOrderPaymentMethod = { code?: string | null; name?: string | null; pay_code?: string | null };
+
+type RawOrderShippingMethod = {
+  code?: string | null;
+  name?: string | null;
+  total_price?: string | null;
+  normal_price?: string | null;
+};
+
+type RawOrder = {
+  pretty_id?: string | null;
+  id?: string | number | null;
+  order_id?: string | null;
+  order_uuid?: string | null;
+  uuid?: string | null;
+  status?: string | null;
+  status_label?: string | null;
+  created?: string | null;
+  updated?: string | null;
+  comment?: string | null;
+  total?: string | null;
+  base_total?: string | null;
+  total_tax?: string | null;
+  currency_code?: string | null;
+  country_code?: string | null;
+  cart?: { items?: RawOrderItem[]; total_netto_price?: string | null } | null;
+  items?: RawOrderItem[];
+  addresses?: { shipping_address?: RawOrderAddress | null; billing_address?: RawOrderAddress | null } | null;
+  payment_method?: RawOrderPaymentMethod[] | RawOrderPaymentMethod | null;
+  shipping_method?: RawOrderShippingMethod | null;
+};
+
+type RawOrderDetail = RawOrder & { order_body?: RawOrder | null; data?: RawOrderDetail };
+
+function norm_address(a: RawOrderAddress | null | undefined): OrderAddress | null {
   if (!a || typeof a !== "object") return null;
   return {
     firstname: str(a.firstname) ?? "",
@@ -113,8 +177,8 @@ function norm_address(a: any): OrderAddress | null {
   };
 }
 
-function norm_item(i: any): OrderItem {
-  const subs = Array.isArray(i?.sub_items) ? i.sub_items : [];
+function norm_item(i: RawOrderItem): OrderItem {
+  const subs: RawOrderSubItem[] = Array.isArray(i?.sub_items) ? i.sub_items : [];
   const special = Number(i?.special_percent);
   return {
     sku: str(i?.sku),
@@ -126,7 +190,7 @@ function norm_item(i: any): OrderItem {
     special_percent: Number.isFinite(special) && special > 0 ? special : null,
     total_price: str(i?.total_price),
     image_url: resolve_media_url(str(i?.image_url)) || null,
-    sub_items: subs.map((s: any) => ({
+    sub_items: subs.map((s) => ({
       sku: str(s?.sku),
       quantity: Number(s?.quantity ?? 1),
       option_title: str(s?.option_title),
@@ -136,16 +200,16 @@ function norm_item(i: any): OrderItem {
 
 // `payment_method` is an array — an order can carry a voucher alongside the
 // actual method (e.g. voucher + banktransfer).
-function norm_payment_methods(p: any): OrderPaymentMethod[] {
+function norm_payment_methods(p: RawOrder["payment_method"]): OrderPaymentMethod[] {
   const list = Array.isArray(p) ? p : p ? [p] : [];
-  return list.map((m: any) => ({
+  return list.map((m) => ({
     code: str(m?.code),
     name: str(m?.name),
     pay_code: str(m?.pay_code),
   }));
 }
 
-function norm_shipping_method(s: any): OrderShippingMethod | null {
+function norm_shipping_method(s: RawOrderShippingMethod | null | undefined): OrderShippingMethod | null {
   if (!s || typeof s !== "object") return null;
   return {
     code: str(s.code),
@@ -155,8 +219,8 @@ function norm_shipping_method(s: any): OrderShippingMethod | null {
   };
 }
 
-function norm_order(o: any): Order {
-  const items = Array.isArray(o?.cart?.items)
+function norm_order(o: RawOrder): Order {
+  const items: RawOrderItem[] = Array.isArray(o?.cart?.items)
     ? o.cart.items
     : Array.isArray(o?.items)
       ? o.items
@@ -228,8 +292,9 @@ function NORM_ORDER_SUMMARIES(resp: unknown): OrderSummaryPage {
 // level (pretty_id/status/created/updated) and nests everything else in
 // `order_body`, so flatten it — the outer spread keeps the top-level scalars
 // winning. `{ data }` is unwrapped so a v1 detail response works too.
-function NORM_ORDER(resp: any): Order {
-  const raw = resp?.order_body ? resp : (resp?.data ?? resp);
+function NORM_ORDER(resp: unknown): Order {
+  const body = resp as RawOrderDetail | null | undefined;
+  const raw = body?.order_body ? body : (body?.data ?? body);
   return norm_order({ ...(raw?.order_body ?? {}), ...raw });
 }
 

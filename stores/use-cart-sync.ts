@@ -4,7 +4,7 @@
 
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { make_client_access } from "@/API/access/api.client-access";
 import { create_api } from "@/API/api.context";
@@ -12,6 +12,7 @@ import { useCartStore } from "@/stores/cart.store";
 import { cart_query } from "@/stores/cart.query";
 import { stocks_query } from "@/app/[customer_country]/(product)/product/[product_url_key]/stock.query";
 import { useAuth } from "@/providers/auth.provider";
+import { useHydrated } from "@/lib/use-hydrated";
 
 // Shared create-or-patch sync for the cart. The cart page and the checkout page
 // run this — the queryKey is derived from the local items, so TanStack dedupes to
@@ -36,10 +37,9 @@ export function useCartSync(enabled = true) {
   const { isLoggedIn } = useAuth();
   const authId = isLoggedIn ? (access.get("uid") ?? null) : null;
 
-  // localStorage is client-only — gate the sync until mounted to avoid an
+  // localStorage is client-only — gate the sync until hydrated to avoid an
   // SSR/CSR hydration mismatch.
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useHydrated();
 
   const {
     data: backend,

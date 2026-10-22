@@ -5,7 +5,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { catalog_query } from "../api.query";
+import { catalog_query, type ListingOptions } from "../api.query";
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
 import { useMemo } from "react";
@@ -22,7 +22,7 @@ export function ListingClient({
   category_name,
   empty_text,
 }: {
-  options: any;
+  options: ListingOptions;
   category_name?: string;
   // Replaces "No products" (the search page); the notify form, which asks about a category, is then left out.
   empty_text?: string;
@@ -75,7 +75,7 @@ export function ListingClient({
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-            {products.map((product: any) => (
+            {products.map((product) => (
               <ProductTile key={product.sku ?? "no-sku-error"} product={product} />
             ))}
           </div>

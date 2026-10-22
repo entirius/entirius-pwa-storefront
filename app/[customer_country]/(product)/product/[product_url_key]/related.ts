@@ -5,22 +5,14 @@
 import type { create_api } from "@/API/api.context";
 import { cache } from "react";
 import { API_PRODUCTS_ROUTE } from "@/API/api.routes";
-import { primary_category, type ProductCategory } from "@/lib/categories";
+import { primary_category } from "@/lib/categories";
 import { RELATED_RULES } from "@/lib/product-config";
+import type { RawProduct as CatalogProduct } from "@/utils/NORMALIZERS/product.normalizer";
 import { load_product } from "./api.query";
 
 type Api = ReturnType<typeof create_api>;
-type Attribute = { feature_idx: string; value_idx: string | null };
-export type RawProduct = {
-  sku: string;
-  on_stock?: boolean;
-  categories?: ProductCategory[];
-  attributes?: Attribute[];
-  url_key?: string;
-  short_description?: string | null;
-  description?: string | null;
-  [key: string]: unknown;
-};
+// What the rules read of a product; load_related hands on the whole record.
+export type RawProduct = Pick<CatalogProduct, "sku" | "on_stock" | "categories" | "attributes">;
 
 export const RELATED_LIMIT = 8;
 const CANDIDATES = 16;
@@ -58,13 +50,13 @@ export function rule_filter(rule: string, product: RawProduct): Filter | null {
 }
 
 // Keeps what a related list may show: not the product itself, not a duplicate, not a sold-out one.
-export function accept_candidates(
-  candidates: RawProduct[],
+export function accept_candidates<T extends RawProduct>(
+  candidates: T[],
   seen: Set<string>,
   filter: Filter,
   room: number,
-): RawProduct[] {
-  const taken: RawProduct[] = [];
+): T[] {
+  const taken: T[] = [];
   for (const candidate of candidates) {
     if (taken.length >= room) break;
     if (seen.has(candidate.sku) || candidate.on_stock === false || !filter.matches(candidate)) continue;
@@ -78,21 +70,21 @@ export function accept_candidates(
 // `PRODUCT.RELATED` in order, each one filling up what the previous left (up to RELATED_LIMIT). The rules are
 // asked in parallel; the order only decides whose candidates go first. Keyed on the url_key (a primitive), so
 // React cache() dedupes it; the product itself comes from load_product's cache.
-export const load_related = cache(async (api: Api, product_url_key: string): Promise<RawProduct[]> => {
+export const load_related = cache(async (api: Api, product_url_key: string): Promise<CatalogProduct[]> => {
   const [, response] = await load_product(api, { product_url_key });
-  const product = (response as { results?: RawProduct[] } | undefined)?.results?.[0];
+  const product = response?.results?.[0];
   if (!product) return [];
 
   const filters = RELATED_RULES.map((rule) => rule_filter(rule, product)).filter((f): f is Filter => f !== null);
   const answers = await Promise.all(
     filters.map((filter) =>
-      api.FETCH_METHOD<{ results?: RawProduct[] }>(API_PRODUCTS_ROUTE, {
+      api.FETCH_METHOD<{ results?: CatalogProduct[] }>(API_PRODUCTS_ROUTE, {
         querys: { ...filter.query, on_stock: "true", page_size: CANDIDATES, include: "full" },
       }),
     ),
   );
 
-  const found: RawProduct[] = [];
+  const found: CatalogProduct[] = [];
   const seen = new Set([product.sku]);
   filters.forEach((filter, i) => {
     const [error, body] = answers[i];
