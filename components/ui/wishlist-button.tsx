@@ -11,7 +11,9 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useWishlistStore } from "@/stores/wishlist.store";
+import { toggle_on_account } from "@/stores/wishlist-sync";
 import { useI18n } from "@/providers/i18n.provider";
+import { useAuth } from "@/providers/auth.provider";
 
 // ─── variants ────────────────────────────────────────────────────────────────
 
@@ -94,12 +96,17 @@ const WishlistButton = React.forwardRef<HTMLButtonElement, WishlistButtonProps>(
 
     const storeActive = useWishlistStore((s) => (sku ? s.has(sku) : false));
     const toggle = useWishlistStore((s) => s.toggle);
+    const { isLoggedIn } = useAuth();
     const isActive = mounted ? (sku ? storeActive : isActiveProp) : false;
 
     const isIconOnly = size === "icon" || size === "icon-sm" || size === "icon-lg" || size === "icon-xs";
 
+    // Signed in, the account keeps the list too.
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-      if (sku && item) toggle(sku, item);
+      if (sku && item) {
+        if (isLoggedIn) void toggle_on_account(sku, item);
+        else toggle(sku, item);
+      }
       onClick?.(e);
     };
 

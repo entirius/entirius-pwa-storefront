@@ -61,6 +61,10 @@ export const API_USER_PASSWORD_RESET_ROUTE =
   "/api/accounts/v1/__CHANNEL__/customer/password/reset/";
 export const API_USER_PASSWORD_CHANGE_ROUTE =
   "/api/accounts/v1/__CHANNEL__/customer/password/change/";
+// The signed-in customer's wishlist (accounts keeps SKUs only): GET { uid, products: [{ sku, name }] }, 400 while
+// the customer has none yet. POST / DELETE { sku: [...] } on the product route add / remove.
+export const API_WISHLIST_ROUTE = "/api/accounts/v1/__CHANNEL__/wishlist/";
+export const API_WISHLIST_PRODUCT_ROUTE = "/api/accounts/v1/__CHANNEL__/wishlist/product/";
 // ----- AUTHENTICATION -----
 // ----- CMS / CONTENT -----
 export const API_CMS_STATIC_PAGE_ROUTE =
@@ -105,6 +109,22 @@ export const API_ROUTES_POLICY = {
   [API_PRODUCT_VARIANTS_ROUTE]: { default_querys: ["language", "currency", "country"] },
   [API_SEARCH_ROUTE]: { default_querys: ["language", "currency", "country"] },
   [API_USER_PROFILE_ROUTE]: {
+    refresh_on: [401],
+    optional_refresh: true,
+    default_headers: [
+      ["Authorization", "access_token"],
+      { "Content-Type": "application/json" },
+    ],
+  },
+  [API_WISHLIST_ROUTE]: {
+    refresh_on: [401],
+    optional_refresh: true,
+    default_headers: [
+      ["Authorization", "access_token"],
+      { "Content-Type": "application/json" },
+    ],
+  },
+  [API_WISHLIST_PRODUCT_ROUTE]: {
     refresh_on: [401],
     optional_refresh: true,
     default_headers: [

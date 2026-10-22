@@ -44,7 +44,7 @@ Same rule applies to PR descriptions: no `Generated with [Claude Code]` footer.
 - `app/[customer_country]/**/api.query.ts` — co-located queries and `React.cache()` loaders: one `api` per request, primitive cache keys.
 - `lib/` — `PrefetchBoundary` (server prefetch + hydration), `seo/`, `omnibus/`, auth client.
 - `utils/NORMALIZERS/` — API → view shapes; raw API data stays out of components.
-- `stores/` — Zustand cart and wishlist, cart sync with the backend.
+- `stores/` — Zustand cart and wishlist, both synced with the backend (the wishlist for a signed-in customer).
 - `components/ui/` — shadcn/ui primitives.
 - `lib/i18n/` — message catalogues, `t()`, `price()`; `providers/i18n.provider.tsx` for client components.
 - `_CONFIG/` (gitignored, from `_CONFIG.example/`) — backend URL, channels, countries, brand assets, client `theme.css`.

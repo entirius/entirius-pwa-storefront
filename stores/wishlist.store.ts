@@ -18,6 +18,10 @@ type WishlistItem = {
 type WishlistStore = {
   items: Record<string, WishlistItem>;
   toggle: (sku: string, item: WishlistItem) => void;
+  remove: (sku: string) => void;
+  // The whole list at once (account sync).
+  replace: (items: Record<string, WishlistItem>) => void;
+  clear: () => void;
   has: (sku: string) => boolean;
   count: () => number;
 };
@@ -47,9 +51,19 @@ export const useWishlistStore = create<WishlistStore>()(
           else next[sku] = item;
           return { items: next };
         }),
+      remove: (sku) =>
+        set((s) => {
+          const next = { ...s.items };
+          delete next[sku];
+          return { items: next };
+        }),
+      replace: (items) => set({ items }),
+      clear: () => set({ items: {} }),
       has: (sku) => sku in get().items,
       count: () => Object.keys(get().items).length,
     }),
     { name: "WL", storage: flat_storage }
   )
 );
+
+export type { WishlistItem };

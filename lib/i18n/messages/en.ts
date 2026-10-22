@@ -101,6 +101,8 @@ export const en = {
     one: "Wishlist, {count} item",
     other: "Wishlist, {count} items",
   },
+  "wishlist.move_to_cart": "Move to cart",
+  "wishlist.move_to_cart_named": "Move {name} to cart",
 
   // search
   "search.title": "Search",

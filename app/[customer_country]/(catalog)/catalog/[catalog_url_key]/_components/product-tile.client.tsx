@@ -27,9 +27,12 @@ const plain_text = (html: string) =>
 export function ProductTile({
   product,
   variant = "default",
+  action,
 }: {
   product: any;
   variant?: "default" | "compact";
+  // Compact only: a control under the price (the wishlist's "Move to cart").
+  action?: React.ReactNode;
 }) {
   const { t } = useI18n();
   // Only an explicit `false` counts as sold out: items without the field (wishlist) stay neutral.
@@ -81,6 +84,7 @@ export function ProductTile({
           <div className="mt-0.5">
             <ProductPrice price={product.price} sku={product.sku} compact />
           </div>
+          {action && <div className="mt-2">{action}</div>}
         </div>
         {sold_out && (
           <span

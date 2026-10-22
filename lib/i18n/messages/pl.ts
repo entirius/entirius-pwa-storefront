@@ -106,6 +106,8 @@ export const pl: Record<MessageKey, Message> = {
     many: "Ulubione, {count} produktów",
     other: "Ulubione, {count} produktu",
   },
+  "wishlist.move_to_cart": "Przenieś do koszyka",
+  "wishlist.move_to_cart_named": "Przenieś {name} do koszyka",
 
   // search
   "search.title": "Szukaj",
