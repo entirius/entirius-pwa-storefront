@@ -282,7 +282,9 @@ function FormSection({
   children: React.ReactNode;
 }) {
   return (
-    <fieldset className={cn("flex flex-col gap-4", className)}>
+    // min-w-0: a fieldset is min-content wide by default, so one long unwrapped line (a truncated address)
+    // would widen the whole step past a phone screen.
+    <fieldset className={cn("flex min-w-0 flex-col gap-4", className)}>
       <legend className="mb-1">
         <FormHeading>{title}</FormHeading>
       </legend>

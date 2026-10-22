@@ -4,16 +4,17 @@
 
 import { z } from "zod";
 import { msg, type MessageKey } from "@/lib/i18n/translate";
+import { PHONE_CHARS, address_format_issues } from "./address-rules";
 
 // Address-book entry (accounts service). Distinct from the checkout billing+shipping
-// `address_schema` — this is a single customer address.
+// `address_schema` — this is a single customer address, under the same per-country rules.
 
 const req = (message: MessageKey) => z.string().trim().min(1, message);
 const phone_field = z
   .string()
   .trim()
   .min(1, msg("validation.phone_required"))
-  .regex(/^[0-9()\s-]{4,}$/, msg("validation.phone_invalid"));
+  .regex(PHONE_CHARS, msg("validation.phone_invalid"));
 
 export const customer_address_schema = z
   .object({
@@ -36,6 +37,7 @@ export const customer_address_schema = z
       if (!v.tax_id.trim())
         ctx.addIssue({ path: ["tax_id"], code: "custom", message: msg("validation.tax_id_required") });
     }
+    for (const issue of address_format_issues(v)) ctx.addIssue({ code: "custom", ...issue });
   });
 
 export type CustomerAddressFormValues = z.infer<typeof customer_address_schema>;

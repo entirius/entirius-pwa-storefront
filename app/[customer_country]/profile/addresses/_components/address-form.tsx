@@ -13,6 +13,7 @@ import {
   to_customer_address_body,
   type CustomerAddressFormValues,
 } from "@/utils/validation/customer-address.schema";
+import { postcode_example } from "@/utils/validation/address-rules";
 import {
   Sheet,
   SheetContent,
@@ -53,6 +54,7 @@ export function AddressFormSheet({
   });
 
   const is_company = useWatch({ control: form.control, name: "is_company" });
+  const postcode_sample = postcode_example(useWatch({ control: form.control, name: "country_code" }) ?? "");
 
   const submit = form.handleSubmit((values) => {
     startTransition(async () => {
@@ -79,7 +81,13 @@ export function AddressFormSheet({
             </div>
             <TextField control={form.control} name="street" label={t("address.street")} autoComplete="street-address" />
             <div className="grid gap-4 sm:grid-cols-2">
-              <TextField control={form.control} name="postcode" label={t("address.postcode")} autoComplete="postal-code" />
+              <TextField
+                control={form.control}
+                name="postcode"
+                label={t("address.postcode")}
+                hint={postcode_sample ? t("address.postcode_example", { example: postcode_sample }) : undefined}
+                autoComplete="postal-code"
+              />
               <TextField control={form.control} name="city" label={t("address.city")} autoComplete="address-level2" />
             </div>
             <SelectField

@@ -315,6 +315,9 @@ export const en = {
     other: "Thank you! Your order was split into {count} orders: {refs}.",
   },
   "checkout.payment_start_failed": "We couldn’t start the payment. Your order is saved — please contact us with the order number to complete it.",
+  "checkout.new_address": "New address",
+  "checkout.choose_saved_address": "Choose a saved address",
+  "checkout.change_address": "Change",
 
   // address fields (checkout and address book)
   "address.email": "Email",
@@ -329,6 +332,7 @@ export const en = {
   "address.company": "Company",
   "address.tax_id": "Tax ID",
   "address.tax_id_line": "Tax ID: {value}",
+  "address.postcode_example": "For example {example}",
 
   // profile
   "profile.title": "My account",
@@ -417,6 +421,7 @@ export const en = {
   "validation.phone_invalid": "Enter a valid phone number",
   "validation.company_required": "Company is required",
   "validation.tax_id_required": "Tax ID is required",
+  "validation.postcode_invalid": "Enter a postal code in this country’s format",
 
   // layout, pages and CMS
   "page.loading_error": "Error loading page",

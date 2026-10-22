@@ -30,6 +30,8 @@ Every field goes through a shared component — never `FormField` / `<label>` wi
 - Not surfaces: product tiles and CMS tiles (content cards with their own gradient and hover) and layers above the page (the added-to-cart notice). Selectable option rows (shipping and payment methods, filter options) are `<label>` rows with their own classes on purpose: the whole row is the hit area and shows the selected state, which `CheckLabel` does not.
 - Corners: controls of one height share `rounded-control` (`--control-radius`); outlined round icon buttons and text chips take `rounded-chip` (`--chip-radius`); a plain `rounded-full` only for ghost icons, counters, statuses, the checkout stepper, the slider and radios, never for a text button.
 - Phone: dialling code and number sit in one `PHONE_ROW` (`components/ui/form.tsx`, `6rem` + the rest) at every width, never stacked; checkout and profile addresses share it.
+- Address rules per country (`utils/validation/address-rules.ts`, both address schemas): the postal code matches the country's pattern, whose example is the field's hint ("For example 00-001"); the phone has a possible length for its dialling code (`libphonenumber-js`, `min` metadata). A country without a pattern only needs a non-empty code.
+- A list to choose from that can grow (the address book in the checkout) is one line in the form that opens the list in a sheet, never rows inline above the fields.
 - Height: `h-9` for input, select and input group, `text-base` on phones and `text-sm` from `md` (16px stops iOS zooming into a field). No local height overrides.
 
 ## Stacking and touch

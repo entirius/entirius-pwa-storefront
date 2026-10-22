@@ -323,6 +323,9 @@ export const pl: Record<MessageKey, Message> = {
     other: "Dziękujemy! Twoje zamówienie zostało podzielone na {count} zamówienia: {refs}.",
   },
   "checkout.payment_start_failed": "Nie udało się rozpocząć płatności. Twoje zamówienie jest zapisane - skontaktuj się z nami i podaj numer zamówienia, aby je dokończyć.",
+  "checkout.new_address": "Nowy adres",
+  "checkout.choose_saved_address": "Wybierz zapisany adres",
+  "checkout.change_address": "Zmień",
 
   // address fields (checkout and address book)
   "address.email": "E-mail",
@@ -337,6 +340,7 @@ export const pl: Record<MessageKey, Message> = {
   "address.company": "Firma",
   "address.tax_id": "NIP",
   "address.tax_id_line": "NIP: {value}",
+  "address.postcode_example": "Na przykład {example}",
 
   // profile
   "profile.title": "Moje konto",
@@ -427,6 +431,7 @@ export const pl: Record<MessageKey, Message> = {
   "validation.phone_invalid": "Podaj poprawny numer telefonu",
   "validation.company_required": "Podaj nazwę firmy",
   "validation.tax_id_required": "Podaj NIP",
+  "validation.postcode_invalid": "Podaj kod pocztowy w formacie tego kraju",
 
   // layout, pages and CMS
   "page.loading_error": "Nie udało się wczytać strony",

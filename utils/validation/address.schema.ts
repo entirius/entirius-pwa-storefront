@@ -6,20 +6,21 @@ import { z } from "zod";
 import { email_field } from "./auth.schema";
 import { msg, type MessageKey } from "@/lib/i18n/translate";
 import type { Cart, CartAddress } from "@/utils/NORMALIZERS/cart.normalizer";
+import { PHONE_CHARS, address_format_issues } from "./address-rules";
 
 // Checkout address step. Backend contract (checkout/v2, live-probed):
 // PATCH /carts/{cid}/addresses/ { shipping_address, billing_address }.
 //  - shipping_address needs: firstname,lastname,street,city,postcode,country_code,
 //    telephone,dialling_code (no email).
 //  - billing_address needs those + email; optional requested_invoice -> company,tax_id.
-// Phone kept to a simple digit check for now (libphonenumber-js deferred).
+// Postal code and phone are checked against the address's country and dialling code (address-rules.ts).
 
 const req = (message: MessageKey) => z.string().trim().min(1, message);
 const phone_field = z
   .string()
   .trim()
   .min(1, msg("validation.phone_required"))
-  .regex(/^[0-9()\s-]{4,}$/, msg("validation.phone_invalid"));
+  .regex(PHONE_CHARS, msg("validation.phone_invalid"));
 
 const address_fields = {
   firstname: req("validation.firstname_required"),
@@ -82,6 +83,11 @@ export const address_schema = z
           });
       }
     }
+    const issues = [
+      ...address_format_issues(v.billing, ["billing"]),
+      ...(v.ship_to_different ? address_format_issues(v.shipping, ["shipping"]) : []),
+    ];
+    for (const issue of issues) ctx.addIssue({ code: "custom", ...issue });
   });
 
 export type AddressFormValues = z.infer<typeof address_schema>;
