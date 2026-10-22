@@ -12,7 +12,7 @@ test("robots.txt disallows private flows and names the sitemap", async ({ reques
   const res = await request.get("/robots.txt");
   expect(res.status()).toBe(200);
   const body = await res.text();
-  for (const path of ["/cart", "/checkout", "/profile", "/user-handler", "/reset-password"]) {
+  for (const path of ["/cart", "/checkout", "/profile", "/user-handler", "/reset-password", "/search"]) {
     expect(body).toContain(`Disallow: ${path}`);
   }
   expect(body).toContain(`Sitemap: ${app_config.SITE_URL}/sitemap.xml`);

@@ -59,7 +59,9 @@ export const catalog_query = (api: Api, options: any) => ({
 // (options, min_value, max_value) and ordering everything by `position`.
 const by_position = (a: any, b: any) => (a.position ?? 0) - (b.position ?? 0);
 
-const map_filters = (res: any) => {
+// `listing_counts` false: the counts are not the listing's own. /options/ takes no `search`, so on the
+// search page they are the whole channel's; only a zero holds for the results too and is kept.
+const map_filters = (res: any, listing_counts = true) => {
   const filters = res?.filters ?? [];
   const ranges = res?.ranges ?? [];
   const sort = res?.sort ?? [];
@@ -74,7 +76,7 @@ const map_filters = (res: any) => {
           idx: String(v.idx),
           label: v.label,
           // Products in the current listing with this value; null when unknown.
-          count: typeof v.count === "number" ? v.count : null,
+          count: typeof v.count === "number" && (listing_counts || v.count === 0) ? v.count : null,
         })),
       },
     ]),
@@ -104,7 +106,7 @@ const map_filters = (res: any) => {
 };
 
 export const filters_query = (api: Api, options: any) => ({
-  queryKey: ["filters", options.category],
+  queryKey: ["filters", options.category, Boolean(options.search)],
   queryFn: async () => {
     const [error, response] = await api.FETCH_METHOD(
       API_CATALOG_FILTERS_ROUTE,
@@ -113,9 +115,20 @@ export const filters_query = (api: Api, options: any) => ({
       },
     );
     if (error) throw new Error(error.message);
-    return { data: map_filters(response) };
+    return { data: map_filters(response, !options.search) };
   },
 });
+
+// The listing's filters from the page's query string: q_/s_/r_ params go to the backend as-is (prefix
+// kept) — the v2 backend parses them directly, so no strip/nest is needed anymore.
+export const listing_filters = (
+  search_params: Record<string, string | string[] | undefined>,
+) =>
+  Object.fromEntries(
+    Object.entries(search_params).filter(([key]) =>
+      ["q_", "s_", "r_"].some((p) => key.startsWith(p)),
+    ),
+  );
 
 // ------------------------------------------------------------
 // ------------------------------------------------------------

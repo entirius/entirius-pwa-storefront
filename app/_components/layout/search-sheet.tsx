@@ -5,6 +5,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Search, X } from "lucide-react";
 
@@ -27,14 +28,15 @@ import {
   InputGroupInput,
   InputGroupText,
 } from "@/components/ui/input-group";
-import { search_query } from "./search.query";
+import { SEARCH_MIN_CHARS, search_path, search_query } from "./search.query";
 import { SearchResults } from "./search-results";
 import { useI18n } from "@/providers/i18n.provider";
-
-const MIN_CHARS = 2;
+import { profile_path } from "@/lib/profile-path";
 
 export function SearchSheet() {
   const { t } = useI18n();
+  const router = useRouter();
+  const params = useParams();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [debounced, setDebounced] = useState("");
@@ -50,7 +52,7 @@ export function SearchSheet() {
     return () => clearTimeout(id);
   }, [q]);
 
-  const enabled = debounced.length >= MIN_CHARS;
+  const enabled = debounced.length >= SEARCH_MIN_CHARS;
   const { data, isFetching, isError } = useQuery({
     ...search_query(api, { q: debounced }),
     enabled,
@@ -63,6 +65,15 @@ export function SearchSheet() {
       setQ("");
       setDebounced("");
     }
+  };
+
+  // Enter: every result of the typed phrase on the results page.
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const phrase = q.trim();
+    if (phrase.length < SEARCH_MIN_CHARS) return;
+    onOpenChange(false);
+    router.push(profile_path(params?.customer_country as string | undefined, search_path(phrase)));
   };
 
   return (
@@ -88,37 +99,40 @@ export function SearchSheet() {
       >
         <SheetHeader className="border-b border-border">
           <SheetTitle className="sr-only">{t("search.title")}</SheetTitle>
-          <InputGroup>
-            <InputGroupAddon align="inline-start">
-              <InputGroupText>
-                <Search />
-              </InputGroupText>
-            </InputGroupAddon>
-            <InputGroupInput
-              autoFocus
-              placeholder={t("search.placeholder")}
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-            />
-            <InputGroupAddon align="inline-end">
-              {isFetching && enabled && <Spinner className="size-4" />}
-              <SheetClose asChild>
-                <InputGroupButton
-                  size="icon-sm"
-                  aria-label={t("common.close")}
-                  className="relative touch-target cursor-pointer"
-                >
-                  <X />
-                </InputGroupButton>
-              </SheetClose>
-            </InputGroupAddon>
-          </InputGroup>
+          <form role="search" onSubmit={onSubmit}>
+            <InputGroup>
+              <InputGroupAddon align="inline-start">
+                <InputGroupText>
+                  <Search />
+                </InputGroupText>
+              </InputGroupAddon>
+              <InputGroupInput
+                autoFocus
+                enterKeyHint="search"
+                placeholder={t("search.placeholder")}
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+              />
+              <InputGroupAddon align="inline-end">
+                {isFetching && enabled && <Spinner className="size-4" />}
+                <SheetClose asChild>
+                  <InputGroupButton
+                    size="icon-sm"
+                    aria-label={t("common.close")}
+                    className="relative touch-target cursor-pointer"
+                  >
+                    <X />
+                  </InputGroupButton>
+                </SheetClose>
+              </InputGroupAddon>
+            </InputGroup>
+          </form>
         </SheetHeader>
 
         <div className="mx-auto w-full max-w-2xl px-4 py-4">
           {!enabled ? (
             <p className="py-6 text-center text-sm text-muted-foreground">
-              {t("search.min_chars", { count: MIN_CHARS })}
+              {t("search.min_chars", { count: SEARCH_MIN_CHARS })}
             </p>
           ) : isError ? (
             <p className="py-6 text-center text-sm text-muted-foreground">
@@ -131,6 +145,7 @@ export function SearchSheet() {
           ) : (
             <SearchResults
               data={data}
+              query={debounced}
               currency={currency}
               onNavigate={() => onOpenChange(false)}
               onPhrase={(text) => setQ(text)}

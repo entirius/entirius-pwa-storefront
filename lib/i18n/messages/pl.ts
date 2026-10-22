@@ -122,6 +122,8 @@ export const pl: Record<MessageKey, Message> = {
   "search.products": "Produkty ({total})",
   "search.product_fallback": "Produkt",
   "search.trigger": "Szukaj produktów",
+  "search.show_all": "Pokaż wszystkie wyniki",
+  "search.results_title": "Wyniki dla „{query}”",
 
   // account sheet and auth forms
   "auth.sign_in": "Zaloguj się",

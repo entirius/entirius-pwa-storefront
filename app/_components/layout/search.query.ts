@@ -17,14 +17,21 @@ export type SearchResponse = {
   phrases?: { text: string; type: string }[];
 };
 
+// The search endpoint answers from this many characters on.
+export const SEARCH_MIN_CHARS = 2;
+
+// The results page of a phrase (app/[customer_country]/search), before the profile prefix.
+export const search_path = (q: string) => `/search?q=${encodeURIComponent(q)}`;
+
 export const search_query = (
   api: Api,
   { q, scope = "products,categories" }: { q: string; scope?: string },
 ) => ({
   queryKey: ["search", q, scope] as const,
   queryFn: async (): Promise<SearchResponse> => {
+    // `limit` caps the categories, `page_size` the products: six of each, the rest on the results page.
     const [error, response] = await api.FETCH_METHOD(API_SEARCH_ROUTE, {
-      querys: { q, scope, limit: 6 },
+      querys: { q, scope, limit: 6, page_size: 6 },
     });
     if (error) throw new Error(error.message ?? "Search failed");
     return (response ?? {}) as SearchResponse;

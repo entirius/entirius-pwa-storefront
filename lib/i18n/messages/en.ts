@@ -115,6 +115,8 @@ export const en = {
   "search.products": "Products ({total})",
   "search.product_fallback": "Product",
   "search.trigger": "Search products",
+  "search.show_all": "Show all results",
+  "search.results_title": "Results for “{query}”",
 
   // account sheet and auth forms
   "auth.sign_in": "Sign in",
