@@ -34,23 +34,34 @@
   "SEO": {
     "PRODUCT_META": [
       ["title", ["meta_title", "name"]],
+      ["description", ["meta_description", "short_description", "description"], ["strip_html", "truncate:160"]],
+      ["images", ["media", "main_image"], ["media_urls", "take:1"]],
       ["url_key", "url_key"]
     ],
     "PRODUCT_JSONLD": [
       ["title", ["meta_title", "name"]],
+      ["description", ["description", "short_description"], "strip_html"],
+      ["images", ["media", "main_image"], "media_urls"],
       ["sku", "sku"],
       ["brand", ["brands.0.name", "brands.0"]],
       ["price", ["price.final_gross", "price.gross"]],
-      ["currency", "price.currency"],
+      ["currency", "price.currency", "upper"],
+      ["availability", "on_stock", "availability"],
       ["url_key", "url_key"],
       ["rating", "review_rating"]
     ],
     "CATALOG_META": [
       ["title", ["meta_title", "name"]],
+      ["description", ["meta_description", "description"], ["strip_html", "truncate:160"]],
+      ["image", ["og_image_url", "image_url"], "absolute_url"],
+      ["noindex", "noindex"],
+      ["nofollow", "nofollow"],
       ["url_key", "url_key"]
     ],
     "CATALOG_JSONLD": [
       ["title", ["meta_title", "name"]],
+      ["description", ["meta_description", "description"], "strip_html"],
+      ["image", ["image_url", "og_image_url"], "absolute_url"],
       ["url_key", "url_key"],
       ["breadcrumbs", ["breadcrumbs", "path"]]
     ]

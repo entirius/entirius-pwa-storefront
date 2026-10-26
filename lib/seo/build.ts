@@ -14,14 +14,15 @@ import {
   type SeoField,
   type SEO_CONTEXT,
 } from "./config";
+import { apply_transform } from "./transforms";
 import { profile_path } from "@/lib/profile-path";
 
 // metadataBase absolutizes Metadata fields, but raw JSON-LD is emitted as-is —
 // schema.org expects absolute URLs, so build them against SITE_URL here.
 const site_url = (path?: string) => (path ? `${SITE_URL}${path}` : undefined);
 
-const first_non_empty = (values: unknown[]) =>
-  values.find((v) => v != null && v !== "");
+const is_empty = (v: unknown) =>
+  v == null || v === "" || (Array.isArray(v) && v.length === 0);
 
 // What the configured fields are expected to hold. The mapping is config-owned
 // (dot-paths into the raw API object), so the bag is trusted, not checked.
@@ -31,7 +32,8 @@ type SeoBag = {
   url_key?: string;
   images?: string[];
   image?: string;
-  robots?: string;
+  noindex?: boolean;
+  nofollow?: boolean;
   sku?: string;
   brand?: string;
   price?: string | number;
@@ -64,9 +66,9 @@ type ProductJsonLd = {
 };
 
 // ------------------------------------------------------------
-// Config-driven core: for each [outKey, source] tuple read the raw object by
-// dot-path (or the first non-empty of a fallback array) into a flat bag.
-// `pick` optionally filters to a subset of outKeys. No transforms — see config.
+// Config-driven core: for each [outKey, source, transform?] tuple read the raw
+// object by dot-path, run the transform, and keep the first non-empty result
+// of the fallback chain in a flat bag. `pick` optionally filters to a subset of outKeys.
 // ------------------------------------------------------------
 function resolve(
   raw: unknown,
@@ -74,12 +76,14 @@ function resolve(
   pick?: string[],
 ): SeoBag {
   const bag: Record<string, unknown> = {};
-  for (const [outKey, source] of fields) {
+  for (const [outKey, source, transform] of fields) {
     if (pick && !pick.includes(outKey)) continue;
-    const value = Array.isArray(source)
-      ? first_non_empty(source.map((p) => get_path(raw, p)))
-      : get_path(raw, source);
-    if (value != null && value !== "") {
+    let value: unknown;
+    for (const path of Array.isArray(source) ? source : [source]) {
+      value = apply_transform(get_path(raw, path), transform);
+      if (!is_empty(value)) break;
+    }
+    if (!is_empty(value)) {
       bag[outKey] = value;
     } else if (DEBUG_MODE) {
       _LOGGER({
@@ -93,6 +97,10 @@ function resolve(
 }
 
 type BuildOpts = { pick?: string[] };
+
+// `noindex` / `nofollow` → Metadata robots; nothing when the page is indexable.
+const robots = (bag: SeoBag): Metadata["robots"] =>
+  bag.noindex || bag.nofollow ? { index: !bag.noindex, follow: !bag.nofollow } : undefined;
 
 // ------------------------------------------------------------
 // Product — Metadata
@@ -187,7 +195,7 @@ export function build_catalog_metadata(
   return {
     title: bag.title,
     description: bag.description,
-    robots: bag.robots,
+    robots: robots(bag),
     alternates: canonical ? { canonical, languages: ctx.languages } : undefined,
     openGraph: {
       title: bag.title,
@@ -201,7 +209,7 @@ export function build_catalog_metadata(
 }
 
 // ------------------------------------------------------------
-// Catalog / category — JSON-LD: CollectionPage + BreadcrumbList (from `path`).
+// Catalog / category — JSON-LD: CollectionPage + BreadcrumbList (from `breadcrumbs`).
 // ------------------------------------------------------------
 export function build_catalog_jsonld(
   raw: unknown,
@@ -217,6 +225,7 @@ export function build_catalog_jsonld(
       "@type": "CollectionPage",
       name: bag.title,
       description: bag.description,
+      image: bag.image,
       url: site_url(url_key ? profile_path(ctx.country, `/catalog/${url_key}`) : undefined),
     }),
   ];
