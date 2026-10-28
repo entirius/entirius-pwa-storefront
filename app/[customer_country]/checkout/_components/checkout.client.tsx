@@ -5,9 +5,10 @@
 "use client";
 
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { PageLoading } from "@/components/ui/spinner";
-import { NORM_CART, type Cart } from "@/utils/NORMALIZERS/cart.normalizer";
+import { NORM_CART } from "@/utils/NORMALIZERS/cart.normalizer";
 import type { PlacedOrder } from "@/utils/NORMALIZERS/order.normalizer";
 import { cart_to_address_form } from "@/utils/validation/address.schema";
 import { useCartSync } from "@/stores/use-cart-sync";
@@ -30,23 +31,20 @@ export function CheckoutClient() {
   const country = useParams()?.customer_country as string | undefined;
   const { t } = useI18n();
 
+  const query_client = useQueryClient();
+
   const [step, setStep] = useState<CheckoutStep>("address");
   const [completed, setCompleted] = useState<Set<CheckoutStep>>(new Set());
-  // Freshest cart from an address/shipping mutation. We deliberately don't refetch
-  // ["cart"] on save (that wipes the auto-discount), so these responses — not the
-  // synced query — are the freshest source for the needed fields.
-  // It is dropped as soon as the synced cart refetches: that response is newer.
-  const [server, setServer] = useState<{ cart: Cart; base: Cart | null | undefined } | null>(null);
-  const serverCart = server && server.base === backend ? server.cart : null;
-  const setServerCart = (cart: Cart) => setServer({ cart, base: backend });
-
-  const hydrate_cart = serverCart ?? backend ?? null;
+  const cart = backend ?? null;
+  // An address/shipping/payment save answers with the whole cart: it goes into every
+  // cart query, as a discount code does, instead of a refetch (another items PATCH).
+  const save_cart = (resp: unknown) => query_client.setQueriesData({ queryKey: ["cart"] }, NORM_CART(resp));
 
   // The stepper also shows as done what the cart already has filled in (no auto-advance).
   const done = new Set(completed);
-  if (hydrate_cart?.billing_address) done.add("address");
-  if (hydrate_cart?.shipping_method) done.add("shipping");
-  if (hydrate_cart?.payment_method) done.add("payment");
+  if (cart?.billing_address) done.add("address");
+  if (cart?.shipping_method) done.add("shipping");
+  if (cart?.payment_method) done.add("payment");
 
   if (!mounted) {
     return (
@@ -66,19 +64,19 @@ export function CheckoutClient() {
   const cart_ready = !!backend?.cart_id;
 
   const onAddressSaved = (resp: unknown) => {
-    setServerCart(NORM_CART(resp));
+    save_cart(resp);
     setCompleted((c) => new Set(c).add("address"));
     setStep("shipping");
   };
 
   const onShippingSaved = (resp: unknown) => {
-    setServerCart(NORM_CART(resp));
+    save_cart(resp);
     setCompleted((c) => new Set(c).add("shipping"));
     setStep("payment");
   };
 
   const onPaymentSaved = (resp: unknown) => {
-    setServerCart(NORM_CART(resp));
+    save_cart(resp);
     setCompleted((c) => new Set(c).add("payment"));
     setStep("review");
   };
@@ -120,26 +118,26 @@ export function CheckoutClient() {
           {step === "address" ? (
             <AddressStep
               cartReady={cart_ready}
-              initial={cart_to_address_form(hydrate_cart)}
+              initial={cart_to_address_form(cart)}
               onSaved={onAddressSaved}
             />
           ) : step === "shipping" ? (
             <ShippingStep
-              cart={hydrate_cart}
+              cart={cart}
               currency={currency}
               onSaved={onShippingSaved}
               onBack={() => setStep("address")}
             />
           ) : step === "payment" ? (
             <PaymentStep
-              cart={hydrate_cart}
+              cart={cart}
               currency={currency}
               onSaved={onPaymentSaved}
               onBack={() => setStep("shipping")}
             />
           ) : (
             <ReviewStep
-              cart={hydrate_cart}
+              cart={cart}
               currency={currency}
               onBack={() => setStep("payment")}
               onPlaced={onPlaced}
@@ -148,7 +146,7 @@ export function CheckoutClient() {
         </div>
 
         <div className="h-fit lg:sticky lg:top-6">
-          <CheckoutSummary backend={hydrate_cart} items={items} currency={currency} />
+          <CheckoutSummary backend={cart} items={items} currency={currency} />
         </div>
       </div>
     </div>

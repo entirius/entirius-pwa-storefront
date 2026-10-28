@@ -127,8 +127,6 @@ test("cart requests carry the customer token after login", async ({ page }) => {
   expect((await closed).ok()).toBe(true);
 });
 
-// Places an order: never run alongside another order-placing spec in the same
-// instant (the backend numbers orders without a lock — see checkout-guest.spec.ts).
 test("an order placed while logged in shows in my orders and its detail", async ({ page }) => {
   await login(page, email);
   await page.goto("/product/flight-deck-command-chair");
