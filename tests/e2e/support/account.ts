@@ -5,9 +5,11 @@
 import { expect, type APIRequestContext, type Page } from "@playwright/test";
 import app_config from "../../../_CONFIG/app.config.json";
 import channels from "../../../_CONFIG/channels.config.json";
+import { link_path, mail } from "./mail";
 
 // A fresh, active customer per spec: signup through the accounts API plus the
-// activation call /user-handler makes, so no fixed credentials exist.
+// activation call /user-handler makes, with the link from the signup mail (needs zeno `make mail`),
+// so no fixed credentials exist.
 
 export const ACCOUNTS = `${app_config.API_BASE_URL}/api/accounts/v1/default-europe/customer`;
 export const PASSWORD = "E2e-Account-2026!";
@@ -23,9 +25,12 @@ export async function create_account(request: APIRequestContext): Promise<string
     },
   });
   expect(signup.ok(), await signup.text()).toBe(true);
-  const { uid, confirmation_key } = (await signup.json()).data;
-  const activate = await request.post(`${ACCOUNTS}/signup/${uid}/`, {
-    params: { key: confirmation_key },
+  // The key reaches the customer only in the mail (django-accounts 6.0.1), so read it the way a customer would.
+  const link = link_path(await mail(request, email, "Signup Confirmation"), "user-handler");
+  expect(link, "confirmation link in the signup mail").toBeTruthy();
+  const query = new URL(link!, "http://mail.local").searchParams;
+  const activate = await request.post(`${ACCOUNTS}/signup/${query.get("uid")}/`, {
+    params: { key: query.get("key")! },
   });
   expect(activate.ok(), await activate.text()).toBe(true);
   return email;
