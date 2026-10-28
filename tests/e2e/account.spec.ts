@@ -6,8 +6,8 @@ import { expect, test } from "@playwright/test";
 import { create_account, login } from "./support/account";
 
 // Logged-in customer: login, profile, address book, token refresh, logout.
-// Every run creates a fresh, active account through the accounts API (signup +
-// the same activation call /user-handler makes), so no fixed credentials exist.
+// Every run creates a fresh, active account through the accounts API (signup, the
+// mailed link, the same activation call /user-handler makes), so no fixed credentials exist.
 
 test.describe.configure({ mode: "serial" });
 
