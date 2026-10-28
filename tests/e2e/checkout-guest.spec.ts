@@ -10,11 +10,7 @@ import { expect, test, type Page } from "@playwright/test";
 //
 // The address is typed in, not filled by the DEBUG "Fill test data" button, so the
 // spec holds with DEBUG_MODE off. Poland, not Germany: in July the backend served
-// shipping methods for DE only. Amounts are not asserted — the automatic discount
-// may come and go.
-//
-// Never place orders from parallel workers: the backend numbers orders per channel
-// without a lock, and two orders in the same instant collide on a unique key (500).
+// shipping methods for DE only. Amounts are not asserted.
 
 const PRODUCT = { url: "/product/flight-deck-command-chair", name: "Flight Deck Command Chair" };
 
