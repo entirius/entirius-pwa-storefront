@@ -382,10 +382,40 @@ html.dark {
   [data-rich-text] > :last-child {
     @apply mb-0;
   }
+  /* Tables and quotes in CMS text (article tables of AI Studio). A wide table scrolls in its own box. */
+  [data-rich-text] table {
+    @apply my-4 block w-full overflow-x-auto border-collapse text-sm;
+  }
+  [data-rich-text] :is(th, td) {
+    @apply border border-border px-3 py-2 text-left align-top;
+  }
+  [data-rich-text] th {
+    @apply bg-muted font-medium;
+  }
+  [data-rich-text] blockquote {
+    @apply my-4 border-l-2 border-primary pl-4 text-heading;
+  }
   h3,
   h4 {
     font-weight: var(--brand-font-weight-regular);
   }
+}
+
+/* A blog post (`/blog/<slug>`): CMS text reads in the body colour with room between blocks, and the table of
+   contents' targets clear the sticky header. Outside the layers, so it wins over the muted description of a
+   CMS section. */
+[data-article] [data-rich-text] {
+  color: var(--color-foreground);
+  line-height: 1.75;
+}
+[data-article] [data-rich-text] > :is(h2, h3):not(:first-child) {
+  margin-top: 2rem;
+}
+[data-article] [data-rich-text] > :is(p, ul, ol, table, blockquote) + :is(p, ul, ol) {
+  margin-top: 1rem;
+}
+[data-article] [id] {
+  scroll-margin-top: 5rem;
 }
 
 /* Links that reopen the cookie preferences (href ending with #cookie-consents, for example in a CMS

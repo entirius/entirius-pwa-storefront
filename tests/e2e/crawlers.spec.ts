@@ -18,16 +18,24 @@ test("robots.txt disallows private flows and names the sitemap", async ({ reques
   expect(body).toContain(`Sitemap: ${app_config.SITE_URL}/sitemap.xml`);
 });
 
-test("sitemap.xml lists pages, categories and products that exist", async ({ request }) => {
+test("sitemap.xml lists pages, categories, products and blog posts that exist", async ({ request }) => {
   const res = await request.get("/sitemap.xml");
   expect(res.status()).toBe(200);
   const urls = [...(await res.text()).matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   expect(urls.some((u) => u.includes("/catalog/"))).toBe(true);
   expect(urls.some((u) => u.includes("/product/"))).toBe(true);
+  expect(urls.some((u) => u.endsWith("/blog/ai-in-e-commerce"))).toBe(true);
+  expect(urls.some((u) => new URL(u).pathname === "/blog")).toBe(true);
+  expect(urls.some((u) => u.endsWith("/blog/authors/anna-kowalska"))).toBe(true);
   expect(urls.some((u) => u.includes("layout-"))).toBe(false);
   expect(urls.some((u) => new URL(u).pathname.startsWith("/default/"))).toBe(false);
 
-  const sample = [urls.find((u) => u.includes("/catalog/")), urls.find((u) => u.includes("/product/"))];
+  const sample = [
+    urls.find((u) => u.includes("/catalog/")),
+    urls.find((u) => u.includes("/product/")),
+    urls.find((u) => u.includes("/blog/") && !u.includes("/authors/")),
+    urls.find((u) => u.includes("/blog/authors/")),
+  ];
   for (const url of sample) {
     // the sitemap holds SITE_URL addresses; the test server may sit elsewhere
     const path = new URL(url!).pathname;

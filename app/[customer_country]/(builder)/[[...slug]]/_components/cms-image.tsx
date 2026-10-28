@@ -36,6 +36,8 @@ interface CmsImageProps {
   height?: number;
   content_fit?: "cover" | "contain" | "fill" | "none" | "scale-down";
   aspect_ratio?: number;
+  // next/image `sizes` of the ratio box; by default half the viewport from 768 px.
+  sizes?: string;
 }
 
 export function normalize_image_source(
@@ -64,6 +66,7 @@ export default function CmsImage({
   height,
   content_fit = "cover",
   aspect_ratio: custom_aspect_ratio,
+  sizes = "(max-width: 768px) 100vw, 50vw",
 }: CmsImageProps) {
   const image_data = normalize_image_source(images_set);
   if (!image_data) return null;
@@ -99,7 +102,7 @@ export default function CmsImage({
         alt={image_data.alt}
         fill
         className={object_fit_class}
-        sizes="(max-width: 768px) 100vw, 50vw"
+        sizes={sizes}
       />
     </div>
   );

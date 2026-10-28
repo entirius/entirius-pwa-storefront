@@ -459,4 +459,30 @@ export const pl: Record<MessageKey, Message> = {
   // omnibus
   "omnibus.lowest_short": "Najniższa cena z 30 dni: {price}",
   "omnibus.lowest": "Najniższa cena z 30 dni przed obniżką: {price}",
+
+  // blog
+  "blog.title": "Blog",
+  "blog.published": "Opublikowano {date}",
+  "blog.updated": "Zaktualizowano {date}",
+  "blog.toc": "Spis treści",
+  "blog.toc_count": {
+    one: "{count} sekcja",
+    few: "{count} sekcje",
+    many: "{count} sekcji",
+    other: "{count} sekcji",
+  },
+  "blog.about_author": {
+    one: "O autorze",
+    few: "O autorach",
+    many: "O autorach",
+    other: "O autorach",
+  },
+  "blog.post_navigation": "Więcej artykułów",
+  "blog.previous_post": "Poprzedni artykuł",
+  "blog.next_post": "Następny artykuł",
+  "blog.categories": "Kategorie",
+  "blog.all_categories": "Wszystkie",
+  "blog.category_title": "{category} – Blog",
+  "blog.empty": "Nie ma tu jeszcze artykułów.",
+  "blog.author_posts": "Artykuły: {name}",
 };

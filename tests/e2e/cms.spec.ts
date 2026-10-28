@@ -13,7 +13,6 @@ const PAGES = [
   { path: "/about", heading: "About Us", text: "Our Mission" },
   { path: "/contact", heading: "Contact", text: "Contact Us" },
   { path: "/product-showcase", heading: "Product Showcase", text: "More Picks" },
-  { path: "/blog", heading: "Blog Landing Page", text: "Entirius Blog" },
 ];
 
 for (const { path, heading, text } of PAGES) {

@@ -5,7 +5,13 @@
 import channels from "@/_CONFIG/channels.config.json";
 import { make_static_access } from "@/API/access/api.static-access";
 import { create_api } from "@/API/api.context";
-import { API_CATEGORIES_ROUTE, API_CMS_STATIC_PAGE_ROUTE, API_PRODUCTS_ROUTE } from "@/API/api.routes";
+import {
+  API_CATEGORIES_ROUTE,
+  API_CMS_BLOG_AUTHORS_ROUTE,
+  API_CMS_BLOG_POST_ROUTE,
+  API_CMS_STATIC_PAGE_ROUTE,
+  API_PRODUCTS_ROUTE,
+} from "@/API/api.routes";
 import { LAYOUT_ROUTE_PREFIX } from "@/app/_components/layout-slots/api.query";
 import { LANGUAGES } from "@/lib/languages";
 
@@ -36,7 +42,11 @@ const APP_ROUTES = new Set([
   "catalog",
   "product",
   "search",
+  "blog",
 ]);
+
+// Whether a first path segment is an app route: a CMS page with that route is not reachable as a page.
+export const is_app_route = (segment: string) => APP_ROUTES.has(segment);
 
 const CHANNELS = new Set(Object.keys(channels));
 
@@ -79,6 +89,13 @@ async function lookup(kind: string, key: string, ctx: RouteContext): Promise<Ans
     const keys = hits.flatMap((hit) => hit.rows ?? []).find((row) => row.url_keys)?.url_keys ?? undefined;
     return { exists: hits.some((hit) => hit.exists), keys };
   }
+  if (kind === "blog") {
+    // In any language: the page shows a post written in another one.
+    return { exists: (await ask(api, API_CMS_BLOG_POST_ROUTE, { routes: key, limit: "1", page: "1" }, "data")).exists };
+  }
+  if (kind === "blog-author") {
+    return { exists: (await ask(api, `${API_CMS_BLOG_AUTHORS_ROUTE}${encodeURIComponent(key)}/`, {}, "data")).exists };
+  }
   return { exists: (await ask(api, API_CMS_STATIC_PAGE_ROUTE, { routes: key, limit: "1", page: "1" }, "data")).exists };
 }
 
@@ -103,12 +120,20 @@ function decode(segment: string | undefined): string | undefined | null {
 }
 
 async function answer(segments: string[], ctx: RouteContext): Promise<Answer & { kind?: string; key?: string }> {
-  const [first, second] = segments.slice(0, 2).map(decode);
-  if (first === null || second === null) return { exists: true };
+  const [first, second, third] = segments.slice(0, 3).map(decode);
+  if (first === null || second === null || third === null) return { exists: true };
   if (!first) return { exists: true }; // home
   if (first.startsWith(LAYOUT_ROUTE_PREFIX)) return { exists: false }; // layout slots are not pages (the builder answers 404)
-  const kind = first === "product" || first === "catalog" ? first : APP_ROUTES.has(first) ? null : "page";
-  const key = kind === "page" ? first : second;
+  // `/blog/<slug>` is a post, `/blog/authors/<slug>` an author (`/blog/authors` alone: a post called "authors").
+  const author = first === "blog" && second === "authors" && !!third;
+  const kind = author
+    ? "blog-author"
+    : first === "product" || first === "catalog" || (first === "blog" && second)
+      ? first
+      : APP_ROUTES.has(first)
+        ? null
+        : "page";
+  const key = kind === "page" ? first : author ? third : second;
   if (!kind || !key) return { exists: true };
   if (!CHANNELS.has(ctx.channel)) return { exists: true }; // a channel this shop does not serve: the page decides
 

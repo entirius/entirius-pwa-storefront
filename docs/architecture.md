@@ -22,6 +22,7 @@ entirius-pwa-storefront/
 │   ├── _components/cookie-consent/ # Cookie banner on django-agreements
 │   └── [customer_country]/       # All routed pages live under the country segment
 │       ├── (builder)/[[...slug]] # CMS/builder pages (catch-all)
+│       ├── blog/                 # Blog: list, [slug] post, authors/[slug] author (contentdb `blog-post`)
 │       ├── (catalog)/catalog/[catalog_url_key]/  # Listing page
 │       ├── (product)/product/[product_url_key]/  # PDP
 │       ├── checkout/             # Address → shipping → payment → review stepper
@@ -62,7 +63,7 @@ entirius-pwa-storefront/
 | `API/api.setup.ts` | `create_fetch_engine(access)` — placeholder resolution, query string, auth headers, 401 refresh |
 | `API/api.context.ts` | `create_api(cookie_access)` — maps cookie keys to access methods, returns `{ FETCH_METHOD }` |
 | `proxy.ts` | Middleware: reads `ct` cookie or `cf-ipcountry`, rewrites URL to `/{country}/...`, sets session cookies |
-| `app/robots.ts`, `app/sitemap.ts` | `/robots.txt` (private flows and filter URLs disallowed, sitemap named by `SITE_URL`) and `/sitemap.xml` (CMS pages, categories, products incl. sold out, read from the API at request time; every profile in its own language with hreflang alternates, each address in its canonical form, `/catalog/x` for the `default` profile, pure helpers in `lib/seo/sitemap.ts`). Dotted paths are outside the `proxy.ts` matcher |
+| `app/robots.ts`, `app/sitemap.ts` | `/robots.txt` (private flows and filter URLs disallowed, sitemap named by `SITE_URL`) and `/sitemap.xml` (CMS pages, categories, products incl. sold out, the blog with its posts and authors, read from the API at request time; every profile in its own language with hreflang alternates, each address in its canonical form, `/catalog/x` for the `default` profile, pure helpers in `lib/seo/sitemap.ts`). Dotted paths are outside the `proxy.ts` matcher |
 | `lib/prefetch_boundary.tsx` | `PrefetchBoundary` — server prefetches TanStack queries, dehydrates, wraps children in `HydrationBoundary` |
 | `lib/auth-client.ts` | Client-side auth flows: login, signup, double-opt-in activation, password reset and change, logout |
 | `app/[customer_country]/.../{page}/api.query.ts` | Co-located query definitions (`queryKey`, `queryFn`) + `cache()`-wrapped loaders |
@@ -141,6 +142,44 @@ list, then `static-page?routes=…`, deduplicated with `React.cache()`); the dra
 
 The footer is not a slot: it is the CMS footer extender (`layout-extender-published/footer/`, edited in the CMS
 navigation editor), rendered by `app/_components/layout/footer-component.tsx`.
+
+## Blog
+
+Posts are contentdb `blog-post` documents (`published/blog-post/`, scoped to the channel by `default_querys`),
+written in the CMS page editor or in AI Studio. All blog pages render on the server (`app/[customer_country]/blog/`;
+addresses in `lib/blog-paths.ts`):
+
+| Address | What |
+|---|---|
+| `/blog` | Posts written in the page language, newest first, 9 per page (`?page=`), a tab per category with posts (`?category_url_key=`). The CMS page published under the route `blog` (what the catch-all served there before) is the intro: its sections above the tabs, its meta title and description |
+| `/blog/<slug>` | The post: category, heading, authors and dates, cover, table of contents, body, "About the author", older / newer post. A reading column of `max-w-4xl` (~900 px), the cover across the page |
+| `/blog/authors/<slug>` | The author (photo, role, bio, website and social profiles named by their host) and their posts in the page language |
+
+- One route per post, one draft per language (like CMS pages): the post in the page language, else another
+  language's (`lang` on the `<article>`); hreflang names the profiles whose language it is written in (the list and
+  an author's page: the languages with posts). The version in its language carries the older and newer post
+  (`prev` / `next`).
+- `utils/NORMALIZERS/blog-post.normalizer.ts`: `NORM_BLOG_POST` (heading from the post's tile, `extension.title`;
+  search and share fields from `meta`, `og_image` else the cover; author roles and bios in the page language; an id
+  on every H2 of the rich text for the table of contents, a one-word id with `-section`, as DOMPurify drops an id
+  that names a `document` property), `NORM_BLOG_POST_CARD` (a tile), `NORM_BLOG_AUTHOR`.
+- The body goes through the builder's renderer with the same prefetches as a CMS page (`cms_content_prefetches`).
+  AI Studio writes `section-text` sections without tiles and a closing `section-faq` (questions and answers in the
+  page, the table of contents' last entry, `FAQPage` in JSON-LD). `[data-article]` in `app/globals.css` gives CMS
+  text the body colour and reading spacing.
+- `section-blog` on any CMS page: up to three posts the editor picked by route (`blog_section: [{ label }]`), as
+  the blog's tiles (`post-tile.client.tsx`, a client component like every CMS section); `cms_content_prefetches`
+  puts them in the server HTML, a missing post is left out.
+- SEO: a post is `og:type=article` with dates, authors and section, JSON-LD `BlogPosting` (authors linked to their
+  pages), `FAQPage`, `BreadcrumbList`; the list a `Blog`; an author a `ProfilePage`. A category tab and a later page
+  name themselves as canonical; an empty list is `noindex`. The sitemap lists `/blog`, posts and authors per profile
+  whose channel publishes posts in its language. `utils/route-exists.ts` answers 404 for an unknown post or author
+  (contentdb answers 400 to an unknown route, 404 to an author without published posts); a page past the last one
+  renders not-found.
+- Categories: `category/?language=` matches the upper-case ISO code only.
+- The list has no `loading.tsx` (the post and the author pages do): Next shows a loading fallback on every change of
+  the query, which would blank the list and drop the reader at the top. A tab keeps the scroll (`scroll={false}`)
+  and pulses while the next list loads (`useLinkStatus`).
 
 ## Configurable products (variant picker)
 
