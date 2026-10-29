@@ -5,7 +5,8 @@
 import { describe, expect, it } from "vitest";
 import { resolve_media_url } from "@/utils/media-url";
 import type { BlogPost } from "@/utils/NORMALIZERS/blog-post.normalizer";
-import { SITE_URL } from "./config";
+import { DEFAULT_OG_IMAGES, brand_url } from "@/lib/brand";
+import { SITE_NAME, SITE_URL } from "./config";
 import {
   build_blog_author_jsonld,
   build_blog_author_metadata,
@@ -14,6 +15,7 @@ import {
   build_blog_post_metadata,
   build_catalog_jsonld,
   build_catalog_metadata,
+  build_organization_jsonld,
   build_product_jsonld,
   build_product_metadata,
 } from "./build";
@@ -196,7 +198,7 @@ describe("blog list and author SEO", () => {
     const meta = build_blog_author_metadata(AUTHOR, { country: "pl" });
     expect(meta.alternates?.canonical).toBe("/pl/blog/authors/anna-kowalska");
     expect(meta.description).toBe("Senior editor");
-    expect(meta.openGraph).toMatchObject({ type: "profile", title: "Anna Kowalska" });
+    expect(meta.openGraph).toMatchObject({ type: "profile", title: "Anna Kowalska", images: DEFAULT_OG_IMAGES });
   });
 
   it("author JSON-LD: ProfilePage of the Person with their links, then the breadcrumbs", () => {
@@ -206,5 +208,23 @@ describe("blog list and author SEO", () => {
       mainEntity: { "@type": "Person", name: "Anna Kowalska", sameAs: ["https://linkedin.com/in/anna"] },
     });
     expect(trail).toMatchObject({ "@type": "BreadcrumbList" });
+  });
+});
+
+describe("organization SEO", () => {
+  it("home JSON-LD: the shop's Organization from the config, the logo only when BRAND has one", () => {
+    const logo = brand_url("LOGO");
+    expect(build_organization_jsonld()).toEqual({
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: `${SITE_URL}/`,
+      ...(logo && { logo: `${SITE_URL}${logo}` }),
+    });
+  });
+
+  it("the default share image is the configured file, else the generated one", () => {
+    const file = brand_url("OG_IMAGE");
+    expect(DEFAULT_OG_IMAGES).toEqual([file ?? "/og-image.png"]);
   });
 });
