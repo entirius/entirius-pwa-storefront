@@ -6,7 +6,8 @@ import { expect, test } from "@playwright/test";
 import app_config from "../../_CONFIG/app.config.json";
 
 // Web app manifest, theme colour and default share image come from the optional BRAND keys of
-// _CONFIG/app.config.json. With none of them set the page emits nothing of it.
+// _CONFIG/app.config.json. With none of them set the page emits no manifest and no theme colour, and
+// shares the image generated from the shop name (app/og-image.png/route.tsx).
 
 const BRAND = app_config.BRAND as Record<string, string | null | undefined>;
 const has_icons = Boolean(BRAND.ICON_192 || BRAND.ICON_512 || BRAND.ICON_MASKABLE);
@@ -34,7 +35,15 @@ test("theme-color and the default share image follow the config", async ({ page 
   if (BRAND.THEME_COLOR) await expect(theme).toHaveAttribute("content", BRAND.THEME_COLOR);
   else await expect(theme).toHaveCount(0);
 
-  const share = page.locator('meta[property="og:image"]');
-  if (BRAND.OG_IMAGE) await expect(share).toHaveAttribute("content", new RegExp(`/brand/${BRAND.OG_IMAGE}$`));
-  else await expect(share).toHaveCount(0);
+  const share = BRAND.OG_IMAGE ? `/brand/${BRAND.OG_IMAGE}` : "/og-image.png";
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", new URL(share, app_config.SITE_URL).href);
+});
+
+test("the generated share image is a 1200×630 PNG", async ({ request }) => {
+  const res = await request.get("/og-image.png");
+  expect(res.status()).toBe(200);
+  expect(res.headers()["content-type"]).toBe("image/png");
+  // PNG header: width and height are the big-endian words at bytes 16 and 20 (IHDR).
+  const png = await res.body();
+  expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([1200, 630]);
 });
