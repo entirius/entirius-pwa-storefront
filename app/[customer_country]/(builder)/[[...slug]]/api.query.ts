@@ -4,10 +4,19 @@
 
 import { cache } from "react";
 import { QueryClient } from "@tanstack/react-query";
-import { API_CMS_STATIC_PAGE_ROUTE, API_PRODUCTS_ROUTE } from "@/API/api.routes";
+import { API_CMS_BLOG_POST_ROUTE, API_CMS_STATIC_PAGE_ROUTE, API_PRODUCTS_ROUTE } from "@/API/api.routes";
 import type { create_api } from "@/API/api.context";
-import type { CmsPage } from "@/types/cms.types";
+import type { CmsDocumentContent, CmsPage } from "@/types/cms.types";
+import type { BlogPostRaw, ContentDbPage } from "@/types/blog.types";
 import { NORM_PRODUCTS_DATA, type RawProduct } from "@/utils/NORMALIZERS/product.normalizer";
+import { NORM_BLOG_POST_CARD, type BlogPostCard } from "@/utils/NORMALIZERS/blog-post.normalizer";
+import { omnibus_prefetch, is_discounted } from "@/lib/omnibus/omnibus.query";
+import { link_keys, url_key_query } from "@/lib/url-keys";
+import {
+  aggregate_categories,
+  aggregate_skus,
+  aggregate_url_keys,
+} from "./_components/cms-product-aggregation.config";
 
 type Api = ReturnType<typeof create_api>;
 
@@ -140,3 +149,71 @@ export const cms_category_products_query = (api: Api, category: string) => ({
   queryFn: async (): Promise<CmsProduct[]> =>
     NORM_PRODUCTS_DATA(await load_category_products(api, category)),
 });
+
+// ------------------------------------------------------------
+// CMS blog posts (`section-blog.blog_section`: up to three post routes the editor picked, `[{ label: route }]`)
+// ------------------------------------------------------------
+export function blog_section_routes(blog_section: unknown): string[] {
+  const rows = Array.isArray(blog_section) ? (blog_section as { label?: unknown }[]) : [];
+  const routes = rows.map((row) => (typeof row?.label === "string" ? row.label.trim().replace(/^\/+|\/+$/g, "") : ""));
+  // An editor may paste the post's address: its last segment is the route.
+  return [...new Set(routes.map((route) => route.split("/").pop() ?? "").filter(Boolean))];
+}
+
+// One request per route (an unknown route fails the whole `routes=` filter): the post in the page language, else in
+// another one, in the editor's order; a missing post is left out.
+export const cms_blog_posts_query = (api: Api, routes: string[], language: string) => ({
+  queryKey: ["cms-blog-posts", routes, language],
+  queryFn: async (): Promise<BlogPostCard[]> => {
+    const versions = await Promise.all(
+      routes.map(async (route) => {
+        const [error, answer] = await api.FETCH_METHOD<ContentDbPage<BlogPostRaw>>(API_CMS_BLOG_POST_ROUTE, {
+          querys: { routes: route, limit: 50, page: 1 },
+        });
+        return error ? [] : (answer?.data ?? []);
+      }),
+    );
+    return versions.flatMap((rows) => {
+      const post = rows.find((row) => row.language?.toLowerCase() === language) ?? rows[0];
+      const card = post ? NORM_BLOG_POST_CARD(post) : null;
+      return card?.slug ? [card] : [];
+    });
+  },
+});
+
+// ------------------------------------------------------------
+// Everything a CMS document's sections read on the client, for the page's PrefetchBoundary: products by url key,
+// by SKU and of a category, button links in the active language's url keys, and the Omnibus lines of the reduced
+// prices, the posts of blog sections. The product requests are the cached ones the prefetches make; a failed one
+// leaves its section to the client.
+// ------------------------------------------------------------
+export async function cms_content_prefetches(api: Api, content: CmsDocumentContent, language: string) {
+  const url_keys = aggregate_url_keys(content);
+  const skus = aggregate_skus(content);
+  const categories = aggregate_categories(content);
+  const blog_sections = Object.values(content.sections ?? {})
+    .filter((section) => section.core_type === "section-blog")
+    .map((section) => blog_section_routes(section.blog_section))
+    .filter((routes) => routes.length);
+
+  // Omnibus lines for the reduced prices in CMS product sections, in the server HTML like the catalog's.
+  const cms_products = await Promise.all([
+    skus.length
+      ? load_products_by_sku(api, skus).then((r) => r?.results ?? []).catch(() => [])
+      : [],
+    ...categories.map((category) => load_category_products(api, category).catch(() => [])),
+  ]);
+  const discounted_skus = cms_products
+    .flat()
+    .filter((p) => is_discounted((p as { price?: unknown }).price))
+    .map((p) => (p as { sku: string }).sku);
+
+  return [
+    ...(url_keys.length ? [cms_products_query(api, url_keys)] : []),
+    ...(skus.length ? [cms_products_by_sku_query(api, skus)] : []),
+    ...categories.map((category) => cms_category_products_query(api, category)),
+    ...link_keys(content).map(({ kind, key }) => url_key_query(api, language, kind, key)),
+    ...(discounted_skus.length ? [omnibus_prefetch(api, discounted_skus)] : []),
+    ...blog_sections.map((routes) => cms_blog_posts_query(api, routes, language)),
+  ];
+}

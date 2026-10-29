@@ -14,8 +14,11 @@ import {
   type SeoField,
   type SEO_CONTEXT,
 } from "./config";
-import { apply_transform } from "./transforms";
+import { apply_transform, plain_text } from "./transforms";
 import { profile_path } from "@/lib/profile-path";
+import { resolve_media_url } from "@/utils/media-url";
+import type { BlogAuthorProfile, BlogPost, BlogPostCard } from "@/utils/NORMALIZERS/blog-post.normalizer";
+import { blog_author_path, blog_list_path, blog_post_path } from "@/lib/blog-paths";
 
 // metadataBase absolutizes Metadata fields, but raw JSON-LD is emitted as-is —
 // schema.org expects absolute URLs, so build them against SITE_URL here.
@@ -254,8 +257,12 @@ export function build_breadcrumbs_jsonld(
     item: site_url(c?.url_key ? profile_path(ctx.country, `/catalog/${c.url_key}`) : undefined),
   }));
   if (current?.name) items.push({ name: current.name, item: current.url });
-  if (!items.length) return null;
+  return breadcrumb_list(items);
+}
 
+// BreadcrumbList of named items, each with its absolute address (the current page's may be left out).
+function breadcrumb_list(items: { name?: string; item?: string }[]): JsonLdNode | null {
+  if (!items.length) return null;
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -266,6 +273,173 @@ export function build_breadcrumbs_jsonld(
       item: c.item,
     })),
   };
+}
+
+// ------------------------------------------------------------
+// Blog post — Metadata (an article, with its dates, authors and section) and JSON-LD: BlogPosting, FAQPage when
+// the post has a FAQ, BreadcrumbList from `crumbs` (the trail above the post: name + path in the profile).
+// ------------------------------------------------------------
+const post_path = (ctx: SEO_CONTEXT, post: BlogPost) => profile_path(ctx.country, blog_post_path(post.slug));
+
+export function build_blog_post_metadata(post: BlogPost, ctx: SEO_CONTEXT): Metadata {
+  const canonical = post_path(ctx, post);
+  const images = post.seo.image ? [resolve_media_url(post.seo.image)] : DEFAULT_OG_IMAGES;
+  const description = post.seo.description || undefined;
+  const og_description = post.seo.og_description || undefined;
+
+  return {
+    title: post.seo.title,
+    description,
+    alternates: { canonical, languages: ctx.languages },
+    openGraph: {
+      type: "article",
+      title: post.seo.og_title,
+      description: og_description,
+      images,
+      url: canonical,
+      siteName: SITE_NAME,
+      publishedTime: post.published_at ?? undefined,
+      modifiedTime: post.updated_at ?? undefined,
+      authors: post.authors.map((author) => author.name),
+      section: post.category?.name,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.seo.og_title,
+      description: og_description,
+      images,
+    },
+  };
+}
+
+export function build_blog_post_jsonld(
+  post: BlogPost,
+  ctx: SEO_CONTEXT,
+  crumbs: { name: string; path: string }[],
+): JsonLdNode[] {
+  const url = site_url(post_path(ctx, post));
+  const graph: JsonLdNode[] = [
+    prune({
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: post.title,
+      description: post.seo.description || undefined,
+      image: post.seo.image ? [resolve_media_url(post.seo.image)] : undefined,
+      datePublished: post.published_at ?? undefined,
+      dateModified: post.updated_at ?? undefined,
+      inLanguage: post.language || undefined,
+      articleSection: post.category?.name,
+      author: post.authors.length
+        ? post.authors.map((author) =>
+            prune({
+              "@type": "Person",
+              name: author.name,
+              jobTitle: author.role || undefined,
+              url: author.slug ? site_url(profile_path(ctx.country, blog_author_path(author.slug))) : undefined,
+            }),
+          )
+        : undefined,
+      mainEntityOfPage: url,
+      url,
+    }),
+  ];
+
+  if (post.faq) {
+    graph.push({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: post.faq.items.map((item) => ({
+        "@type": "Question",
+        name: item.question,
+        acceptedAnswer: { "@type": "Answer", text: plain_text(item.answer) },
+      })),
+    });
+  }
+
+  const trail = breadcrumb_list([
+    ...crumbs.map((crumb) => ({ name: crumb.name, item: site_url(profile_path(ctx.country, crumb.path)) })),
+    { name: post.title, item: url },
+  ]);
+  if (trail) graph.push(trail);
+
+  return graph;
+}
+
+// ------------------------------------------------------------
+// Blog list — JSON-LD: the Blog with the posts of the page.
+// ------------------------------------------------------------
+const card_image = (card: BlogPostCard) => {
+  const image = card.cover?.desktop?.image || card.cover?.mobile?.image;
+  return image ? resolve_media_url(image) : undefined;
+};
+
+export function build_blog_list_jsonld(
+  cards: BlogPostCard[],
+  ctx: SEO_CONTEXT,
+  list: { name: string; category?: string | null; page?: number },
+): JsonLdNode {
+  return prune({
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: list.name,
+    url: site_url(profile_path(ctx.country, blog_list_path(list))),
+    blogPost: cards.map((card) =>
+      prune({
+        "@type": "BlogPosting",
+        headline: card.title,
+        url: site_url(profile_path(ctx.country, blog_post_path(card.slug))),
+        datePublished: card.published_at ?? undefined,
+        image: card_image(card),
+      }),
+    ),
+  });
+}
+
+// ------------------------------------------------------------
+// Blog author — Metadata (a profile) and JSON-LD: ProfilePage of the Person, BreadcrumbList from `crumbs`.
+// ------------------------------------------------------------
+const author_path = (ctx: SEO_CONTEXT, author: BlogAuthorProfile) => profile_path(ctx.country, blog_author_path(author.slug));
+
+export function build_blog_author_metadata(author: BlogAuthorProfile, ctx: SEO_CONTEXT): Metadata {
+  const canonical = author_path(ctx, author);
+  const description = author.bio || author.role || undefined;
+  const images = author.photo ? [resolve_media_url(author.photo)] : DEFAULT_OG_IMAGES;
+  return {
+    title: author.name,
+    description,
+    alternates: { canonical, languages: ctx.languages },
+    openGraph: { type: "profile", title: author.name, description, images, url: canonical, siteName: SITE_NAME },
+  };
+}
+
+export function build_blog_author_jsonld(
+  author: BlogAuthorProfile,
+  ctx: SEO_CONTEXT,
+  crumbs: { name: string; path: string }[],
+): JsonLdNode[] {
+  const url = site_url(author_path(ctx, author));
+  const graph: JsonLdNode[] = [
+    {
+      "@context": "https://schema.org",
+      "@type": "ProfilePage",
+      url,
+      mainEntity: prune({
+        "@type": "Person",
+        name: author.name,
+        jobTitle: author.role || undefined,
+        description: author.bio || undefined,
+        image: author.photo ? resolve_media_url(author.photo) : undefined,
+        sameAs: author.links.length ? author.links.map((link) => link.url) : undefined,
+        url,
+      }),
+    },
+  ];
+  const trail = breadcrumb_list([
+    ...crumbs.map((crumb) => ({ name: crumb.name, item: site_url(profile_path(ctx.country, crumb.path)) })),
+    { name: author.name, item: url },
+  ]);
+  if (trail) graph.push(trail);
+  return graph;
 }
 
 // Drop undefined keys so the emitted JSON-LD stays clean.

@@ -449,4 +449,26 @@ export const en = {
   // omnibus
   "omnibus.lowest_short": "Lowest 30-day price: {price}",
   "omnibus.lowest": "Lowest price in the 30 days before the discount: {price}",
+
+  // blog
+  "blog.title": "Blog",
+  "blog.published": "Published {date}",
+  "blog.updated": "Updated {date}",
+  "blog.toc": "Contents",
+  "blog.toc_count": {
+    one: "{count} section",
+    other: "{count} sections",
+  },
+  "blog.about_author": {
+    one: "About the author",
+    other: "About the authors",
+  },
+  "blog.post_navigation": "More articles",
+  "blog.previous_post": "Previous article",
+  "blog.next_post": "Next article",
+  "blog.categories": "Categories",
+  "blog.all_categories": "All",
+  "blog.category_title": "{category} – Blog",
+  "blog.empty": "No articles here yet.",
+  "blog.author_posts": "Articles by {name}",
 } satisfies Record<string, Message>;

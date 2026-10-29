@@ -75,6 +75,7 @@ app/
 ├── _components/layout/ Header, navigation, search, cart / wishlist / account sheets
 └── [customer_country]/ All routed pages
     ├── (builder)/      CMS pages (catch-all slug)
+    ├── blog/           Blog from the CMS: list, posts, authors
     ├── (catalog)/      Category listing with filters, sorting, pagination
     ├── (product)/      Product detail page
     ├── checkout/       Address → shipping → payment → review stepper

@@ -33,6 +33,26 @@ describe("route_exists", () => {
     expect(await route_exists(["catalog", "missing"], CTX)).toBe(false);
   });
 
+  it("finds a blog post by its route in this channel, any language", async () => {
+    const fetch = vi.fn<(url: string | URL) => Promise<Response>>(async () => Response.json({ data: [] }));
+    vi.stubGlobal("fetch", fetch);
+    expect(await route_exists(["blog", "missing-post"], CTX)).toBe(false);
+    const url = new URL(String(fetch.mock.calls[0][0]));
+    expect(url.pathname).toBe("/api/contentdb/v1/published/blog-post/");
+    expect(url.searchParams.get("routes")).toBe("missing-post");
+    expect(url.searchParams.get("channel")).toBe("default-europe");
+    expect(url.searchParams.has("language")).toBe(false);
+  });
+
+  it("asks for a blog author by slug, and leaves the blog list to the page", async () => {
+    const fetch = vi.fn<(url: string | URL) => Promise<Response>>(async () => new Response("{}", { status: 404 }));
+    vi.stubGlobal("fetch", fetch);
+    expect(await route_exists(["blog", "authors", "nobody"], CTX)).toBe(false);
+    expect(new URL(String(fetch.mock.calls[0][0])).pathname).toBe("/api/contentdb/v1/authors/nobody/");
+    expect(await route_exists(["blog"], CTX)).toBe(true);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
   it("counts API trouble as existing", async () => {
     vi.stubGlobal("fetch", answer([], 500));
     expect(await route_exists(["product", "a"], CTX)).toBe(true);

@@ -9,23 +9,12 @@ import { PrefetchBoundary } from "@/lib/prefetch_boundary";
 import { decode_param } from "@/lib/route-params";
 import { create_api } from "@/API/api.context";
 import { make_server_access } from "@/API/access/api.server-access";
-import { link_keys, url_key_query } from "@/lib/url-keys";
 import {
   load_static_page,
   pick_static_page,
   static_page_query,
-  cms_products_query,
-  cms_products_by_sku_query,
-  cms_category_products_query,
-  load_products_by_sku,
-  load_category_products,
+  cms_content_prefetches,
 } from "./api.query";
-import { omnibus_prefetch, is_discounted } from "@/lib/omnibus/omnibus.query";
-import {
-  aggregate_categories,
-  aggregate_skus,
-  aggregate_url_keys,
-} from "./_components/cms-product-aggregation.config";
 import { BuilderClient } from "./_components/builder.client";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 import { LAYOUT_ROUTE_PREFIX } from "@/app/_components/layout-slots/api.query";
@@ -79,7 +68,7 @@ export default async function BuilderPage({ params }: Props) {
 
   const api = await get_api();
   // ------------------------------------------------------------
-  // Fetch CMS document first to extract product url_keys for batch prefetch.
+  // Fetch CMS document first to extract what its sections read for batch prefetch.
   // load_static_page keys its React cache on the joined routes string, so the
   // second call inside PrefetchBoundary.queryFn costs no additional request.
   // ------------------------------------------------------------
@@ -90,32 +79,9 @@ export default async function BuilderPage({ params }: Props) {
 
   if (!document) notFound();
 
-  const url_keys = aggregate_url_keys(document.content);
-  const skus = aggregate_skus(document.content);
-  const categories = aggregate_categories(document.content);
-
-  // Omnibus lines for the reduced prices in CMS product sections, in the server
-  // HTML like the catalog's. The product requests are the cached ones the
-  // prefetches below make; a failed one simply leaves its section to the client.
-  const cms_products = await Promise.all([
-    skus.length
-      ? load_products_by_sku(api, skus).then((r) => r?.results ?? []).catch(() => [])
-      : [],
-    ...categories.map((category) => load_category_products(api, category).catch(() => [])),
-  ]);
-  const discounted_skus = cms_products
-    .flat()
-    .filter((p) => is_discounted((p as { price?: unknown }).price))
-    .map((p) => (p as { sku: string }).sku);
-
   const prefetches = [
     static_page_query(api, options),
-    ...(url_keys.length ? [cms_products_query(api, url_keys)] : []),
-    ...(skus.length ? [cms_products_by_sku_query(api, skus)] : []),
-    ...categories.map((category) => cms_category_products_query(api, category)),
-    // Button links in the active language's url keys already in the server HTML.
-    ...link_keys(document.content).map(({ kind, key }) => url_key_query(api, language, kind, key)),
-    ...(discounted_skus.length ? [omnibus_prefetch(api, discounted_skus)] : []),
+    ...(await cms_content_prefetches(api, document.content, language)),
   ];
 
   return (

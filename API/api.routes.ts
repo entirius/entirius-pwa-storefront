@@ -74,6 +74,13 @@ export const API_CMS_ROUTES_ROUTE = "/api/contentdb/v1/routes/";
 // navigation editor.
 export const API_CMS_FOOTER_ROUTE =
   "/api/contentdb/v1/layout-extender-published/footer/";
+// Published blog posts. `routes=<slug>` gives the post in every language it is written in; with `language` as well
+// the one answer also carries its older / newer neighbours (`prev` / `next`).
+export const API_CMS_BLOG_POST_ROUTE = "/api/contentdb/v1/published/blog-post/";
+// Blog categories with published posts (`language` is matched case-sensitively: upper-case ISO code).
+export const API_CMS_BLOG_CATEGORIES_ROUTE = "/api/contentdb/v1/category/";
+// One author by slug: the caller appends `<slug>/`. 404 for an author without published posts.
+export const API_CMS_BLOG_AUTHORS_ROUTE = "/api/contentdb/v1/authors/";
 // ----- CMS / CONTENT -----
 // ----- CONTACT FORMS (django_contact_forms; X-API-KEY of the channel, optional) -----
 // Form types the channel defines: { results: [{ code, label, is_default }] }.
@@ -333,4 +340,9 @@ export const API_ROUTES_POLICY = {
   [API_CMS_STATIC_PAGE_ROUTE]: { shared_cache: true },
   [API_CMS_ROUTES_ROUTE]: { shared_cache: true },
   [API_CMS_FOOTER_ROUTE]: { shared_cache: true },
+  // A post assigned to other channels is not this shop's (a post without channels is everyone's).
+  [API_CMS_BLOG_POST_ROUTE]: { default_querys: ["channel"], shared_cache: true },
+  [API_CMS_BLOG_CATEGORIES_ROUTE]: { shared_cache: true },
+  // The author's post count is the channel's.
+  [`${API_CMS_BLOG_AUTHORS_ROUTE}__AUTHOR__/`]: { default_querys: ["channel"], shared_cache: true },
 };

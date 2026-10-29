@@ -17,12 +17,16 @@ export type SeoTransform = string | string[];
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
 
+// Tags that end a line of text; any other tag sits inside one ("<strong>week</strong>." stays "week.").
+const BLOCK_TAG = /<\/?(?:address|article|aside|blockquote|br|dd|div|dl|dt|figcaption|figure|footer|h[1-6]|header|hr|li|ol|p|pre|section|table|td|th|tr|ul)\b[^>]*>/gi;
+
 // HTML → one line of plain text: script/style bodies and tags dropped,
 // entities decoded in one pass (so "&amp;lt;" stays "&lt;"), whitespace collapsed.
 export function plain_text(html: string): string {
   return html
     .replace(/<(script|style)\b[\s\S]*?<\/\1\s*>/gi, " ")
-    .replace(/<[^>]*>/g, " ")
+    .replace(BLOCK_TAG, " ")
+    .replace(/<[^>]*>/g, "")
     .replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (entity, code: string) => {
       if (code[0] !== "#") return ENTITIES[code.toLowerCase()] ?? entity;
       const point = /^#x/i.test(code) ? parseInt(code.slice(2), 16) : parseInt(code.slice(1), 10);

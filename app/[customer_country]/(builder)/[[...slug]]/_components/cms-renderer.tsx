@@ -8,6 +8,8 @@ import TileTypeA from "./tiles/tile-type-a";
 import TileTypeB from "./tiles/tile-type-b";
 import SectionHeroSlider from "./sections/section-hero-slider";
 import SectionText from "./sections/section-text";
+import SectionFaq from "./sections/section-faq";
+import SectionBlog from "./sections/section-blog.client";
 import SectionAccordion from "./sections/section-accordion";
 import TileHero from "./tiles/tile-hero";
 import TileTxtBtn from "./tiles/tile-txt-btn";
@@ -43,6 +45,9 @@ export const cms_components_map: Record<string, CmsSectionComponent> = {
   "section-banner": SectionBanner as CmsSectionComponent,
   "section-product-slider-via-sku": SectionProductSliderViaSku,
   "section-product-slider-category": SectionProductSliderCategory as CmsSectionComponent,
+  // Written by AI Studio (an article's questions and answers), not offered in the page editor.
+  "section-faq": SectionFaq as CmsSectionComponent,
+  "section-blog": SectionBlog as CmsSectionComponent,
   "tile-hero": TileHero as CmsSectionComponent,
   "tile-txt-btn": TileTxtBtn as CmsSectionComponent,
   "tile-accordion": TileAccordion as CmsSectionComponent,

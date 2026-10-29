@@ -11,6 +11,9 @@ describe("plain_text", () => {
     expect(plain_text("<p>Soft&nbsp;seat</p><p>Steel &amp; oak</p>")).toBe("Soft seat Steel & oak");
     expect(plain_text("A<script>alert(1)</script>B<style>p{}</style>")).toBe("A B");
     expect(plain_text("&amp;lt;b&amp;gt; it&#39;s &#x2122; &bogus;")).toBe("&lt;b&gt; it's ™ &bogus;");
+    expect(plain_text("<p>A <strong>week</strong>, <a href='#'>or two</a>.</p><ul><li>One</li><li>Two</li></ul>")).toBe(
+      "A week, or two. One Two",
+    );
   });
 });
 
