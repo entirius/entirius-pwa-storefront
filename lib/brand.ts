@@ -22,8 +22,10 @@ export const brand_url = (key: BrandFileKey): string | undefined => {
   return file ? `/brand/${file}` : undefined;
 };
 
-// Default Open Graph / Twitter image of pages that have none of their own.
-export const DEFAULT_OG_IMAGES: string[] | undefined = brand_url("OG_IMAGE") ? [brand_url("OG_IMAGE")!] : undefined;
+// Default Open Graph / Twitter image of pages that have none of their own: the configured file, else
+// the image generated from the shop name (app/og-image.png/route.tsx).
+export const GENERATED_OG_IMAGE = "/og-image.png";
+export const DEFAULT_OG_IMAGES: string[] = [brand_url("OG_IMAGE") ?? GENERATED_OG_IMAGE];
 
 export const THEME_COLOR = value("THEME_COLOR");
 export const BACKGROUND_COLOR = value("BACKGROUND_COLOR");

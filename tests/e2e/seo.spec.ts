@@ -3,6 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { expect, test, type Page } from "@playwright/test";
+import app_config from "../../_CONFIG/app.config.json";
 
 // Product and category heads carry the fields of the transform layer (lib/seo/transforms.ts): a plain-text
 // description, the product's own share picture, and Offer availability in JSON-LD.
@@ -45,4 +46,15 @@ test("a category page has its description in the head and in JSON-LD, and stays 
   await expect(meta(page, "description")).toHaveAttribute("content", "Comfortable chairs for any room");
   expect((await json_ld(page, "CollectionPage")).description).toBe("Comfortable chairs for any room");
   await expect(meta(page, "robots")).toHaveCount(0);
+});
+
+test("the home page, and only the home page, names the shop as an Organization", async ({ page }) => {
+  const logo = (app_config.BRAND as Record<string, string | null | undefined>).LOGO;
+  await page.goto("/");
+  const organization = await json_ld(page, "Organization");
+  expect(organization).toMatchObject({ name: app_config.SITE_NAME, url: `${app_config.SITE_URL}/` });
+  expect(organization.logo).toBe(logo ? `${app_config.SITE_URL}/brand/${logo}` : undefined);
+
+  await page.goto("/catalog/chairs");
+  expect(await json_ld(page, "Organization")).toBeUndefined();
 });

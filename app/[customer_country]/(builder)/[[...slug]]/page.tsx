@@ -21,6 +21,8 @@ import { LAYOUT_ROUTE_PREFIX } from "@/app/_components/layout-slots/api.query";
 import { page_alternates } from "@/lib/seo/alternates";
 import type { CmsPage } from "@/types/cms.types";
 import { profile_path } from "@/lib/profile-path";
+import { JsonLd } from "@/lib/seo/json-ld";
+import { build_organization_jsonld } from "@/lib/seo/build";
 
 interface Props {
   params: Promise<{
@@ -85,8 +87,12 @@ export default async function BuilderPage({ params }: Props) {
   ];
 
   return (
-    <PrefetchBoundary prefetches={prefetches}>
-      <BuilderClient routes={routes} />
-    </PrefetchBoundary>
+    <>
+      {/* The shop's Organization goes on the home page, where search engines look for it. */}
+      {!slug?.length && <JsonLd data={build_organization_jsonld()} />}
+      <PrefetchBoundary prefetches={prefetches}>
+        <BuilderClient routes={routes} />
+      </PrefetchBoundary>
+    </>
   );
 }

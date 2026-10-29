@@ -5,7 +5,7 @@
 import type { Metadata } from "next";
 import { DEBUG_MODE } from "@/_CONFIG/app.config.json";
 import { _LOGGER } from "@/lib/logger";
-import { DEFAULT_OG_IMAGES } from "@/lib/brand";
+import { DEFAULT_OG_IMAGES, brand_url } from "@/lib/brand";
 import {
   SEO_FIELDS,
   get_path,
@@ -440,6 +440,19 @@ export function build_blog_author_jsonld(
   ]);
   if (trail) graph.push(trail);
   return graph;
+}
+
+// ------------------------------------------------------------
+// Home — JSON-LD Organization of the shop: name, address and logo, all from the config (BRAND.LOGO optional).
+// ------------------------------------------------------------
+export function build_organization_jsonld(): JsonLdNode {
+  return prune({
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: SITE_NAME,
+    url: site_url("/"),
+    logo: site_url(brand_url("LOGO")),
+  });
 }
 
 // Drop undefined keys so the emitted JSON-LD stays clean.
