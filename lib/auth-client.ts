@@ -147,7 +147,7 @@ const ACTIVATE_GENERIC = msg("auth.activation_failed");
 // (/user-handler?key=&uid=) and the account stays inactive until this fires.
 // Activation contract: POST the signup resource for that customer id —
 // `uid` in the path, `key` in the query, no body, no auth.
-// We inline `uid` from the URL rather than the __USER_ID__ placeholder, which
+// The `uid` of the link goes in as `suffix`, not the __USER_ID__ placeholder, which
 // resolves from the (not-yet-set) `uid` cookie. Returns no tokens; login is next.
 export async function client_activate(
   uid: string,
@@ -157,8 +157,9 @@ export async function client_activate(
 
   const access = make_client_access();
   const api = create_api(access);
-  const [error] = await api.FETCH_METHOD(`${API_USER_SIGNUP_ROUTE}${uid}/`, {
+  const [error] = await api.FETCH_METHOD(API_USER_SIGNUP_ROUTE, {
     method: "POST",
+    suffix: [uid],
     querys: { key },
   });
 
@@ -215,8 +216,9 @@ export async function client_reset_password(
   if (!key) return { ok: false, error: "invalid_key" };
 
   const api = create_api(make_client_access());
-  const [error] = await api.FETCH_METHOD(`${API_USER_PASSWORD_RESET_ROUTE}${encodeURIComponent(key)}/`, {
+  const [error] = await api.FETCH_METHOD(API_USER_PASSWORD_RESET_ROUTE, {
     method: "POST",
+    suffix: [key],
     body: JSON.stringify({
       new_password: parsed.data.password,
       new_password_check: parsed.data.confirm_password,

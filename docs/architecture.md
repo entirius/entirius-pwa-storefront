@@ -60,7 +60,7 @@ entirius-pwa-storefront/
 | File | Purpose |
 |------|---------|
 | `API/api.routes.ts` | All route URL constants + `API_ROUTES_POLICY` (default query params, headers, token refresh per route) |
-| `API/api.setup.ts` | `create_fetch_engine(access)` — placeholder resolution, query string, auth headers, 401 refresh |
+| `API/api.setup.ts` | `create_fetch_engine(access)` — session placeholder resolution, the call's `suffix` segments, query string, auth headers, 401 refresh |
 | `API/api.context.ts` | `create_api(cookie_access)` — maps cookie keys to access methods, returns `{ FETCH_METHOD }` |
 | `proxy.ts` | Middleware: reads `ct` cookie or `cf-ipcountry`, rewrites URL to `/{country}/...`, sets session cookies |
 | `app/robots.ts`, `app/sitemap.ts` | `/robots.txt` (private flows and filter URLs disallowed, sitemap named by `SITE_URL`) and `/sitemap.xml` (CMS pages, categories, products incl. sold out, the blog with its posts and authors, read from the API at request time; every profile in its own language with hreflang alternates, each address in its canonical form, `/catalog/x` for the `default` profile, pure helpers in `lib/seo/sitemap.ts`). Dotted paths are outside the `proxy.ts` matcher |

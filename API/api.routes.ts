@@ -3,11 +3,8 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 export const API_CATEGORIES_ROUTE = "/api/matrix/v2/__CHANNEL__/categories/";
+// Option axes + variant list of a configurable product: `suffix: [url_key, "variants"]` (see variants_query).
 export const API_PRODUCTS_ROUTE = "/api/matrix/v2/__CHANNEL__/products/";
-// Option axes + variant list of a configurable product. The caller fills __URL_KEY__ before
-// FETCH_METHOD (the engine resolves only cookie-backed placeholders); see variants_query.
-export const API_PRODUCT_VARIANTS_ROUTE =
-  "/api/matrix/v2/__CHANNEL__/products/__URL_KEY__/variants/";
 export const API_PRICES_ROUTE = "/api/matrix/v2/__CHANNEL__/prices/";
 export const API_CATALOG_FILTERS_ROUTE = "/api/matrix/v2/__CHANNEL__/options/";
 export const API_STOCK_ROUTE = "/api/matrix/v2/__CHANNEL__/stock/";
@@ -34,7 +31,7 @@ export const API_CART_SHIPPING_SELECT_ROUTE =
   "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/shipping/";
 export const API_CART_PAYMENT_SELECT_ROUTE =
   "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/payment/";
-// POST places an order; GET a single order is this route + `{pretty_id}/`.
+// POST places an order; GET a single order: this route with `suffix: [pretty_id]`.
 // Countries the channel accepts (public with the checkout key): [{ code, label, prefix }] + default_country.
 export const API_CHECKOUT_COUNTRIES_ROUTE = "/api/checkout/v2/__CHANNEL__/countries/";
 export const API_CART_ORDERS_ROUTE = "/api/checkout/v2/__CHANNEL__/orders/";
@@ -45,6 +42,7 @@ export const API_CART_ORDERS_LIST_ROUTE =
 // ----- AUTHENTICATION -----
 export const API_USER_LOGIN_ROUTE =
   "/api/accounts/v1/__CHANNEL__/customer/tokens/";
+// POST signs up; POST with `suffix: [uid]` and `?key=` activates the account from the mail.
 export const API_USER_SIGNUP_ROUTE =
   "/api/accounts/v1/__CHANNEL__/customer/signup/";
 export const API_USER_PROFILE_ROUTE =
@@ -56,7 +54,7 @@ export const API_USER_ADDRESSES_ROUTE =
 export const API_USER_ADDRESSES_DEFAULTS_ROUTE =
   "/api/accounts/v1/__CHANNEL__/customer/__USER_ID__/addresses/defaults/";
 // POST { email } mails a link to the backend's RESET_PASSWORD_REDIRECT_URL (`/reset-password?key=`);
-// POST `<this route><key>/` sets the new password. No token for either.
+// POST with `suffix: [key]` sets the new password. No token for either.
 export const API_USER_PASSWORD_RESET_ROUTE =
   "/api/accounts/v1/__CHANNEL__/customer/password/reset/";
 export const API_USER_PASSWORD_CHANGE_ROUTE =
@@ -79,14 +77,14 @@ export const API_CMS_FOOTER_ROUTE =
 export const API_CMS_BLOG_POST_ROUTE = "/api/contentdb/v1/published/blog-post/";
 // Blog categories with published posts (`language` is matched case-sensitively: upper-case ISO code).
 export const API_CMS_BLOG_CATEGORIES_ROUTE = "/api/contentdb/v1/category/";
-// One author by slug: the caller appends `<slug>/`. 404 for an author without published posts.
+// One author: `suffix: [slug]`. 404 for an author without published posts.
 export const API_CMS_BLOG_AUTHORS_ROUTE = "/api/contentdb/v1/authors/";
 // ----- CMS / CONTENT -----
 // ----- CONTACT FORMS (django_contact_forms; X-API-KEY of the channel, optional) -----
 // Form types the channel defines: { results: [{ code, label, is_default }] }.
 export const API_CONTACT_FORM_TYPES_ROUTE = "/api/contact-forms/v2/__CHANNEL__/form-types/";
-// POST a submission as one form type. The caller fills __TYPE__ with the type code.
-export const API_CONTACT_SUBMIT_ROUTE = "/api/contact-forms/v2/__CHANNEL__/submit/__TYPE__/";
+// POST a submission as one form type: `suffix: [type_code]`.
+export const API_CONTACT_SUBMIT_ROUTE = "/api/contact-forms/v2/__CHANNEL__/submit/";
 // ----- COOKIE CONSENT (django-agreements >= 2.2.0) -----
 export const API_COOKIE_BANNER_ROUTE =
   "/api/agreements/v2/__CHANNEL__/cookie-banner/";
@@ -113,7 +111,6 @@ export const SHARED_CACHE_SECONDS = 60;
 export const API_ROUTES_POLICY = {
   [API_CATEGORIES_ROUTE]: { default_querys: ["language"], shared_cache: true },
   [API_PRODUCTS_ROUTE]: { default_querys: ["language", "currency", "country"] },
-  [API_PRODUCT_VARIANTS_ROUTE]: { default_querys: ["language", "currency", "country"] },
   [API_SEARCH_ROUTE]: { default_querys: ["language", "currency", "country"] },
   [API_USER_PROFILE_ROUTE]: {
     refresh_on: [401],
@@ -297,23 +294,6 @@ export const API_ROUTES_POLICY = {
       { "Content-Type": "application/json" },
     ],
   },
-  // Policy-only key for the single-order detail `.../orders/{id}/`. Not a route
-  // constant: the id is concatenated onto API_CART_ORDERS_ROUTE at the call site,
-  // and this entry exists so that path still resolves to the checkout auth headers.
-  // (pick_policy anchors patterns with `(?:$|[/?#])`, so API_CART_ORDERS_ROUTE does
-  // NOT match a longer path — without this the request goes out unauthenticated.)
-  // NB: this key is longer than API_CART_ORDERS_LIST_ROUTE's and its `[^/]+` also
-  // matches `/orders/list/`, so longest-match hands the list route this policy too.
-  // The two are deliberately identical, so that is inert.
-  "/api/checkout/v2/__CHANNEL__/orders/__ORDER_ID__/": {
-    refresh_on: [401],
-    optional_refresh: true,
-    default_headers: [
-      ["x-api-key", "channel_checkout_key"],
-      ["Authorization", "access_token"],
-      { "Content-Type": "application/json" },
-    ],
-  },
   [API_USER_SIGNUP_ROUTE]: {
     default_headers: [{ "Content-Type": "application/json" }],
   },
@@ -344,5 +324,5 @@ export const API_ROUTES_POLICY = {
   [API_CMS_BLOG_POST_ROUTE]: { default_querys: ["channel"], shared_cache: true },
   [API_CMS_BLOG_CATEGORIES_ROUTE]: { shared_cache: true },
   // The author's post count is the channel's.
-  [`${API_CMS_BLOG_AUTHORS_ROUTE}__AUTHOR__/`]: { default_querys: ["channel"], shared_cache: true },
+  [API_CMS_BLOG_AUTHORS_ROUTE]: { default_querys: ["channel"], shared_cache: true },
 };

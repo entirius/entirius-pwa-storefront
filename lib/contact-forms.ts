@@ -71,9 +71,10 @@ export async function send_contact_form(
   api: ReturnType<typeof create_api>,
   submission: ContactFormSubmission,
 ): Promise<boolean> {
-  const [error] = await api.FETCH_METHOD(
-    API_CONTACT_SUBMIT_ROUTE.replace("__TYPE__", encodeURIComponent(submission.form_type)),
-    { method: "POST", body: submission_json(submission, window.location.href) },
-  );
+  const [error] = await api.FETCH_METHOD(API_CONTACT_SUBMIT_ROUTE, {
+    method: "POST",
+    suffix: [submission.form_type],
+    body: submission_json(submission, window.location.href),
+  });
   return !error;
 }

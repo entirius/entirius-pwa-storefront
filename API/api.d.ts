@@ -41,6 +41,9 @@ type API_REQUEST_INIT = RequestInit & {
   // Arrays repeat the param (?k=a&k=b), objects go JSON-encoded, empty values are left out.
   querys?: Record<string, unknown>;
   headers?: Record<string, string | null>;
+  // Path segments of this call (an order id, a slug) appended to the route: FETCH_METHOD(ROUTE, { suffix: [id] })
+  // → `ROUTE<id>/`. The route's own policy applies; `__X__` placeholders are session values only.
+  suffix?: (string | number)[];
 };
 
 export {

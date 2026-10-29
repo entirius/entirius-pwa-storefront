@@ -62,10 +62,17 @@ type Api = ReturnType<typeof create_api>;
 
 type Hit = { exists: boolean; rows?: { url_keys?: Record<string, string> | null }[] };
 
-async function ask(api: Api, route: string, querys: Record<string, string>, listing_key: string): Promise<Hit> {
+async function ask(
+  api: Api,
+  route: string,
+  querys: Record<string, string>,
+  listing_key: string,
+  suffix?: string[],
+): Promise<Hit> {
   try {
     const [error, body] = await api.FETCH_METHOD<Record<string, unknown>>(route, {
       querys,
+      suffix,
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
     if (error) return { exists: error.status !== 400 && error.status !== 404 };
@@ -94,7 +101,7 @@ async function lookup(kind: string, key: string, ctx: RouteContext): Promise<Ans
     return { exists: (await ask(api, API_CMS_BLOG_POST_ROUTE, { routes: key, limit: "1", page: "1" }, "data")).exists };
   }
   if (kind === "blog-author") {
-    return { exists: (await ask(api, `${API_CMS_BLOG_AUTHORS_ROUTE}${encodeURIComponent(key)}/`, {}, "data")).exists };
+    return { exists: (await ask(api, API_CMS_BLOG_AUTHORS_ROUTE, {}, "data", [key])).exists };
   }
   return { exists: (await ask(api, API_CMS_STATIC_PAGE_ROUTE, { routes: key, limit: "1", page: "1" }, "data")).exists };
 }
