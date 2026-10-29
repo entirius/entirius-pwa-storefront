@@ -45,6 +45,17 @@ function pick_policy(path: string): ROUTE_POLICY | undefined {
   return best?.policy;
 }
 
+// The call's own segments after the route: `orders/` + ["0200000052"] → `orders/0200000052/`. Each one is
+// encoded, so a value stays one segment; an empty one throws rather than turning `orders/<id>/` into the list.
+function append_suffix(path: string, suffix: API_REQUEST_INIT["suffix"]): string {
+  if (!suffix?.length) return path;
+  const segments = suffix.map((segment) => {
+    if (segment === "") throw new Error("empty-route-suffix");
+    return encodeURIComponent(String(segment));
+  });
+  return `${path.endsWith("/") ? path : `${path}/`}${segments.join("/")}/`;
+}
+
 // Cached across requests (see SHARED_CACHE_SECONDS): an allowlisted route, a plain GET, no credentials and no
 // cache mode chosen by the caller. A request with a token, a cookie or an API key is never shared.
 const PRIVATE_HEADER = /^(authorization|cookie|x-api-key)$/i;
@@ -380,8 +391,9 @@ export function create_fetch_engine(access: API_ACCESS) {
   }
 
   async function fetch_builder(path: string, init: API_REQUEST_INIT = {}) {
+    // The policy is the route's, picked before the call's own segments are appended.
     const policy = pick_policy(path);
-    path = await resolver_special_params_if_needed(path);
+    path = append_suffix(await resolver_special_params_if_needed(path), init.suffix);
 
     const querys = await to_query_string(
       policy?.default_querys || [],
@@ -441,7 +453,10 @@ export function create_fetch_engine(access: API_ACCESS) {
   // const [error, response, meta] = await FETCH_METHOD('/api/matrix/v2/__CHANNEL__/categories/', { querys: { language: ['PL', 'EN'] } })
 
   // special PARAMS (like __CHANNEL__) will be resolved by the function
-  // so you can pass __CHANNEL__ in path
+  // so you can pass __CHANNEL__ in path; they are session values only
+
+  // segments of one call (an id, a slug) go in init.suffix, after the route, under the route's policy
+  // const [error, order] = await FETCH_METHOD(API_CART_ORDERS_ROUTE, { suffix: [order_id] })
 
   // set it in policy
   // if refresh_on is true, it will handle the refresh token if needed

@@ -11,8 +11,6 @@ type Api = ReturnType<typeof create_api>;
 
 // An active author with published posts in this channel; null for any other slug (contentdb answers 404).
 export const load_blog_author = cache(async (api: Api, slug: string): Promise<BlogAuthorRaw | null> => {
-  const [error, answer] = await api.FETCH_METHOD<{ data?: BlogAuthorRaw }>(
-    `${API_CMS_BLOG_AUTHORS_ROUTE}${encodeURIComponent(slug)}/`,
-  );
+  const [error, answer] = await api.FETCH_METHOD<{ data?: BlogAuthorRaw }>(API_CMS_BLOG_AUTHORS_ROUTE, { suffix: [slug] });
   return error || !answer?.data?.slug ? null : answer.data;
 });

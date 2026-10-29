@@ -7,11 +7,14 @@ import { make_static_access } from "./access/api.static-access";
 import { create_api } from "./api.context";
 import {
   API_CART_LATEST_ROUTE,
+  API_CART_ORDERS_ROUTE,
   API_CATEGORIES_ROUTE,
   API_CHECKOUT_COUNTRIES_ROUTE,
+  API_CMS_BLOG_AUTHORS_ROUTE,
   API_CMS_FOOTER_ROUTE,
   API_PRODUCTS_ROUTE,
   API_STOCK_ROUTE,
+  API_USER_PASSWORD_RESET_ROUTE,
   SHARED_CACHE_SECONDS,
 } from "./api.routes";
 
@@ -75,5 +78,48 @@ describe("FETCH_METHOD shared cache", () => {
     await api.FETCH_METHOD(API_CATEGORIES_ROUTE, { method: "POST" });
     await api.FETCH_METHOD(API_CATEGORIES_ROUTE, { cache: "no-store" });
     expect(fetch.mock.calls.some(([, init]) => init?.next)).toBe(false);
+  });
+});
+
+describe("FETCH_METHOD suffix", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  type Init = RequestInit & { headers?: Record<string, string>; next?: { revalidate?: number } };
+  const capture = () => {
+    const fetch = vi.fn<(url: string | URL, init?: Init) => Promise<Response>>(async () => Response.json({}));
+    vi.stubGlobal("fetch", fetch);
+    return fetch;
+  };
+  const api = () => create_api(make_static_access({ channel: "a", language: "pl" }));
+
+  it("appends the call's segments after the route, each encoded as one segment, under the route's policy", async () => {
+    const fetch = capture();
+    await api().FETCH_METHOD(API_USER_PASSWORD_RESET_ROUTE, { method: "POST", suffix: ["k/../x y"] });
+    const [url, init] = fetch.mock.calls[0];
+    expect(String(url)).toMatch(/\/customer\/password\/reset\/k%2F..%2Fx%20y\/$/);
+    expect(init?.headers?.["Content-Type"]).toBe("application/json");
+  });
+
+  it("joins several segments and keeps the route's default query", async () => {
+    const fetch = capture();
+    await api().FETCH_METHOD(API_PRODUCTS_ROUTE, { suffix: ["sofa", "variants"] });
+    expect(String(fetch.mock.calls[0][0])).toMatch(/\/matrix\/v2\/a\/products\/sofa\/variants\/\?.*language=pl/);
+  });
+
+  it("caches a shared route per segment", async () => {
+    const fetch = capture();
+    await api().FETCH_METHOD(API_CMS_BLOG_AUTHORS_ROUTE, { suffix: ["anna"] });
+    await api().FETCH_METHOD(API_CMS_BLOG_AUTHORS_ROUTE, { suffix: ["jan"] });
+    const urls = fetch.mock.calls.map(([url]) => String(url));
+    expect(urls[0]).toMatch(/\/authors\/anna\/\?channel=a$/);
+    expect(urls[1]).toMatch(/\/authors\/jan\/\?channel=a$/);
+    expect(fetch.mock.calls.every(([, init]) => init?.next?.revalidate === SHARED_CACHE_SECONDS)).toBe(true);
+  });
+
+  it("fails an empty segment instead of asking the route itself (the order list for an order)", async () => {
+    const fetch = capture();
+    const [error] = await api().FETCH_METHOD(API_CART_ORDERS_ROUTE, { suffix: [""] });
+    expect(error?.message).toBe("empty-route-suffix");
+    expect(fetch).not.toHaveBeenCalled();
   });
 });

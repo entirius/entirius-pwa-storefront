@@ -4,7 +4,7 @@
 
 import { cache } from "react";
 import type { create_api } from "@/API/api.context";
-import { API_PRODUCTS_ROUTE, API_PRODUCT_VARIANTS_ROUTE } from "@/API/api.routes";
+import { API_PRODUCTS_ROUTE } from "@/API/api.routes";
 import { NORM_PRODUCTS_DATA, type RawProduct } from "@/utils/NORMALIZERS/product.normalizer";
 import { NORM_VARIANTS_DATA, type VariantsData } from "@/utils/NORMALIZERS/variant.normalizer";
 
@@ -74,10 +74,9 @@ export const variants_query = (api: Api, options: { product_url_key: string }) =
 });
 
 // cache() keys on primitives (Object.is): an options object would never hit.
-const _load_variants = cache(async (api: Api, product_url_key: string) => {
-  const path = API_PRODUCT_VARIANTS_ROUTE.replace("__URL_KEY__", encodeURIComponent(product_url_key));
-  return api.FETCH_METHOD<VariantsResponse>(path);
-});
+const _load_variants = cache(async (api: Api, product_url_key: string) =>
+  api.FETCH_METHOD<VariantsResponse>(API_PRODUCTS_ROUTE, { suffix: [product_url_key, "variants"] }),
+);
 
 export const load_variants = (api: Api, options: { product_url_key: string }) =>
   _load_variants(api, options.product_url_key);
