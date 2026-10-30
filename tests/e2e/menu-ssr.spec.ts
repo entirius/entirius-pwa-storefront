@@ -5,7 +5,7 @@
 import { expect, test } from "@playwright/test";
 
 // The root menu is fetched on the server, so the first HTML already carries its categories
-// (no spinner-then-menu on slow clients, and crawlers see the links).
+// (no spinner-then-menu on slow clients). They are buttons, not links: crawlers find the categories in the sitemap.
 
 test("the server HTML carries the root menu", async ({ request }) => {
   const res = await request.get("/", { headers: { cookie: "lg=en" } });

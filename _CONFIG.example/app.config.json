@@ -68,6 +68,7 @@
   },
   "MENU_CINFGURATION": {
     "TYPES": ["hamburger", "megamenu"],
+    "TOP_ROW_MAX_ITEMS": 3,
     "CONFIG_QUERY": {
       "url_key": ["chairs", "sofas"]
     }

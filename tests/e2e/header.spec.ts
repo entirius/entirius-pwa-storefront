@@ -32,6 +32,31 @@ test("every header button and link has an accessible name", async ({ page }) => 
   await expect(header.getByRole("link", { name: "Cart", exact: true })).toBeVisible();
 });
 
+// A control that moves at hydration takes the click meant for it to its neighbour: the press lands on one, the
+// release on the other. The locale switch used to be empty in the server HTML and pushed the icons 76 px aside.
+test("the header controls stay put while the page hydrates", async ({ page }) => {
+  await page.addInitScript(() => {
+    const seen = new Set<string>();
+    (window as unknown as { __seen: Set<string> }).__seen = seen;
+    const tick = () => {
+      const row = document.querySelector("header");
+      if (row) {
+        const controls = [...row.querySelectorAll("button, a, [role=combobox]")].filter(
+          (el) => (el as HTMLElement).offsetParent !== null,
+        );
+        if (controls.length) seen.add(controls.map((el) => Math.round(el.getBoundingClientRect().x)).join(","));
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+  await page.goto("/");
+  await expect(page.locator("header").getByRole("button", { name: "Search", exact: true })).toBeVisible();
+  await page.waitForTimeout(1500);
+  const layouts = await page.evaluate(() => [...(window as unknown as { __seen: Set<string> }).__seen]);
+  expect(layouts).toHaveLength(1);
+});
+
 test("cart link name carries the item count and opens the cart page", async ({ page }) => {
   await page.goto("/product/flight-deck-command-chair");
   await page.getByRole("button", { name: "Add to cart" }).click();

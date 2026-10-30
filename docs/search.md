@@ -1,7 +1,7 @@
 # Search feature
 
-Header-triggered search modal with live results (phrases, categories, products) from the unified search endpoint,
-and a results page (`/search?q=`) with every match on the catalog listing.
+Header search with live results (phrases, categories, products) from the unified search endpoint: a magnifier that
+spreads into a field on a desktop, a sheet on a phone. A results page (`/search?q=`) has every match on the catalog listing.
 
 ## Endpoint
 
@@ -43,7 +43,7 @@ Category item: `{ idx, name, url_key, image_url, products_count }` (vs catalog `
   - `resolve_image(main_image)` — `try/catch JSON.parse`, picks a ~320px `source_set` thumb, falls back to `image_placeholder`.
   - `to_price(product, currency)` — the lite price fields (including `range_from` of a configurable product) as a `Price`, rendered by `price_lines()` in the active language; base + optional struck-through special.
   - `product_href(product)` — a variant (no `url_key`) links to its parent's page with `?variant=<sku>`.
-- **Overlay:** shadcn `Sheet` `side="top"` (the only overlay primitive available). **Input:** `InputGroup`. **Live query:** 300ms debounce, gated `enabled: q.trim().length >= 2`, `placeholderData: (prev) => prev`.
+- **Overlay:** phone: shadcn `Sheet` `side="top"`. Desktop: the same Radix dialog, non-modal and without a portal, so it stays in the header, the page behind stays usable, and Radix still handles Escape, a click outside and the focus. Its results sit right under the top row and cover the menu row: the pointer on its way to them must not cross a menu trigger, which would open the megamenu over them. **Input:** `InputGroup`. **Live query:** 300ms debounce, gated `enabled: q.trim().length >= 2`, `placeholderData: (prev) => prev`.
 
 ## Files
 
@@ -51,16 +51,18 @@ Category item: `{ idx, name, url_key, image_url, products_count }` (vs catalog `
 |---|---|
 | `API/api.routes.ts` | `API_SEARCH_ROUTE` + policy (`default_querys: ["language","currency","country"]`) |
 | `app/_components/layout/search.query.ts` | `search_query(api, {q, scope})` → **raw** `SearchResponse` |
-| `app/_components/layout/search-sheet.tsx` | trigger + top `Sheet` + debounce + `useQuery` + states |
+| `app/_components/layout/header-search.client.tsx` | shared by both: `useHeaderSearch` (debounce + `useQuery`), the field, the states |
+| `app/_components/layout/search-sheet.tsx` | phone: trigger + top `Sheet` |
+| `app/_components/layout/search-bar.client.tsx` | desktop: magnifier + spreading field + results under the top row |
 | `app/_components/layout/search-results.tsx` | phrases / categories / products sections |
 | `app/_components/layout/search-product-row.tsx` | compact product row + **local** image/price mapping |
-| `app/_components/layout/header-component.tsx` | mounts `<SearchSheet/>` in the action row |
+| `app/_components/layout/header-component.tsx` | mounts both in the action row (each shows at its width) and anchors the desktop results |
 | `app/_components/not-found-search.client.tsx` | the same search inline on the 404 page |
 | `app/[customer_country]/search/page.tsx` | results page: the catalog listing over `products/?search=` |
 
 ## Behavior
 
-- Click header search icon → top sheet opens with an autofocused input.
+- Click the header's magnifier → an autofocused input opens: in a top sheet on a phone, spreading into the top row's free space on a desktop (the icons next to it stay put). Escape, a click outside or the close button closes it and clears the text.
 - < 2 chars → "type at least 2 characters" hint. ≥ 2 chars → debounced fetch.
 - Phrase click → refills input (re-runs). Category click → `/catalog/{url_key}`. Product click → `/product/{url_key}`, a variant → `/product/{parent_url_key}?variant={sku}` (closes sheet).
 - Loading spinner in the input; error and empty states handled.

@@ -10,6 +10,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { CountBadge } from "./count-badge";
+import { HEADER_ICON } from "./header-icon";
 import { useCartStore } from "@/stores/cart.store";
 import { useI18n } from "@/providers/i18n.provider";
 
@@ -34,7 +35,7 @@ export function CartLink() {
         on_cart && "bg-accent text-accent-foreground",
       )}
     >
-      <ShoppingBag />
+      <ShoppingBag className={HEADER_ICON} />
       <CountBadge count={count} mounted={mounted} />
     </LinkDynamic>
   );

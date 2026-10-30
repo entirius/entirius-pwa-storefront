@@ -20,8 +20,11 @@ import { useMemo, useState } from "react";
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
 import { categories_query } from "./api.query";
+import { HEADER_ICON } from "./header-icon";
 import { type CATEGORY, type CONFIG_QUERY } from "./menu-config";
 import { LinkDynamic } from "@/lib/link-dynamic";
+import { cn } from "@/lib/utils";
+import { NORM_CATEGORY_BRANCH } from "@/utils/NORMALIZERS/category.normalizer";
 import { useI18n } from "@/providers/i18n.provider";
 
 type Level = { url_key: string | null; name: string };
@@ -65,8 +68,11 @@ export function HamburgerMenuSheet({
 
   const goBack = () => setStack((prev) => prev.slice(0, -1));
 
-  // Scoping happens server-side via CONFIG_QUERY; render rows as returned.
-  const items: CATEGORY[] = response?.data ?? [];
+  // Scoping happens server-side via CONFIG_QUERY; render rows as returned. Inside a category its own row
+  // comes first: a row with children only leads deeper, so this is the way to the collective category.
+  const rows: CATEGORY[] = response?.data ?? [];
+  const { url_key, name } = current;
+  const items = url_key === null ? rows : NORM_CATEGORY_BRANCH({ url_key, name }, rows);
 
   // Reset to root whenever the sheet is closed so it reopens at the top level.
   const onOpenChange = (open: boolean) => {
@@ -82,7 +88,7 @@ export function HamburgerMenuSheet({
           aria-label={t("header.menu")}
           className="relative cursor-pointer text-foreground"
         >
-          <Menu />
+          <Menu className={HEADER_ICON} />
         </Button>
       </SheetTrigger>
       <SheetContent side="left" aria-describedby={undefined}>
@@ -125,9 +131,12 @@ export function HamburgerMenuSheet({
               <SheetClose asChild key={category.id ?? category.url_key}>
                 <LinkDynamic
                   href={`/catalog/${category.url_key}`}
-                  className="w-full block text-sm text-foreground px-4 py-2 hover:bg-accent hover:text-accent-foreground"
+                  className={cn(
+                    "w-full block text-sm px-4 py-2 hover:bg-accent hover:text-accent-foreground",
+                    category.is_self ? "font-medium text-link" : "text-foreground",
+                  )}
                 >
-                  {category.name}
+                  {category.is_self ? t("menu.view_all", { name: category.name }) : category.name}
                 </LinkDynamic>
               </SheetClose>
             ),

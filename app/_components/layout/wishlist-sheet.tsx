@@ -19,6 +19,7 @@ import { WishlistItems } from "./wishlist-items";
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CountBadge } from "./count-badge";
+import { HEADER_ICON } from "./header-icon";
 import { useHydrated } from "@/lib/use-hydrated";
 import { useI18n } from "@/providers/i18n.provider";
 
@@ -46,7 +47,7 @@ export function WishlistSheet() {
               : t("header.wishlist")
           }
         >
-          <Heart />
+          <Heart className={HEADER_ICON} />
           <CountBadge count={count} mounted={mounted} />
         </Button>
       </SheetTrigger>

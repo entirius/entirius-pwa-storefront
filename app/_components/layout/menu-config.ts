@@ -24,11 +24,15 @@ export type CATEGORY = {
   url_key: string;
   name: string;
   has_children: boolean;
+  // Only in a `parent_url_key` response: the row's subtree.
+  children?: CATEGORY[];
+  // The parent itself as the first row of its branch (NORM_CATEGORY_BRANCH).
+  is_self?: boolean;
 };
 
 const raw = (
   appConfig as {
-    MENU_CINFGURATION?: { TYPES?: unknown[]; CONFIG_QUERY?: CONFIG_QUERY };
+    MENU_CINFGURATION?: { TYPES?: unknown[]; CONFIG_QUERY?: CONFIG_QUERY; TOP_ROW_MAX_ITEMS?: unknown };
   }
 ).MENU_CINFGURATION;
 
@@ -39,6 +43,11 @@ function parse_type(value: unknown): MENU_TYPE {
 // TYPES tuple order: [mobile, desktop]. Anything unknown/missing falls back to hamburger.
 export const MOBILE_MENU_TYPE: MENU_TYPE = parse_type(raw?.TYPES?.[0]);
 export const DESKTOP_MENU_TYPE: MENU_TYPE = parse_type(raw?.TYPES?.[1]);
+
+// How many categories may share the top row with the logo on a wide screen; more move the menu to its own row.
+// 0: always its own row.
+export const MENU_TOP_ROW_MAX_ITEMS =
+  typeof raw?.TOP_ROW_MAX_ITEMS === "number" ? raw.TOP_ROW_MAX_ITEMS : 3;
 
 // Shared query for the single root request (default: no scoping).
 export const CONFIG_QUERY: CONFIG_QUERY = raw?.CONFIG_QUERY ?? {};
