@@ -42,6 +42,7 @@ export const en = {
   "header.home": "{name} — home",
   "header.language": "Language",
   "header.currency": "Currency",
+  "menu.view_all": "View all in {name}",
 
   // cart drawer
   "cart.title": "Cart",
@@ -116,7 +117,6 @@ export const en = {
   "search.categories": "Categories",
   "search.products": "Products ({total})",
   "search.product_fallback": "Product",
-  "search.trigger": "Search products",
   "search.show_all": "Show all results",
   "search.results_title": "Results for “{query}”",
 

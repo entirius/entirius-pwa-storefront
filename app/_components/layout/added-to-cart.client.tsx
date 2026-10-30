@@ -51,7 +51,7 @@ export function AddedToCart() {
     <div
       role="status"
       aria-live="polite"
-      className="pointer-events-none fixed inset-x-4 top-20 z-toast flex justify-end sm:left-auto sm:w-96"
+      className="pointer-events-none fixed inset-x-4 top-20 z-toast flex justify-end sm:left-auto sm:w-96 md:top-[calc(var(--header-top)+var(--menu-row)+1rem)]"
     >
       {item && (
         <div

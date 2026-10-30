@@ -30,7 +30,7 @@ function paired_currencies(active: Profile, languages: string[], currencies: str
 
 // Language and currency choice allowed by the country profile (`ct` cookie). Renders nothing when
 // there is no real choice (one language and one currency).
-export async function LocaleSwitch({ className }: { className?: string }) {
+export async function LocaleSwitch({ className, icons }: { className?: string; icons?: boolean }) {
   const access = await make_server_access();
   const profile = PROFILES[access.get("ct") ?? ""] ?? PROFILES.default;
   const languages = profile.languages ?? [profile.default_language];
@@ -42,6 +42,7 @@ export async function LocaleSwitch({ className }: { className?: string }) {
   return (
     <LocaleSwitchClient
       className={className}
+      icons={icons}
       languages={languages}
       currencies={currencies}
       language={languages.includes(language) ? language : profile.default_language}

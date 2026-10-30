@@ -10,6 +10,7 @@ import { useAuth } from "@/providers/auth.provider";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { Button } from "@/components/ui/button";
 import { AccountSheet } from "./account-sheet";
+import { HEADER_ICON } from "./header-icon";
 import { useI18n } from "@/providers/i18n.provider";
 
 // Logged in → the User icon links to the /profile hub. Logged out → it opens the
@@ -27,7 +28,7 @@ export function AccountNav() {
         className="relative cursor-pointer text-foreground"
       >
         <LinkDynamic href="/profile" aria-label={t("header.account")}>
-          <User />
+          <User className={HEADER_ICON} />
         </LinkDynamic>
       </Button>
     );

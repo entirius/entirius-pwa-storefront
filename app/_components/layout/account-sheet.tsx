@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/providers/auth.provider";
+import { HEADER_ICON } from "./header-icon";
 import { LoginForm } from "./login-form";
 import { RegisterForm } from "./register-form";
 import { ForgotPasswordForm } from "./forgot-password-form";
@@ -73,7 +74,7 @@ export function AccountSheet() {
           aria-label={t("header.sign_in")}
           className="relative cursor-pointer text-foreground"
         >
-          <User />
+          <User className={HEADER_ICON} />
         </Button>
       </SheetTrigger>
       <SheetContent side="right">

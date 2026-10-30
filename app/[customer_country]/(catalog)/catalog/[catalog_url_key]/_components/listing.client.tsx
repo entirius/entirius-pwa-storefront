@@ -52,7 +52,7 @@ export function ListingClient({
       <aside aria-label={t("catalog.filters")} className="surface hidden lg:sticky lg:top-24 lg:block lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
         <FiltersOptionsClient options={options} />
       </aside>
-      <div data-catalog-list className="min-w-0 scroll-mt-24">
+      <div data-catalog-list className="min-w-0 scroll-mt-24 md:scroll-mt-32">
         <div className="mb-4 flex items-center justify-between gap-4">
           <FiltersTriggerClient options={options} />
           <PaginationClient

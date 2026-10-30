@@ -39,7 +39,7 @@ export async function RelatedProducts({ items }: { items: RawProduct[] }) {
   const { t } = await get_i18n();
 
   return (
-    <section id="related-products" data-related-products className="flex scroll-mt-24 flex-col gap-3 group-data-[stock=in]/related:md:gap-5">
+    <section id="related-products" data-related-products className="flex scroll-mt-24 md:scroll-mt-32 flex-col gap-3 group-data-[stock=in]/related:md:gap-5">
       <h2 className="text-xl group-data-[stock=in]/related:text-2xl group-data-[stock=in]/related:md:text-3xl">
         {t("product.related")}
       </h2>

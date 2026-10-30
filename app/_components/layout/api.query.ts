@@ -42,6 +42,6 @@ export const categories_query = (api: Api, options: CategoriesOptions) => ({
       ({ rows, meta } = await ask(localized));
     }
 
-    return { data: NORM_CATEGORIES_DATA(rows), meta };
+    return { data: NORM_CATEGORIES_DATA(rows, Boolean(options.parent_url_key)), meta };
   },
 });

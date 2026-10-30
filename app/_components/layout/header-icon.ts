@@ -2,8 +2,5 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import { MenuTypeRenderer } from "./menu-type-renderer";
-
-export function NavigationComponent() {
-  return <MenuTypeRenderer />;
-}
+// One look for every icon of the header's action row.
+export const HEADER_ICON = "size-5 stroke-[1.6]";

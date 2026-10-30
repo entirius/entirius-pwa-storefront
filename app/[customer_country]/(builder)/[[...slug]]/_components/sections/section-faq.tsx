@@ -13,7 +13,7 @@ export default function SectionFaq({ title, faq_items }: { title?: string; faq_i
   const items = (faq_items ?? []).filter((item) => item.question?.trim());
   if (!items.length) return null;
   return (
-    <section id={FAQ_ANCHOR} className="w-full scroll-mt-20 py-8">
+    <section id={FAQ_ANCHOR} className="w-full scroll-mt-20 md:scroll-mt-32 py-8">
       <div className="surface flex flex-col gap-6">
         {title && <h2 className="text-2xl md:text-3xl">{title}</h2>}
         <dl className="flex flex-col gap-5">

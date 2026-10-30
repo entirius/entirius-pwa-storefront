@@ -39,6 +39,7 @@ export const pl: Record<MessageKey, Message> = {
   "header.home": "{name} — strona główna",
   "header.language": "Język",
   "header.currency": "Waluta",
+  "menu.view_all": "Wszystko w kategorii {name}",
 
   // cart drawer
   "cart.title": "Koszyk",
@@ -123,7 +124,6 @@ export const pl: Record<MessageKey, Message> = {
   "search.categories": "Kategorie",
   "search.products": "Produkty ({total})",
   "search.product_fallback": "Produkt",
-  "search.trigger": "Szukaj produktów",
   "search.show_all": "Pokaż wszystkie wyniki",
   "search.results_title": "Wyniki dla „{query}”",
 
