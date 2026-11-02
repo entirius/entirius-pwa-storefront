@@ -441,6 +441,25 @@ export const en = {
   "footer.prices_incl_vat": "Prices include VAT.",
   "footer.nav": "Footer",
 
+  // newsletter
+  "newsletter.title": "Newsletter",
+  "newsletter.intro": "News and offers by email. We first send a link to confirm the address.",
+  "newsletter.email": "Email address",
+  "newsletter.consent": "I agree to receive the newsletter by email. How we process my data is described in the {privacy}.",
+  "newsletter.subscribe": "Subscribe",
+  "newsletter.sent": "Almost done: open the link we have sent to your inbox to confirm the address.",
+  "newsletter.invalid": "Enter a valid email address and accept the consent.",
+  "newsletter.failed": "The address could not be saved. Try again in a moment.",
+  "newsletter.signup_opt_in": "Send me the newsletter (we will ask you to confirm the address first).",
+  "newsletter.confirming": "Confirming your subscription…",
+  "newsletter.confirmed_title": "You are subscribed",
+  "newsletter.confirmed_text": "Thank you for confirming. The newsletter will come to this address.",
+  "newsletter.unsubscribing": "Unsubscribing…",
+  "newsletter.unsubscribed_title": "You are unsubscribed",
+  "newsletter.unsubscribed_text": "This address will no longer get the newsletter.",
+  "newsletter.link_failed_title": "This link does not work",
+  "newsletter.link_failed_text": "It may have expired or been used already.",
+
   // breadcrumbs
   "breadcrumbs.home": "Home",
   "breadcrumbs.label": "breadcrumb",

@@ -38,6 +38,7 @@ const APP_ROUTES = new Set([
   "profile",
   "user-handler",
   "reset-password",
+  "newsletter",
   "stylesheets",
   "catalog",
   "product",

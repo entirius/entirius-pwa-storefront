@@ -4,7 +4,7 @@
 
 "use client";
 
-import { useTransition } from "react";
+import { useMemo, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -13,6 +13,9 @@ import {
   type RegisterFormValues,
 } from "@/utils/validation/auth.schema";
 import { client_register } from "@/lib/auth-client";
+import { subscribe_newsletter, useNewsletterAvailable } from "@/lib/newsletter";
+import { create_api } from "@/API/api.context";
+import { make_client_access } from "@/API/access/api.client-access";
 import {
   Form,
   FormError,
@@ -29,8 +32,10 @@ export function RegisterForm({
   onSwitchToLogin: () => void;
   onRegistered: () => void;
 }) {
-  const { t, text } = useI18n();
+  const { t, text, language } = useI18n();
   const [pending, startTransition] = useTransition();
+  const newsletter = useNewsletterAvailable();
+  const api = useMemo(() => create_api(make_client_access()), []);
   const form = useForm<RegisterFormValues>({
     // Same nominal zod type-brand cast as login-form (duplicate zod@4 in the tree).
     resolver: zodResolver(register_schema as never),
@@ -41,6 +46,7 @@ export function RegisterForm({
       confirm_password: "",
       consent_terms: false,
       consent_data: false,
+      newsletter: false,
     },
   });
 
@@ -51,6 +57,8 @@ export function RegisterForm({
         form.setError(res.field, { message: text(res.message) });
         return;
       }
+      // The account exists either way; the newsletter has its own double opt-in mail.
+      if (newsletter && values.newsletter) await subscribe_newsletter(api, values.email, language);
       onRegistered();
     });
   });
@@ -63,6 +71,9 @@ export function RegisterForm({
         <TextField control={form.control} name="confirm_password" label={t("auth.confirm_password")} type="password" autoComplete="new-password" />
         <CheckboxField control={form.control} name="consent_terms" label={t("auth.accept_terms")} />
         <CheckboxField control={form.control} name="consent_data" label={t("auth.consent_data")} />
+        {newsletter && (
+          <CheckboxField control={form.control} name="newsletter" label={t("newsletter.signup_opt_in")} />
+        )}
         <FormError>{form.formState.errors.root?.message}</FormError>
         <Button type="submit" disabled={pending}>
           {pending ? <Spinner className="size-4" /> : t("auth.create_account")}

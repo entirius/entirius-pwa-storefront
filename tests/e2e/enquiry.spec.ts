@@ -25,7 +25,8 @@ async function with_forms(page: Page, types: string[]) {
 
 async function fill_form(page: Page) {
   await page.getByLabel("Your name").fill("Ann Tester");
-  await page.getByLabel("Email address").fill("ann@example.com");
+  // The footer newsletter form has an "Email address" too.
+  await page.locator("[data-enquiry-form]").getByLabel("Email address").fill("ann@example.com");
   await page.getByLabel("Message").fill("Is it possible to see it in person?");
 }
 
@@ -73,7 +74,7 @@ test("consent and fields are required, the honeypot sends nothing", async ({ pag
   expect(posts).toBe(0);
 
   await page.locator("[data-enquiry-consent] button").click();
-  await page.locator('input[name="website"]').evaluate((el: HTMLInputElement) => (el.value = "http://spam"));
+  await page.locator('[data-enquiry-form] input[name="website"]').evaluate((el: HTMLInputElement) => (el.value = "http://spam"));
   await page.getByRole("button", { name: "Send" }).click();
   await expect(page.locator("[data-enquiry-sent]")).toBeVisible();
   expect(posts).toBe(0);

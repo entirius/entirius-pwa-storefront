@@ -135,7 +135,7 @@ test("an order placed while logged in shows in my orders and its detail", async 
   await page.getByRole("complementary", { name: "Order summary" }).getByRole("link", { name: "Go to checkout" }).click();
   await expect(page).toHaveURL(/\/checkout$/);
 
-  const form = page.locator("form");
+  const form = page.locator("main form");
   await form.getByLabel("Email").fill(email);
   await form.getByLabel("First name").fill("Olga");
   await form.getByLabel("Last name").fill("Orders");

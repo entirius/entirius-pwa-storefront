@@ -18,6 +18,6 @@ test("the address form offers the countries of the checkout channel", async ({ p
   await page.goto("/product/flight-deck-command-chair");
   await page.getByRole("button", { name: "Add to cart" }).click();
   await page.goto("/checkout");
-  await page.locator("form").getByRole("combobox", { name: "Country" }).click();
+  await page.locator("main form").getByRole("combobox", { name: "Country" }).click();
   await expect(page.getByRole("option")).toHaveText(expected);
 });

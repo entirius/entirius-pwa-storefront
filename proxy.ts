@@ -90,6 +90,10 @@ export default async function proxy(request: NextRequest) {
       const forms_key = (channels as Record<string, { API_CONTACT_FORMS_KEY?: string }>)[ch]
         ?.API_CONTACT_FORMS_KEY;
       if (forms_key) res.cookies.set("cf_key", forms_key);
+      // nl_key = the channel's newsletter key (X-API-KEY of the subscription). Optional, like cf_key.
+      const newsletter_key = (channels as Record<string, { API_NEWSLETTER_KEY?: string }>)[ch]
+        ?.API_NEWSLETTER_KEY;
+      if (newsletter_key) res.cookies.set("nl_key", newsletter_key);
     }
     // at/rt/uid are owned solely by the auth Server Actions (set as HttpOnly on
     // login, cleared on logout). Re-emitting them here would strip HttpOnly.
