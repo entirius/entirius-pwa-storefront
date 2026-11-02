@@ -85,6 +85,12 @@ export const API_CMS_BLOG_AUTHORS_ROUTE = "/api/contentdb/v1/authors/";
 export const API_CONTACT_FORM_TYPES_ROUTE = "/api/contact-forms/v2/__CHANNEL__/form-types/";
 // POST a submission as one form type: `suffix: [type_code]`.
 export const API_CONTACT_SUBMIT_ROUTE = "/api/contact-forms/v2/__CHANNEL__/submit/";
+// ----- NEWSLETTER (django_agreements, double opt-in) -----
+// POST { email, language } with the channel's newsletter key (optional: without it no form is offered).
+export const API_NEWSLETTER_SUBSCRIBE_ROUTE = "/api/agreements/v2/__CHANNEL__/newsletter/subscribe/";
+// The links of the confirmation mail: POST { token } confirms, GET ?token= unsubscribes. No key.
+export const API_NEWSLETTER_CONFIRM_ROUTE = "/api/agreements/v2/__CHANNEL__/consents/confirm/";
+export const API_NEWSLETTER_UNSUBSCRIBE_ROUTE = "/api/agreements/v2/__CHANNEL__/consents/unsubscribe/";
 // ----- COOKIE CONSENT (django-agreements >= 2.2.0) -----
 export const API_COOKIE_BANNER_ROUTE =
   "/api/agreements/v2/__CHANNEL__/cookie-banner/";
@@ -316,6 +322,12 @@ export const API_ROUTES_POLICY = {
   },
   [API_CONTACT_SUBMIT_ROUTE]: {
     default_headers: [["X-API-KEY", "contact_forms_key"], { "Content-Type": "application/json" }],
+  },
+  [API_NEWSLETTER_SUBSCRIBE_ROUTE]: {
+    default_headers: [["X-API-KEY", "newsletter_key"], { "Content-Type": "application/json" }],
+  },
+  [API_NEWSLETTER_CONFIRM_ROUTE]: {
+    default_headers: [{ "Content-Type": "application/json" }],
   },
   [API_CMS_STATIC_PAGE_ROUTE]: { shared_cache: true },
   [API_CMS_ROUTES_ROUTE]: { shared_cache: true },

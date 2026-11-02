@@ -263,6 +263,16 @@ an unknown type: nothing renders and nothing is requested.
 - The backend needs a `Channel` (`idx` = the channel), an `APIKey` with scope `contact_form` for it and one
   `FormType` per code used above.
 
+## Newsletter
+
+Double opt-in through `django_agreements` (`lib/newsletter.ts`), optional like the contact forms: only a channel
+with `API_NEWSLETTER_KEY` (`channels.config.json`, cookie `nl_key`) gets the footer form
+(`components/newsletter-form.client.tsx`: email, consent, honeypot) and the opt-in of the register form, which
+subscribes after the account is created. `POST newsletter/subscribe/` mails a link to `{STOREFRONT_BASE_URL}`
+`/newsletter/confirm?token=` and one to `/newsletter/unsubscribe?token=`; both pages (`app/[customer_country]/newsletter/`)
+send the token once (`consents/confirm/`, `consents/unsubscribe/`, no key) and show the result. The backend must point
+`STOREFRONT_BASE_URL` at the storefront.
+
 ## Cookie consent
 
 `app/_components/cookie-consent/`, mounted as `<CookieConsent />` in `app/layout.tsx`. After hydration it asks

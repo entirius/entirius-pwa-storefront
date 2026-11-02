@@ -10,7 +10,7 @@ runtime (the optional message overrides).
 ```bash
 cp -r _CONFIG.example _CONFIG
 # app.config.json       → API_BASE_URL (backend URL), site name and URL, THEME, BRAND
-# channels.config.json  → CHANNEL_LABEL and API_CHECKOUT_KEY per channel (optional API_CONTACT_FORMS_KEY)
+# channels.config.json  → CHANNEL_LABEL and API_CHECKOUT_KEY per channel (optional API_CONTACT_FORMS_KEY, API_NEWSLETTER_KEY)
 # countries.config.json → country → languages/currencies/channels mapping
 # brand/                → identity assets (favicon, optional logo), named in app.config.json BRAND
 # theme.css             → client theme: values of the theme variables of app/globals.css (empty = default look)
@@ -47,6 +47,7 @@ The template ships the two channels of the reference dataset (`default-europe`, 
 | `channels.config.json` | `{channel}.CHANNEL_LABEL` | Channel display name |
 | `channels.config.json` | `{channel}.API_CHECKOUT_KEY` | Checkout API key per channel (`x-api-key`) |
 | `channels.config.json` | `{channel}.API_CONTACT_FORMS_KEY` | Optional contact-forms API key per channel (`X-API-KEY`, scope `contact_form`). `proxy.ts` sends it as the `cf_key` cookie. Without it no contact form is offered |
+| `channels.config.json` | `{channel}.API_NEWSLETTER_KEY` | Optional newsletter key per channel (`X-API-KEY` of `agreements/v2/{channel}/newsletter/subscribe/`, a token with the scope `agreements.subscribe`). `proxy.ts` sends it as the `nl_key` cookie. Without it the footer has no newsletter form and the register form no opt-in |
 | `countries.config.json` | `{country}.default_language` | Default language for country (the `lg` cookie: interface language and the API `language`) |
 | `countries.config.json` | `{country}.default_currency` | Default currency for country |
 | `countries.config.json` | `{country}.default_channel` | Default channel for country |

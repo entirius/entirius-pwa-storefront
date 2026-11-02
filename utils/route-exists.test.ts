@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { clear_route_cache, localized_catalog_key, route_exists } from "./route-exists";
+import { clear_route_cache, is_app_route, localized_catalog_key, route_exists } from "./route-exists";
 
 const CTX = { channel: "default-europe", language: "en", currency: "eur", country: "default" };
 
@@ -100,5 +100,12 @@ describe("route_exists", () => {
     expect(await localized_catalog_key(["catalog", "chairs"], { ...CTX, language: "pl" })).toBe("krzesla");
     expect(await localized_catalog_key(["catalog", "chairs"], { ...CTX, language: "en" })).toBeNull();
     expect(await localized_catalog_key(["product", "chairs"], { ...CTX, language: "pl" })).toBeNull();
+  });
+});
+
+describe("is_app_route", () => {
+  it("knows the pages of the newsletter mail, so the proxy does not answer them 404", () => {
+    expect(is_app_route("newsletter")).toBe(true);
+    expect(is_app_route("newsletter-archive")).toBe(false);
   });
 });

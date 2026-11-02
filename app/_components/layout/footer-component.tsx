@@ -10,6 +10,7 @@ import { LinkDynamic } from "@/lib/link-dynamic";
 import { NORM_FOOTER, type FooterLink } from "@/utils/NORMALIZERS/footer.normalizer";
 import { SITE_NAME } from "@/_CONFIG/app.config.json";
 import { BrandMark } from "./brand-mark";
+import { NewsletterForm } from "@/components/newsletter-form.client";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 
 // One request per render, whatever renders the footer.
@@ -45,6 +46,7 @@ export async function FooterComponent() {
           <p className="max-w-xs text-sm text-muted-foreground">
             {t("footer.prices_incl_vat")}
           </p>
+          <NewsletterForm className="mt-3" />
         </div>
         {columns.length > 0 && (
           <nav aria-label={t("footer.nav")} className="col-span-2 grid grid-cols-2 gap-8 md:col-span-3 md:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))]">

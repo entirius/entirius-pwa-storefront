@@ -15,7 +15,7 @@ import { expect, test, type Page } from "@playwright/test";
 const PRODUCT = { url: "/product/flight-deck-command-chair", name: "Flight Deck Command Chair" };
 
 async function fill_address(page: Page) {
-  const form = page.locator("form");
+  const form = page.locator("main form");
   await form.getByLabel("Email").fill("guest-e2e@example.com");
   await form.getByLabel("First name").fill("Anna");
   await form.getByLabel("Last name").fill("Tester");

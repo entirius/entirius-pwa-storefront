@@ -54,6 +54,8 @@ export const register_schema = z
     consent_data: z
       .boolean()
       .refine((v) => v === true, msg("validation.data_consent_required")),
+    // Optional newsletter sign-up, offered only with the channel's newsletter key.
+    newsletter: z.boolean().optional(),
   })
   .refine((v) => v.password === v.confirm_password, {
     path: ["confirm_password"],

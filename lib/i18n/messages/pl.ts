@@ -451,6 +451,25 @@ export const pl: Record<MessageKey, Message> = {
   "footer.prices_incl_vat": "Ceny zawierają VAT.",
   "footer.nav": "Stopka",
 
+  // newsletter
+  "newsletter.title": "Newsletter",
+  "newsletter.intro": "Nowości i oferty mailem. Najpierw wyślemy link do potwierdzenia adresu.",
+  "newsletter.email": "Adres e-mail",
+  "newsletter.consent": "Zgadzam się na otrzymywanie newslettera mailem. Informacje o tym, jak przetwarzamy moje dane, są w {privacy}.",
+  "newsletter.subscribe": "Zapisz się",
+  "newsletter.sent": "Prawie gotowe: otwórz link, który wysłaliśmy na Twoją skrzynkę, żeby potwierdzić adres.",
+  "newsletter.invalid": "Podaj poprawny adres e-mail i zaznacz zgodę.",
+  "newsletter.failed": "Nie udało się zapisać adresu. Spróbuj ponownie za chwilę.",
+  "newsletter.signup_opt_in": "Chcę dostawać newsletter (najpierw poprosimy o potwierdzenie adresu).",
+  "newsletter.confirming": "Potwierdzamy zapis…",
+  "newsletter.confirmed_title": "Zapis potwierdzony",
+  "newsletter.confirmed_text": "Dziękujemy za potwierdzenie. Newsletter będzie przychodził na ten adres.",
+  "newsletter.unsubscribing": "Wypisujemy…",
+  "newsletter.unsubscribed_title": "Wypisano z newslettera",
+  "newsletter.unsubscribed_text": "Na ten adres nie będzie już przychodził newsletter.",
+  "newsletter.link_failed_title": "Ten link nie działa",
+  "newsletter.link_failed_text": "Mógł wygasnąć albo został już użyty.",
+
   // breadcrumbs
   "breadcrumbs.home": "Strona główna",
   "breadcrumbs.label": "Ścieżka nawigacji",

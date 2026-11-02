@@ -123,7 +123,8 @@ export async function client_register(
       email,
       password,
       // Accounts agreements contract: email = data/marketing consent,
-      // condition = terms+privacy acceptance, newsletter always false.
+      // condition = terms+privacy acceptance, newsletter always false (the newsletter
+      // has its own double opt-in: lib/newsletter.ts, after the account is created).
       agreements: { email: consent_data, condition: consent_terms, newsletter: false },
       language,
     }),

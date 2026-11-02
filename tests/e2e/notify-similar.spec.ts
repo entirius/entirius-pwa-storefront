@@ -27,7 +27,7 @@ async function with_forms(page: Page, types: string[]) {
 
 async function request_form(page: Page) {
   await page.locator("[data-notify-trigger]").click();
-  await page.getByLabel("Email address").fill("ann@example.com");
+  await page.locator("[data-notify-form]").getByLabel("Email address").fill("ann@example.com");
   await page.getByLabel(/What are you looking for/).fill("Something similar, not too big");
   await page.locator("[data-notify-consent] button").click();
 }
@@ -68,13 +68,13 @@ test("email and consent are required, the honeypot sends nothing", async ({ page
   });
   await page.goto(SOLD_OUT);
   await page.locator("[data-notify-trigger]").click();
-  await page.getByLabel("Email address").fill("ann@example.com");
+  await page.locator("[data-notify-form]").getByLabel("Email address").fill("ann@example.com");
   await page.getByRole("button", { name: "Notify me" }).click();
   await expect(page.locator("[data-notify-form] [role=alert]")).toContainText("accept the data processing");
   expect(posts).toBe(0);
 
   await page.locator("[data-notify-consent] button").click();
-  await page.locator('input[name="website"]').evaluate((el: HTMLInputElement) => (el.value = "http://spam"));
+  await page.locator('[data-notify-form] input[name="website"]').evaluate((el: HTMLInputElement) => (el.value = "http://spam"));
   await page.getByRole("button", { name: "Notify me" }).click();
   await expect(page.locator("[data-notify-sent]")).toBeVisible();
   expect(posts).toBe(0);
