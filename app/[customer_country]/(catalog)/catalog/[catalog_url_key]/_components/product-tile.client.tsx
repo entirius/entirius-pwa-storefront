@@ -14,12 +14,13 @@ import { ProductBadges } from "./product-badges";
 import { QuickAdd } from "./quick-add.client";
 import { useI18n } from "@/providers/i18n.provider";
 import { useSinglePiece } from "./use-single-piece";
+import { buy_block } from "@/lib/buy-rules";
 
 const PLACEHOLDER_MEDIA = [{ uri: image_placeholder, width: 600, height: 600 }];
 
 // A listing product, or a wishlist item (compact), which lacks the stock, badge and quick-add fields.
 export type TileProduct = Pick<Product, "sku" | "name" | "url_key" | "price" | "media"> &
-  Partial<Pick<Product, "on_stock" | "description" | "purchasable" | "badges" | "percent_off">>;
+  Partial<Pick<Product, "on_stock" | "description" | "product_type" | "badges" | "percent_off">>;
 
 // The description is HTML (the product page sanitizes and renders it); the tile shows it as plain text.
 const plain_text = (html: string) =>
@@ -52,6 +53,7 @@ export function ProductTile({
     name: product.name,
     url_key: product.url_key,
     price: product.price,
+    product_type: product.product_type,
     description: product.description ?? "",
     media: Array.isArray(media) ? [media] : [[media]],
   };
@@ -104,9 +106,10 @@ export function ProductTile({
     );
   }
 
-  // In stock and with a price: the "+" quick add. Out of stock or price on request
-  // leaves only the link to the product page.
-  const can_quick_add = product.purchasable && !sold_out;
+  // The "+" quick add when the rules of the type let it (the click asks the real-time stock). Sold out by the
+  // read model, a variant to choose or no price leaves only the link to the product page.
+  const can_quick_add =
+    buy_block(product.product_type, { quantity: sold_out ? 0 : undefined, price: product.price }) === null;
 
   return (
     <LinkDynamic

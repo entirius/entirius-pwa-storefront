@@ -12,9 +12,15 @@ import { useAuth } from "@/providers/auth.provider";
 import { useI18n } from "@/providers/i18n.provider";
 import { ProductTile } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-tile.client";
 import { useQuickAdd } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/use-quick-add";
+import { buy_block } from "@/lib/buy-rules";
 
-// One unit into the cart, then off the wishlist. Only for a product with one price: a range (options to
-// choose) or a price on request goes through the product page, which the card links to.
+// Whether the item can go straight to the cart, by the rules of its type (the click asks the real-time stock).
+// An item saved before the type was kept has only its price to go by: one price, not a range.
+const movable = (item: WishlistItem) =>
+  item.product_type ? buy_block(item.product_type, { price: item.price }) === null : !item.price?.from;
+
+// One unit into the cart, then off the wishlist. A variant to choose or a price on request goes through the
+// product page, which the card links to.
 function MoveToCart({ item }: { item: WishlistItem & { price: NonNullable<WishlistItem["price"]> } }) {
   const { t } = useI18n();
   const { isLoggedIn } = useAuth();
@@ -63,7 +69,7 @@ export function WishlistItems() {
           key={sku}
           product={item}
           variant="compact"
-          action={item.price && !item.price.from ? <MoveToCart item={{ ...item, price: item.price }} /> : undefined}
+          action={item.price && movable(item) ? <MoveToCart item={{ ...item, price: item.price }} /> : undefined}
         />
       ))}
     </div>

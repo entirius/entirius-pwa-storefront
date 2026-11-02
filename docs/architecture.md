@@ -198,6 +198,21 @@ Real-time stock of all variants is one `stock/` call with repeated `sku`.
 - The cart gets the variant SKU and the name `Product (option, option)`; the gallery follows the variant when it
   has pictures of its own.
 
+## Adding to the cart
+
+`lib/buy-rules.ts` decides whether a product can go to the cart, by `product_type`: SIMPLE and BUNDLE check the
+stock, then the price; CONFIGURABLE needs a chosen variant, whose stock and price count (the parent has neither);
+CUSTOM never goes to the cart (enquiry). The first rule that fails picks the message, so a sold-out product says
+"Out of stock" before "Not available online". The product page, the "+" on a tile and the wishlist's "Move to
+cart" read it.
+
+- Stock is the real-time `stock/` answer only. `on_stock` of the read model can be stale: it greys out variant
+  options, hides the tile's "+" and places the similar products, but never opens the button. Until `stock/`
+  answers, or when it fails, the button stays disabled.
+- A BUNDLE is asked by its own SKU: what its components allow is for `stock/` to answer, not for the storefront to
+  compute.
+- The cart page stops the stepper at the stock; a sold-out line stays, flagged by the backend, and can only shrink.
+
 ## Product page and catalog extras
 
 - Gallery (`gallery.client.tsx`, `gallery-viewer.client.tsx`): a scroll-snap row (swipe on phones, "3 / 12" counter),
@@ -235,8 +250,8 @@ an unknown type: nothing renders and nothing is requested.
 
 - Enquiry (`components/enquiry-form.client.tsx`): honeypot field `website`, required consent with a link to
   `CHECKOUT.PRIVACY_ROUTE`. The product page offers it as a collapsed "Ask about this product" (type
-  `product-enquiry`, slug `product-enquiry`, `code` = SKU); a product without a price (`purchasable` false) gets the
-  primary "Ask for the price" instead.
+  `product-enquiry`, slug `product-enquiry`, `code` = SKU); a product not sold online (CUSTOM, or no price; `sold_online`
+  in `lib/buy-rules.ts`) gets the primary "Ask for the price" instead.
 - "Tell me when a similar product arrives" (`components/notify-similar.client.tsx`, type `notify-similar`, slug
   `notify-similar`): on a sold-out product (stock answered, nothing buyable; `code` = SKU) and on an empty category
   page without filters. E-mail, optional note, consent, honeypot. Body: `product_sku`, `product_name`, `category`,

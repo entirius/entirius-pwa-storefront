@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useI18n } from "@/providers/i18n.provider";
+import { buy_block } from "@/lib/buy-rules";
 import type { Price } from "@/utils/NORMALIZERS/price.normalizer";
 import type { Variant, VariantsData } from "@/utils/NORMALIZERS/variant.normalizer";
 import { variants_query } from "../api.query";
@@ -51,10 +52,9 @@ export function useProductVariants(
   const selection = chosen ?? initial_selection(data, variant_param);
   const variant = find_variant(data, selection);
 
-  // Real-time stock when it has arrived, the read model's flag until then (and if the call fails).
-  const quantity = (v: Variant) => (stocks ? stocks[v.sku]?.quantity ?? 0 : v.on_stock ? 1 : 0);
-  const is_buyable = (v: Variant) =>
-    stocks ? !!stocks[v.sku]?.is_in_stock && quantity(v) > 0 : v.on_stock;
+  // Real-time stock when it has arrived, the read model's flag until then (and if the call fails): enough to
+  // grey out options and pick the first one, never to buy.
+  const available = (v: Variant) => (stocks ? (stocks[v.sku]?.quantity ?? 0) > 0 : v.on_stock);
 
   // A link to another variant while this page is mounted (search results, cart): follow it.
   if (variant_param !== seen_param) {
@@ -81,25 +81,39 @@ export function useProductVariants(
 
   const cheapest = lowest_price(data.variants);
   const price: Price | null = variant ? variant.price : (cheapest?.variant.price ?? product?.price ?? null);
-  const any_buyable = data.variants.some(is_buyable);
-  const in_stock = !!variant && is_buyable(variant);
+  const any_available = data.variants.some(available);
+  // Buying reads the real-time answer only: undefined until it is there (or when the call fails), and a SKU
+  // missing from it is out of stock.
+  const quantity = variant && stocks ? (stocks[variant.sku]?.quantity ?? 0) : undefined;
+  const block = buy_block("CONFIGURABLE", { variant: !!variant, quantity, price: variant?.price ?? null });
 
   return {
     axes: data.axes,
     selection,
     choose,
     is_available: (axis: string, value: string) =>
-      option_available(data, selection, axis, value, is_buyable),
+      option_available(data, selection, axis, value, available),
     price,
     // "from <price>" while no variant is chosen and the variants are not all priced the same
     price_from: !variant && !!cheapest?.differs,
     // the chosen variant's own pictures; undefined = keep the product's
     media: variant?.media.length ? variant.media : undefined,
-    in_stock,
+    in_stock: quantity !== undefined && quantity > 0,
+    // the real-time stock of the variants has answered
+    stock_known: stocks !== undefined,
     // no variant can be bought at all (a chosen variant being sold out is not this)
-    sold_out: !any_buyable,
-    max: variant ? quantity(variant) : 0,
-    cta: !variant && any_buyable ? t("product.choose_option") : in_stock ? t("product.add_to_cart") : t("product.out_of_stock"),
+    sold_out: !any_available,
+    max: quantity ?? 0,
+    block,
+    cta: !variant
+      ? any_available
+        ? t("product.choose_option")
+        : t("product.out_of_stock")
+      : block === "quantity"
+        ? t("product.out_of_stock")
+        : block === "price"
+          ? t("product.not_available_online")
+          : t("product.add_to_cart"),
     // what goes into the cart: the variant's SKU, the product name with the chosen options
     buy: variant && {
       sku: variant.sku,

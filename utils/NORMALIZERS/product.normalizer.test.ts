@@ -86,9 +86,7 @@ describe("NORM_PRODUCTS_DATA pricing fields", () => {
     expect(one({ price: { gross: "549.00", has_special_price: false, percent_off: "0", currency: "EUR" } }).percent_off).toBeNull();
   });
 
-  it("is purchasable only with a fixed list price", () => {
-    expect(one({ price: { gross: "549.00", currency: "EUR" } }).purchasable).toBe(true);
-    expect(one({ price: { is_range: true, range_from_gross: "549.00", currency: "EUR" } }).purchasable).toBe(false);
-    expect(one({ price: null }).purchasable).toBe(false);
+  it("keeps product_type, which the cart rules read", () => {
+    expect(one({ product_type: "BUNDLE" }).product_type).toBe("BUNDLE");
   });
 });

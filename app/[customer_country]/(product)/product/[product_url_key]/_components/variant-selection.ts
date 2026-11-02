@@ -44,17 +44,17 @@ export function select_option(
   return next;
 }
 
-// An option can be picked when some buyable variant has it and agrees with the choices on the other axes.
+// An option can be picked when some available variant has it and agrees with the choices on the other axes.
 export function option_available(
   data: VariantsData,
   selection: Selection,
   axis: string,
   value: string,
-  is_buyable: (variant: Variant) => boolean,
+  available: (variant: Variant) => boolean,
 ): boolean {
   const others = Object.fromEntries(Object.entries(selection).filter(([a]) => a !== axis));
   return data.variants.some(
-    (v) => v.selection[axis] === value && matches(v, others) && is_buyable(v),
+    (v) => v.selection[axis] === value && matches(v, others) && available(v),
   );
 }
 
