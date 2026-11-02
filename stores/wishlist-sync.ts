@@ -48,6 +48,7 @@ async function snapshots(api: Api, skus: string[]): Promise<Items> {
       name: p.name,
       url_key: p.url_key,
       price: p.price,
+      product_type: p.product_type,
       description: p.description ?? "",
       media: p.media,
     };

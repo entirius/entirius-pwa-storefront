@@ -11,6 +11,8 @@ type WishlistItem = {
   name: string;
   url_key: string;
   price: Price | null;
+  // Missing on items saved before the type was kept.
+  product_type?: string;
   description: string;
   media: { uri: string; width: number; height: number }[][];
 };

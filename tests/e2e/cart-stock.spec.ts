@@ -31,3 +31,25 @@ test("the cart page lowers a stored quantity to the stock and stops the stepper 
   await expect(lines.getByText(String(stock), { exact: true })).toBeVisible();
   await expect(lines.getByRole("button", { name: "Increase quantity" })).toBeDisabled();
 });
+
+// A line the stock reports sold out stays in the cart (the backend flags it) but cannot grow; it can still shrink.
+test("the stepper of a sold-out line does not grow", async ({ page }) => {
+  await page.route(/\/stock\/\?/, (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ [SKU]: { quantity: 0, is_in_stock: false } }),
+    }),
+  );
+  await page.addInitScript((sku) => {
+    const item = { sku, name: "Docking Bay Chair", url_key: "docking-bay-chair", price: null, media: [], quantity: 2 };
+    if (!localStorage.getItem("CART")) localStorage.setItem("CART", JSON.stringify({ [sku]: item }));
+  }, SKU);
+  await page.goto("/cart");
+
+  const lines = page.getByRole("region", { name: "Items in your cart" });
+  await expect(lines.getByText("2", { exact: true })).toBeVisible();
+  await expect(lines.getByRole("button", { name: "Increase quantity" })).toBeDisabled();
+  await lines.getByRole("button", { name: "Decrease quantity" }).click();
+  await expect(lines.getByText("1", { exact: true })).toBeVisible();
+});

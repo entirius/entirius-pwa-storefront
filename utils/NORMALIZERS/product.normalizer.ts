@@ -12,13 +12,6 @@ function main_media(product: { media?: unknown[]; main_image?: unknown }): unkno
   return product.main_image ? [product.main_image] : [];
 }
 
-// Only a fixed list price can go to the cart. A range price belongs to a
-// CONFIGURABLE parent (a variant is bought, and variants are not selectable
-// yet); no price means CUSTOM, sold through an individual offer.
-function is_purchasable(price: RawPrice | null | undefined): boolean {
-  return !!price && !price.is_range && !!price.gross;
-}
-
 // `parts` keeps the single values (with the idx the catalog filter knows) behind the joined `value`.
 export type SpecRow = {
   idx: string | null;
@@ -118,7 +111,6 @@ function NORM_PRODUCTS_DATA(products: RawProduct[] | null | undefined) {
     percent_off: product.price?.has_special_price ? product.price.percent_off : null,
     specs: NORM_SPEC_GROUPS(product.attributes),
     stories: NORM_STORIES(product.attributes),
-    purchasable: is_purchasable(product.price),
     // List responses carry only `main_image`; full responses carry `media`.
     media: NORM_MEDIA_DATA(main_media(product), {
       sort_by: "position",

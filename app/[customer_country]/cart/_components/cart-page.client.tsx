@@ -25,8 +25,10 @@ import { OrderSummaryCard, OrderTotals } from "@/app/_components/order/order-tot
 import { EmptyCart, OrderPageHeader } from "@/app/_components/order/page-header";
 
 const SOFT_MAX = 99;
-const line_max = (stock: { quantity: number } | undefined) =>
-  typeof stock?.quantity === "number" && stock.quantity > 0 ? stock.quantity : SOFT_MAX;
+// The stepper stops at the real-time stock. A sold-out line stays in the cart, flagged, and can only shrink;
+// an unknown stock (still loading, or the call failed) gets a soft cap.
+const line_max = (stock: { quantity: number } | undefined, quantity: number) =>
+  typeof stock?.quantity !== "number" ? SOFT_MAX : stock.quantity > 0 ? stock.quantity : quantity;
 
 // Same frame as checkout: title, stepper, then a list column and a 20rem summary column.
 export function CartPageClient() {
@@ -70,8 +72,8 @@ export function CartPageClient() {
                     sku={sku}
                     item={item}
                     backend={backend}
-                    max={line_max(stocks?.[sku])}
-                    onQty={(q) => setQty(sku, q, line_max(stocks?.[sku]))}
+                    max={line_max(stocks?.[sku], item.quantity)}
+                    onQty={(q) => setQty(sku, q, line_max(stocks?.[sku], item.quantity))}
                     onRemove={() => remove(sku)}
                   />
                 ))}

@@ -24,7 +24,7 @@ function tile_data(raw: RawProduct) {
     price: product.price,
     percent_off: product.percent_off,
     badges: product.badges,
-    purchasable: product.purchasable,
+    product_type: product.product_type,
     on_stock: product.on_stock,
     media: product.media.slice(0, 1),
     description: text.slice(0, 200),
