@@ -94,6 +94,11 @@ export default async function proxy(request: NextRequest) {
       const newsletter_key = (channels as Record<string, { API_NEWSLETTER_KEY?: string }>)[ch]
         ?.API_NEWSLETTER_KEY;
       if (newsletter_key) res.cookies.set("nl_key", newsletter_key);
+      // ag_key = the channel's agreements key (X-API-KEY of the agreements recorded with an order). Optional: without
+      // it a guest order still goes through, but its agreements are not recorded (django-agreements >= 3.0.1).
+      const agreements_key = (channels as Record<string, { API_AGREEMENTS_KEY?: string }>)[ch]
+        ?.API_AGREEMENTS_KEY;
+      if (agreements_key) res.cookies.set("ag_key", agreements_key);
     }
     // at/rt/uid are owned solely by the auth Server Actions (set as HttpOnly on
     // login, cleared on logout). Re-emitting them here would strip HttpOnly.

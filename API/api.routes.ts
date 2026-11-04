@@ -95,6 +95,14 @@ export const API_NEWSLETTER_SUBSCRIBE_ROUTE = "/api/agreements/v2/__CHANNEL__/ne
 // The links of the confirmation mail: POST { token } confirms, GET ?token= unsubscribes. No key.
 export const API_NEWSLETTER_CONFIRM_ROUTE = "/api/agreements/v2/__CHANNEL__/consents/confirm/";
 export const API_NEWSLETTER_UNSUBSCRIBE_ROUTE = "/api/agreements/v2/__CHANNEL__/consents/unsubscribe/";
+// ----- AGREEMENTS AT CHECKOUT (django_agreements) -----
+// The channel's agreement definitions: `mandatory` (terms, privacy) and `marketing` ones, each with an HTML summary in
+// the request's language and `content_route`, the CMS page of the full text (the order record keeps that text).
+export const API_AGREEMENT_DEFINITIONS_ROUTE = "/api/agreements/v2/__CHANNEL__/definitions/";
+// POST the agreements accepted for a placed order: `suffix: [order_id, "agreements"]`, body { email, slugs, language }.
+// The order must exist with that email (404 otherwise); a repeat records nothing new. Needs the channel's agreements
+// key or the customer's JWT (django-agreements >= 3.0.1).
+export const API_ORDER_AGREEMENTS_ROUTE = "/api/agreements/v2/__CHANNEL__/orders/";
 // ----- COOKIE CONSENT (django-agreements >= 2.2.0) -----
 export const API_COOKIE_BANNER_ROUTE =
   "/api/agreements/v2/__CHANNEL__/cookie-banner/";
@@ -338,6 +346,17 @@ export const API_ROUTES_POLICY = {
   },
   [API_NEWSLETTER_SUBSCRIBE_ROUTE]: {
     default_headers: [["X-API-KEY", "newsletter_key"], { "Content-Type": "application/json" }],
+  },
+  // Public wording of the agreements, asked by the root layout on every SSR.
+  [API_AGREEMENT_DEFINITIONS_ROUTE]: { default_querys: ["language"], shared_cache: true },
+  [API_ORDER_AGREEMENTS_ROUTE]: {
+    refresh_on: [401],
+    optional_refresh: true,
+    default_headers: [
+      ["X-API-KEY", "agreements_key"],
+      ["Authorization", "access_token"],
+      { "Content-Type": "application/json" },
+    ],
   },
   [API_NEWSLETTER_CONFIRM_ROUTE]: {
     default_headers: [{ "Content-Type": "application/json" }],

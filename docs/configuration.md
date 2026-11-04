@@ -10,7 +10,7 @@ runtime (the optional message overrides).
 ```bash
 cp -r _CONFIG.example _CONFIG
 # app.config.json       → API_BASE_URL (backend URL), site name and URL, THEME, BRAND
-# channels.config.json  → CHANNEL_LABEL and API_CHECKOUT_KEY per channel (optional API_CONTACT_FORMS_KEY, API_NEWSLETTER_KEY)
+# channels.config.json  → CHANNEL_LABEL and API_CHECKOUT_KEY per channel (optional API_CONTACT_FORMS_KEY, API_NEWSLETTER_KEY, API_AGREEMENTS_KEY)
 # countries.config.json → country → languages/currencies/channels mapping
 # brand/                → identity assets (favicon, optional logo), named in app.config.json BRAND
 # theme.css             → client theme: values of the theme variables of app/globals.css (empty = default look)
@@ -36,7 +36,7 @@ The template ships the two channels of the reference dataset (`default-europe`, 
 | `app.config.json` | `BRAND.ICON_192` / `BRAND.ICON_512` / `BRAND.ICON_MASKABLE` | Optional PNG app icons in `_CONFIG/brand/`. Any of them switches on `/manifest.webmanifest` (linked from every page); `ICON_192` is also the Apple touch icon (and the page icon when `FAVICON` is unset). `null` = no manifest |
 | `app.config.json` | `BRAND.OG_IMAGE` | Optional file in `_CONFIG/brand/`: default Open Graph / Twitter image of pages without a picture of their own (product, category, CMS). `null` = the image generated from `SITE_NAME` (`/og-image.png`); `BRAND.LOGO` also goes into the home page's JSON-LD `Organization` |
 | `app.config.json` | `BRAND.THEME_COLOR` / `BRAND.BACKGROUND_COLOR` / `BRAND.SHORT_NAME` | Optional: browser `theme-color` and manifest `theme_color`; manifest `background_color` (default: omitted); manifest `short_name` (default `SITE_NAME`) |
-| `app.config.json` | `CHECKOUT.TERMS_ROUTE` / `CHECKOUT.PRIVACY_ROUTE` | Optional CMS routes (e.g. `"terms"`) of the terms and privacy pages named in the consent line of the review step. `null` = the consent text shows the page name without a link |
+| `app.config.json` | `CHECKOUT.TERMS_ROUTE` / `CHECKOUT.PRIVACY_ROUTE` | Optional CMS routes (e.g. `"terms"`) of the terms and privacy pages, used only when the agreement definitions of `django_agreements` name none: their `content_route` is the route of every legal link (see [architecture](architecture.md#agreements-at-checkout)). `null` = the page name without a link |
 | `app.config.json` | `CONTACT_FORMS.NOTIFY_ATTRIBUTES` | Optional list of attribute idxs (e.g. `["brand", "series"]`). Their values on a sold-out product go into its "tell me when a similar product arrives" request, keyed by idx. Empty (default) = the request carries SKU, name and category only |
 | `app.config.json` | `PRODUCT.RELATED` | Optional list of rules for the "similar products in stock" section of the product page. A rule is attribute idxs and/or `category` joined with `+` (all must match), e.g. `["series+category", "category"]`; rules are tried in order and each fills up what the previous left (8 tiles at most). A rule naming an attribute the product lacks is skipped. The product's value of an attribute is its first value; its category is the one with the deepest path. Default `["category"]`; `[]` = no section |
 | `app.config.json` | `PRODUCT.KEY_FACTS` | Optional list of up to three attributes printed as one line under the price: an idx or `{ "idx": "height", "label": "H" }`. A number prints as `<label> <value> <unit>` (the label defaults to the attribute name without its "(unit)"), any other value as the value alone. Default none |
@@ -48,6 +48,7 @@ The template ships the two channels of the reference dataset (`default-europe`, 
 | `channels.config.json` | `{channel}.API_CHECKOUT_KEY` | Checkout API key per channel (`x-api-key`) |
 | `channels.config.json` | `{channel}.API_CONTACT_FORMS_KEY` | Optional contact-forms API key per channel (`X-API-KEY`, scope `contact_form`). `proxy.ts` sends it as the `cf_key` cookie. Without it no contact form is offered |
 | `channels.config.json` | `{channel}.API_NEWSLETTER_KEY` | Optional newsletter key per channel (`X-API-KEY` of `agreements/v2/{channel}/newsletter/subscribe/`, a token with the scope `agreements.subscribe`). `proxy.ts` sends it as the `nl_key` cookie. Without it the footer has no newsletter form and the register form no opt-in |
+| `channels.config.json` | `{channel}.API_AGREEMENTS_KEY` | Optional agreements key per channel (`X-API-KEY` of `agreements/v2/{channel}/orders/{order_id}/agreements/`, today a token with the same scope `agreements.subscribe`, set apart so a deployment can use its own). `proxy.ts` sends it as the `ag_key` cookie. Without it a guest order goes through but the agreements accepted at checkout are not recorded with it (a signed-in customer's JWT still records them) |
 | `countries.config.json` | `{country}.default_language` | Default language for country (the `lg` cookie: interface language and the API `language`) |
 | `countries.config.json` | `{country}.default_currency` | Default currency for country |
 | `countries.config.json` | `{country}.default_channel` | Default channel for country |

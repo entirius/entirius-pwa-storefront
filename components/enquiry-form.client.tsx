@@ -15,7 +15,7 @@ import { CheckLabel, Field, FormError, FormHeading } from "@/components/ui/form"
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { TokenLinks } from "@/components/ui/token-links";
-import { PRIVACY_ROUTE } from "@/lib/checkout-config";
+import { useLegalRoutes } from "@/lib/agreements";
 import { is_email, send_contact_form, useContactFormAvailable } from "@/lib/contact-forms";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/providers/i18n.provider";
@@ -39,6 +39,7 @@ type State = "idle" | "sending" | "sent" | "failed" | "invalid";
 
 export function EnquiryForm({ form_type, slug, context, className, collapsed_label, collapsed_primary }: Props) {
   const { t, language } = useI18n();
+  const legal = useLegalRoutes();
   const available = useContactFormAvailable(form_type);
   const api = useMemo(() => create_api(make_client_access()), []);
   const [open, setOpen] = useState(!collapsed_label);
@@ -113,7 +114,7 @@ export function EnquiryForm({ form_type, slug, context, className, collapsed_lab
         <span>
           <TokenLinks
             text={t("enquiry.consent", { privacy: "{privacy}" })}
-            links={{ privacy: { route: PRIVACY_ROUTE, label: t("checkout.privacy_link") } }}
+            links={{ privacy: { route: legal.privacy, label: t("checkout.privacy_link") } }}
           />
         </span>
       </CheckLabel>

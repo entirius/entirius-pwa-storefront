@@ -20,8 +20,8 @@ export function SanitizeHTML({
   className?: string;
   style?: React.CSSProperties;
   as?: keyof React.JSX.IntrinsicElements;
-  // External links open in a new tab.
-  new_tab_links?: boolean;
+  // true: external links open in a new tab; "all": every link.
+  new_tab_links?: boolean | "all";
 }) {
   const clean = useMemo(() => sanitize_html(html, { new_tab_links }), [html, new_tab_links]);
   return (

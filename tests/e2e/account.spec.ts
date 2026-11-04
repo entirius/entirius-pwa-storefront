@@ -156,7 +156,10 @@ test("an order placed while logged in shows in my orders and its detail", async 
   const placed = page.waitForResponse(
     (r) => r.request().method() === "POST" && /\/orders\/?(\?|$)/.test(r.url()),
   );
-  await page.locator("[data-terms-consent]").getByRole("checkbox").click();
+  await expect(page.locator("[data-agreement-required]")).toHaveCount(2);
+  for (const required of await page.locator("[data-agreement-required]").all()) {
+    await required.getByRole("checkbox").click();
+  }
   await page.getByRole("button", { name: "Order with obligation to pay" }).click();
   const response = await placed;
   expect(response.status()).toBe(201);

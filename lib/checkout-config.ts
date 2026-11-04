@@ -4,9 +4,9 @@
 
 import appConfig from "@/_CONFIG/app.config.json";
 
-// Optional `CHECKOUT` settings of `_CONFIG/app.config.json`: CMS routes of the legal pages the consent
-// line on the review step and the register form link to (`TERMS_ROUTE`, `PRIVACY_ROUTE`, e.g. "terms").
-// A route that is absent or null means no link: the consent text shows the page name as plain text.
+// Optional `CHECKOUT` settings of `_CONFIG/app.config.json`: CMS routes of the legal pages (`TERMS_ROUTE`,
+// `PRIVACY_ROUTE`, e.g. "terms"). They stand in for the `content_route` of the agreement definitions, used only
+// when the backend has none (`useLegalRoutes`, lib/agreements.ts). Absent or null: no link, the page name as text.
 const settings = (appConfig as { CHECKOUT?: Partial<Record<string, string | null>> }).CHECKOUT ?? {};
 
 const route = (key: string): string | undefined => settings[key]?.replace(/^\/+/, "") || undefined;

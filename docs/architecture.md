@@ -273,6 +273,30 @@ subscribes after the account is created. `POST newsletter/subscribe/` mails a li
 send the token once (`consents/confirm/`, `consents/unsubscribe/`, no key) and show the result. The backend must point
 `STOREFRONT_BASE_URL` at the storefront.
 
+## Agreements at checkout
+
+The review step (`app/[customer_country]/checkout/_components/review-step.tsx`, `lib/agreements.ts`) shows the
+channel's agreement definitions of `django_agreements` (`GET definitions/`): every `mandatory` one is a required
+checkbox, and the `marketing` one of the `email` channel an optional one when the newsletter is offered. The text is
+the definition's HTML summary as the backend sends it, since the backend keeps that wording with the order; its
+links open in a new tab.
+
+- Order of calls: `POST orders/` first, then `POST orders/{order_id}/agreements/` with the order's billing email
+  and the mandatory slugs (the backend takes agreements for an existing order with that email only). One failed call
+  is retried (a repeat records nothing new); after that the failure is logged and the order stands. The email
+  marketing opt-in is a newsletter subscription (double opt-in) after the order.
+- Keys: `API_AGREEMENTS_KEY` (`channels.config.json`, cookie `ag_key`) for the order record, `API_NEWSLETTER_KEY` for
+  the subscription. Without the agreements key a guest's agreements are not recorded (django-agreements >= 3.0.1).
+- No answer or no mandatory definition: the shop's own consent line (`checkout.terms_consent` with
+  `CHECKOUT.TERMS_ROUTE` / `PRIVACY_ROUTE`) stands in, and nothing is recorded.
+- Where the documents live: a definition's `content_route` is the CMS page of its full text (the order record takes
+  it from there). It is also the route of every legal link of the storefront (`useLegalRoutes`: the privacy link of
+  the newsletter, enquiry and notify forms, the shop's own consent line), so a deployment sets it in one place, the
+  agreement in the CMS; `CHECKOUT.TERMS_ROUTE` / `PRIVACY_ROUTE` stand in only without it. The links inside a
+  summary are written by hand in the definition, so they must name the same route.
+- The root layout prefetches the definitions (`lib/agreements.query.ts`, shared cache): the forms of every page
+  read them from the hydrated cache, not with a request of their own.
+
 ## Cookie consent
 
 `app/_components/cookie-consent/`, mounted as `<CookieConsent />` in `app/layout.tsx`. After hydration it asks

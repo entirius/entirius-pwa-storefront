@@ -48,6 +48,15 @@ test("the footer form asks for a valid address and the consent, then sends both 
   expect(sent).toEqual({ key, body: { email: "ann@example.com", language: "en" } });
 });
 
+test("the consent links to the privacy page the agreement definition names", async ({ page }) => {
+  await with_key(page);
+  // The seeded privacy-policy definition names the CMS route "privacy"; CHECKOUT.PRIVACY_ROUTE only stands in
+  // without it.
+  await page.goto("/");
+  const consent = footer_form(page).locator("[data-newsletter-consent]");
+  await expect(consent.getByRole("link", { name: "privacy policy" })).toHaveAttribute("href", "/privacy");
+});
+
 test("a link without a token or with a broken one says it does not work", async ({ page }) => {
   await page.goto("/newsletter/confirm");
   await expect(page.getByRole("heading", { name: "This link does not work" })).toBeVisible();
