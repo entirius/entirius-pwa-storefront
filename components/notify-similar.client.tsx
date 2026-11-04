@@ -15,7 +15,7 @@ import { CheckLabel, Field, FormError, FormHeading } from "@/components/ui/form"
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { TokenLinks } from "@/components/ui/token-links";
-import { PRIVACY_ROUTE } from "@/lib/checkout-config";
+import { useLegalRoutes } from "@/lib/agreements";
 import { is_email, send_contact_form, useContactFormAvailable } from "@/lib/contact-forms";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/providers/i18n.provider";
@@ -52,6 +52,7 @@ export function NotifySimilar({
   onOpenChange,
 }: Props) {
   const { t, language } = useI18n();
+  const legal = useLegalRoutes();
   const available = useNotifySimilarAvailable();
   const api = useMemo(() => create_api(make_client_access()), []);
   const [own_open, setOwnOpen] = useState(false);
@@ -124,7 +125,7 @@ export function NotifySimilar({
         <span>
           <TokenLinks
             text={t("notify.consent", { privacy: "{privacy}" })}
-            links={{ privacy: { route: PRIVACY_ROUTE, label: t("checkout.privacy_link") } }}
+            links={{ privacy: { route: legal.privacy, label: t("checkout.privacy_link") } }}
           />
         </span>
       </CheckLabel>

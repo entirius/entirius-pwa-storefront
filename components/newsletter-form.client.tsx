@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { CheckLabel, Field, FormError, FormHeading } from "@/components/ui/form";
 import { Spinner } from "@/components/ui/spinner";
 import { TokenLinks } from "@/components/ui/token-links";
-import { PRIVACY_ROUTE } from "@/lib/checkout-config";
+import { useLegalRoutes } from "@/lib/agreements";
 import { is_email } from "@/lib/contact-forms";
 import { subscribe_newsletter, useNewsletterAvailable } from "@/lib/newsletter";
 import { cn } from "@/lib/utils";
@@ -26,6 +26,7 @@ type State = "idle" | "sending" | "sent" | "failed" | "invalid";
 // opt-in). Renders nothing when the channel has no newsletter key.
 export function NewsletterForm({ className }: { className?: string }) {
   const { t, language } = useI18n();
+  const legal = useLegalRoutes();
   const available = useNewsletterAvailable();
   const api = useMemo(() => create_api(make_client_access()), []);
   const [state, setState] = useState<State>("idle");
@@ -66,7 +67,7 @@ export function NewsletterForm({ className }: { className?: string }) {
         <span>
           <TokenLinks
             text={t("newsletter.consent", { privacy: "{privacy}" })}
-            links={{ privacy: { route: PRIVACY_ROUTE, label: t("checkout.privacy_link") } }}
+            links={{ privacy: { route: legal.privacy, label: t("checkout.privacy_link") } }}
           />
         </span>
       </CheckLabel>

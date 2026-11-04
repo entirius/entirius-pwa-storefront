@@ -23,6 +23,9 @@ import { SITE_URL, SITE_NAME } from "@/lib/seo/config";
 import { THEME } from "@/_CONFIG/app.config.json";
 import { DEFAULT_OG_IMAGES, MANIFEST_PATH, THEME_COLOR, brand_url, has_manifest } from "@/lib/brand";
 import { PageLoading } from "@/components/ui/spinner";
+import { PrefetchBoundary } from "@/lib/prefetch_boundary";
+import { get_server_api } from "@/lib/seo/server-api";
+import { agreement_definitions_query } from "@/lib/agreements.query";
 // Brand typefaces (styleguide §1). Both are variable fonts: one file each, no
 // weight list. Lexend Deca carries headings and the wordmark (300/400 only, never
 // bold); Inter carries the shop UI. Fallback metrics come from the brand tokens.
@@ -107,15 +110,21 @@ export default async function RootLayout({
 
 // Seeds the client AuthProvider from the readable `at` cookie (SSR-correct, no
 // hydration flash), and wraps the header, the page and the layout slots so all share context.
+// The agreement definitions are prefetched here (shared cache): their routes are the legal links of the forms on
+// every page, and the review step shows them, so the client asks for them only when the prefetch failed.
 async function AuthGate({ children }: { children: React.ReactNode }) {
   const isLoggedIn = Boolean((await cookies()).get("at")?.value);
+  const { language } = await get_i18n();
+  const api = await get_server_api();
   return (
     <AuthProvider initial={isLoggedIn}>
-      <LayoutSlot name="announcement" />
-      <HeaderComponent />
-      <main className="mx-auto w-full max-w-7xl p-4">{children}</main>
-      <LayoutSlot name="before-footer" />
-      <FooterComponent />
+      <PrefetchBoundary prefetches={[agreement_definitions_query(api, language)]}>
+        <LayoutSlot name="announcement" />
+        <HeaderComponent />
+        <main className="mx-auto w-full max-w-7xl p-4">{children}</main>
+        <LayoutSlot name="before-footer" />
+        <FooterComponent />
+      </PrefetchBoundary>
     </AuthProvider>
   );
 }

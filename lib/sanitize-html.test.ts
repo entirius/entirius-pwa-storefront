@@ -16,6 +16,12 @@ describe("sanitize_html", () => {
     expect(sanitize_html('<a href="/catalog/a">x</a>', { new_tab_links: true })).toBe('<a href="/catalog/a">x</a>');
   });
 
+  it("opens every link in a new tab with \"all\"", () => {
+    expect(sanitize_html('<a href="/terms">Terms</a>', { new_tab_links: "all" })).toBe(
+      '<a href="/terms" target="_blank" rel="noopener">Terms</a>',
+    );
+  });
+
   it("keeps markup hidden in a quoted attribute inert", () => {
     // The `<img>` stays text inside `title`; the new-tab attributes land on the real tag.
     expect(

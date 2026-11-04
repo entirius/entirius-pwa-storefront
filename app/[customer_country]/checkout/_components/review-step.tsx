@@ -17,8 +17,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Spinner } from "@/components/ui/spinner";
+import { SanitizeHTML } from "@/components/ui/sanitize-html";
 import { TokenLinks } from "@/components/ui/token-links";
-import { PRIVACY_ROUTE, TERMS_ROUTE } from "@/lib/checkout-config";
+import { record_order_agreements, useAgreementDefinitions, useLegalRoutes } from "@/lib/agreements";
+import { subscribe_newsletter, useNewsletterAvailable } from "@/lib/newsletter";
+import {
+  checkout_agreements,
+  consent_source,
+  type AgreementDefinition,
+} from "@/utils/NORMALIZERS/agreement.normalizer";
 import { order_refs, save_receipt, type OrderReceipt } from "./order-receipt";
 import { usePaymentMethods } from "./payment-step";
 import { CheckLabel, FormError } from "@/components/ui/form";
@@ -41,7 +48,26 @@ export function ReviewStep({
   const api = useMemo(() => create_api(access), [access]);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [accepted, setAccepted] = useState(false);
+
+  // The agreements come from the backend (its wording is what it keeps with the order). Without an answer or
+  // without mandatory definitions the shop's own consent line stands in, and nothing is recorded.
+  const { data: definitions, isPending: definitions_pending } = useAgreementDefinitions(i18n.language);
+  const newsletter_available = useNewsletterAvailable();
+  const legal = useLegalRoutes();
+  const { mandatory, marketing_email } = checkout_agreements(definitions ?? []);
+  const source = consent_source(definitions, definitions_pending);
+  const from_backend = source === "backend";
+  const offered_marketing = from_backend && newsletter_available ? marketing_email : null;
+  const [checked, setChecked] = useState<ReadonlySet<string>>(() => new Set());
+  const [line_accepted, setLineAccepted] = useState(false);
+  const accepted = from_backend ? mandatory.every((d) => checked.has(d.slug)) : source === "shop" && line_accepted;
+  const toggle = (slug: string, on: boolean) =>
+    setChecked((prev) => {
+      const next = new Set(prev);
+      if (on) next.add(slug);
+      else next.delete(slug);
+      return next;
+    });
 
   const cart_id = cart?.cart_id;
   // The cart's own payment method has no description; the offered list has (bank details etc.).
@@ -56,6 +82,23 @@ export function ReviewStep({
   const billing = cart?.billing_address ?? null;
   const shipping = cart?.shipping_address ?? null;
   const show_shipping = !!shipping && !!billing && addresses_differ(billing, shipping);
+
+  // Once the order exists: the accepted agreements are recorded with it (the backend takes them for an existing
+  // order only), and the newsletter opt-in starts its double opt-in. Neither holds the order up.
+  const after_order = async (order_id: string) => {
+    const email = billing?.email ?? "";
+    if (from_backend) {
+      await record_order_agreements(api, {
+        order_id,
+        email,
+        slugs: mandatory.map((d) => d.slug),
+        language: i18n.language,
+      });
+    }
+    if (offered_marketing && checked.has(offered_marketing.slug) && email) {
+      await subscribe_newsletter(api, email, i18n.language).catch(() => false);
+    }
+  };
 
   const place = () => {
     if (!cart_id || !accepted) return;
@@ -82,6 +125,7 @@ export function ReviewStep({
       // An online-payment method hands back its gateway; bank transfer and cash
       // on delivery do not. The order exists either way, payment_error included.
       const order = NORM_PLACED_ORDER(response);
+      await after_order(order.order_id);
       if (order.redirect_url && !order.payment_error) {
         window.location.href = order.redirect_url;
         return;
@@ -140,22 +184,45 @@ export function ReviewStep({
         </p>
       )}
 
-      <CheckLabel data-terms-consent>
-        <Checkbox
-          checked={accepted}
-          onCheckedChange={(v) => setAccepted(v === true)}
-          aria-required
-        />
-        <span>
-          <TokenLinks
-            text={t("checkout.terms_consent", { terms: "{terms}", privacy: "{privacy}" })}
-            links={{
-              terms: { route: TERMS_ROUTE, label: t("checkout.terms_link") },
-              privacy: { route: PRIVACY_ROUTE, label: t("checkout.privacy_link") },
-            }}
+      {source === "pending" ? (
+        <div aria-hidden className="h-10 animate-pulse rounded-md bg-muted" />
+      ) : from_backend ? (
+        <div className="flex flex-col gap-3">
+          {mandatory.map((d) => (
+            <AgreementCheck
+              key={d.slug}
+              definition={d}
+              required
+              checked={checked.has(d.slug)}
+              onChange={(on) => toggle(d.slug, on)}
+            />
+          ))}
+          {offered_marketing && (
+            <AgreementCheck
+              definition={offered_marketing}
+              checked={checked.has(offered_marketing.slug)}
+              onChange={(on) => toggle(offered_marketing.slug, on)}
+            />
+          )}
+        </div>
+      ) : (
+        <CheckLabel data-terms-consent>
+          <Checkbox
+            checked={line_accepted}
+            onCheckedChange={(v) => setLineAccepted(v === true)}
+            aria-required
           />
-        </span>
-      </CheckLabel>
+          <span>
+            <TokenLinks
+              text={t("checkout.terms_consent", { terms: "{terms}", privacy: "{privacy}" })}
+              links={{
+                terms: { route: legal.terms, label: t("checkout.terms_link") },
+                privacy: { route: legal.privacy, label: t("checkout.privacy_link") },
+              }}
+            />
+          </span>
+        </CheckLabel>
+      )}
 
       <FormError>{error}</FormError>
 
@@ -173,6 +240,27 @@ export function ReviewStep({
         </Button>
       </div>
     </div>
+  );
+}
+
+// One agreement as a checkbox with the backend's summary. Its links (the terms, the privacy policy) open in a new
+// tab, so the checkout stays where it is.
+function AgreementCheck({
+  definition,
+  required = false,
+  checked,
+  onChange,
+}: {
+  definition: AgreementDefinition;
+  required?: boolean;
+  checked: boolean;
+  onChange: (on: boolean) => void;
+}) {
+  return (
+    <CheckLabel data-agreement={definition.slug} data-agreement-required={required ? "" : undefined}>
+      <Checkbox checked={checked} onCheckedChange={(v) => onChange(v === true)} aria-required={required || undefined} />
+      <SanitizeHTML as="span" html={definition.summary} new_tab_links="all" className="[&_a]:underline" />
+    </CheckLabel>
   );
 }
 
