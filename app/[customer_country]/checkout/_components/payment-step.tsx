@@ -23,6 +23,7 @@ import { PageLoading, Spinner } from "@/components/ui/spinner";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { FormError, FormHeading } from "@/components/ui/form";
 import { useI18n } from "@/providers/i18n.provider";
+import { payment_patch_body } from "./payment-return";
 // Payment methods offered for the cart; the review step reads the same entry for the method text.
 export function usePaymentMethods(cart_id: string | undefined) {
   const api = useMemo(() => create_api(make_client_access()), []);
@@ -40,11 +41,13 @@ export function usePaymentMethods(cart_id: string | undefined) {
 export function PaymentStep({
   cart,
   currency,
+  country,
   onSaved,
   onBack,
 }: {
   cart: Cart | null | undefined;
   currency: string;
+  country: string | undefined;
   onSaved: (cart: unknown) => void;
   onBack: () => void;
 }) {
@@ -75,7 +78,7 @@ export function PaymentStep({
     startTransition(async () => {
       const [error, response] = await api.FETCH_METHOD(
         API_CART_PAYMENT_SELECT_ROUTE,
-        { method: "PATCH", body: JSON.stringify({ code: selected }) },
+        { method: "PATCH", body: JSON.stringify(payment_patch_body(selected, country)) },
       );
       if (error) {
         setSaveError(t("checkout.payment_failed"));
