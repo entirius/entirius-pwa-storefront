@@ -126,12 +126,13 @@ export function ReviewStep({
       // on delivery do not. The order exists either way, payment_error included.
       const order = NORM_PLACED_ORDER(response);
       await after_order(order.order_id);
+      // Saved before the gateway too: it sends the customer back to the success page in this tab, which reads it.
+      const refs = order_refs(order);
+      if (refs.length) save_receipt(build_receipt(refs));
       if (order.redirect_url && !order.payment_error) {
         window.location.href = order.redirect_url;
         return;
       }
-      const refs = order_refs(order);
-      if (refs.length) save_receipt(build_receipt(refs));
       onPlaced(order);
     });
   };

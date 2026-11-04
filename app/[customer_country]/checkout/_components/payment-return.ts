@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import { SITE_URL } from "@/_CONFIG/app.config.json";
+import { SITE_URL } from "@/lib/seo/config";
 import { profile_path } from "@/lib/profile-path";
 
 const CHECKOUT_SUCCESS_PATH = "/checkout/success";
@@ -17,21 +17,23 @@ export function success_path(country: string | null | undefined): string {
 }
 
 // Where the payment gateway (PayU, Stripe hosted checkout) sends the customer back: the success page on the
-// public shop address, `ref` = the order number. Null without an https SITE_URL (local dev on http): the
-// checkout refuses a non-https target by default, and the PATCH would fail for every method.
+// public shop address (SITE_URL joined as the canonical URLs join it), `ref` = the order number. Null without an
+// https SITE_URL (local dev on http): the checkout refuses a non-https target by default, and the PATCH would fail
+// for every method.
 export function payment_continue_url(country: string | null | undefined, site_url: string = SITE_URL): string | null {
-  let origin: URL;
-  try {
-    origin = new URL(site_url);
-  } catch {
-    return null;
-  }
-  if (origin.protocol !== "https:") return null;
-  return `${origin.origin}${success_path(country)}?ref=${ORDER_NUMBER_PLACEHOLDER}`;
+  const base = site_url.trim().replace(/\/+$/, "");
+  if (!/^https:\/\/[^/]/i.test(base)) return null;
+  return `${base}${success_path(country)}?ref=${ORDER_NUMBER_PLACEHOLDER}`;
 }
 
 // Body of `PATCH carts/{id}/payment/`.
 export function payment_patch_body(code: string, country: string | null | undefined, site_url: string = SITE_URL) {
   const continue_url = payment_continue_url(country, site_url);
   return continue_url ? { code, continue_url } : { code };
+}
+
+// The success page shows the "payment failed" notice: our own `payment=failed` (no gateway session) or the
+// gateway's failure on the way back (PayU appends `error=501` to continueUrl).
+export function payment_failed(params: Pick<URLSearchParams, "get" | "has">): boolean {
+  return params.get("payment") === "failed" || params.has("error");
 }

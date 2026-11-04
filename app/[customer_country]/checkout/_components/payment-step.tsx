@@ -6,7 +6,6 @@
 
 import { useMemo, useState, useTransition, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
 
 import { make_client_access } from "@/API/access/api.client-access";
 import { create_api } from "@/API/api.context";
@@ -42,11 +41,13 @@ export function usePaymentMethods(cart_id: string | undefined) {
 export function PaymentStep({
   cart,
   currency,
+  country,
   onSaved,
   onBack,
 }: {
   cart: Cart | null | undefined;
   currency: string;
+  country: string | undefined;
   onSaved: (cart: unknown) => void;
   onBack: () => void;
 }) {
@@ -55,7 +56,6 @@ export function PaymentStep({
   const access = useMemo(() => make_client_access(), []);
   const api = useMemo(() => create_api(access), [access]);
   const [pending, startTransition] = useTransition();
-  const country = useParams()?.customer_country as string | undefined;
   const [saveError, setSaveError] = useState<string | null>(null);
 
   // Preselect the method already stored on the cart (hydration).

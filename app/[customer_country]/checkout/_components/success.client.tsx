@@ -16,11 +16,12 @@ import { useCartStore } from "@/stores/cart.store";
 import { Alert } from "@/components/ui/alert";
 import { useI18n } from "@/providers/i18n.provider";
 import { transfer_details, useOrderReceipt, type OrderReceipt } from "./order-receipt";
+import { payment_failed } from "./payment-return";
 
 export function CheckoutSuccessClient() {
   const params = useSearchParams();
   const refs = params.getAll("ref");
-  const payment_failed = params.get("payment") === "failed";
+  const failed = payment_failed(params);
   const torn_down = useRef(false);
   const { t, language } = useI18n();
   const receipt = useOrderReceipt(refs);
@@ -45,7 +46,7 @@ export function CheckoutSuccessClient() {
             ? t("checkout.success_ref", { ref: refs[0] })
             : t("checkout.success_text")}
       </p>
-      {payment_failed && (
+      {failed && (
         <Alert className="mb-6">{t("checkout.payment_start_failed")}</Alert>
       )}
       {transfer_note && (

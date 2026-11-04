@@ -130,6 +130,7 @@ export function CheckoutClient() {
             <PaymentStep
               cart={cart}
               currency={currency}
+              country={country}
               onSaved={onPaymentSaved}
               onBack={() => setStep("shipping")}
             />
