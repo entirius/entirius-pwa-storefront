@@ -32,8 +32,8 @@ export function AccountMenu() {
   // Paths may carry the country prefix (/pl/profile/orders).
   const path = pathname.replace(/^\/[a-z]{2}(?=\/profile)/, "");
 
-  const logout = () => {
-    client_logout();
+  const logout = async () => {
+    await client_logout();
     clear_cart_on_logout();
     clear_wishlist_on_logout();
     setLoggedIn(false);

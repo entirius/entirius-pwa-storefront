@@ -4,6 +4,7 @@
 
 // context/Api/API.config.ts
 import { API_BASE_URL } from "@/_CONFIG/app.config.json";
+import { SESSION_REFRESH_PATH } from "@/lib/session";
 import { _LOGGER } from "@/lib/logger";
 import {
   ROUTE_POLICY,
@@ -308,6 +309,17 @@ export function create_fetch_engine(access: API_ACCESS) {
         type: "warning",
       });
       refreshing_promise = (async () => {
+        // In the browser the refresh token is HttpOnly: the storefront's /session/refresh refreshes with it and
+        // sets the new tokens as cookies, which the retried request then reads.
+        if (typeof window !== "undefined") {
+          const res = await fetch(SESSION_REFRESH_PATH, { method: "POST", signal: session_controller.signal });
+          if (!res.ok) {
+            _LOGGER({ message: "REFRESH FAILED => ", type: "error", print: res.status });
+            throw Object.assign(new Error("refresh-failed"), { status: res.status });
+          }
+          _LOGGER({ message: "REFRESH SUCCESSFUL => ", type: "success" });
+          return;
+        }
         const rt = access.get_refresh_token?.();
         const channel = access.get_channel?.();
         if (!rt) {

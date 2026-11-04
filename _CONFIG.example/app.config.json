@@ -20,6 +20,12 @@
     "TERMS_ROUTE": null,
     "PRIVACY_ROUTE": null
   },
+  "CSP": {
+    "script-src": [],
+    "connect-src": [],
+    "img-src": [],
+    "frame-src": []
+  },
   "CONTACT_FORMS": {
     "NOTIFY_ATTRIBUTES": []
   },

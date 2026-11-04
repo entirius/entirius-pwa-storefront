@@ -91,15 +91,25 @@ test("address book: add, edit, set default, delete", async ({ page }) => {
   await expect(card("Bruno Tester")).toBeVisible();
 });
 
+test("the refresh token is out of reach of scripts", async ({ page, context }) => {
+  await login(page, email);
+  const cookies = await context.cookies();
+  expect(cookies.find((c) => c.name === "rt")?.httpOnly, "rt is HttpOnly").toBe(true);
+  expect(cookies.find((c) => c.name === "at")?.httpOnly, "at stays readable for the API layer").toBe(false);
+  const readable = await page.evaluate(() => document.cookie.split("; ").map((c) => c.split("=")[0]));
+  expect(readable).toContain("at");
+  expect(readable).not.toContain("rt");
+});
+
 test("an invalid access token is refreshed transparently", async ({ page, context }) => {
   await login(page, email);
   const at = (await context.cookies()).find((c) => c.name === "at");
   expect(at, "access token cookie").toBeTruthy();
-  // Stand in for an expired token (access lives 5 min): the API answers 401,
-  // the engine refreshes with `rt` and retries.
+  // Stand in for an expired token (access lives 5 min): the API answers 401, the engine asks the storefront's
+  // /session/refresh, which refreshes with the HttpOnly `rt`, and retries.
   await context.addCookies([{ ...at!, value: "expired.access.token" }]);
 
-  const refreshed = page.waitForResponse((r) => r.url().includes("/customer/tokens/refresh/"));
+  const refreshed = page.waitForResponse((r) => r.url().endsWith("/session/refresh"));
   await page.reload();
   expect((await refreshed).ok()).toBe(true);
   await expect(page.getByText(email)).toBeVisible();

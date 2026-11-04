@@ -62,7 +62,7 @@ entirius-pwa-storefront/
 | `API/api.routes.ts` | All route URL constants + `API_ROUTES_POLICY` (default query params, headers, token refresh per route) |
 | `API/api.setup.ts` | `create_fetch_engine(access)` — session placeholder resolution, the call's `suffix` segments, query string, auth headers, 401 refresh |
 | `API/api.context.ts` | `create_api(cookie_access)` — maps cookie keys to access methods, returns `{ FETCH_METHOD }` |
-| `proxy.ts` | Middleware: reads `ct` cookie or `cf-ipcountry`, rewrites URL to `/{country}/...`, sets session cookies |
+| `proxy.ts` | Middleware: reads `ct` cookie or `cf-ipcountry`, rewrites URL to `/{country}/...`, sets the profile and channel cookies, and the Content-Security-Policy with a per-request nonce (`lib/csp.ts`) |
 | `app/robots.ts`, `app/sitemap.ts` | `/robots.txt` (private flows and filter URLs disallowed, sitemap named by `SITE_URL`) and `/sitemap.xml` (CMS pages, categories, products incl. sold out, the blog with its posts and authors, read from the API at request time; every profile in its own language with hreflang alternates, each address in its canonical form, `/catalog/x` for the `default` profile, pure helpers in `lib/seo/sitemap.ts`). Dotted paths are outside the `proxy.ts` matcher |
 | `app/og-image.png/route.tsx` | Default share image when `BRAND.OG_IMAGE` is not set: the shop name on the theme background (`lib/share-image.ts` reads the brand tokens), prerendered at build. A route handler, not the `opengraph-image` file convention: a page that sets its own `openGraph` replaces the parent's whole, so `DEFAULT_OG_IMAGES` in `lib/brand.ts` hands the address to every page. The home page carries JSON-LD `Organization` (`SITE_NAME`, `SITE_URL`, `BRAND.LOGO`) |
 | `lib/prefetch_boundary.tsx` | `PrefetchBoundary` — server prefetches TanStack queries, dehydrates, wraps children in `HydrationBoundary` |
@@ -84,7 +84,8 @@ entirius-pwa-storefront/
 proxy.ts (middleware)
   → reads ct cookie / cf-ipcountry header
   → rewrites URL to /{country}/...
-  → sets lg, cr, ch, ch_key, cf_key, cid cookies (at/rt/uid are owned by the auth Server Actions)
+  → sets lg, cr, ch, ch_key, cf_key, nl_key, ag_key, cid cookies (at/rt/uid belong to app/session/)
+  → sets the Content-Security-Policy with a fresh nonce on the request (Next.js puts it on its scripts) and the response
 
 page.tsx (Server Component)
   → make_server_access() reads next/headers cookies
@@ -95,6 +96,21 @@ HydrationBoundary (client)
   → rehydrates TanStack Query cache
   → useQuery() reads cache — no refetch on mount
 ```
+
+## Session and Content-Security-Policy
+
+- Login, the token refresh and logout go through the storefront's route handlers `app/session/login`, `refresh` and
+  `logout` (`lib/session.ts`), outside `/api` and outside the proxy. They keep the tokens as cookies: `rt` HttpOnly,
+  `at` and `uid` readable, since the browser calls the API itself with `Authorization`. On a 401 the client engine
+  (`API/api.setup.ts`) asks `/session/refresh`, which refreshes with the HttpOnly token; a token accounts refuses ends
+  the session, a backend that does not answer leaves it as it is. Logout awaits `/session/logout`, so no later 401 can
+  refresh with a token left behind. Route handlers, not Server Actions: a cookie written by a Server Action makes the
+  router refetch the whole route.
+- `proxy.ts` sends every page with an enforced Content-Security-Policy (`lib/csp.ts`): scripts need the request's nonce
+  ('strict-dynamic' lets the framework's own scripts load their chunks), styles keep 'unsafe-inline' (Radix and `style`
+  attributes), and the API origin is allowed for data and media. Every HTML route renders per request, as a nonce
+  needs; in production the not-found page relays the policy of its own render. A deployment adds sources per
+  directive in `CSP` of `app.config.json` (analytics, a payment widget, a CDN).
 
 ## Geo Routing
 

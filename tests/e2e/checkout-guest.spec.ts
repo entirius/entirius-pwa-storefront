@@ -87,6 +87,11 @@ test("guest places an order with bank transfer", async ({ page, context }) => {
   const marketing = page.locator('[data-agreement="marketing-email"]');
   await expect(marketing).toHaveCount(HAS_NEWSLETTER_KEY ? 1 : 0);
   if (HAS_NEWSLETTER_KEY) await marketing.getByRole("checkbox").click();
+  // The subscription itself (and its mail) is newsletter.spec.ts's; here only that the storefront sends it. Answered
+  // here, since django-agreements lets one address subscribe three times an hour and this address is fixed.
+  await page.route(/\/newsletter\/subscribe\//, (route) =>
+    route.fulfill({ status: 201, json: { detail: "If eligible, a confirmation will be sent." } }),
+  );
   const subscribed = page.waitForResponse(
     (r) => r.request().method() === "POST" && r.url().includes("/newsletter/subscribe/"),
   );
