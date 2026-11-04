@@ -4,13 +4,11 @@
 
 "use client";
 
-import { useId, useMemo, useState, useTransition } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useId, useState, useTransition } from "react";
 import { X } from "lucide-react";
-import { make_client_access } from "@/API/access/api.client-access";
-import { create_api } from "@/API/api.context";
-import { API_CART_DISCOUNTS_ROUTE } from "@/API/api.routes";
-import { NORM_CART, type Cart } from "@/utils/NORMALIZERS/cart.normalizer";
+import type { Cart } from "@/utils/NORMALIZERS/cart.normalizer";
+import { kept_discounts } from "@/utils/cart-discounts";
+import { useDiscountsPatch } from "@/app/_components/order/use-cart-gifts";
 import { Field, FormError } from "@/components/ui/form";
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/ui/input-group";
 import { Spinner } from "@/components/ui/spinner";
@@ -21,40 +19,37 @@ import { useI18n } from "@/providers/i18n.provider";
 // one. An unusable code is not an HTTP error: the cart comes back without it and
 // with a generic `_errors` entry, so the form compares what it sent with what
 // stuck. Codes survive item changes; automatic rules are the backend's business.
+// A picked gift is a code too (with its SKU): it is sent along and not listed here.
 export function DiscountCode({ backend }: { backend: Cart | null | undefined }) {
   const { t } = useI18n();
   const input_id = useId();
-  const api = useMemo(() => create_api(make_client_access()), []);
-  const query_client = useQueryClient();
+  const patch = useDiscountsPatch();
   const [pending, startTransition] = useTransition();
   const [value, setValue] = useState("");
   const [message, setMessage] = useState<string | null>(null);
 
-  const applied = (backend?.discounts ?? [])
-    .filter((d) => !d.is_automatic && d.status === "valid" && d.code)
-    .map((d) => d.code);
+  const kept = kept_discounts(backend);
+  const gift_codes = kept.filter((d) => d.sku);
+  const applied = kept.filter((d) => !d.sku).map((d) => d.code);
 
   const save = (codes: string[], added?: string) => {
     setMessage(null);
     startTransition(async () => {
-      const body = codes.length
-        ? { codes: codes.map((code) => ({ code })) }
-        : { clear: true };
-      const [error, response] = await api.FETCH_METHOD(API_CART_DISCOUNTS_ROUTE, {
-        method: "PATCH",
-        body: JSON.stringify(body),
-      });
-      if (error) {
-        setMessage(error.message || t("cart.discount_failed"));
+      const { error, cart } = await patch([...codes.map((code) => ({ code })), ...gift_codes]);
+      if (error != null || !cart) {
+        setMessage(error || t("cart.discount_failed"));
         return;
       }
-      const cart = NORM_CART(response);
-      // Every cart query (cart page, checkout) shows the same backend cart.
-      query_client.setQueriesData({ queryKey: ["cart"] }, cart);
+      const gift_lost = gift_codes.some(
+        (g) => !cart.discounts.some((d) => d.code === g.code && d.gratis_sku === g.sku && d.status === "valid"),
+      );
       if (added) {
         const ok = cart.discounts.some((d) => d.code === added && d.status === "valid");
-        if (ok) setValue("");
-        else setMessage(t("cart.discount_invalid"));
+        if (!ok) setMessage(t("cart.discount_invalid"));
+        else {
+          setValue("");
+          if (gift_lost) setMessage(t("cart.gift_removed_by_code"));
+        }
       }
     });
   };

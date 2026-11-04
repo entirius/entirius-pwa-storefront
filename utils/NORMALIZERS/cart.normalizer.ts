@@ -13,6 +13,9 @@
 // Line final_total_gross is AFTER the special price but BEFORE the code discount;
 // cart total_gross is after both. `item_savings_gross` = Σ list price - Σfinal_total_gross
 // captures the special-price saving so the two can be shown as distinct rows.
+//
+// Gift lines (`is_gratis`, picked through a gratis rule's code) are kept apart in `gifts`: their list price is
+// not part of the subtotal or the savings, and their SKU may also be a line the customer pays for.
 
 import { resolve_media_url } from "@/utils/media-url";
 
@@ -28,6 +31,7 @@ type CartLine = {
   percent_off: number | null; // e.g. 17
   discount_gross: string | null; // code discount allocated to this line
   is_limited: boolean;
+  is_gratis: boolean; // a gift picked through a gratis rule, charged at the gift price
 };
 
 type CartDiscount = {
@@ -36,12 +40,33 @@ type CartDiscount = {
   status: string;
   is_automatic: boolean;
   free_shipping: boolean;
+  gratis_sku: string | null; // the gift picked for a gratis rule
+  gratis_quantity: number | null;
 };
 
 type CartError = {
   code: string;
   message: string;
+  scope: string | null; // "discounts" for a refused code, else about the items
   sku: string | null;
+  discount_code: string | null; // the refused code, for a discount error
+};
+
+// What the cart says about its gratis rules: whether one applies, and how much is missing to the next tier.
+type CartGratis = {
+  is_available: boolean;
+  nearest_tier_price: string | null;
+  amount_missing: string | null;
+};
+
+// One gratis rule of GET carts/{id}/gratis-rules/: the gifts to pick from (each at its gift price) and how
+// many pieces the cart allows now. `code` is what PATCH discounts/ takes, with the gift's SKU and quantity.
+type GratisRule = {
+  code: string;
+  name: string;
+  items: { sku: string; price: string }[];
+  max_quantity: number;
+  next_tier_quantity: number | null;
 };
 
 // A billing/shipping address as the cart stores it (nested under `addresses`).
@@ -95,6 +120,9 @@ type Cart = {
   total_tax: string | null;
   total_discount_gross: string | null; // Σ code discounts
   item_savings_gross: string | null; // Σ special-price savings (derived), null when 0
+  gifts: CartLine[];
+  gifts_total_gross: string | null; // Σ gift lines at the gift price, null without gifts
+  gratis: CartGratis;
   discounts: CartDiscount[];
   free_shipping: boolean;
   amount_missing_for_free_shipping: string | null;
@@ -124,6 +152,7 @@ type RawCartItem = {
   has_special_price?: boolean;
   percent_off?: number | string | null;
   discount_gross?: string | null;
+  is_gratis?: boolean;
 };
 
 type RawCartDiscount = {
@@ -132,9 +161,31 @@ type RawCartDiscount = {
   status?: string;
   is_automatic?: boolean;
   free_shipping?: boolean;
+  gratis_sku?: string | null;
+  gratis_quantity?: number | null;
 };
 
-type RawCartError = { code?: string; message?: string; meta?: { sku?: string | null } | null };
+type RawCartError = {
+  code?: string;
+  message?: string;
+  scope?: string | null;
+  meta?: { sku?: string | null; code?: string | null } | null;
+};
+
+type RawCartGratis = {
+  is_available?: boolean;
+  nearest_tier_price?: string | null;
+  amount_missing?: string | null;
+};
+
+// GET carts/{id}/gratis-rules/ — not described in the OpenAPI schema; the shape answered by checkout 10.
+type RawGratisRule = {
+  code?: string;
+  name?: string | null;
+  items?: { sku?: string; price?: number | string | null }[] | null;
+  max_available_quantity?: number | null;
+  next_gratis_tier_quantity?: number | null;
+};
 
 type RawCartAddress = {
   email?: string | null;
@@ -200,6 +251,7 @@ type RawCart = {
   shipping_method?: RawShippingMethod | null;
   payment_method?: RawPaymentMethod | null;
   need_full_address?: boolean;
+  gratis?: RawCartGratis | null;
 };
 
 // The method lists, either bare or wrapped in { data }.
@@ -212,6 +264,12 @@ const num = (v: unknown) => {
 
 const str = (v: unknown): string | null =>
   v == null || v === "" ? null : String(v);
+
+// An amount the API sends as a JSON number (gratis-rules/) → the "0.00" string the rest of the cart uses.
+const amount = (v: unknown): string | null => {
+  const n = parseFloat(String(v));
+  return v == null || v === "" || !Number.isFinite(n) ? null : n.toFixed(2);
+};
 
 // A cart address object → typed CartAddress, or null when absent/empty.
 function norm_address(a: RawCartAddress | null | undefined): CartAddress | null {
@@ -282,17 +340,39 @@ function NORM_PAYMENT_METHODS(resp: unknown): PaymentMethod[] {
     .filter((m): m is PaymentMethod => m !== null);
 }
 
+// GET carts/{id}/gratis-rules/ → the rules that offer a gift now. Gifts without a SKU drop.
+function NORM_GRATIS_RULES(resp: unknown): GratisRule[] {
+  const list = Array.isArray(resp) ? (resp as RawGratisRule[]) : [];
+  return list
+    .filter((r) => r?.code)
+    .map((r) => ({
+      code: String(r.code),
+      name: str(r.name) ?? String(r.code),
+      items: (Array.isArray(r.items) ? r.items : [])
+        .filter((i) => i?.sku)
+        .map((i) => ({ sku: String(i.sku), price: amount(i.price) ?? "0.00" })),
+      max_quantity: Math.max(0, Number(r.max_available_quantity ?? 0) || 0),
+      next_tier_quantity: r.next_gratis_tier_quantity ? Number(r.next_gratis_tier_quantity) : null,
+    }));
+}
+
 function NORM_CART(resp: unknown): Cart {
   const data = resp as RawCart | null | undefined;
   const raw_items: RawCartItem[] = Array.isArray(data?.items) ? data.items : [];
   const lines: Record<string, CartLine> = {};
+  const gifts: CartLine[] = [];
   let sum_final = 0;
   let sum_list = 0;
+  let sum_gifts = 0;
   for (const it of raw_items) {
     if (!it?.sku) continue;
-    sum_final += num(it.final_total_gross);
-    sum_list += num(it.total_gross ?? num(it.unit_gross) * num(it.quantity));
-    lines[it.sku] = {
+    const is_gratis = Boolean(it.is_gratis);
+    if (is_gratis) sum_gifts += num(it.final_total_gross);
+    else {
+      sum_final += num(it.final_total_gross);
+      sum_list += num(it.total_gross ?? num(it.unit_gross) * num(it.quantity));
+    }
+    const line: CartLine = {
       sku: it.sku,
       quantity: Number(it.quantity ?? 0),
       status: it.status ?? "unknown",
@@ -308,7 +388,10 @@ function NORM_CART(resp: unknown): Cart {
       discount_gross: it.discount_gross ?? null,
       // "valid" is the saleable status on v2; anything else limits the line.
       is_limited: it.status !== "valid" && it.status !== "in_stock",
+      is_gratis,
     };
+    if (is_gratis) gifts.push(line);
+    else lines[it.sku] = line;
   }
 
   // Special-price saving = list price of the items − Σ line finals (before code discounts).
@@ -323,13 +406,17 @@ function NORM_CART(resp: unknown): Cart {
     status: d?.status ?? "",
     is_automatic: Boolean(d?.is_automatic),
     free_shipping: Boolean(d?.free_shipping),
+    gratis_sku: str(d?.gratis_sku),
+    gratis_quantity: d?.gratis_quantity == null ? null : Number(d.gratis_quantity),
   }));
 
   const raw_errors: RawCartError[] = Array.isArray(data?._errors) ? data._errors : [];
   const errors: CartError[] = raw_errors.map((e) => ({
     code: e?.code ?? "UNKNOWN",
     message: e?.message ?? "",
+    scope: e?.scope ?? null,
     sku: e?.meta?.sku ?? null,
+    discount_code: e?.scope === "discounts" ? (e?.meta?.code ?? null) : null,
   }));
   const error_skus = new Set(
     errors.map((e) => e.sku).filter((s): s is string => Boolean(s)),
@@ -352,13 +439,20 @@ function NORM_CART(resp: unknown): Cart {
     currency: data?.currency ?? "",
     allowed_guest_checkout: Boolean(data?.allowed_guest_checkout),
     subtotal_gross: data?.subtotal_gross ?? null,
-    items_subtotal_gross: raw_items.length ? sum_list.toFixed(2) : (data?.subtotal_gross ?? null),
+    items_subtotal_gross: raw_items.length > gifts.length ? sum_list.toFixed(2) : (data?.subtotal_gross ?? null),
     shipping_gross: str(data?.shipping_method?.final_gross),
     fee_gross: str(data?.fee_gross ?? data?.payment_method?.fee_gross),
     total_gross: data?.total_gross ?? null,
     total_tax: data?.total_tax ?? null,
     total_discount_gross: data?.total_discount_gross ?? null,
     item_savings_gross: item_savings > 0.005 ? item_savings.toFixed(2) : null,
+    gifts,
+    gifts_total_gross: gifts.length ? sum_gifts.toFixed(2) : null,
+    gratis: {
+      is_available: Boolean(data?.gratis?.is_available),
+      nearest_tier_price: str(data?.gratis?.nearest_tier_price),
+      amount_missing: str(data?.gratis?.amount_missing),
+    },
     discounts,
     free_shipping: Boolean(data?.free_shipping),
     amount_missing_for_free_shipping:
@@ -376,13 +470,15 @@ function NORM_CART(resp: unknown): Cart {
   };
 }
 
-export { NORM_CART, NORM_SHIPPING_METHODS, NORM_PAYMENT_METHODS };
+export { NORM_CART, NORM_GRATIS_RULES, NORM_SHIPPING_METHODS, NORM_PAYMENT_METHODS };
 export type {
   RawCart,
   Cart,
   CartLine,
   CartDiscount,
   CartError,
+  CartGratis,
+  GratisRule,
   CartAddress,
   ShippingMethod,
   PaymentMethod,

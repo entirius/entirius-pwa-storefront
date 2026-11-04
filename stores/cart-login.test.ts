@@ -44,6 +44,14 @@ describe("merge_cart_items", () => {
     expect(merged).toEqual({});
   });
 
+  it("leaves out the saved cart's gift: it stays on the backend cart through its code", () => {
+    const merged = merge_cart_items({ A: item("A", 1) }, [
+      { sku: "A", quantity: 1, is_gratis: true },
+      { sku: "G", quantity: 2, is_gratis: true },
+    ], { G: product("G") });
+    expect(Object.fromEntries(Object.entries(merged).map(([sku, i]) => [sku, i.quantity]))).toEqual({ A: 1 });
+  });
+
   it("does not change the local cart object", () => {
     const local = { A: item("A", 1) };
     merge_cart_items(local, [{ sku: "A", quantity: 1 }], {});

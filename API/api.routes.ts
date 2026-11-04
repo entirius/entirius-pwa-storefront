@@ -16,9 +16,13 @@ export const API_CART_ROUTE = "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/";
 export const API_CART_LATEST_ROUTE = "/api/checkout/v2/__CHANNEL__/carts/latest/";
 export const API_CART_ITEMS_ROUTE =
   "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/items/";
-// PATCH { codes: [{ code }] } replaces the manual codes; { clear: true } drops them.
+// PATCH { codes: [{ code }] } replaces the manual codes; { clear: true } drops them. A gratis rule's code goes
+// with the picked gift: { code, sku, quantity }.
 export const API_CART_DISCOUNTS_ROUTE =
   "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/discounts/";
+// GET the gratis rules the cart qualifies for: the gifts to pick from and how many pieces (no OpenAPI schema).
+export const API_CART_GRATIS_RULES_ROUTE =
+  "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/gratis-rules/";
 export const API_CART_ADDRESS_ROUTE =
   "/api/checkout/v2/__CHANNEL__/carts/__CART_ID__/addresses/";
 // LIST endpoints (GET) — currently 500 on the backend (guest path crashes).
@@ -220,6 +224,15 @@ export const API_ROUTES_POLICY = {
       ["x-api-key", "channel_checkout_key"],
       ["Authorization", "access_token"],
       { "Content-Type": "application/json" },
+    ],
+  },
+  [API_CART_GRATIS_RULES_ROUTE]: {
+    default_querys: ["language"],
+    refresh_on: [401],
+    optional_refresh: true,
+    default_headers: [
+      ["x-api-key", "channel_checkout_key"],
+      ["Authorization", "access_token"],
     ],
   },
   [API_CART_ADDRESS_ROUTE]: {

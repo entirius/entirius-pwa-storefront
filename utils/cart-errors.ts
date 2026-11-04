@@ -12,8 +12,11 @@ const MESSAGE_BY_CODE: Record<string, MessageKey> = {
   ITEM_QTY_CHANGED: "cart.error_stock_limited",
 };
 
-// One line per distinct message (the API repeats an error per item).
+// One line per distinct message (the API repeats an error per item). A refused discount code or gift is not an
+// item problem: the code form and the gift card say what happened to them.
 export function cart_error_texts(errors: CartError[], t: Translate): string[] {
-  const texts = errors.map((e) => t(MESSAGE_BY_CODE[e.code] ?? "cart.error_generic"));
+  const texts = errors
+    .filter((e) => e.scope !== "discounts")
+    .map((e) => t(MESSAGE_BY_CODE[e.code] ?? "cart.error_generic"));
   return [...new Set(texts)];
 }
