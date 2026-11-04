@@ -6,6 +6,7 @@
 
 import { useMemo, useState, useTransition, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
 
 import { make_client_access } from "@/API/access/api.client-access";
 import { create_api } from "@/API/api.context";
@@ -23,6 +24,7 @@ import { PageLoading, Spinner } from "@/components/ui/spinner";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { FormError, FormHeading } from "@/components/ui/form";
 import { useI18n } from "@/providers/i18n.provider";
+import { payment_patch_body } from "./payment-return";
 // Payment methods offered for the cart; the review step reads the same entry for the method text.
 export function usePaymentMethods(cart_id: string | undefined) {
   const api = useMemo(() => create_api(make_client_access()), []);
@@ -53,6 +55,7 @@ export function PaymentStep({
   const access = useMemo(() => make_client_access(), []);
   const api = useMemo(() => create_api(access), [access]);
   const [pending, startTransition] = useTransition();
+  const country = useParams()?.customer_country as string | undefined;
   const [saveError, setSaveError] = useState<string | null>(null);
 
   // Preselect the method already stored on the cart (hydration).
@@ -75,7 +78,7 @@ export function PaymentStep({
     startTransition(async () => {
       const [error, response] = await api.FETCH_METHOD(
         API_CART_PAYMENT_SELECT_ROUTE,
-        { method: "PATCH", body: JSON.stringify({ code: selected }) },
+        { method: "PATCH", body: JSON.stringify(payment_patch_body(selected, country)) },
       );
       if (error) {
         setSaveError(t("checkout.payment_failed"));

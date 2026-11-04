@@ -22,6 +22,7 @@ import { ShippingStep } from "./shipping-step";
 import { PaymentStep } from "./payment-step";
 import { ReviewStep } from "./review-step";
 import { order_refs } from "./order-receipt";
+import { success_path } from "./payment-return";
 
 
 export function CheckoutClient() {
@@ -85,10 +86,7 @@ export function CheckoutClient() {
   // owns cart teardown so this page never flashes its empty-cart state on the way out.
   // A split order passes every part's number (`ref` repeated).
   const onPlaced = (order: PlacedOrder) => {
-    const base =
-      !country || country === "default"
-        ? "/checkout/success"
-        : `/${country}/checkout/success`;
+    const base = success_path(country);
     const params = new URLSearchParams();
     for (const ref of order_refs(order)) params.append("ref", ref);
     if (order.payment_error) params.set("payment", "failed");
