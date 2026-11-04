@@ -37,7 +37,7 @@ export function OrderSummaryCard({
   );
 }
 
-// Totals of the synced backend cart: subtotal, savings, discount codes, delivery, fee, total.
+// Totals of the synced backend cart: subtotal, savings, gifts, discount codes, delivery, fee, total.
 // `shipping_pending`: the cart page, where delivery is chosen later, says so instead of hiding the row.
 export function OrderTotals({
   backend,
@@ -54,7 +54,7 @@ export function OrderTotals({
   const { t } = i18n;
   const fmt = (v: string | null | undefined) => i18n.price(v, backend?.currency || currency);
   const applied_codes = (backend?.discounts ?? [])
-    .filter((d) => d.status === "valid" && d.code)
+    .filter((d) => d.status === "valid" && d.code && !d.gratis_sku)
     .map((d) => d.code);
   const discount_label =
     applied_codes.length > 0
@@ -75,6 +75,12 @@ export function OrderTotals({
       />
       {has_amount(backend?.item_savings_gross) && (
         <Row label={t("checkout.sale_savings")} value={`−${fmt(backend?.item_savings_gross)}`} accent />
+      )}
+      {!!backend?.gifts.length && (
+        <Row
+          label={t("cart.gifts")}
+          value={num(backend.gifts_total_gross) === 0 ? t("common.free") : fmt(backend.gifts_total_gross)}
+        />
       )}
       {has_amount(backend?.total_discount_gross) && (
         <Row label={discount_label} value={`−${fmt(backend?.total_discount_gross)}`} accent />

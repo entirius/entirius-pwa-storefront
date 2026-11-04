@@ -20,6 +20,8 @@ import type { Cart } from "@/utils/NORMALIZERS/cart.normalizer";
 import { UnitPrice } from "@/app/_components/layout/cart-price";
 import { DiscountCode } from "@/app/_components/layout/discount-code.client";
 import { CartAlerts } from "@/app/_components/order/cart-alerts";
+import { GiftCard, GiftLine, gift_rule } from "@/app/_components/order/cart-gifts.client";
+import { useCartGifts, useGiftSetter } from "@/app/_components/order/use-cart-gifts";
 import { CheckoutStepper } from "@/app/[customer_country]/checkout/_components/checkout-stepper";
 import { OrderSummaryCard, OrderTotals } from "@/app/_components/order/order-totals";
 import { EmptyCart, OrderPageHeader } from "@/app/_components/order/page-header";
@@ -37,6 +39,8 @@ export function CartPageClient() {
   const { isLoggedIn } = useAuth();
   const i18n = useI18n();
   const { t } = i18n;
+  const { rules, products } = useCartGifts(backend);
+  const gifts = useGiftSetter(backend);
 
   const entries = Object.entries(items);
   const pieces = entries.reduce((n, [, item]) => n + item.quantity, 0);
@@ -77,7 +81,22 @@ export function CartPageClient() {
                     onRemove={() => remove(sku)}
                   />
                 ))}
+                {(backend?.gifts ?? []).map((line) => {
+                  const { code, rule } = gift_rule(backend, rules, line.sku);
+                  return (
+                    <GiftLine
+                      key={`gift-${line.sku}`}
+                      line={line}
+                      product={products[line.sku]}
+                      code={code}
+                      max={rule?.max_quantity ?? line.quantity}
+                      currency={currency}
+                      gifts={gifts}
+                    />
+                  );
+                })}
               </ul>
+              <GiftCard backend={backend} rules={rules} products={products} gifts={gifts} />
               <LinkDynamic href="/" className="link self-start text-sm font-semibold">
                 {t("common.continue_shopping")}
               </LinkDynamic>

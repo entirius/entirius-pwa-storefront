@@ -91,6 +91,21 @@ export const en = {
   // wishlist
   "cart.error_stock_limited": "Only the quantity we have in stock can be ordered; we reduced it.",
   "cart.error_generic": "Something is wrong with an item in your cart. Check the cart and try again.",
+  "cart.gift_title": "Gift",
+  "cart.gift_badge": "Gift",
+  "cart.gift_away": "Add {amount} more to get a gift.",
+  "cart.gift_next_tier": {
+    one: "Add {amount} more to get {count} gift.",
+    other: "Add {amount} more to get {count} gifts.",
+  },
+  "cart.gift_choose": {
+    one: "Choose your gift.",
+    other: "Choose your gift, up to {count} pieces.",
+  },
+  "cart.gift_removed": "Your gift was removed because the cart total changed. Choose it again.",
+  "cart.gift_removed_by_code": "Your gift was removed: it can’t be combined with this code.",
+  "cart.gift_failed": "Couldn’t update your gift. Please try again.",
+  "cart.gifts": "Gifts",
   "wishlist.title": "Wishlist",
   "wishlist.empty": "Your wishlist is empty",
   "wishlist.empty_hint": "Tap the heart on a product to save it for later.",

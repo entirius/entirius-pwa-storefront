@@ -9,10 +9,11 @@ import { NORM_PRODUCTS_DATA, type RawProduct } from "@/utils/NORMALIZERS/product
 import { useCartStore, type CartItem } from "@/stores/cart.store";
 import { _LOGGER } from "@/lib/logger";
 
-type ServerLine = { sku: string; quantity: number };
+type ServerLine = { sku: string; quantity: number; is_gratis?: boolean };
 
 // The local cart plus the lines of the customer's saved cart; a SKU in both gets the sum of the
-// quantities (the backend merge's "add"). Lines whose product is unknown (no longer sold) are left out.
+// quantities (the backend merge's "add"). Lines whose product is unknown (no longer sold) are left out, and
+// so are gifts: the saved cart keeps its gift through the gift's code, the local cart holds bought products.
 export function merge_cart_items(
   local: Record<string, CartItem>,
   server: ServerLine[],
@@ -20,7 +21,7 @@ export function merge_cart_items(
 ): Record<string, CartItem> {
   const merged = { ...local };
   for (const line of server) {
-    if (line.quantity <= 0) continue;
+    if (line.quantity <= 0 || line.is_gratis) continue;
     const existing = merged[line.sku];
     if (existing) {
       merged[line.sku] = { ...existing, quantity: existing.quantity + line.quantity };
@@ -55,9 +56,9 @@ export async function merge_cart_on_login(): Promise<void> {
     if (customer_cid && customer_cid === guest_cid) return;
 
     if (customer_cid) {
-      const lines = (latest?.items ?? []).map(({ sku, quantity }) => ({ sku, quantity }));
+      const lines = (latest?.items ?? []).map(({ sku, quantity, is_gratis }) => ({ sku, quantity, is_gratis }));
       const local = useCartStore.getState().items;
-      const missing = lines.map((l) => l.sku).filter((sku) => !local[sku]);
+      const missing = lines.filter((l) => !l.is_gratis).map((l) => l.sku).filter((sku) => !local[sku]);
       const products: Record<string, Omit<CartItem, "quantity">> = {};
       if (missing.length) {
         const [products_error, response] = await api.FETCH_METHOD<{ results?: RawProduct[] }>(

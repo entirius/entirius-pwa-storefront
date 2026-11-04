@@ -13,6 +13,8 @@ import { DiscountCode } from "@/app/_components/layout/discount-code.client";
 import type { Cart } from "@/utils/NORMALIZERS/cart.normalizer";
 import type { CartItem } from "@/stores/cart.store";
 import { OrderSummaryCard, OrderTotals } from "@/app/_components/order/order-totals";
+import { GiftSummaryLine } from "@/app/_components/order/cart-gifts.client";
+import { useGiftProducts } from "@/app/_components/order/use-cart-gifts";
 
 // Read-only order summary (authoritative totals from the synced backend cart, local
 // line-price fallback). Rendered in the sticky right column of the checkout stepper.
@@ -30,6 +32,8 @@ export function CheckoutSummary({
   const i18n = useI18n();
   const { t } = i18n;
   const fmt = (v: string | null | undefined) => i18n.price(v, currency_label);
+  const gifts = backend?.gifts ?? [];
+  const gift_products = useGiftProducts(gifts.map((g) => g.sku));
   return (
     <OrderSummaryCard>
       <div className="-mt-1 flex flex-col divide-y">
@@ -65,6 +69,14 @@ export function CheckoutSummary({
             </div>
           );
         })}
+        {gifts.map((line) => (
+          <GiftSummaryLine
+            key={`gift-${line.sku}`}
+            line={line}
+            product={gift_products[line.sku]}
+            currency={currency_label}
+          />
+        ))}
       </div>
 
       <div className="border-t pt-4">

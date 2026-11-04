@@ -6,7 +6,13 @@ import { describe, expect, it } from "vitest";
 import { cart_error_texts } from "./cart-errors";
 
 const t = ((key: string) => `[${key}]`) as Parameters<typeof cart_error_texts>[1];
-const error = (code: string, message = "English text from the API") => ({ code, message, sku: null });
+const error = (code: string, scope: string | null = null) => ({
+  code,
+  message: "English text from the API",
+  scope,
+  sku: null,
+  discount_code: null,
+});
 
 describe("cart_error_texts", () => {
   it("maps a known code to its message and never shows the API text", () => {
@@ -20,5 +26,10 @@ describe("cart_error_texts", () => {
   it("returns one line per distinct message", () => {
     const errors = [error("ITEM_QTY_CHANGED"), error("ITEMS_QUANTITY_LIMITED_BY_STOCK"), error("OTHER")];
     expect(cart_error_texts(errors, t)).toEqual(["[cart.error_stock_limited]", "[cart.error_generic]"]);
+  });
+
+  it("leaves out refused discount codes and gifts", () => {
+    const errors = [error("ONE_OR_MORE_DISCOUNT_INVALID", "discounts"), error("DISCOUNT_CODE_INVALID", "discounts")];
+    expect(cart_error_texts(errors, t)).toEqual([]);
   });
 });
