@@ -4,10 +4,10 @@
 
 import { create_api } from "@/API/api.context";
 import { abort_session } from "@/API/api.setup";
+import { SESSION_LOGIN_PATH, SESSION_LOGOUT_PATH } from "@/lib/session";
 import { make_client_access } from "@/API/access/api.client-access";
 import { msg } from "@/lib/i18n/translate";
 import {
-  API_USER_LOGIN_ROUTE,
   API_USER_SIGNUP_ROUTE,
   API_USER_PROFILE_ROUTE,
   API_USER_PASSWORD_RESET_ROUTE,
@@ -26,15 +26,10 @@ import {
   type ChangePasswordFormValues,
 } from "@/utils/validation/auth.schema";
 
-// Client-side auth. Tokens (`at`/`rt`/`uid`) live in readable cookies so the
-// client engine can attach `Authorization` on cart/checkout/profile and refresh
-// on 401 — the whole data layer already runs client-side via make_client_access.
-// (Login used to be a Server Action, but mutating cookies there forced a full
-// RSC refetch of the current route; doing it client-side avoids that.)
-
-type LoginResponse = {
-  data: { access: string; refresh: string; customer_id: string };
-};
+// Client-side auth. Login, the token refresh and logout go through the storefront's route handlers (lib/session.ts):
+// the refresh token is an HttpOnly cookie no script can read. The access token and the customer id (`at`/`uid`) stay
+// readable, so the client engine attaches `Authorization` on cart/checkout/profile. (Login used to be a Server
+// Action, but mutating cookies there forced a full RSC refetch of the current route; a route handler does not.)
 
 export type LoginResult =
   | { ok: true }
@@ -47,29 +42,19 @@ export async function client_login(
   const parsed = login_schema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "invalid_credentials" };
 
-  const access = make_client_access();
-  const api = create_api(access);
-  const [error, data] = await api.FETCH_METHOD<LoginResponse>(
-    API_USER_LOGIN_ROUTE,
-    { method: "POST", body: JSON.stringify(parsed.data) },
-  );
-
-  // Bad credentials come back as 403 (status "no_active_account"); 400/401 are
-  // guarded too. Anything else (5xx, network, malformed success) → unknown.
-  if (error || !data?.data?.access) {
-    const status = error?.status;
-    const bad_credentials =
-      status === 400 || status === 401 || status === 403;
-    return { ok: false, error: bad_credentials ? "invalid_credentials" : "unknown" };
+  // The handler keeps the tokens as cookies (`rt` HttpOnly) and answers 401 for bad credentials.
+  let res: Response;
+  try {
+    res = await fetch(SESSION_LOGIN_PATH, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(parsed.data),
+    });
+  } catch {
+    return { ok: false, error: "unknown" };
   }
-
-  const { access: at, refresh, customer_id } = data.data;
-  // Readable cookies (path=/, Secure, SameSite=Lax, 30d) — see make_client_access.
-  access.set?.("at", at);
-  access.set?.("rt", refresh);
-  access.set?.("uid", String(customer_id));
-
-  return { ok: true };
+  if (res.ok) return { ok: true };
+  return { ok: false, error: res.status === 400 || res.status === 401 ? "invalid_credentials" : "unknown" };
 }
 
 // The matrix backend wraps every response in { meta: { status, message }, data }.
@@ -249,14 +234,15 @@ export async function client_change_password(
   return { ok: true };
 }
 
-export function client_logout(): void {
+export async function client_logout(): Promise<void> {
   // Cancel any in-flight request + token refresh first, so a request that 401s
   // mid-logout can't refresh and re-write the tokens we're about to clear.
   abort_session();
   const access = make_client_access();
   access.delete?.("at");
-  access.delete?.("rt");
   access.delete?.("uid");
+  // The refresh token is HttpOnly: only the session handler clears it. Awaited, so no later 401 can refresh with it.
+  await fetch(SESSION_LOGOUT_PATH, { method: "POST" }).catch(() => undefined);
 }
 
 export type Profile = { firstname: string; lastname: string; email: string };

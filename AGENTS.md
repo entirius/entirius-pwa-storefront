@@ -40,7 +40,8 @@ Same rule applies to PR descriptions: no `Generated with [Claude Code]` footer.
 ## Architecture
 
 - `API/` — fetch engine: routes + `API_ROUTES_POLICY` (headers, default query params); returns `[error, data, meta]`. Never call `fetch()` directly.
-- `proxy.ts` — geo routing and session cookies; every page lives under `app/[customer_country]/`.
+- `proxy.ts` — geo routing, profile and channel cookies, the per-request CSP nonce; every page lives under `app/[customer_country]/`.
+- `app/session/` — login, token refresh and logout route handlers: the refresh token is an HttpOnly cookie only they touch.
 - `app/[customer_country]/**/api.query.ts` — co-located queries and `React.cache()` loaders: one `api` per request, primitive cache keys.
 - `lib/` — `PrefetchBoundary` (server prefetch + hydration), `seo/`, `omnibus/`, auth client.
 - `utils/NORMALIZERS/` — API → view shapes; raw API data stays out of components.

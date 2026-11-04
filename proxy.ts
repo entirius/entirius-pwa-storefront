@@ -8,6 +8,8 @@ import { NextResponse } from "next/server";
 // ------------------------------ ---- - ----- -- - - - --
 
 import channels from "@/_CONFIG/channels.config.json";
+import app_config from "@/_CONFIG/app.config.json";
+import { build_csp, make_nonce, type CspSources } from "@/lib/csp";
 import { DEFAULT_PROFILE } from "@/lib/profile-path";
 import { localized_catalog_key, route_exists } from "@/utils/route-exists";
 
@@ -44,6 +46,9 @@ async function render_not_found(request: NextRequest, path: string): Promise<Nex
       return null;
     }
     const out = new Headers({ "content-type": type, "cache-control": "no-store" });
+    // The page was rendered with the self request's own nonce: its policy goes along, not this request's.
+    const policy = res.headers.get("content-security-policy");
+    if (policy) out.set("content-security-policy", policy);
     return new NextResponse(res.body, { status: 404, headers: out });
   } catch {
     return null;
@@ -52,6 +57,18 @@ async function render_not_found(request: NextRequest, path: string): Promise<Nex
 
 export default async function proxy(request: NextRequest) {
   const { ct, lg, cr, th, ch, cid, visited, geo } = geo_CF_helper(request);
+
+  // Content-Security-Policy with a fresh nonce: on the request, where Next.js reads the nonce for its scripts while
+  // rendering, and on the response (finish).
+  const csp = build_csp({
+    nonce: make_nonce(),
+    dev: process.env.NODE_ENV === "development",
+    api_base_url: app_config.API_BASE_URL,
+    site_url: app_config.SITE_URL,
+    extra: (app_config as { CSP?: CspSources }).CSP,
+  });
+  const request_headers = new Headers(request.headers);
+  request_headers.set("content-security-policy", csp);
 
   const pathname = request.nextUrl.pathname;
   const country_from_path = profile_from_path(pathname);
@@ -73,6 +90,7 @@ export default async function proxy(request: NextRequest) {
   }
 
   const finish = (res: NextResponse) => {
+    if (!res.headers.has("content-security-policy")) res.headers.set("content-security-policy", csp);
     if (ct) res.cookies.set("ct", ct);
     if (lg) res.cookies.set("lg", lg);
     if (cr) res.cookies.set("cr", cr);
@@ -100,8 +118,7 @@ export default async function proxy(request: NextRequest) {
         ?.API_AGREEMENTS_KEY;
       if (agreements_key) res.cookies.set("ag_key", agreements_key);
     }
-    // at/rt/uid are owned solely by the auth Server Actions (set as HttpOnly on
-    // login, cleared on logout). Re-emitting them here would strip HttpOnly.
+    // at/rt/uid belong to the session handlers of app/session/ (rt HttpOnly); never re-emit them here.
     if (cid) res.cookies.set("cid", cid);
     return res;
   };
@@ -117,7 +134,7 @@ export default async function proxy(request: NextRequest) {
       const profile = country_from_path ?? DEFAULT_PROFILE;
       url.pathname = `/${profile}/not-found-route`;
       const rendered = await render_not_found(request, url.pathname);
-      return finish(rendered ?? NextResponse.rewrite(url, { status: 404 }));
+      return finish(rendered ?? NextResponse.rewrite(url, { status: 404, request: { headers: request_headers } }));
     }
 
     // A category written with another language's key (`/pl/catalog/chairs`): to the active language's key.
@@ -135,10 +152,10 @@ export default async function proxy(request: NextRequest) {
 
   // A country in the path: its own pages. No country: the `default` profile, whose addresses carry no prefix
   // (LinkDynamic). Never the visitor's country: the same address must show the same page to everybody.
-  if (country_from_path) return finish(NextResponse.next());
+  if (country_from_path) return finish(NextResponse.next({ request: { headers: request_headers } }));
   const url = request.nextUrl.clone();
   url.pathname = `/${DEFAULT_PROFILE}${pathname}`;
-  return finish(NextResponse.rewrite(url));
+  return finish(NextResponse.rewrite(url, { request: { headers: request_headers } }));
 }
 
 // ------------------------------ ---- - ----- -- - - - --
@@ -149,7 +166,7 @@ export const config = {
     // `_next` is excluded whole, not per-subpath: it is Next's own namespace and includes the dev HMR
     // endpoint (`_next/webpack-hmr` / `_next/turbopack-hmr`), which carries no file extension and so slipped
     // past the `.*\..*` guard. Geo-rewriting it breaks the HMR connection and the dev client falls back to
-    // reloading the page in a loop.
-    "/((?!api|_next|favicon.ico|robots.txt|sitemap.xml|.*\\..*).*)",
+    // reloading the page in a loop. `session/` holds the auth route handlers (lib/session.ts).
+    "/((?!api|_next|session/|favicon.ico|robots.txt|sitemap.xml|.*\\..*).*)",
   ],
 };

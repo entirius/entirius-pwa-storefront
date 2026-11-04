@@ -46,6 +46,9 @@ export const API_CART_ORDERS_LIST_ROUTE =
 // ----- AUTHENTICATION -----
 export const API_USER_LOGIN_ROUTE =
   "/api/accounts/v1/__CHANNEL__/customer/tokens/";
+// POST { refresh } → new tokens. Called by the storefront's /session/refresh only (the refresh token is HttpOnly).
+export const API_USER_TOKEN_REFRESH_ROUTE =
+  "/api/accounts/v1/__CHANNEL__/customer/tokens/refresh/";
 // POST signs up; POST with `suffix: [uid]` and `?key=` activates the account from the mail.
 export const API_USER_SIGNUP_ROUTE =
   "/api/accounts/v1/__CHANNEL__/customer/signup/";
@@ -326,6 +329,9 @@ export const API_ROUTES_POLICY = {
   },
   [API_USER_LOGIN_ROUTE]: {
     default_querys: ["language"],
+    default_headers: [{ "Content-Type": "application/json" }],
+  },
+  [API_USER_TOKEN_REFRESH_ROUTE]: {
     default_headers: [{ "Content-Type": "application/json" }],
   },
   [API_USER_PASSWORD_RESET_ROUTE]: {
