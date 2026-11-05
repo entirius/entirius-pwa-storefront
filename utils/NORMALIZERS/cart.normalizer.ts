@@ -52,15 +52,17 @@ type CartError = {
   discount_code: string | null; // the refused code, for a discount error
 };
 
-// What the cart says about its gratis rules: whether one applies, and how much is missing to the next tier.
+// What the cart says about its gratis rules: whether one applies, how much is missing to the next tier, and the
+// rules themselves (filled since django-checkout 10.1.0).
 type CartGratis = {
   is_available: boolean;
   nearest_tier_price: string | null;
   amount_missing: string | null;
+  rules: GratisRule[];
 };
 
-// One gratis rule of GET carts/{id}/gratis-rules/: the gifts to pick from (each at its gift price) and how
-// many pieces the cart allows now. `code` is what PATCH discounts/ takes, with the gift's SKU and quantity.
+// One gratis rule of the cart's `gratis.rules`: the gifts to pick from (each at its gift price) and how many
+// pieces the cart allows now. `code` is what PATCH discounts/ takes, with the gift's SKU and quantity.
 type GratisRule = {
   code: string;
   name: string;
@@ -176,9 +178,11 @@ type RawCartGratis = {
   is_available?: boolean;
   nearest_tier_price?: string | null;
   amount_missing?: string | null;
+  rules?: unknown;
 };
 
-// GET carts/{id}/gratis-rules/ — not described in the OpenAPI schema; the shape answered by checkout 10.
+// A rule of the cart's `gratis.rules`, as `GET carts/{id}/gratis-rules/` lists it too (the cart sends the amounts
+// as strings, that route as JSON numbers).
 type RawGratisRule = {
   code?: string;
   name?: string | null;
@@ -265,7 +269,7 @@ const num = (v: unknown) => {
 const str = (v: unknown): string | null =>
   v == null || v === "" ? null : String(v);
 
-// An amount the API sends as a JSON number (gratis-rules/) → the "0.00" string the rest of the cart uses.
+// An amount the API sends as a JSON number or a string → the "0.00" string the rest of the cart uses.
 const amount = (v: unknown): string | null => {
   const n = parseFloat(String(v));
   return v == null || v === "" || !Number.isFinite(n) ? null : n.toFixed(2);
@@ -340,7 +344,7 @@ function NORM_PAYMENT_METHODS(resp: unknown): PaymentMethod[] {
     .filter((m): m is PaymentMethod => m !== null);
 }
 
-// GET carts/{id}/gratis-rules/ → the rules that offer a gift now. Gifts without a SKU drop.
+// The cart's `gratis.rules` → the rules that offer a gift now. Gifts without a SKU drop.
 function NORM_GRATIS_RULES(resp: unknown): GratisRule[] {
   const list = Array.isArray(resp) ? (resp as RawGratisRule[]) : [];
   return list
@@ -452,6 +456,7 @@ function NORM_CART(resp: unknown): Cart {
       is_available: Boolean(data?.gratis?.is_available),
       nearest_tier_price: str(data?.gratis?.nearest_tier_price),
       amount_missing: str(data?.gratis?.amount_missing),
+      rules: NORM_GRATIS_RULES(data?.gratis?.rules),
     },
     discounts,
     free_shipping: Boolean(data?.free_shipping),

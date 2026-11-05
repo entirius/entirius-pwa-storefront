@@ -5,11 +5,11 @@
 "use client";
 
 import { useCallback, useMemo, useState, useTransition } from "react";
-import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { make_client_access } from "@/API/access/api.client-access";
 import { create_api } from "@/API/api.context";
-import { API_CART_DISCOUNTS_ROUTE, API_CART_GRATIS_RULES_ROUTE, API_PRODUCTS_ROUTE } from "@/API/api.routes";
-import { NORM_CART, NORM_GRATIS_RULES, type Cart, type GratisRule } from "@/utils/NORMALIZERS/cart.normalizer";
+import { API_CART_DISCOUNTS_ROUTE, API_PRODUCTS_ROUTE } from "@/API/api.routes";
+import { NORM_CART, type Cart, type GratisRule } from "@/utils/NORMALIZERS/cart.normalizer";
 import { NORM_PRODUCTS_DATA, type RawProduct } from "@/utils/NORMALIZERS/product.normalizer";
 import { discounts_body, kept_discounts, with_gift, type DiscountInput } from "@/utils/cart-discounts";
 import type { CartItem } from "@/stores/cart.store";
@@ -21,17 +21,6 @@ export type GiftProduct = Omit<CartItem, "quantity">;
 
 const NO_RULES: GratisRule[] = [];
 const NO_PRODUCTS: Record<string, GiftProduct> = {};
-
-// The cart's gratis rules (checkout #22 will also put them in the cart's `gratis.rules`). Keyed on the cart's
-// total: the tiers follow the cart's value, and every change of items or codes changes the total.
-const gratis_rules_query = (api: Api, cart_id: string, total: string | null) => ({
-  queryKey: ["gratis-rules", cart_id, total] as const,
-  queryFn: async () => {
-    const [error, response] = await api.FETCH_METHOD(API_CART_GRATIS_RULES_ROUTE);
-    if (error) throw new Error(error.message);
-    return NORM_GRATIS_RULES(response);
-  },
-});
 
 // Names and pictures of the gifts: the rules and the cart's gift lines carry SKUs only.
 const gift_products_query = (api: Api, skus: string[]) => ({
@@ -61,17 +50,10 @@ export function useGiftProducts(skus: string[]) {
   return data ?? NO_PRODUCTS;
 }
 
-// The gratis rules the cart qualifies for and the products of their gifts and of the gifts already picked.
+// The gratis rules the cart qualifies for (the cart answer carries them, so they follow every change of items or
+// codes) and the products of their gifts and of the gifts already picked.
 export function useCartGifts(backend: Cart | null | undefined) {
-  const api = useApi();
-  const cart_id = backend?.cart_id ?? "";
-  const { data: rules } = useQuery({
-    ...gratis_rules_query(api, cart_id, backend?.total_gross ?? null),
-    enabled: !!cart_id && !!backend?.gratis.is_available,
-    // A new total refetches the rules; the picker keeps the last ones meanwhile instead of blinking.
-    placeholderData: keepPreviousData,
-  });
-  const active = backend?.gratis.is_available ? (rules ?? NO_RULES) : NO_RULES;
+  const active = backend?.gratis.is_available ? backend.gratis.rules : NO_RULES;
   const products = useGiftProducts([
     ...active.flatMap((r) => r.items.map((i) => i.sku)),
     ...(backend?.gifts ?? []).map((g) => g.sku),
