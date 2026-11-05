@@ -67,7 +67,8 @@ test("filters narrow the results and keep the phrase", async ({ page }) => {
   await expect(page).toHaveURL(/q_series=orion/);
   await expect(page).toHaveURL(/q=chair/);
   await expect(tiles(page)).toHaveCount(2);
-  await expect(tiles(page).first()).toContainText("Flight Deck Command Chair");
+  // Both results are in stock: their order is the listing's tie-breaker (product id), not what this test checks.
+  await expect(tiles(page).filter({ hasText: "Flight Deck Command Chair" })).toHaveCount(1);
 
   // A new phrase starts without the previous one's filters.
   await page.getByRole("button", { name: "Search" }).click();
