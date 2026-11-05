@@ -84,20 +84,56 @@ describe("NORM_CART gifts", () => {
     expect(NORM_CART({ items: [item] }).gifts_total_gross).toBeNull();
   });
 
-  it("reads the picked gift of a code and the gratis summary", () => {
+  it("reads the picked gift of a code and the gratis summary with its rules", () => {
     const cart = NORM_CART({
       items: [item],
       discounts: [
         { code: "GRATIS_STEP", modifier: "gratis_stepped", status: "valid", is_automatic: false, gratis_sku: "G", gratis_quantity: 2 },
         { code: "PERCENT10", modifier: "percent_discount", status: "valid", is_automatic: false },
       ],
-      gratis: { is_available: true, nearest_tier_price: "1000.00", amount_missing: "362.00", rules: [] },
+      // The rules as the cart sends them (django-checkout 10.1.0): amounts as strings.
+      gratis: {
+        is_available: true,
+        nearest_tier_price: "1000.00",
+        amount_missing: "362.00",
+        rules: [
+          {
+            items: [{ sku: "G", price: "2.69" }, { sku: "H", price: "3.19" }],
+            code: "GRATIS_STEP",
+            name: "TEST_GRATIS_STEPPED",
+            price_missing_to_next_gratis_tier: "362.00",
+            next_gratis_tier_quantity: 3,
+            max_available_quantity: 2,
+            next_gratis_tier_price: "1000.00",
+            all_tiers: { "300": 1, "600": 2, "1000": 3 },
+            is_available: true,
+            extension: {},
+          },
+        ],
+      },
     });
     expect(cart.discounts.map((d) => [d.code, d.gratis_sku, d.gratis_quantity])).toEqual([
       ["GRATIS_STEP", "G", 2],
       ["PERCENT10", null, null],
     ]);
-    expect(cart.gratis).toEqual({ is_available: true, nearest_tier_price: "1000.00", amount_missing: "362.00" });
+    expect(cart.gratis).toEqual({
+      is_available: true,
+      nearest_tier_price: "1000.00",
+      amount_missing: "362.00",
+      rules: [
+        {
+          code: "GRATIS_STEP",
+          name: "TEST_GRATIS_STEPPED",
+          items: [{ sku: "G", price: "2.69" }, { sku: "H", price: "3.19" }],
+          max_quantity: 2,
+          next_tier_quantity: 3,
+        },
+      ],
+    });
+  });
+
+  it("has no gratis rules when the cart sends none", () => {
+    expect(NORM_CART({ items: [item] }).gratis.rules).toEqual([]);
   });
 
   it("tells a refused code from an item problem", () => {
@@ -114,7 +150,7 @@ describe("NORM_CART gifts", () => {
   });
 });
 
-describe("NORM_GRATIS_RULES", () => {
+describe("NORM_GRATIS_RULES (amounts as JSON numbers too)", () => {
   it("reads the gifts at their gift price and the pieces allowed now", () => {
     const rules = NORM_GRATIS_RULES([
       {
