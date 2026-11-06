@@ -41,7 +41,7 @@ export function ForgotPasswordForm({
     startTransition(async () => {
       const res = await client_request_password_reset(values);
       if (!res.ok) {
-        form.setError("root", { message: t("common.try_again") });
+        form.setError("root", { message: res.error === "throttled" ? t("auth.throttled") : t("common.try_again") });
         return;
       }
       onSent();

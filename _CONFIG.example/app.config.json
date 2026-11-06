@@ -4,6 +4,7 @@
   "API_BASE_URL": "http://localhost:8000",
   "SITE_URL": "http://localhost:3100",
   "SITE_NAME": "Entirius",
+  "CLIENT_IP_HEADER": null,
   "BRAND": {
     "LOGO": null,
     "LOGO_ALT": null,

@@ -17,6 +17,7 @@ import {
 import { merge_cart_on_login } from "@/stores/cart-login";
 import { merge_wishlist_on_login } from "@/stores/wishlist-sync";
 import { client_login } from "@/lib/auth-client";
+import { throttled_message } from "@/lib/throttling";
 import {
   Form,
   FormError,
@@ -57,7 +58,9 @@ export function LoginForm({
           message:
             res.error === "invalid_credentials"
               ? t("auth.invalid_credentials")
-              : t("common.try_again"),
+              : res.error === "throttled"
+                ? throttled_message(t, res.retry_after)
+                : t("common.try_again"),
         });
         return;
       }

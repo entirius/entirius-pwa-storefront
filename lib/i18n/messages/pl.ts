@@ -189,6 +189,13 @@ export const pl: Record<MessageKey, Message> = {
     "Link jest nieprawidłowy lub wygasł. Poproś o nowy przez „Nie pamiętasz hasła?” przy logowaniu.",
   "auth.old_password_invalid": "Obecne hasło jest nieprawidłowe.",
   "auth.password_rejected": "Wybierz inne hasło: to jest zbyt popularne lub za bardzo przypomina twój e-mail.",
+  "auth.throttled": "Zbyt wiele prób. Odczekaj kilka minut i spróbuj ponownie.",
+  "auth.throttled_minutes": {
+    one: "Zbyt wiele prób. Spróbuj ponownie za {count} minutę.",
+    few: "Zbyt wiele prób. Spróbuj ponownie za {count} minuty.",
+    many: "Zbyt wiele prób. Spróbuj ponownie za {count} minut.",
+    other: "Zbyt wiele prób. Spróbuj ponownie za {count} minuty.",
+  },
 
   // catalogue
   "catalog.title": "Katalog",
