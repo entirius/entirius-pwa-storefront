@@ -4,9 +4,11 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { make_static_access } from "./access/api.static-access";
+import { SESSION_REFRESH_PATH } from "@/lib/session";
 import { create_api } from "./api.context";
 import {
   API_CART_LATEST_ROUTE,
+  API_CART_ORDERS_LIST_ROUTE,
   API_CART_ORDERS_ROUTE,
   API_CATEGORIES_ROUTE,
   API_CHECKOUT_COUNTRIES_ROUTE,
@@ -17,6 +19,7 @@ import {
   API_USER_PASSWORD_RESET_ROUTE,
   SHARED_CACHE_SECONDS,
 } from "./api.routes";
+import { end_session } from "./api.setup";
 
 describe("FETCH_METHOD path placeholders", () => {
   afterEach(() => vi.unstubAllGlobals());
@@ -121,5 +124,39 @@ describe("FETCH_METHOD suffix", () => {
     const [error] = await api().FETCH_METHOD(API_CART_ORDERS_ROUTE, { suffix: [""] });
     expect(error?.message).toBe("empty-route-suffix");
     expect(fetch).not.toHaveBeenCalled();
+  });
+});
+
+describe("token refresh around a logout", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  // In the browser a 401 refreshes through /session/refresh; the order list is one of the routes that do.
+  const browser = () => {
+    vi.stubGlobal("window", {});
+    const fetch = vi.fn<(url: string | URL) => Promise<Response>>(async (url) =>
+      String(url) === SESSION_REFRESH_PATH ? Response.json({ ok: true }) : new Response(null, { status: 401 }),
+    );
+    vi.stubGlobal("fetch", fetch);
+    const refreshes = () => fetch.mock.calls.filter(([url]) => String(url) === SESSION_REFRESH_PATH).length;
+    return { api: create_api(make_static_access({ channel: "a", language: "en" })), refreshes };
+  };
+
+  it("does not refresh on a 401 while the session ends", async () => {
+    const { api, refreshes } = browser();
+    let failed: unknown;
+    await end_session(async () => {
+      [failed] = await api.FETCH_METHOD(API_CART_ORDERS_LIST_ROUTE);
+    });
+    expect(refreshes()).toBe(0);
+    expect(failed).toMatchObject({ message: "session-ending" });
+  });
+
+  it("refreshes on a 401 again once the logout is over, also after a failed one", async () => {
+    const { api, refreshes } = browser();
+    await end_session(async () => {
+      throw new Error("logout failed");
+    }).catch(() => undefined);
+    await api.FETCH_METHOD(API_CART_ORDERS_LIST_ROUTE);
+    expect(refreshes()).toBe(1);
   });
 });

@@ -16,14 +16,24 @@ test.beforeAll(async ({ request }) => {
   email = await test_account(request, "account", { addresses: true, names: true });
 });
 
-test("login opens the profile, logout returns to the sign-in sheet", async ({ page }) => {
+test("login opens the profile, logout returns to the sign-in sheet and ends the session", async ({
+  page,
+  context,
+}) => {
   await login(page, email);
   await expect(page.getByText(email)).toBeVisible();
+  const refresh_token = (await context.cookies()).find((cookie) => cookie.name === "rt");
+  expect(refresh_token, "refresh token cookie").toBeTruthy();
 
   await page.getByRole("button", { name: "Log out" }).click();
   await expect(page.locator("header").getByRole("button", { name: "Sign in" })).toBeVisible();
   await page.goto("/profile");
   await expect(page.getByText(email)).toHaveCount(0);
+  // A refresh sent with the old cookie, as one that raced the logout does, is refused: the logout revoked the token.
+  await context.addCookies([refresh_token!]);
+  const late = await page.request.post("/session/refresh");
+  expect(late.status()).toBe(401);
+  expect(await late.json()).toEqual({ error: "refused" });
 });
 
 test("profile edit: names are saved and survive a reload", async ({ page }) => {

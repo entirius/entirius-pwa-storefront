@@ -103,9 +103,13 @@ HydrationBoundary (client)
   `logout` (`lib/session.ts`), outside `/api` and outside the proxy. They keep the tokens as cookies: `rt` HttpOnly,
   `at` and `uid` readable, since the browser calls the API itself with `Authorization`. On a 401 the client engine
   (`API/api.setup.ts`) asks `/session/refresh`, which refreshes with the HttpOnly token; a token accounts refuses ends
-  the session, a backend that does not answer leaves it as it is. Logout awaits `/session/logout`, so no later 401 can
-  refresh with a token left behind. Route handlers, not Server Actions: a cookie written by a Server Action makes the
-  router refetch the whole route.
+  the session, a backend that does not answer leaves it as it is. Logout runs inside `end_session()` of the engine: the
+  requests in flight are cancelled and no refresh starts until it ends, since one that 401s mid-logout would refresh
+  with the token not yet cleared and sign the customer back in. `/session/logout` revokes the refresh token in
+  accounts (`customer/tokens/blacklist/`, with the access token, renewed first when expired) before it clears the
+  cookies, so a refresh that left earlier, or a copy of the cookie, is refused; the cookies go whatever accounts
+  answers. Route handlers, not Server Actions: a cookie written by a Server Action makes the router refetch the whole
+  route.
 - `proxy.ts` sends every page with an enforced Content-Security-Policy (`lib/csp.ts`): scripts need the request's nonce
   ('strict-dynamic' lets the framework's own scripts load their chunks), styles keep 'unsafe-inline' (Radix and `style`
   attributes), and the API origin is allowed for data and media. Every HTML route renders per request, as a nonce

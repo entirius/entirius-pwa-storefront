@@ -46,6 +46,10 @@ export const API_USER_LOGIN_ROUTE =
 // POST { refresh } → new tokens. Called by the storefront's /session/refresh only (the refresh token is HttpOnly).
 export const API_USER_TOKEN_REFRESH_ROUTE =
   "/api/accounts/v1/__CHANNEL__/customer/tokens/refresh/";
+// POST { refresh } with the customer's Bearer → the refresh token revoked (a later refresh answers 403). Called by the
+// storefront's /session/logout only.
+export const API_USER_TOKEN_BLACKLIST_ROUTE =
+  "/api/accounts/v1/__CHANNEL__/customer/tokens/blacklist/";
 // POST signs up; POST with `suffix: [uid]` and `?key=` activates the account from the mail.
 export const API_USER_SIGNUP_ROUTE =
   "/api/accounts/v1/__CHANNEL__/customer/signup/";
@@ -320,6 +324,10 @@ export const API_ROUTES_POLICY = {
     default_headers: [{ "Content-Type": "application/json" }],
   },
   [API_USER_TOKEN_REFRESH_ROUTE]: {
+    default_headers: [{ "Content-Type": "application/json" }],
+  },
+  // The Bearer comes from the handler (the server access has no token getter).
+  [API_USER_TOKEN_BLACKLIST_ROUTE]: {
     default_headers: [{ "Content-Type": "application/json" }],
   },
   [API_USER_PASSWORD_RESET_ROUTE]: {
