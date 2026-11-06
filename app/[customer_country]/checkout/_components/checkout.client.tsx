@@ -139,6 +139,7 @@ export function CheckoutClient() {
               cart={cart}
               currency={currency}
               onBack={() => setStep("payment")}
+              onStep={setStep}
               onPlaced={onPlaced}
             />
           )}

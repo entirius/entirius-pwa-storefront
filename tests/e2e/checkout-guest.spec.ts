@@ -2,36 +2,18 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import channels from "../../_CONFIG/channels.config.json";
+import { fill_address } from "./support/checkout";
 
 // Guest checkout end to end: PDP → cart page → address → shipping → payment →
 // review → a real order on the backend → success page. Every run places an order
-// in the seeded `default-europe` channel.
-//
-// The address is typed in, not filled by the DEBUG "Fill test data" button, so the
-// spec holds with DEBUG_MODE off. Poland, not Germany: in July the backend served
-// shipping methods for DE only. Amounts are not asserted.
+// in the seeded `default-europe` channel. Amounts are not asserted.
 
 const PRODUCT = { url: "/product/flight-deck-command-chair", name: "Flight Deck Command Chair" };
 // The email marketing agreement is offered only with the channel's newsletter key (its double opt-in records it).
 const HAS_NEWSLETTER_KEY = !!(channels as Record<string, { API_NEWSLETTER_KEY?: string }>)["default-europe"]
   ?.API_NEWSLETTER_KEY;
-
-async function fill_address(page: Page) {
-  const form = page.locator("main form");
-  await form.getByLabel("Email").fill("guest-e2e@example.com");
-  await form.getByLabel("First name").fill("Anna");
-  await form.getByLabel("Last name").fill("Tester");
-  await form.getByLabel("Street and number").fill("Testowa 1");
-  await form.getByLabel("Postal code").fill("00-001");
-  await form.getByLabel("City").fill("Warsaw");
-  await form.getByRole("combobox", { name: "Country" }).click();
-  await page.getByRole("option", { name: "Poland" }).click();
-  // Choosing the country pre-fills its dialling code.
-  await expect(form.getByRole("combobox", { name: "Code" })).toHaveText("+48");
-  await form.getByLabel("Phone number").fill("600100200");
-}
 
 test("guest places an order with bank transfer", async ({ page, context }) => {
   await page.goto(PRODUCT.url);
