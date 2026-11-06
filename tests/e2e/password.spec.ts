@@ -3,12 +3,14 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { expect, test, type Page } from "@playwright/test";
-import { PASSWORD, create_account, login } from "./support/account";
+import { PASSWORD, fresh_account, login, restore_password, test_account } from "./support/account";
 import { link_path, mail } from "./support/mail";
 
-// Forgotten and changed passwords on a fresh account per test: the "Forgot your password?" view of the
-// account sheet, the "Password Reset Confirmation" mail and its link to /reset-password, and the
-// password card of the profile. The backend builds the reset link from RESET_PASSWORD_REDIRECT_URL.
+// Forgotten and changed passwords: the "Forgot your password?" view of the account sheet, the "Password Reset
+// Confirmation" mail and its link to /reset-password, and the password card of the profile. The backend builds the
+// reset link from RESET_PASSWORD_REDIRECT_URL. The reset runs on a new customer (the reset mail is limited to 3 an
+// hour per e-mail), the change on the spec's fixed account, which gets PASSWORD back at the end of the test (or at
+// the start of the next run, when one stopped half-way).
 
 const NEW_PASSWORD = "E2e-Reset-2026!!";
 const SENT = "If an account exists for this email, we've sent it a link to set a new password.";
@@ -33,7 +35,7 @@ async function sign_in(page: Page, email: string, password: string) {
 }
 
 test("a customer resets a forgotten password from the mail and signs in with it", async ({ page, request }) => {
-  const email = await create_account(request);
+  const email = await fresh_account(request, "reset");
 
   const sheet = await open_forgot(page);
   await sheet.getByLabel("Email").fill(email);
@@ -80,7 +82,7 @@ test("a broken reset link says it does not work", async ({ page }) => {
 });
 
 test("a signed-in customer changes the password in the profile", async ({ page, request, context }) => {
-  const email = await create_account(request);
+  const email = await test_account(request, "password", {}, NEW_PASSWORD);
   await login(page, email);
 
   const card = page.getByRole("region", { name: "Password" });
@@ -100,4 +102,5 @@ test("a signed-in customer changes the password in the profile", async ({ page, 
   await expect(sheet.getByText("Incorrect email or password.")).toBeVisible();
   await sign_in(page, email, NEW_PASSWORD);
   await expect(page).toHaveURL(/\/profile$/, { timeout: 15_000 });
+  await restore_password(request, email, NEW_PASSWORD);
 });

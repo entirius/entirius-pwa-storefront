@@ -3,18 +3,17 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { expect, test } from "@playwright/test";
-import { create_account, login } from "./support/account";
+import { login, test_account } from "./support/account";
 
-// Logged-in customer: login, profile, address book, token refresh, logout.
-// Every run creates a fresh, active account through the accounts API (signup, the
-// mailed link, the same activation call /user-handler makes), so no fixed credentials exist.
+// Logged-in customer: login, profile, address book, token refresh, logout, an order. On the spec's own fixed
+// account (support/account.ts), reset first: no open cart, no saved address, the account's own names.
 
 test.describe.configure({ mode: "serial" });
 
 let email: string;
 
 test.beforeAll(async ({ request }) => {
-  email = await create_account(request);
+  email = await test_account(request, "account", { addresses: true, names: true });
 });
 
 test("login opens the profile, logout returns to the sign-in sheet", async ({ page }) => {
