@@ -99,7 +99,11 @@ export async function toggle_on_account(sku: string, item: WishlistItem): Promis
     await write(create_api(make_client_access()), adding ? "POST" : "DELETE", [sku]);
     return true;
   } catch (e) {
-    useWishlistStore.getState().toggle(sku, item);
+    // Back to the state before the click, never a second toggle: the page-load sync may have replaced the list
+    // while the write was on its way, and a toggle would then put the item back.
+    const now = useWishlistStore.getState();
+    if (adding) now.remove(sku);
+    else if (!now.has(sku)) now.toggle(sku, item);
     _LOGGER({ type: "warning", message: "[wishlist] account write failed", print: e });
     notify({ message: "wishlist.update_failed", tone: "destructive" });
     return false;
