@@ -179,6 +179,11 @@ export const en = {
     "The link is invalid or has expired. Ask for a new one with \"Forgot your password?\" when you sign in.",
   "auth.old_password_invalid": "The current password is incorrect.",
   "auth.password_rejected": "Choose a different password: this one is too common or too close to your email.",
+  "auth.throttled": "Too many attempts. Please wait a few minutes and try again.",
+  "auth.throttled_minutes": {
+    one: "Too many attempts. Please try again in {count} minute.",
+    other: "Too many attempts. Please try again in {count} minutes.",
+  },
 
   // catalogue
   "catalog.title": "Catalog",

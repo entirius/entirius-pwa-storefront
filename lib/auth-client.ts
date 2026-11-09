@@ -33,7 +33,8 @@ import {
 
 export type LoginResult =
   | { ok: true }
-  | { ok: false; error: "invalid_credentials" | "unknown" };
+  | { ok: false; error: "invalid_credentials" | "unknown" }
+  | { ok: false; error: "throttled"; retry_after: number | null };
 
 export async function client_login(
   input: LoginFormValues,
@@ -42,7 +43,8 @@ export async function client_login(
   const parsed = login_schema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "invalid_credentials" };
 
-  // The handler keeps the tokens as cookies (`rt` HttpOnly) and answers 401 for bad credentials.
+  // The handler keeps the tokens as cookies (`rt` HttpOnly) and answers 401 for bad credentials, 429 with
+  // `retry_after` (seconds or null) for too many attempts.
   let res: Response;
   try {
     res = await fetch(SESSION_LOGIN_PATH, {
@@ -54,6 +56,10 @@ export async function client_login(
     return { ok: false, error: "unknown" };
   }
   if (res.ok) return { ok: true };
+  if (res.status === 429) {
+    const body = (await res.json().catch(() => null)) as { retry_after?: unknown } | null;
+    return { ok: false, error: "throttled", retry_after: typeof body?.retry_after === "number" ? body.retry_after : null };
+  }
   return { ok: false, error: res.status === 400 || res.status === 401 ? "invalid_credentials" : "unknown" };
 }
 
@@ -74,6 +80,8 @@ function map_signup_error(
   status: number | undefined,
   meta: ApiEnvelope["meta"],
 ): RegisterResult {
+  // Too many signups from this address or for this e-mail (accounts 6.0.2); the time is unreadable here (lib/throttling.ts).
+  if (status === 429) return { ok: false, field: "root", message: msg("auth.throttled") };
   const code = meta?.status ?? "";
   const message = meta?.message;
   // Server faults (e.g. a backend "Internal Exception") must never reach the user.
@@ -176,12 +184,12 @@ function password_error(status: number | undefined, body: unknown): PasswordErro
 }
 
 // Asks for the reset mail. An unknown e-mail answers 403 `wrong_account`; the result says "sent" for it
-// too, so the form does not tell who has an account.
+// too, so the form does not tell who has an account. Too many requests from this address or for this e-mail: 429.
 export async function client_request_password_reset(
   input: ForgotPasswordFormValues,
-): Promise<{ ok: boolean }> {
+): Promise<{ ok: true } | { ok: false; error: "throttled" | "unknown" }> {
   const parsed = forgot_password_schema.safeParse(input);
-  if (!parsed.success) return { ok: false };
+  if (!parsed.success) return { ok: false, error: "unknown" };
 
   const api = create_api(make_client_access());
   const [error] = await api.FETCH_METHOD(API_USER_PASSWORD_RESET_ROUTE, {
@@ -189,7 +197,8 @@ export async function client_request_password_reset(
     body: JSON.stringify({ email: parsed.data.email }),
   });
   const code = (error?.body as ApiEnvelope | undefined)?.meta?.status;
-  return { ok: !error || (error.status === 403 && code === "wrong_account") };
+  if (!error || (error.status === 403 && code === "wrong_account")) return { ok: true };
+  return { ok: false, error: error.status === 429 ? "throttled" : "unknown" };
 }
 
 // Sets the new password from the mailed key (/reset-password?key=). Returns no tokens; login is next.
