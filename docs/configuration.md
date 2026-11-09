@@ -80,7 +80,7 @@ the category header `data-catalog-header`; product tiles and search rows carry `
 
 ## Message overrides (`messages.config.json`)
 
-Optional, read at runtime (not imported — no file, no overrides): `{ "pl": { "cart.checkout": "Idź do kasy" } }`.
+Optional, read at runtime (not imported — no file, no overrides): `{ "pl": { "cart.view": "Pokaż koszyk" } }`.
 Keys are the ones of `lib/i18n/messages/en.ts`; see [patterns](patterns.md#translations-and-prices).
 
 `checkout.transfer_next` is empty by default. A shop that takes offline bank transfers sets it per language

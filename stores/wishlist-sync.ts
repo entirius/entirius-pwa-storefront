@@ -8,6 +8,7 @@ import { API_PRODUCTS_ROUTE, API_WISHLIST_PRODUCT_ROUTE, API_WISHLIST_ROUTE } fr
 import { NORM_PRODUCTS_DATA, type RawProduct } from "@/utils/NORMALIZERS/product.normalizer";
 import { useWishlistStore, type WishlistItem } from "@/stores/wishlist.store";
 import { _LOGGER } from "@/lib/logger";
+import { notify } from "@/stores/notices.store";
 
 // A signed-in customer's wishlist lives on the account (accounts keeps the SKUs); the local store keeps the
 // product snapshots the drawer shows. A guest's wishlist stays local and joins the account at sign-in.
@@ -88,16 +89,20 @@ export const merge_wishlist_on_login = () => sync(true);
 // A signed-in page load: the account decides (an item removed on another device goes here too).
 export const load_account_wishlist = () => sync(false);
 
-// The heart while signed in: the local list changes at once, the account follows; a refused write is undone.
-export async function toggle_on_account(sku: string, item: WishlistItem) {
+// The heart while signed in: the local list changes at once, the account follows; a refused write is undone and
+// a notice says so. Resolves to whether the account took it.
+export async function toggle_on_account(sku: string, item: WishlistItem): Promise<boolean> {
   const store = useWishlistStore.getState();
   const adding = !store.has(sku);
   store.toggle(sku, item);
   try {
     await write(create_api(make_client_access()), adding ? "POST" : "DELETE", [sku]);
+    return true;
   } catch (e) {
     useWishlistStore.getState().toggle(sku, item);
     _LOGGER({ type: "warning", message: "[wishlist] account write failed", print: e });
+    notify({ message: "wishlist.update_failed", tone: "destructive" });
+    return false;
   }
 }
 

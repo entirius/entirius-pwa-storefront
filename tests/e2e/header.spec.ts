@@ -71,9 +71,8 @@ test("cart link name carries the item count and opens the cart page", async ({ p
 test("adding to the cart shows a notice with the product and the way on", async ({ page }) => {
   await page.goto("/product/flight-deck-command-chair");
   await page.getByRole("button", { name: "Add to cart" }).click();
-  const notice = page.getByRole("status").filter({ hasText: "Added to your cart" });
-  await expect(notice).toContainText("Flight Deck Command Chair");
-  await expect(notice).toContainText("Cart: 1 item");
+  const notice = page.getByRole("status").filter({ hasText: "Flight Deck Command Chair added to cart" });
+  await expect(page.locator("header").getByRole("link", { name: "Cart, 1 item" })).toBeVisible();
   await notice.getByRole("link", { name: "View cart" }).click();
   await expect(page).toHaveURL(/\/cart$/);
   await expect(notice).toHaveCount(0);

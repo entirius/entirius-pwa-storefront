@@ -12,6 +12,8 @@ import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useWishlistStore, type WishlistItem } from "@/stores/wishlist.store";
 import { toggle_on_account } from "@/stores/wishlist-sync";
+import { dismiss_notice, notify } from "@/stores/notices.store";
+import { open_wishlist } from "@/stores/wishlist-sheet.store";
 import { useI18n } from "@/providers/i18n.provider";
 import { useAuth } from "@/providers/auth.provider";
 import { useHydrated } from "@/lib/use-hydrated";
@@ -92,11 +94,18 @@ const WishlistButton = React.forwardRef<HTMLButtonElement, WishlistButtonProps>(
 
     const isIconOnly = size === "icon" || size === "icon-sm" || size === "icon-lg" || size === "icon-xs";
 
-    // Signed in, the account keeps the list too.
+    // Signed in, the account keeps the list too. Saving says so with a way to the list; a save the account
+    // refuses takes that notice back (toggle_on_account shows the error).
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
       if (sku && item) {
-        if (isLoggedIn) void toggle_on_account(sku, item);
-        else toggle(sku, item);
+        const saved = storeActive
+          ? null
+          : notify({ message: "wishlist.added", action: { label: "wishlist.view", run: open_wishlist } });
+        if (isLoggedIn) {
+          void toggle_on_account(sku, item).then((ok) => {
+            if (!ok && saved !== null) dismiss_notice(saved);
+          });
+        } else toggle(sku, item);
       }
       onClick?.(e);
     };

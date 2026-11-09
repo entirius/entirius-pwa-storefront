@@ -15,7 +15,7 @@ const cart_link = (page: Page) => page.locator("header").getByRole("link", { nam
 async function add_to_cart(page: Page, url_key: string) {
   await page.goto(`/product/${url_key}`);
   await page.getByRole("button", { name: "Add to cart" }).click();
-  await expect(page.getByRole("status").filter({ hasText: "Added to your cart" })).toBeVisible();
+  await expect(page.getByRole("status").filter({ hasText: "added to cart" })).toBeVisible();
 }
 
 test("the guest cart joins the saved cart on login and comes back after logout", async ({ page, request }) => {

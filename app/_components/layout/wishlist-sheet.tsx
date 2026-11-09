@@ -13,6 +13,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useWishlistStore } from "@/stores/wishlist.store";
+import { useWishlistSheet } from "@/stores/wishlist-sheet.store";
 import { load_account_wishlist } from "@/stores/wishlist-sync";
 import { useAuth } from "@/providers/auth.provider";
 import { WishlistItems } from "./wishlist-items";
@@ -33,8 +34,12 @@ export function WishlistSheet() {
     if (isLoggedIn) void load_account_wishlist();
   }, [isLoggedIn]);
 
+  // Controlled, so "View wishlist" in a notice opens it too.
+  const open = useWishlistSheet((s) => s.open);
+  const setOpen = useWishlistSheet((s) => s.setOpen);
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button
           variant="ghost"

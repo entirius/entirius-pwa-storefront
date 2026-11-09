@@ -55,7 +55,6 @@ export const en = {
   "cart.subtotal": "Subtotal",
   "cart.total": "Total",
   "cart.incl_vat": "incl. VAT {amount}",
-  "cart.checkout": "Checkout",
   "cart.decrease": "Decrease quantity",
   "cart.increase": "Increase quantity",
   "cart.page_title": "Your cart",
@@ -74,11 +73,6 @@ export const en = {
   "cart.link_label": {
     one: "Cart, {count} item",
     other: "Cart, {count} items",
-  },
-  "cart.added": "Added to your cart",
-  "cart.added_count": {
-    one: "Cart: {count} item",
-    other: "Cart: {count} items",
   },
   "cart.view": "View cart",
   "cart.discount_code": "Discount code",
@@ -119,6 +113,9 @@ export const en = {
   },
   "wishlist.move_to_cart": "Move to cart",
   "wishlist.move_to_cart_named": "Move {name} to cart",
+  "wishlist.added": "Saved to your wishlist",
+  "wishlist.view": "View wishlist",
+  "wishlist.update_failed": "Couldn’t update your wishlist. Please try again.",
 
   // search
   "search.title": "Search",
@@ -213,6 +210,7 @@ export const en = {
   "catalog.quick_add_out_of_stock": "{name} is out of stock",
   "catalog.subcategories": "Subcategories",
   "catalog.notify_cta": "Tell me when products arrive here",
+  "catalog.quick_add_failed": "Couldn’t add {name} to cart. Please try again.",
 
   // product page
   "product.add_to_cart": "Add to cart",

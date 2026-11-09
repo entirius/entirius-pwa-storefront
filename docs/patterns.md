@@ -94,6 +94,21 @@ The catalog page's `build_params()` helper strips prefixes before forwarding to 
   (a client overrides existing keys by name, so renaming or repurposing a key breaks them silently). Debug-only
   tooling behind `DEBUG_MODE` is exempt.
 
+## Notices
+
+- A short message after an action that has no place of its own on the page goes through
+  `notify({ message, params?, title?, tone?, action? })` (`stores/notices.store.ts`): a product added to the cart, a
+  saved wishlist item, a wishlist write the account refused, a "+" on a tile that failed. It takes message keys, not
+  text, so code outside React (`stores/wishlist-sync.ts`) calls it too; `action` is one button (`{ label, run }`) or
+  link (`{ label, href }`) and closes the notice.
+- Tones are the status tokens: `positive` (default), `destructive`, `notice`, `informative`. Errors stay 8 s, the rest
+  5 s, never while the pointer or the focus is on one; the same message again replaces the one showing; three at most.
+  Moving to another page closes them: a notice is about the page it came on.
+- The stack sits under the header (`header-component.tsx`): errors in an alert region, then the rest in a status
+  region.
+- A message that belongs to a form, the cart or a checkout step stays there (`FormError`, the cart's `_errors`, the
+  order refusal): a notice is for what has nowhere else to go.
+
 ## Gotchas
 
 - `make_server_access()` is async (awaits `cookies()`); `make_client_access()` is sync.
