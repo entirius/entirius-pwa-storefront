@@ -317,6 +317,15 @@ links open in a new tab.
 - The root layout prefetches the definitions (`lib/agreements.query.ts`, shared cache): the forms of every page
   read them from the hydrated cache, not with a request of their own.
 
+## A refused order
+
+`POST orders/` answers 409 when the cart cannot become an order (checkout 10.1): `{ error, message }`, nothing
+ordered. `checkout/_components/order-refusal.ts` turns the `error` code into the shop's message and the place the
+customer fixes it, shown under the review step's error: a missing address, shipping or payment method leads back to
+that step, a sold-out item (`OUT_OF_STOCK`) and a refused discount code or gift (`DISCOUNT_*`, `GRATIS_*`) to the
+cart, a voucher on a cart that splits into several orders to the payment step. An unknown code gets the generic
+message; the API's English `message` is never shown. Other failures keep the message with the HTTP status.
+
 ## Cookie consent
 
 `app/_components/cookie-consent/`, mounted as `<CookieConsent />` in `app/layout.tsx`. After hydration it asks
