@@ -3,28 +3,37 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { expect, test } from "@playwright/test";
-import { create_account, login } from "./support/account";
+import { login, test_account } from "./support/account";
 
-// Logged-in customer: login, profile, address book, token refresh, logout.
-// Every run creates a fresh, active account through the accounts API (signup, the
-// mailed link, the same activation call /user-handler makes), so no fixed credentials exist.
+// Logged-in customer: login, profile, address book, token refresh, logout, an order. On the spec's own fixed
+// account (support/account.ts), reset first: no open cart, no saved address, the account's own names.
 
 test.describe.configure({ mode: "serial" });
 
 let email: string;
 
 test.beforeAll(async ({ request }) => {
-  email = await create_account(request);
+  email = await test_account(request, "account", { addresses: true, names: true });
 });
 
-test("login opens the profile, logout returns to the sign-in sheet", async ({ page }) => {
+test("login opens the profile, logout returns to the sign-in sheet and ends the session", async ({
+  page,
+  context,
+}) => {
   await login(page, email);
   await expect(page.getByText(email)).toBeVisible();
+  const refresh_token = (await context.cookies()).find((cookie) => cookie.name === "rt");
+  expect(refresh_token, "refresh token cookie").toBeTruthy();
 
   await page.getByRole("button", { name: "Log out" }).click();
   await expect(page.locator("header").getByRole("button", { name: "Sign in" })).toBeVisible();
   await page.goto("/profile");
   await expect(page.getByText(email)).toHaveCount(0);
+  // A refresh sent with the old cookie, as one that raced the logout does, is refused: the logout revoked the token.
+  await context.addCookies([refresh_token!]);
+  const late = await page.request.post("/session/refresh");
+  expect(late.status()).toBe(401);
+  expect(await late.json()).toEqual({ error: "refused" });
 });
 
 test("profile edit: names are saved and survive a reload", async ({ page }) => {

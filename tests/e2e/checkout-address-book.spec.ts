@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { expect, test, type Page } from "@playwright/test";
-import { create_account, login, save_address, set_default_address, type BookAddress } from "./support/account";
+import { login, save_address, set_default_address, test_account, type BookAddress } from "./support/account";
 
 // Checkout address step. Signed in, a cart without an address starts from the default address-book entry and
 // the profile's email; one line above each block opens the book in a sheet, picking an entry fills the block
@@ -45,7 +45,7 @@ async function to_checkout(page: Page) {
 }
 
 test("signed in: the default address fills the step and the book sheet swaps it", async ({ page, request }) => {
-  const email = await create_account(request);
+  const email = await test_account(request, "address-book", { addresses: true });
   await save_address(request, email, HOME);
   await set_default_address(request, email, await save_address(request, email, OFFICE));
   await login(page, email);

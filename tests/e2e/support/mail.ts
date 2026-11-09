@@ -7,19 +7,31 @@ import { expect, type APIRequestContext } from "@playwright/test";
 // The local backend sends mail to GreenMail (zeno `make mail`); its REST API keeps one mailbox per recipient.
 export const GREENMAIL = process.env.GREENMAIL_API_URL ?? "http://localhost:8380";
 
-// Waits for the mail with this subject and returns its MIME source.
-export async function mail(request: APIRequestContext, email: string, subject: string): Promise<string> {
+// The MIME sources of the recipient's mails with this subject, oldest first; null while the mailbox does not exist.
+async function sources(request: APIRequestContext, email: string, subject: string): Promise<string[] | null> {
+  const res = await request.get(`${GREENMAIL}/api/user/${encodeURIComponent(email)}/messages/INBOX`);
+  if (!res.ok()) return null;
+  const messages: { subject: string; mimeMessage: string }[] = await res.json();
+  return messages.filter((m) => m.subject === subject).map((m) => m.mimeMessage);
+}
+
+// How many mails with this subject the recipient has. A fixed test account keeps the mails of earlier runs (GreenMail
+// outlives a reseed), so a spec counts them before the action that sends one and waits for the next.
+export async function mail_count(request: APIRequestContext, email: string, subject: string): Promise<number> {
+  return (await sources(request, email, subject))?.length ?? 0;
+}
+
+// Waits for a mail with this subject past the first `earlier` ones and returns the newest one's MIME source.
+export async function mail(request: APIRequestContext, email: string, subject: string, earlier = 0): Promise<string> {
   let mime = "";
   await expect
     .poll(
       async () => {
-        const res = await request.get(`${GREENMAIL}/api/user/${encodeURIComponent(email)}/messages/INBOX`);
-        if (!res.ok()) return null;
-        const messages: { subject: string; mimeMessage: string }[] = await res.json();
-        mime = messages.find((m) => m.subject === subject)?.mimeMessage ?? "";
+        const found = await sources(request, email, subject);
+        mime = found && found.length > earlier ? found[found.length - 1] : "";
         return mime ? "received" : null;
       },
-      { message: `no "${subject}" mail for ${email} in GreenMail (${GREENMAIL}) — is \`make mail\` up?` },
+      { message: `no new "${subject}" mail for ${email} in GreenMail (${GREENMAIL}) — is \`make mail\` up?` },
     )
     .toBe("received");
   return mime;

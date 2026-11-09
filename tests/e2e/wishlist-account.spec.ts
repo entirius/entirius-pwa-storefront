@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { expect, test } from "@playwright/test";
-import { create_account, login } from "./support/account";
+import { login, test_account } from "./support/account";
 import { account_wishlist, save_wishlist } from "./support/wishlist";
 
 // The wishlist on the account: what another device saved shows here after sign-in, together with what this
@@ -11,7 +11,7 @@ import { account_wishlist, save_wishlist } from "./support/wishlist";
 // account too); signing out empties the device's list.
 
 test("the account keeps the wishlist across devices and sign-ins", async ({ page, request }) => {
-  const email = await create_account(request);
+  const email = await test_account(request, "wishlist", { wishlist: true });
   // Another device saved the chair.
   await save_wishlist(request, email, ["ENT-C001"]);
 

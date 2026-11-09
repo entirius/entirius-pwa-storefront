@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { create_api } from "@/API/api.context";
-import { abort_session } from "@/API/api.setup";
+import { end_session } from "@/API/api.setup";
 import { SESSION_LOGIN_PATH, SESSION_LOGOUT_PATH } from "@/lib/session";
 import { make_client_access } from "@/API/access/api.client-access";
 import { msg } from "@/lib/i18n/translate";
@@ -244,14 +244,16 @@ export async function client_change_password(
 }
 
 export async function client_logout(): Promise<void> {
-  // Cancel any in-flight request + token refresh first, so a request that 401s
-  // mid-logout can't refresh and re-write the tokens we're about to clear.
-  abort_session();
-  const access = make_client_access();
-  access.delete?.("at");
-  access.delete?.("uid");
-  // The refresh token is HttpOnly: only the session handler clears it. Awaited, so no later 401 can refresh with it.
-  await fetch(SESSION_LOGOUT_PATH, { method: "POST" }).catch(() => undefined);
+  // No token refresh while the session ends (end_session): a request that 401s mid-logout would refresh with the
+  // refresh token not yet cleared and sign the customer back in.
+  await end_session(async () => {
+    // The refresh token is HttpOnly: only the session handler revokes and clears it. It needs the access token for
+    // the revocation, so `at` goes after it; dropped here too in case the handler could not be reached.
+    await fetch(SESSION_LOGOUT_PATH, { method: "POST" }).catch(() => undefined);
+    const access = make_client_access();
+    access.delete?.("at");
+    access.delete?.("uid");
+  });
 }
 
 export type Profile = { firstname: string; lastname: string; email: string };

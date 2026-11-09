@@ -15,14 +15,21 @@ import {
 } from "./api.d";
 import { API_ROUTES_POLICY, SHARED_CACHE_SECONDS } from "./api.routes";
 
-// Session-scoped abort. Shared across every create_api instance so a single
-// logout can cancel all in-flight requests AND the token refresh — otherwise a
-// request that 401s mid-logout refreshes and re-writes the just-cleared tokens.
-// abort_session() installs a fresh controller so post-logout guest requests work.
+// Session-scoped abort, shared across every create_api instance. A logout runs inside end_session(): every request in
+// flight and the token refresh are cancelled, and no refresh starts until the logout is over. Otherwise a request that
+// 401s mid-logout refreshes with the refresh token not yet cleared and signs the customer back in. A fresh controller
+// lets the guest requests after the logout work.
 let session_controller = new AbortController();
-export function abort_session() {
+let session_ending = 0;
+export async function end_session(logout: () => Promise<void>) {
+  session_ending += 1;
   session_controller.abort();
   session_controller = new AbortController();
+  try {
+    await logout();
+  } finally {
+    session_ending -= 1;
+  }
 }
 
 // ------------------------------------------------------------
@@ -303,6 +310,7 @@ export function create_fetch_engine(access: API_ACCESS) {
   }
 
   async function _REFRESH_TOKEN() {
+    if (session_ending) throw new Error("session-ending");
     if (!refreshing_promise) {
       _LOGGER({
         message: "REFRESHING TOKEN ++++++++ ",

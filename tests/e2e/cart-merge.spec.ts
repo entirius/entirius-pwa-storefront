@@ -3,11 +3,12 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { expect, test, type Page } from "@playwright/test";
-import { create_account, login, save_customer_cart } from "./support/account";
+import { demo_account, login, save_customer_cart } from "./support/account";
 
 // Signing in joins the guest's cart with the cart the customer saved earlier (a
 // SKU in both gets the sum); signing out takes the cart off the device and the
-// next sign-in brings it back. No order is placed, so no stock is used.
+// next sign-in brings it back. No order is placed, so no stock is used. On the demo customer, whose open carts
+// are closed first (support/account.ts).
 
 const cart_link = (page: Page) => page.locator("header").getByRole("link", { name: /^Cart/ });
 
@@ -20,7 +21,7 @@ async function add_to_cart(page: Page, url_key: string) {
 test("the guest cart joins the saved cart on login and comes back after logout", async ({ page, request }) => {
   // Two logins, each waiting for the cart merge, and several backend cart recalculations.
   test.slow();
-  const email = await create_account(request);
+  const email = await demo_account(request);
   await save_customer_cart(request, email, [{ sku: "ENT-C002", quantity: 2 }]);
 
   await add_to_cart(page, "flight-deck-command-chair");
