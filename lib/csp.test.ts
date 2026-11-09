@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { describe, expect, it } from "vitest";
-import { build_csp, make_nonce } from "./csp";
+import { build_csp, make_nonce, merge_sources } from "./csp";
 
 const base = { nonce: "abc", dev: false, api_base_url: "https://api.shop.test/", site_url: "https://shop.test" };
 
@@ -64,3 +64,12 @@ describe("make_nonce", () => {
     expect(make_nonce()).not.toBe(make_nonce());
   });
 });
+
+describe("merge_sources", () => {
+  it("joins the sets per directive, each source once", () => {
+    expect(
+      merge_sources({ "img-src": ["https://a.test"], "frame-src": [] }, undefined, { "img-src": ["https://a.test", "https://b.test"] }),
+    ).toEqual({ "img-src": ["https://a.test", "https://b.test"] });
+  });
+});
+

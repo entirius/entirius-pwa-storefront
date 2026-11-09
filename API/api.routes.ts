@@ -8,6 +8,10 @@ export const API_PRODUCTS_ROUTE = "/api/matrix/v2/__CHANNEL__/products/";
 export const API_PRICES_ROUTE = "/api/matrix/v2/__CHANNEL__/prices/";
 export const API_CATALOG_FILTERS_ROUTE = "/api/matrix/v2/__CHANNEL__/options/";
 export const API_STOCK_ROUTE = "/api/matrix/v2/__CHANNEL__/stock/";
+// Pickup points of django_deliverypoints (public, per channel): `search`, `type` (one code), `page_size`; `nearby/`
+// takes `lat`, `lng` and `radius_km` and adds each point's `distance` in km.
+export const API_DELIVERY_POINTS_ROUTE = "/api/deliverypoints/v2/__CHANNEL__/points/";
+export const API_DELIVERY_POINTS_NEARBY_ROUTE = "/api/deliverypoints/v2/__CHANNEL__/points/nearby/";
 export const API_SEARCH_ROUTE = "/api/matrix/v2/__CHANNEL__/search/";
 // Lowest price in the 30 days before a reduction (EU Omnibus), batch: ?sku=A&sku=B.
 export const API_OMNIBUS_ROUTE = "/api/matrix/v2/__CHANNEL__/omnibus/";
@@ -185,6 +189,8 @@ export const API_ROUTES_POLICY = {
   [API_CATALOG_FILTERS_ROUTE]: { default_querys: ["language"] },
   // Real-time stock (Auth Optional — auth headers intentionally skipped for now).
   [API_STOCK_ROUTE]: { default_querys: ["language"] },
+  [API_DELIVERY_POINTS_ROUTE]: { default_querys: ["language"] },
+  [API_DELIVERY_POINTS_NEARBY_ROUTE]: { default_querys: ["language"] },
   [API_CART_ROUTE]: {
     // if you want to add a query, you can add it here
     // f.e.

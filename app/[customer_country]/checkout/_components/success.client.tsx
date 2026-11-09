@@ -120,6 +120,9 @@ function Receipt({ receipt, date }: { receipt: OrderReceipt; date: string }) {
                     : price(receipt.shipping.price, receipt.currency)
                 }`}
             </span>
+            {receipt.shipping.point && (
+              <span className="block text-muted-foreground">{receipt.shipping.point}</span>
+            )}
           </Row>
         )}
       </dl>

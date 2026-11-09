@@ -321,10 +321,24 @@ links open in a new tab.
 
 `POST orders/` answers 409 when the cart cannot become an order (checkout 10.1): `{ error, message }`, nothing
 ordered. `checkout/_components/order-refusal.ts` turns the `error` code into the shop's message and the place the
-customer fixes it, shown under the review step's error: a missing address, shipping or payment method leads back to
-that step, a sold-out item (`OUT_OF_STOCK`) and a refused discount code or gift (`DISCOUNT_*`, `GRATIS_*`) to the
+customer fixes it, shown under the review step's error: a missing address, shipping or payment method, or a missing
+pickup point (`DELIVERY_POINT_NOT_SELECTED`), leads back to that step, a sold-out item (`OUT_OF_STOCK`) and a refused discount code or gift (`DISCOUNT_*`, `GRATIS_*`) to the
 cart, a voucher on a cart that splits into several orders to the payment step. An unknown code gets the generic
 message; the API's English `message` is never shown. Other failures keep the message with the HTTP status.
+
+## Pickup points
+
+A shipping method of type `inpost` or `pickup_point` delivers to a point of `deliverypoints/v2/` instead of the
+address. The shipping step then shows `DeliveryPointPicker` (`checkout/_components/delivery-point-picker.client.tsx`):
+a search by city, postal code or name (`points/?search=`), "Near me" (the browser's location, `points/nearby/`) and
+the list; the point goes to the cart with the method (`PATCH carts/{id}/shipping/`, `delivery_point`), and the review,
+the success page and the account's order show it. Which point types fit a method: `lib/delivery-points/point-types.ts`
+(InPost lockers for `inpost`, every type for `pickup_point`, `DELIVERY_POINTS.TYPES_BY_METHOD` per method code).
+With `DELIVERY_POINTS.GOOGLE_MAPS_API_KEY` and `GOOGLE_MAPS_MAP_ID` set, a Google map beside the list
+(`delivery-point-map.client.tsx`, `next/dynamic`) opens at the geocoded shipping address and searches the area it
+shows; the CSP then adds Google's sources (`GOOGLE_MAPS_CSP`). The points always come from the backend, never from
+Google. The map has not been run against the live Maps JavaScript API yet (Google issues no test key): the first
+deployment that sets a key checks it. If the API fails to load, the map hides itself and the list keeps working.
 
 ## Cookie consent
 

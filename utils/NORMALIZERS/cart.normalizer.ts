@@ -18,6 +18,7 @@
 // not part of the subtotal or the savings, and their SKU may also be a line the customer pays for.
 
 import { resolve_media_url } from "@/utils/media-url";
+import { NORM_CART_POINT, type CartDeliveryPoint } from "./delivery-point.normalizer";
 
 type CartLine = {
   sku: string;
@@ -96,6 +97,10 @@ type ShippingMethod = {
   price: string | null;
   description: string | null;
   free_delivery_above: string | null;
+  // default | inpost | pickup_point | delivery | virtual; only the list carries it (the cart's method has null).
+  method_type: string | null;
+  // The pickup point, on the cart's selected method.
+  delivery_point: CartDeliveryPoint | null;
 };
 
 type PaymentMethod = {
@@ -219,6 +224,8 @@ type RawShippingMethod = {
   final_gross?: string | null;
   description?: string | null;
   free_delivery_above?: string | null;
+  method_type?: string | null;
+  delivery_point?: unknown;
 };
 
 type RawPaymentMethod = {
@@ -305,6 +312,8 @@ function norm_method(m: RawShippingMethod | null | undefined): ShippingMethod | 
     price: str(m.price ?? m.total_price ?? m.final_gross),
     description: str(m.description),
     free_delivery_above: str(m.free_delivery_above),
+    method_type: str(m.method_type),
+    delivery_point: NORM_CART_POINT(m.delivery_point),
   };
 }
 

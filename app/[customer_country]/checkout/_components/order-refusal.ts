@@ -16,6 +16,8 @@ const BY_CODE = new Map<string, OrderRefusal>([
   ["ADDRESSES_NOT_SELECTED", { message: "checkout.refused_address", fix: "address" }],
   ["SHIPPING_OPTION_NOT_SELECTED", { message: "checkout.refused_shipping", fix: "shipping" }],
   ["PAYMENT_OPTION_NOT_SELECTED", { message: "checkout.refused_payment", fix: "payment" }],
+  // A method that delivers to a pickup point and no point in the cart.
+  ["DELIVERY_POINT_NOT_SELECTED", { message: "checkout.refused_delivery_point", fix: "shipping" }],
   ["OUT_OF_STOCK", { message: "checkout.refused_out_of_stock", fix: "cart" }],
   // The voucher pays as a payment method, so another method is the way out (or fewer items, in the cart).
   ["VOUCHER_NOT_SUPPORTED_ON_SPLIT_ORDER", { message: "checkout.refused_voucher_split", fix: "payment" }],

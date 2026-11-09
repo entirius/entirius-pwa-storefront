@@ -15,6 +15,10 @@ describe("order_refusal", () => {
       fix: "shipping",
     });
     expect(order_refusal(refused("PAYMENT_OPTION_NOT_SELECTED"))).toEqual({ message: "checkout.refused_payment", fix: "payment" });
+    expect(order_refusal(refused("DELIVERY_POINT_NOT_SELECTED"))).toEqual({
+      message: "checkout.refused_delivery_point",
+      fix: "shipping",
+    });
   });
 
   it("sends a sold-out item to the cart and a voucher on a split order to the payment", () => {

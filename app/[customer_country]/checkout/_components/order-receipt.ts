@@ -16,7 +16,8 @@ export type OrderReceipt = {
   total: string | null;
   currency: string;
   payment: { name: string; description: string | null; is_transfer: boolean } | null;
-  shipping: { name: string; price: string | null } | null;
+  // `point`: the pickup point, name and address on one line.
+  shipping: { name: string; price: string | null; point?: string | null } | null;
 };
 
 // Order numbers of a placed order: every part of a split order, else the order itself.

@@ -9,6 +9,7 @@ import { CreditCard, Package, Receipt, Truck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Order } from "@/utils/NORMALIZERS/order.normalizer";
 import { useI18n } from "@/providers/i18n.provider";
+import { point_address } from "@/utils/NORMALIZERS/delivery-point.normalizer";
 
 function SectionHeader({
   icon,
@@ -136,8 +137,17 @@ export function OrderDetails({ order }: { order: Order }) {
               <p className="text-xs text-muted-foreground">{shipping.email}</p>
             )}
             {order.shipping_method && (
-              <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
-                <span className="text-sm">{order.shipping_method.name}</span>
+              <div className="mt-3 flex items-center justify-between gap-3 border-t border-border pt-3">
+                <span className="flex flex-col text-sm">
+                  {order.shipping_method.name}
+                  {order.shipping_method.delivery_point && (
+                    <span className="text-xs text-muted-foreground">
+                      {[order.shipping_method.delivery_point.name, point_address(order.shipping_method.delivery_point)]
+                        .filter(Boolean)
+                        .join(", ")}
+                    </span>
+                  )}
+                </span>
                 <span className="text-sm font-bold">
                   {is_free_shipping ? (
                     <>

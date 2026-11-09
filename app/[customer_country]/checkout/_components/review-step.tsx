@@ -33,6 +33,7 @@ import { usePaymentMethods } from "./payment-step";
 import { CheckLabel, FormError } from "@/components/ui/form";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { useI18n } from "@/providers/i18n.provider";
+import { point_address } from "@/utils/NORMALIZERS/delivery-point.normalizer";
 
 export function ReviewStep({
   cart,
@@ -88,6 +89,7 @@ export function ReviewStep({
 
   const billing = cart?.billing_address ?? null;
   const shipping = cart?.shipping_address ?? null;
+  const point = cart?.shipping_method?.delivery_point ?? null;
   const show_shipping = !!shipping && !!billing && addresses_differ(billing, shipping);
 
   // Once the order exists: the accepted agreements are recorded with it (the backend takes them for an existing
@@ -165,7 +167,11 @@ export function ReviewStep({
           }
         : null,
       shipping: cart?.shipping_method
-        ? { name: cart.shipping_method.name, price: cart.shipping_gross }
+        ? {
+            name: cart.shipping_method.name,
+            price: cart.shipping_gross,
+            point: point ? [point.name, point_address(point)].filter(Boolean).join(", ") : null,
+          }
         : null,
     };
   };
@@ -184,6 +190,7 @@ export function ReviewStep({
           title={t("checkout.shipping_method")}
           name={cart?.shipping_method?.name}
           note={fmt(cart?.shipping_gross)}
+          detail={point ? [point.name, point_address(point)] : null}
         />
         <InfoCard
           title={t("checkout.payment_method")}
@@ -316,10 +323,13 @@ function InfoCard({
   title,
   name,
   note,
+  detail,
 }: {
   title: string;
   name: string | null | undefined;
   note: string | null;
+  // Lines under the name (the pickup point of the shipping method).
+  detail?: (string | null)[] | null;
 }) {
   const { t } = useI18n();
   return (
@@ -334,6 +344,13 @@ function InfoCard({
         </div>
       ) : (
         <span className="text-muted-foreground">{t("checkout.not_selected")}</span>
+      )}
+      {name && detail?.some(Boolean) && (
+        <div className="mt-1 flex flex-col text-muted-foreground">
+          {detail.filter(Boolean).map((line) => (
+            <span key={line}>{line}</span>
+          ))}
+        </div>
       )}
     </section>
   );
