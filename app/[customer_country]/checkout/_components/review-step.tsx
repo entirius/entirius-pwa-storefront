@@ -27,19 +27,24 @@ import {
   type AgreementDefinition,
 } from "@/utils/NORMALIZERS/agreement.normalizer";
 import { order_refs, save_receipt, type OrderReceipt } from "./order-receipt";
+import { FIX_LABEL, order_refusal, type RefusalFix } from "./order-refusal";
+import type { CheckoutStep } from "./checkout-stepper";
 import { usePaymentMethods } from "./payment-step";
 import { CheckLabel, FormError } from "@/components/ui/form";
+import { LinkDynamic } from "@/lib/link-dynamic";
 import { useI18n } from "@/providers/i18n.provider";
 
 export function ReviewStep({
   cart,
   currency,
   onBack,
+  onStep,
   onPlaced,
 }: {
   cart: Cart | null | undefined;
   currency: string;
   onBack: () => void;
+  onStep: (step: CheckoutStep) => void;
   onPlaced: (order: PlacedOrder) => void;
 }) {
   const i18n = useI18n();
@@ -47,7 +52,9 @@ export function ReviewStep({
   const access = useMemo(() => make_client_access(), []);
   const api = useMemo(() => create_api(access), [access]);
   const [pending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
+  // The failure text, and where the customer fixes it when the backend refused the order (409).
+  const [failure, setFailure] = useState<{ text: string; fix: RefusalFix | null } | null>(null);
+  const fix = failure?.fix ?? null;
 
   // The agreements come from the backend (its wording is what it keeps with the order). Without an answer or
   // without mandatory definitions the shop's own consent line stands in, and nothing is recorded.
@@ -102,7 +109,7 @@ export function ReviewStep({
 
   const place = () => {
     if (!cart_id || !accepted) return;
-    setError(null);
+    setFailure(null);
     startTransition(async () => {
       // Only 200/201 (no `err`) proceed; anything else stays on this step with an
       // annotation. A 2xx with an empty body makes the engine's res.json() throw,
@@ -115,11 +122,17 @@ export function ReviewStep({
           body: JSON.stringify({ cart_id }),
         });
       } catch {
-        setError(t("checkout.order_failed"));
+        setFailure({ text: t("checkout.order_failed"), fix: null });
+        return;
+      }
+      if (err?.status === 409) {
+        // Nothing was ordered; the reason code says what to fix (addresses, stock, a discount code, …).
+        const refusal = order_refusal(err.body);
+        setFailure({ text: t(refusal.message), fix: refusal.fix });
         return;
       }
       if (err) {
-        setError(t("checkout.order_failed_http", { status: String(err.status) }));
+        setFailure({ text: t("checkout.order_failed_http", { status: String(err.status) }), fix: null });
         return;
       }
       // An online-payment method hands back its gateway; bank transfer and cash
@@ -225,7 +238,16 @@ export function ReviewStep({
         </CheckLabel>
       )}
 
-      <FormError>{error}</FormError>
+      <FormError>{failure?.text}</FormError>
+      {fix === "cart" ? (
+        <Button variant="outline" size="sm" className="self-start" asChild>
+          <LinkDynamic href="/cart">{t(FIX_LABEL.cart)}</LinkDynamic>
+        </Button>
+      ) : fix ? (
+        <Button variant="outline" size="sm" className="self-start" onClick={() => onStep(fix)}>
+          {t(FIX_LABEL[fix])}
+        </Button>
+      ) : null}
 
       <div className="flex gap-3">
         <Button variant="outline" onClick={onBack} disabled={pending}>
