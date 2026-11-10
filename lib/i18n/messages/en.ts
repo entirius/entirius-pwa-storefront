@@ -55,7 +55,6 @@ export const en = {
   "cart.subtotal": "Subtotal",
   "cart.total": "Total",
   "cart.incl_vat": "incl. VAT {amount}",
-  "cart.checkout": "Checkout",
   "cart.decrease": "Decrease quantity",
   "cart.increase": "Increase quantity",
   "cart.page_title": "Your cart",
@@ -74,11 +73,6 @@ export const en = {
   "cart.link_label": {
     one: "Cart, {count} item",
     other: "Cart, {count} items",
-  },
-  "cart.added": "Added to your cart",
-  "cart.added_count": {
-    one: "Cart: {count} item",
-    other: "Cart: {count} items",
   },
   "cart.view": "View cart",
   "cart.discount_code": "Discount code",
@@ -119,6 +113,9 @@ export const en = {
   },
   "wishlist.move_to_cart": "Move to cart",
   "wishlist.move_to_cart_named": "Move {name} to cart",
+  "wishlist.added": "Saved to your wishlist",
+  "wishlist.view": "View wishlist",
+  "wishlist.update_failed": "Couldn’t update your wishlist. Please try again.",
 
   // search
   "search.title": "Search",
@@ -213,6 +210,7 @@ export const en = {
   "catalog.quick_add_out_of_stock": "{name} is out of stock",
   "catalog.subcategories": "Subcategories",
   "catalog.notify_cta": "Tell me when products arrive here",
+  "catalog.quick_add_failed": "Couldn’t add {name} to cart. Please try again.",
 
   // product page
   "product.add_to_cart": "Add to cart",
@@ -351,6 +349,20 @@ export const en = {
   "checkout.new_address": "New address",
   "checkout.choose_saved_address": "Choose a saved address",
   "checkout.change_address": "Change",
+  "checkout.point_heading": "Pickup point",
+  "checkout.point_search_label": "City, postal code or point name",
+  "checkout.point_search": "Search",
+  "checkout.point_nearby": "Near me",
+  "checkout.point_area": "Search this area",
+  "checkout.point_list": "List",
+  "checkout.point_map": "Map",
+  "checkout.point_distance": "{distance} km",
+  "checkout.point_none": "No pickup points here. Try another city or postal code.",
+  "checkout.point_failed": "Couldn’t load pickup points. Please try again.",
+  "checkout.point_location_denied": "We can’t see your location. Search by city or postal code instead.",
+  "checkout.point_required": "Choose a pickup point to continue.",
+  "checkout.point_on_map": "{name} on the map",
+  "checkout.refused_delivery_point": "Your delivery has no pickup point yet. Choose one and place the order again.",
 
   // address fields (checkout and address book)
   "address.email": "Email",

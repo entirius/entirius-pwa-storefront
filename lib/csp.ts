@@ -57,6 +57,17 @@ export function build_csp({
   return policy.join("; ");
 }
 
+// The sources of several sets per directive, each once (the deployment's `CSP`, a feature's own needs).
+export function merge_sources(...sets: (CspSources | undefined)[]): CspSources {
+  const out: Record<string, string[]> = {};
+  for (const set of sets) {
+    for (const [name, sources] of Object.entries(set ?? {})) {
+      if (sources?.length) out[name] = [...new Set([...(out[name] ?? []), ...sources])];
+    }
+  }
+  return out;
+}
+
 // A fresh nonce per request (base64 of a random UUID, as the Next.js guide does).
 export function make_nonce(): string {
   return btoa(crypto.randomUUID());

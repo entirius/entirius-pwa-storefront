@@ -4,6 +4,7 @@
 
 import { resolve_media_url } from "@/utils/media-url";
 import { msg, type MessageKey } from "@/lib/i18n/translate";
+import { NORM_CART_POINT, type CartDeliveryPoint } from "./delivery-point.normalizer";
 
 // Normalizes checkout v2 order responses:
 //  - the list (`{ count, next, previous, results: [ ...summary rows ] }`)
@@ -55,6 +56,8 @@ export type OrderShippingMethod = {
   name: string | null;
   total_price: string | null;
   normal_price: string | null;
+  // The pickup point of a delivery to a point.
+  delivery_point: CartDeliveryPoint | null;
 };
 
 export type Order = {
@@ -133,6 +136,7 @@ type RawOrderShippingMethod = {
   name?: string | null;
   total_price?: string | null;
   normal_price?: string | null;
+  delivery_point?: unknown;
 };
 
 type RawOrder = {
@@ -216,6 +220,7 @@ function norm_shipping_method(s: RawOrderShippingMethod | null | undefined): Ord
     name: str(s.name),
     total_price: str(s.total_price),
     normal_price: str(s.normal_price),
+    delivery_point: NORM_CART_POINT(s.delivery_point),
   };
 }
 

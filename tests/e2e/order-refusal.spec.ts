@@ -36,7 +36,13 @@ test("a refused order says why and leads to where it is fixed", async ({ page })
   for (const agreement of await required.all()) await agreement.getByRole("checkbox").click();
   await expect(place).toBeEnabled();
 
-  const refusals = ["OUT_OF_STOCK", "DISCOUNT_EXPIRED", "UNPROCESSABLE_ENTITY", "ADDRESSES_NOT_SELECTED"];
+  const refusals = [
+    "OUT_OF_STOCK",
+    "DISCOUNT_EXPIRED",
+    "UNPROCESSABLE_ENTITY",
+    "DELIVERY_POINT_NOT_SELECTED",
+    "ADDRESSES_NOT_SELECTED",
+  ];
   await page.route(/\/checkout\/v2\/[^/]+\/orders\/(\?|$)/, (route) =>
     route.request().method() === "POST"
       ? route.fulfill({
@@ -65,6 +71,13 @@ test("a refused order says why and leads to where it is fixed", async ({ page })
   await expect(page.getByText("Couldn’t place your order. Please try again.")).toBeVisible();
   await expect(view_cart).toHaveCount(0);
   await expect(go_to).toHaveCount(0);
+
+  // A delivery to a pickup point without one: the way back is the shipping step.
+  await place.click();
+  await expect(
+    page.getByText("Your delivery has no pickup point yet. Choose one and place the order again."),
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Go to shipping" })).toBeVisible();
 
   // A missing address (the cart lost it in another tab): back to the address step in one click.
   await place.click();

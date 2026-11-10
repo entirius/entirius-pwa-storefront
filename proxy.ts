@@ -9,7 +9,8 @@ import { NextResponse } from "next/server";
 
 import channels from "@/_CONFIG/channels.config.json";
 import app_config from "@/_CONFIG/app.config.json";
-import { build_csp, make_nonce, type CspSources } from "@/lib/csp";
+import { build_csp, make_nonce, merge_sources, type CspSources } from "@/lib/csp";
+import { GOOGLE_MAPS, GOOGLE_MAPS_CSP } from "@/lib/delivery-points/config";
 import { DEFAULT_PROFILE } from "@/lib/profile-path";
 import { localized_catalog_key, route_exists } from "@/utils/route-exists";
 
@@ -65,7 +66,8 @@ export default async function proxy(request: NextRequest) {
     dev: process.env.NODE_ENV === "development",
     api_base_url: app_config.API_BASE_URL,
     site_url: app_config.SITE_URL,
-    extra: (app_config as { CSP?: CspSources }).CSP,
+    // The pickup point map adds Google's sources only when it is configured.
+    extra: merge_sources((app_config as { CSP?: CspSources }).CSP, GOOGLE_MAPS ? GOOGLE_MAPS_CSP : undefined),
   });
   const request_headers = new Headers(request.headers);
   request_headers.set("content-security-policy", csp);

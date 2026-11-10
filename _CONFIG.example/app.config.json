@@ -79,5 +79,10 @@
     "CONFIG_QUERY": {
       "url_key": ["chairs", "sofas"]
     }
+  },
+  "DELIVERY_POINTS": {
+    "GOOGLE_MAPS_API_KEY": "",
+    "GOOGLE_MAPS_MAP_ID": "",
+    "TYPES_BY_METHOD": {}
   }
 }

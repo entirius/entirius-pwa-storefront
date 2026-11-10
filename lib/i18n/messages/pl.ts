@@ -52,7 +52,6 @@ export const pl: Record<MessageKey, Message> = {
   "cart.subtotal": "Suma częściowa",
   "cart.total": "Razem",
   "cart.incl_vat": "w tym VAT {amount}",
-  "cart.checkout": "Do kasy",
   "cart.decrease": "Zmniejsz ilość",
   "cart.increase": "Zwiększ ilość",
   "cart.page_title": "Twój koszyk",
@@ -75,13 +74,6 @@ export const pl: Record<MessageKey, Message> = {
     few: "Koszyk, {count} produkty",
     many: "Koszyk, {count} produktów",
     other: "Koszyk, {count} produktu",
-  },
-  "cart.added": "Dodano do koszyka",
-  "cart.added_count": {
-    one: "Koszyk: {count} produkt",
-    few: "Koszyk: {count} produkty",
-    many: "Koszyk: {count} produktów",
-    other: "Koszyk: {count} produktu",
   },
   "cart.view": "Zobacz koszyk",
   "cart.discount_code": "Kod rabatowy",
@@ -128,6 +120,9 @@ export const pl: Record<MessageKey, Message> = {
   },
   "wishlist.move_to_cart": "Przenieś do koszyka",
   "wishlist.move_to_cart_named": "Przenieś {name} do koszyka",
+  "wishlist.added": "Dodano do ulubionych",
+  "wishlist.view": "Zobacz ulubione",
+  "wishlist.update_failed": "Nie udało się zaktualizować ulubionych. Spróbuj ponownie.",
 
   // search
   "search.title": "Szukaj",
@@ -225,6 +220,7 @@ export const pl: Record<MessageKey, Message> = {
   "catalog.quick_add_out_of_stock": "{name} – brak w magazynie",
   "catalog.subcategories": "Podkategorie",
   "catalog.notify_cta": "Powiadom mnie, gdy pojawią się tu produkty",
+  "catalog.quick_add_failed": "Nie udało się dodać {name} do koszyka. Spróbuj ponownie.",
 
   // product page
   "product.add_to_cart": "Dodaj do koszyka",
@@ -365,6 +361,20 @@ export const pl: Record<MessageKey, Message> = {
   "checkout.new_address": "Nowy adres",
   "checkout.choose_saved_address": "Wybierz zapisany adres",
   "checkout.change_address": "Zmień",
+  "checkout.point_heading": "Punkt odbioru",
+  "checkout.point_search_label": "Miasto, kod pocztowy albo nazwa punktu",
+  "checkout.point_search": "Szukaj",
+  "checkout.point_nearby": "W pobliżu",
+  "checkout.point_area": "Szukaj w tym obszarze",
+  "checkout.point_list": "Lista",
+  "checkout.point_map": "Mapa",
+  "checkout.point_distance": "{distance} km",
+  "checkout.point_none": "Nie ma tu punktów odbioru. Spróbuj innego miasta albo kodu pocztowego.",
+  "checkout.point_failed": "Nie udało się pobrać punktów odbioru. Spróbuj ponownie.",
+  "checkout.point_location_denied": "Nie widzimy Twojej lokalizacji. Wyszukaj po mieście albo kodzie pocztowym.",
+  "checkout.point_required": "Wybierz punkt odbioru, aby przejść dalej.",
+  "checkout.point_on_map": "{name} na mapie",
+  "checkout.refused_delivery_point": "Twoja dostawa nie ma jeszcze punktu odbioru. Wybierz go i złóż zamówienie ponownie.",
 
   // address fields (checkout and address book)
   "address.email": "E-mail",

@@ -23,6 +23,10 @@ import { PageLoading, Spinner } from "@/components/ui/spinner";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { FormError, FormHeading } from "@/components/ui/form";
 import { useI18n } from "@/providers/i18n.provider";
+import { TYPES_BY_METHOD } from "@/lib/delivery-points/config";
+import { point_types } from "@/lib/delivery-points/point-types";
+import type { CartDeliveryPoint } from "@/utils/NORMALIZERS/delivery-point.normalizer";
+import { DeliveryPointPicker } from "./delivery-point-picker.client";
 
 export function ShippingStep({
   cart,
@@ -42,10 +46,11 @@ export function ShippingStep({
   const [pending, startTransition] = useTransition();
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  // Preselect the method already stored on the cart (hydration).
+  // Preselect the method already stored on the cart (hydration), with its pickup point.
   const [selected, setSelected] = useState<string>(
     cart?.shipping_method?.code ?? "",
   );
+  const [point, setPoint] = useState<CartDeliveryPoint | null>(cart?.shipping_method?.delivery_point ?? null);
 
   const cart_id = cart?.cart_id;
   const currency_label = cart?.currency || currency;
@@ -68,13 +73,26 @@ export function ShippingStep({
     },
   });
 
+  // A method that delivers to a pickup point asks for one before the customer goes on (null: to the address).
+  const selected_method = methods?.find((m) => m.code === selected);
+  const types = selected_method ? point_types(selected_method, TYPES_BY_METHOD) : null;
+  const ready = !!selected && (types === null || point !== null);
+  const choose_method = (code: string) => {
+    setSelected(code);
+    setPoint(code === cart?.shipping_method?.code ? (cart.shipping_method.delivery_point ?? null) : null);
+  };
+  const address = cart?.shipping_address ?? cart?.billing_address ?? null;
+
   const submit = () => {
-    if (!selected) return;
+    if (!ready) return;
     setSaveError(null);
     startTransition(async () => {
       const [error, response] = await api.FETCH_METHOD(
         API_CART_SHIPPING_SELECT_ROUTE,
-        { method: "PATCH", body: JSON.stringify({ code: selected }) },
+        {
+          method: "PATCH",
+          body: JSON.stringify(types === null ? { code: selected } : { code: selected, delivery_point: point }),
+        },
       );
       if (error) {
         setSaveError(t("checkout.shipping_failed"));
@@ -107,7 +125,7 @@ export function ShippingStep({
       <div className="flex flex-col gap-6">
         <RadioGroup
           value={selected}
-          onValueChange={setSelected}
+          onValueChange={choose_method}
           className="gap-3"
         >
           {methods.map((m) => {
@@ -140,13 +158,30 @@ export function ShippingStep({
           })}
         </RadioGroup>
 
+        {types !== null && (
+          <DeliveryPointPicker
+            key={selected}
+            types={types}
+            start={{
+              street: address?.street ?? null,
+              postcode: address?.postcode ?? null,
+              city: address?.city ?? null,
+            }}
+            value={point}
+            onChange={setPoint}
+          />
+        )}
+
         <FormError>{saveError}</FormError>
+        {types !== null && !point && (
+          <p className="text-sm text-muted-foreground">{t("checkout.point_required")}</p>
+        )}
 
         <div className="flex gap-3">
           <Button variant="outline" onClick={onBack} disabled={pending}>
             {t("common.back")}
           </Button>
-          <Button onClick={submit} disabled={pending || !selected}>
+          <Button onClick={submit} disabled={pending || !ready}>
             {pending ? <Spinner className="size-4" /> : t("checkout.to_payment")}
           </Button>
         </div>

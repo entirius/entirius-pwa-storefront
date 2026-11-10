@@ -16,7 +16,7 @@ import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
 import { make_client_access } from "@/API/access/api.client-access";
 import { create_api } from "@/API/api.context";
 import { useCartStore } from "@/stores/cart.store";
-import { useAddedToCart } from "@/stores/added-to-cart.store";
+import { notify } from "@/stores/notices.store";
 import { useI18n } from "@/providers/i18n.provider";
 import { product_query } from "../api.query";
 import { stock_query } from "../stock.query";
@@ -70,7 +70,6 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
   const stock_known = configurable ? configurable.stock_known : stock !== undefined;
 
   const add = useCartStore((s) => s.add);
-  const show_added = useAddedToCart((s) => s.show);
   const [qty, setQty] = useState(1);
 
   const notify_available = useNotifySimilarAvailable();
@@ -108,19 +107,13 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
   const facts = key_facts_line(product.attributes, KEY_FACTS, language);
   const notify_visible = sold_out && notify_available;
 
+  // The variant's name carries its "(S/M)", so the notice names what went in.
   const add_to_cart = () => {
     add(buy, qty, max);
-    show_added({
-      sku: buy.sku,
-      // The variant goes on its own line, so the product name without the "(S/M)" suffix.
-      name: configurable ? product.name : buy.name,
-      quantity: qty,
-      price: buy.price,
-      image: media[0]?.[0]?.uri ?? null,
-      options: configurable?.axes.flatMap((axis) => {
-        const option = axis.options.find((o) => o.value === configurable.selection[axis.idx]);
-        return option ? [{ axis: axis.label, value: option.label }] : [];
-      }),
+    notify({
+      message: "catalog.quick_add_added",
+      params: { name: buy.name },
+      action: { label: "cart.view", href: "/cart" },
     });
   };
   // Until stock answers the button stays "Add to cart" (disabled): an unknown stock passes the rules, so an

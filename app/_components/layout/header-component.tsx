@@ -6,7 +6,7 @@ import { DesktopMegamenu, MenuButton, MenuData, menu_shares_top_row } from "./me
 import { LocaleSwitch } from "./locale-switch";
 import { WishlistSheet } from "./wishlist-sheet";
 import { CartLink } from "./cart-link.client";
-import { AddedToCart } from "./added-to-cart.client";
+import { Notices } from "./notices.client";
 import { AccountNav } from "./account-nav";
 import { SearchSheet } from "./search-sheet";
 import { SearchBar } from "./search-bar.client";
@@ -65,7 +65,10 @@ export async function HeaderComponent() {
           </div>
         </div>
       </MenuData>
-      <AddedToCart />
+      {/* Notices under the header, on the right from sm. */}
+      <div className="pointer-events-none fixed inset-x-4 top-20 z-toast flex flex-col sm:left-auto sm:w-96 md:top-[calc(var(--header-top)+var(--menu-row)+1rem)]">
+        <Notices />
+      </div>
     </header>
   );
 }
