@@ -14,6 +14,7 @@ cp -r _CONFIG.example _CONFIG
 # countries.config.json → country → languages/currencies/channels mapping
 # brand/                → identity assets (favicon, optional logo), named in app.config.json BRAND
 # theme.css             → client theme: values of the theme variables of app/globals.css (empty = default look)
+# fonts.ts              → typefaces of the shop, loaded through next/font (template: Inter and Lexend Deca)
 # messages.config.json  → optional: overrides of single interface messages per language
 ```
 
@@ -56,6 +57,43 @@ The template ships the two channels of the reference dataset (`default-europe`, 
 | `countries.config.json` | `{country}.default_currency` | Default currency for country |
 | `countries.config.json` | `{country}.default_channel` | Default channel for country |
 
+## Typefaces (`fonts.ts`)
+
+`_CONFIG/fonts.ts` declares the shop's typefaces with `next/font` and exports `FONT_CLASSES`, the class names
+`app/layout.tsx` puts on `<body>`. Only the fonts declared there are built, self-hosted and preloaded; each gets a
+metric-matched fallback face, so the text does not jump when the font arrives. The template loads Inter (text) and
+Lexend Deca (headings, prices, wordmark).
+
+A client typeface replaces them. Put the file in `_CONFIG/assets/fonts/` and declare it under `--font-family-sans`
+(text); headings follow `--font-family-brand`:
+
+```ts
+import localFont from "next/font/local";
+
+const sans = localFont({
+  src: "./assets/fonts/my-font.woff2",
+  variable: "--font-family-sans",
+  weight: "100 900",
+});
+
+export const FONT_CLASSES = sans.variable;
+```
+
+```css
+/* theme.css: headings in the same face. The variable sits on <body>, so :root cannot read it. */
+body {
+  --font-family-brand: var(--font-family-sans);
+}
+```
+
+A second face for headings is a second `localFont` call with `variable: "--font-family-brand"`, its `.variable`
+added to `FONT_CLASSES`. `next/font` takes literal options only, which is why this is a file and not a key of
+`app.config.json`. A font declared with `@font-face` in `theme.css` still works, but the browser finds it only after
+the stylesheet, and the fonts of `fonts.ts` are preloaded on top of it.
+
+Migration: a `_CONFIG/` made before this file existed needs it. Copy `_CONFIG.example/fonts.ts` for the previous
+behaviour; the build stops with `Module not found: '@/_CONFIG/fonts'` without it.
+
 ## Client theme (`theme.css`)
 
 Loaded in `app/layout.tsx` right after `app/globals.css`, so it overrides the values of the theme variables
@@ -69,9 +107,7 @@ wants pill buttons sets `--control-radius: 9999px`, which rounds the inputs, sel
 background to `transparent`, paddings and radius to `0` and the divider to `var(--border)`, and the content lines up
 with the breadcrumbs. `surface-outline` keeps its border, the brand radius (`rounded-lg`) and `--surface-outline-padding`; `--surface-backdrop` is the
 category header's gradient (`none` turns it off). Other panel and card
-corners come from `--brand-radius-*`, and `--radius` only reaches the cookie banner's dialog. Fonts: set `--font-family-sans` (text) and `--font-family-brand` (headings, prices, wordmark; defaults to Lexend Deca);
-self-host them with
-`@font-face` and `url("./assets/...")` relative to the file. The dark set sits under `html.dark`, which a `:root`
+corners come from `--brand-radius-*`, and `--radius` only reaches the cookie banner's dialog. Fonts live in `fonts.ts` (below), not in the theme. The dark set sits under `html.dark`, which a `:root`
 rule in the theme cannot beat. `--leading` is the colour of CMS dyes (`bg-leading`, `text-leading`); white text
 sits on it. `--product-image-ratio` (width / height, default `1 / 1`) shapes every product photo: listing, PDP gallery,
 cart, checkout, search, wishlist. Layout slot wrappers carry `data-layout-slot="<slot>"` for theme rules, and every CMS section and tile
