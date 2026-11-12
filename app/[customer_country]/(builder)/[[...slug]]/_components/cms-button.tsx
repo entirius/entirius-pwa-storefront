@@ -116,7 +116,7 @@ export function CmsButtons({
 }) {
   if (!buttons?.length) return null;
   return (
-    <div className="flex flex-wrap gap-2">
+    <div data-cms-buttons className="flex flex-wrap gap-2">
       {buttons.map((button, i) => (
         <CmsButton key={`${i}-${button.url}`} button={{ dye: variant, ...button }} size={size} />
       ))}

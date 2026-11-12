@@ -121,7 +121,7 @@ async function AuthGate({ children }: { children: React.ReactNode }) {
       <PrefetchBoundary prefetches={[agreement_definitions_query(api, language)]}>
         <LayoutSlot name="announcement" />
         <HeaderComponent />
-        <main className="mx-auto w-full max-w-7xl p-4">{children}</main>
+        <main className="mx-auto w-full max-w-(--page-max-width) p-4">{children}</main>
         <LayoutSlot name="before-footer" />
         <FooterComponent />
       </PrefetchBoundary>

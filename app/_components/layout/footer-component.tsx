@@ -40,7 +40,7 @@ export async function FooterComponent() {
   const { t } = await get_i18n();
   return (
     <footer className="mt-16 border-t border-border bg-card">
-      <div className="mx-auto grid w-full max-w-7xl grid-cols-2 gap-8 px-4 py-12 md:grid-cols-4">
+      <div data-footer-columns className="mx-auto grid w-full max-w-(--page-max-width) grid-cols-2 gap-8 px-4 py-12 md:grid-cols-4">
         <div className="col-span-2 flex flex-col gap-3 md:col-span-1">
           <BrandMark />
           <p className="max-w-xs text-sm text-muted-foreground">
@@ -67,8 +67,8 @@ export async function FooterComponent() {
           </nav>
         )}
       </div>
-      <div className="border-t border-border">
-        <p className="mx-auto w-full max-w-7xl px-4 py-4 text-xs text-muted-foreground">
+      <div data-footer-bottom className="border-t border-border">
+        <p className="mx-auto w-full max-w-(--page-max-width) px-4 py-4 text-xs text-muted-foreground">
           © {new Date().getFullYear()} {SITE_NAME}
         </p>
       </div>

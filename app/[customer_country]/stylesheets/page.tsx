@@ -113,7 +113,7 @@ export default function StylesheetsPage() {
   const [sliderRange, setSliderRange] = useState([20, 80]);
 
   return (
-    <div className="max-w-7xl mx-auto py-10 flex flex-col gap-8">
+    <div className="max-w-(--page-max-width) mx-auto py-10 flex flex-col gap-8">
       <div>
         <h1 className="text-3xl font-bold">Stylesheets</h1>
         <p className="text-muted-foreground mt-1 text-sm">All UI components and their variants.</p>

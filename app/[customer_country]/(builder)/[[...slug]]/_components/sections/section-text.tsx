@@ -33,8 +33,8 @@ export function SectionShell({
       )}
     >
       {(title || description || custom_buttons?.length) && (
-        <header className="flex flex-wrap items-end justify-between gap-3">
-          <div className="flex flex-col gap-1">
+        <header data-section-header className="flex flex-wrap items-end justify-between gap-3">
+          <div data-section-intro className="flex flex-col gap-1">
             {title && <h2 className="text-3xl md:text-4xl">{title}</h2>}
             {description && (
               <SanitizeHTML html={description} className="text-muted-foreground" />

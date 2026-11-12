@@ -86,7 +86,7 @@ export function ProductTile({
             className="object-cover unavailable:opacity-60 unavailable:grayscale"
           />
         </div>
-        <div className="min-w-0 self-center unavailable:opacity-70">
+        <div data-product-tile-body className="min-w-0 self-center unavailable:opacity-70">
           <h3 className="text-sm truncate">{product.name}</h3>
           <div className="mt-0.5">
             <ProductPrice price={product.price} sku={product.sku} compact />
@@ -143,14 +143,14 @@ export function ProductTile({
         />
       </div>
 
-      <div className="flex flex-1 flex-col gap-1 px-1 unavailable:opacity-70">
+      <div data-product-tile-body className="flex flex-1 flex-col gap-1 px-1 unavailable:opacity-70">
         <h3 className="text-base leading-snug line-clamp-2 text-heading">{product.name}</h3>
         {product.description && (
-          <p className="text-xs text-muted-foreground line-clamp-2">{plain_text(product.description)}</p>
+          <p data-product-tile-description className="text-xs text-muted-foreground line-clamp-2">{plain_text(product.description)}</p>
         )}
         {single_piece && <p className="text-xs font-medium text-heading">{single_piece}</p>}
       </div>
-      <div className="flex items-end justify-between gap-2 px-1 pb-1 unavailable:opacity-70">
+      <div data-product-tile-footer className="flex items-end justify-between gap-2 px-1 pb-1 unavailable:opacity-70">
         <ProductPrice price={product.price} sku={product.sku} />
         {can_quick_add && product.price && (
           <QuickAdd

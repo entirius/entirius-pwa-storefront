@@ -57,7 +57,7 @@ export function MenuButton() {
     <>
       <div className="md:hidden">{renderType(MOBILE_MENU_TYPE, <LocaleSwitch className="flex px-4 pb-4" />)}</div>
       {DESKTOP_MENU_TYPE !== MENU_TYPE.MEGAMENU && (
-        <div className="hidden md:flex items-center">
+        <div data-header-nav className="hidden md:flex items-center">
           {renderType(DESKTOP_MENU_TYPE)}
         </div>
       )}
@@ -69,6 +69,6 @@ export function MenuButton() {
 export function DesktopMegamenu() {
   if (DESKTOP_MENU_TYPE !== MENU_TYPE.MEGAMENU) return null;
   return (
-    <div className="hidden min-w-0 md:block md:[grid-area:nav]">{renderType(DESKTOP_MENU_TYPE)}</div>
+    <div data-header-nav className="hidden min-w-0 md:block md:[grid-area:nav]">{renderType(DESKTOP_MENU_TYPE)}</div>
   );
 }

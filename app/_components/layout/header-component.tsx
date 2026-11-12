@@ -31,14 +31,16 @@ export async function HeaderComponent() {
     <header className={cn("sticky top-0 z-sticky border-b border-border bg-card", SIZES, one_row && SIZES_ONE_ROW)}>
       <MenuData>
         <div
+          data-header-bar
           className={cn(
-            "mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-3 px-4",
+            "mx-auto flex h-16 w-full max-w-(--page-max-width) items-center justify-between gap-3 px-4",
             "md:grid md:h-auto md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:grid-rows-[var(--header-top)_auto] md:gap-x-6 md:gap-y-0 md:[grid-template-areas:'start_logo_end'_'nav_nav_nav']",
             one_row && "xl:grid-rows-[var(--header-top)] xl:[grid-template-areas:'nav_logo_buttons']",
           )}
         >
           <LinkDynamic
             href="/"
+            data-header-logo
             className="flex min-w-0 items-center md:justify-self-center md:[grid-area:logo]"
             aria-label={t("header.home", { name: SITE_NAME })}
           >
@@ -46,18 +48,19 @@ export async function HeaderComponent() {
           </LinkDynamic>
           <DesktopMegamenu />
           <div
+            data-header-actions
             className={cn(
               "flex shrink-0 items-center gap-2 md:contents",
               one_row && "xl:flex xl:justify-end xl:[grid-area:buttons]",
             )}
           >
-            <div className="flex items-center gap-2 md:[grid-area:start]">
+            <div data-header-start className="flex items-center gap-2 md:[grid-area:start]">
               <MenuButton />
               <SearchSheet />
               <SearchBar />
               <LocaleSwitch className="hidden md:flex" icons />
             </div>
-            <div className="flex items-center gap-2 md:justify-end md:[grid-area:end]">
+            <div data-header-end className="flex items-center gap-2 md:justify-end md:[grid-area:end]">
               <WishlistSheet />
               <AccountNav />
               <CartLink />

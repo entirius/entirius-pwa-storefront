@@ -8,7 +8,7 @@ import { load_layout_slot, type LayoutSlotName } from "./api.query";
 
 const slot_classes: Record<LayoutSlotName, string> = {
   announcement: "text-center text-sm",
-  "before-footer": "mx-auto w-full max-w-7xl px-4",
+  "before-footer": "mx-auto w-full max-w-(--page-max-width) px-4",
 };
 
 // Renders the contentdb page of a layout slot with the builder's own renderer; nothing when the slot
