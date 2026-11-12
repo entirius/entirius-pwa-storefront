@@ -3,9 +3,9 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import type { Metadata, Viewport } from "next";
-import { Inter, Lexend_Deca } from "next/font/google";
 import "./globals.css";
 import "@/_CONFIG/theme.css";
+import { FONT_CLASSES } from "@/_CONFIG/fonts";
 
 import { cookies } from "next/headers";
 
@@ -26,18 +26,6 @@ import { PageLoading } from "@/components/ui/spinner";
 import { PrefetchBoundary } from "@/lib/prefetch_boundary";
 import { get_server_api } from "@/lib/seo/server-api";
 import { agreement_definitions_query } from "@/lib/agreements.query";
-// Brand typefaces (styleguide §1). Both are variable fonts: one file each, no
-// weight list. Lexend Deca carries headings and the wordmark (300/400 only, never
-// bold); Inter carries the shop UI. Fallback metrics come from the brand tokens.
-const lexendDeca = Lexend_Deca({
-  variable: "--font-lexend-deca",
-  subsets: ["latin", "latin-ext"],
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin", "latin-ext"],
-});
 
 const base_metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -89,9 +77,7 @@ export default async function RootLayout({
     // for the brand's dark set (app/globals.css), which also turns shadcn's dark:
     // variants on.
     <html lang={language} className={THEME === "dark" ? "dark" : undefined}>
-      <body
-        className={`${lexendDeca.variable} ${inter.variable} antialiased`}
-      >
+      <body className={`${FONT_CLASSES} antialiased`}>
         <I18nProvider language={language} messages={messages}>
           <TanstackQueryProvider>
             {/* AuthGate reads the cookie inside Suspense so the dynamic read
