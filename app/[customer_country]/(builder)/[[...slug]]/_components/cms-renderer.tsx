@@ -84,7 +84,12 @@ export const render_cms_component = (
   // The wrapper names the type for a client theme (`[data-cms-type="section-hero-slider"] > section`);
   // `display: contents` keeps it out of the layout.
   return (
-    <div key={data.id ?? `cms-${index}`} data-cms-type={data.core_type} className="contents">
+    <div
+      key={data.id ?? `cms-${index}`}
+      data-cms-type={data.core_type}
+      data-cms-variant={data.variant}
+      className="contents"
+    >
       <Component {...data} section_width={section_width}>{children}</Component>
     </div>
   );

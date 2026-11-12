@@ -19,6 +19,8 @@ export interface CmsSectionData {
   id?: string;
   // Section layout option, see cms-width.ts.
   width?: string;
+  // Look option from the editor (sections: variant 1-4); missing = the default look.
+  variant?: number;
   [key: string]: unknown;
 }
 

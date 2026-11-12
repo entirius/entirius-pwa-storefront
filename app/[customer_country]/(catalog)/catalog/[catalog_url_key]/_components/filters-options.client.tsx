@@ -164,9 +164,9 @@ export function FiltersOptionsClient({
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between gap-2">
         {in_sheet ? (
-          <p aria-hidden className="font-brand text-xl text-heading">{t("catalog.filters")}</p>
+          <p data-filters-heading aria-hidden className="font-brand text-xl text-heading">{t("catalog.filters")}</p>
         ) : (
-          <h2 className="text-xl">{t("catalog.filters")}</h2>
+          <h2 data-filters-heading className="text-xl">{t("catalog.filters")}</h2>
         )}
         {(has_applied || has_pending) && (
           <Button variant="link" size="sm" className="h-auto px-0" onClick={handle_clear}>

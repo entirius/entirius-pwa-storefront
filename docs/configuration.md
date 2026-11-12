@@ -79,6 +79,62 @@ sits in a `display: contents` wrapper with `data-cms-type="<core_type>"`. The pr
 the category header `data-catalog-header`; product tiles and search rows carry `data-product-tile` and
 `data-stock="in|out"`, and an out-of-stock tile's label `data-sold-out-label`.
 
+### Theme hooks and layout variables
+
+Besides the hooks above, theme rules can select these attributes (`[data-header-bar]`) instead of the DOM structure or Tailwind classes.
+
+| Hook | Element |
+|---|---|
+| `data-header-bar` | Header row inside `<header>`: logo, navigation, buttons (a grid from `md`) |
+| `data-header-logo` | Logo link |
+| `data-header-nav` | Desktop navigation: the megamenu inside `data-header-bar`, or the hamburger menu button inside `data-header-start` |
+| `data-header-actions` | Wrapper of both button groups; `display: contents` from `md`, a flex row from `xl` when the menu shares the top row |
+| `data-header-start` | Menu, search and language buttons |
+| `data-header-end` | Wishlist, account and cart buttons |
+| `data-locale-switch` | Language switch |
+| `data-footer-columns` | Footer grid: brand, newsletter, link columns |
+| `data-footer-bottom` | Footer bottom bar with the copyright line |
+| `data-cms-document` | Container of a CMS page's sections |
+| `data-section-header` | `<header>` of a CMS section: title, description, buttons |
+| `data-section-intro` | Title and description inside the section header |
+| `data-cms-buttons` | Wrapper of CMS buttons (section header, hero, accordion, tiles) |
+| `data-hero-card` | Hero tile card |
+| `data-hero-content` | Hero tile text column |
+| `data-hero-media` | Hero tile image |
+| `data-rich-text` | Rich text from the editor |
+| `data-product-tile-body` | Product tile name and description; in the compact tile the name, price and action |
+| `data-product-tile-description` | Product tile description |
+| `data-product-tile-footer` | Product tile price and quick-add button (not in the compact tile) |
+| `data-quick-add` | Quick-add button |
+| `data-single-piece` | Product tile of a single-piece product |
+| `data-product-grid` | Grid of product tiles: CMS product section in grid layout (not the slider), category listing, related products (tiles in wrapper `div`s) |
+| `data-related-products` | Related products section on the product page |
+| `data-gallery-thumb` | Product gallery thumbnail |
+| `data-catalog-list` | Category listing column beside the filters |
+| `data-filters-panel` | Filters sidebar (from `lg`) |
+| `data-filters-trigger` | Button that opens the filters sheet (below `lg`) |
+| `data-filters-heading` | Filters title in the sidebar and in the sheet |
+| `data-expandable` | Expandable category description |
+| `data-order-totals` | Order summary in the cart and checkout |
+| `data-cms-variant="<n>"` | CMS section or tile wrapper (the one with `data-cms-type`), when the published element has a `variant` |
+
+`data-cms-variant` names the look option of an element:
+`[data-cms-type="section-text"][data-cms-variant="2"] > section`. The editor offers it on sections ("variant 1-4"); its
+tiles have no such option. Without a `variant` the wrapper has no attribute, but the editor cannot clear a variant once
+set, so a theme gives variant 1 the default look and styles 2-4. Core does not style variants of the editor's section
+types; `section-type-a` (variants 1-4) and `tile-type-a` (1-3), which the editor does not offer, style their own
+`variant` (default 1).
+
+| Variable | Purpose | Default |
+|---|---|---|
+| `--page-max-width` | Max width of the header, main content, footer, megamenu and the `before-footer` slot | `var(--container-7xl)` (80rem) |
+| `--catalog-columns` | Category listing columns from `md`; phones always show 2 | `3` |
+
+```css
+:root { --page-max-width: 90rem; }
+@media (min-width: 64rem) { :root { --catalog-columns: 4; } }
+```
+
 ## Message overrides (`messages.config.json`)
 
 Optional, read at runtime (not imported — no file, no overrides): `{ "pl": { "cart.view": "Pokaż koszyk" } }`.

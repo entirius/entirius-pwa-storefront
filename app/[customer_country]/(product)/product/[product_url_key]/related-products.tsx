@@ -46,7 +46,7 @@ export async function RelatedProducts({ items }: { items: RawProduct[] }) {
       <p data-related-lead className="hidden text-sm text-muted-foreground group-data-[stock=out]/related:block">
         {t("product.related_sold")}
       </p>
-      <div className="grid grid-cols-2 gap-3 group-data-[stock=in]/related:md:grid-cols-4 group-data-[stock=in]/related:lg:gap-4">
+      <div data-product-grid className="grid grid-cols-2 gap-3 group-data-[stock=in]/related:md:grid-cols-4 group-data-[stock=in]/related:lg:gap-4">
         {items.map((raw, i) => (
           <div
             key={raw.sku}
