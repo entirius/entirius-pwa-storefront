@@ -45,7 +45,8 @@ Open `http://localhost:3100`. Unknown countries fall through to the `default` se
 | `_CONFIG/app.config.json` | `API_BASE_URL` (backend URL), `SITE_URL` (public URL of the shop, also the E2E `baseURL`), `SITE_NAME`, `CLIENT_IP_HEADER` (optional: the header in which the hosting passes the visitor's address, sent to the backend's login limits as `X-Client-IP`; default none), `CHECKOUT` (optional `TERMS_ROUTE` / `PRIVACY_ROUTE`: CMS routes linked from the consent line of the review step and the contact forms), `CONTACT_FORMS` (optional `NOTIFY_ATTRIBUTES`: attribute idxs whose values go into a "tell me when a similar product arrives" request; default empty), `PRODUCT` (optional `RELATED`: rules for the similar-products section, default `["category"]`; `KEY_FACTS`: up to three attribute idxs printed under the price, default none; `STORY_ATTRIBUTES`: attribute idxs shown as their own text sections, default none), `CATALOG` (optional `SORT_IN_STOCK_FIRST`: a chosen sort keeps in-stock products first, default `false`), `BRAND` (assets in `_CONFIG/brand/`: logo, favicon, optional app icons for the web app manifest, default share image, `THEME_COLOR`, `BACKGROUND_COLOR`, `SHORT_NAME`; see [configuration](docs/configuration.md)), `DEBUG_MODE` (enables `_LOGGER` output and dev tools) |
 | `_CONFIG/channels.config.json` | per channel: `CHANNEL_LABEL`, `API_CHECKOUT_KEY` (checkout `x-api-key`), optional `API_CONTACT_FORMS_KEY` (contact-forms `X-API-KEY`: switches on the enquiry form and the CMS form block) |
 | `_CONFIG/countries.config.json` | per country: languages, currencies, channels + defaults |
-| `_CONFIG/theme.css` | client theme: overrides the values of the theme variables of `app/globals.css` (colours, `--radius`, `--font-family-sans`); empty = default look |
+| `_CONFIG/theme.css` | client theme: overrides the values of the theme variables of `app/globals.css` (colours, `--radius`); empty = default look |
+| `_CONFIG/fonts.ts` | optional: typefaces of the shop, loaded and preloaded through `next/font`; the template loads Inter and Lexend Deca (also when the file is missing), a client font replaces them ([configuration](docs/configuration.md#typefaces-fontsts)) |
 | `_CONFIG/messages.config.json` | optional: overrides of single interface messages per language |
 
 The template ships the two channels of the reference dataset (`default-europe`, `default-local`);
@@ -71,7 +72,7 @@ The cookie banner needs no config: when the backend has a published banner for t
 ```
 API/                    Fetch engine: route constants, policies, cookie access adapters
 app/
-├── layout.tsx          Root layout (providers, fonts)
+├── layout.tsx          Root layout (providers)
 ├── _components/layout/ Header, navigation, search, cart / wishlist / account sheets
 └── [customer_country]/ All routed pages
     ├── (builder)/      CMS pages (catch-all slug)

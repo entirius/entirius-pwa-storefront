@@ -19,6 +19,7 @@
       }
     ],
     "paths": {
+      "@/_CONFIG/font*": ["./_CONFIG/font*", "./_CONFIG.example/font*"],
       "@/*": ["./*"]
     }
   },
