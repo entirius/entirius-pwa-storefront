@@ -116,6 +116,14 @@ Besides the hooks above, theme rules can select these attributes (`[data-header-
 | `data-filters-heading` | Filters title in the sidebar and in the sheet |
 | `data-expandable` | Expandable category description |
 | `data-order-totals` | Order summary in the cart and checkout |
+| `data-cms-variant="<n>"` | CMS section or tile wrapper (the one with `data-cms-type`), when the published element has a `variant` |
+
+`data-cms-variant` names the look option of an element:
+`[data-cms-type="section-text"][data-cms-variant="2"] > section`. The editor offers it on sections ("variant 1-4"); its
+tiles have no such option. Without a `variant` the wrapper has no attribute, but the editor cannot clear a variant once
+set, so a theme gives variant 1 the default look and styles 2-4. Core does not style variants of the editor's section
+types; `section-type-a` (variants 1-4) and `tile-type-a` (1-3), which the editor does not offer, style their own
+`variant` (default 1).
 
 | Variable | Purpose | Default |
 |---|---|---|
