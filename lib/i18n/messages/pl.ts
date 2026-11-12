@@ -278,6 +278,25 @@ export const pl: Record<MessageKey, Message> = {
   "notify.invalid": "Podaj poprawny adres e-mail i zaakceptuj przetwarzanie danych.",
   "notify.failed": "Nie udało się wysłać zgłoszenia. Spróbuj ponownie za chwilę.",
 
+  // back-in-stock alerts
+  "stockAlert.title": "Powiadom mnie, gdy wróci",
+  "stockAlert.for_option": "{product}, {option}",
+  "stockAlert.email": "Adres e-mail",
+  "stockAlert.consent": "Zgadzam się na otrzymanie jednej wiadomości e-mail, gdy ten produkt wróci do sprzedaży, i na przetwarzanie mojego adresu e-mail w tym celu. Informacje o tym, jak go przetwarzamy, są w {privacy}.",
+  "stockAlert.submit": "Powiadom mnie o dostępności",
+  "stockAlert.short": "Powiadom mnie",
+  "stockAlert.saved": "Napiszemy do Ciebie, gdy {option} wróci do sprzedaży.",
+  "stockAlert.saved_change": "Użyj innego adresu",
+  "stockAlert.in_stock": "Dobra wiadomość: produkt jest już dostępny, możesz go kupić.",
+  "stockAlert.throttled": "Zbyt wiele prób. Spróbuj ponownie później.",
+  "stockAlert.invalid": "Podaj poprawny adres e-mail i zaakceptuj zgodę.",
+  "stockAlert.failed": "Nie udało się zapisać prośby. Spróbuj ponownie za chwilę.",
+  "stockAlert.choose_option": "Wybierz wariant, aby otrzymać powiadomienie, gdy wróci.",
+  "stockAlert.cancel_pending": "Anulujemy Twoją prośbę…",
+  "stockAlert.cancel_done": "Twoja prośba została anulowana",
+  "stockAlert.cancel_failed": "Ten link już nie działa",
+  "stockAlert.cancel_back": "Wróć do sklepu",
+
   // checkout
   "checkout.title": "Zamówienie",
   "checkout.empty": "Twój koszyk jest pusty.",
