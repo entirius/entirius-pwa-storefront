@@ -84,7 +84,7 @@ entirius-pwa-storefront/
 proxy.ts (middleware)
   → reads ct cookie / cf-ipcountry header
   → rewrites URL to /{country}/...
-  → sets lg, cr, ch, ch_key, cf_key, nl_key, ag_key, cid cookies (at/rt/uid belong to app/session/)
+  → sets lg, cr, ch, ch_key, cf_key, nl_key, ag_key, sa_key, cid cookies (at/rt/uid belong to app/session/)
   → sets the Content-Security-Policy with a fresh nonce on the request (Next.js puts it on its scripts) and the response
 
 page.tsx (Server Component)
@@ -246,7 +246,8 @@ cart" read it.
   it by stock: closing the page, or (sold out) right under the buy area with a lead line.
 - Sticky buy bar (`sticky-buy-bar.client.tsx`, `data-buy-bar`, phones): slides in once `[data-buy-area]` is out of
   view (the sticky header does not count as view); price + Add to cart, or on a sold-out product "See similar"
-  (link to `#related-products`) and the notify-similar action when the channel offers it. Hidden while the cookie
+  (link to `#related-products`) and the notify-similar action when the channel offers it; with back-in-stock alerts on,
+  a sold-out selection gets "Notify me" (`data-stock-alert-trigger`), which scrolls to the form. Hidden while the cookie
   banner is open (`html.show--consent`).
 - No quantity stepper when the real-time stock is exactly 1. Key facts: `PRODUCT.KEY_FACTS` (`key-facts.ts`).
 - Specification (`product-specs.tsx`), in the details column under the description (group names only when there are two or more groups; an empty description is not rendered): a value links to `/catalog/<category>?q_<idx>=<value>` when that attribute is a
@@ -292,6 +293,32 @@ subscribes after the account is created. `POST newsletter/subscribe/` mails a li
 `/newsletter/confirm?token=` and one to `/newsletter/unsubscribe?token=`; both pages (`app/[customer_country]/newsletter/`)
 send the token once (`consents/confirm/`, `consents/unsubscribe/`, no key) and show the result. The backend must point
 `STOREFRONT_BASE_URL` at the storefront.
+
+## Back-in-stock alerts
+
+"Tell me when it is back" for one sold-out SKU, through `django_stock_alerts` (`lib/stock-alerts.ts`), optional like the
+contact forms: only a channel with `API_STOCK_ALERTS_KEY` (`channels.config.json`, cookie `sa_key`) gets it, read on the
+client (`useStockAlertsAvailable`), never in the server render of a product page. No key: the page is unchanged.
+
+- Variant picker: a sold-out option is enabled (it keeps the struck-through look and the sr-only "(unavailable)") and
+  writes `?variant=` like any option. Without the key it stays disabled.
+- Buy area: once the real-time stock has answered and the chosen variant (or a product without variants) is sold out,
+  `components/stock-alert.client.tsx` replaces the stepper and the "Out of stock" button: heading, the product and the
+  options ("Series Nebula Heritage"), e-mail (prefilled for a signed-in customer), consent with the privacy link,
+  honeypot. With every variant sold out and none chosen the area asks for a choice. "Notify about a similar product"
+  still renders below where the channel has contact forms.
+- `POST subscriptions/` sends `{email, sku, language, country, consent: true, consent_text, website}`; `consent_text`
+  is the consent label as rendered (`stockAlert.consent` with the privacy link label). Answers: 201 saved, 409 in stock
+  (the stock is re-read, the buy button comes back), 429 throttled, 400 invalid, anything else failed.
+- Saved SKUs are remembered per channel in `localStorage` (`stock-alerts:<channel>`, at most 50, `lib/stock-alert-memory.ts`),
+  so the saved state survives a reload; the address is never stored in the browser. A request cancelled from the
+  mail link still shows as saved in that browser (the cancel answer names no SKU) until "Use another address".
+- `/stock-alert/cancel?token=` (`app/[customer_country]/stock-alert/`, not indexed) is the cancel link of the mails:
+  `POST subscriptions/cancel/` once, no key, then "cancelled" or "the link does not work".
+- Theme and test hooks: `data-stock-alert`, `data-stock-alert-state` (`idle`, `sending`, `saved`, `in_stock`,
+  `throttled`, `invalid`, `failed`, `choose`), `data-stock-alert-trigger`, `data-stock-alert-cancel`.
+- The backend needs the module, the channel's `STOCK_ALERTS_PRODUCT_URL` / `STOCK_ALERTS_CANCEL_URL` pointing at the
+  storefront and an access token with the scope `stock_alerts.subscribe`.
 
 ## Agreements at checkout
 

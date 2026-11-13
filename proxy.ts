@@ -119,6 +119,11 @@ export default async function proxy(request: NextRequest) {
       const agreements_key = (channels as Record<string, { API_AGREEMENTS_KEY?: string }>)[ch]
         ?.API_AGREEMENTS_KEY;
       if (agreements_key) res.cookies.set("ag_key", agreements_key);
+      // sa_key = the channel's stock-alerts key (X-API-KEY of the "tell me when it is back" request). Optional:
+      // without it a sold-out size stays disabled and no request is offered.
+      const stock_alerts_key = (channels as Record<string, { API_STOCK_ALERTS_KEY?: string }>)[ch]
+        ?.API_STOCK_ALERTS_KEY;
+      if (stock_alerts_key) res.cookies.set("sa_key", stock_alerts_key);
     }
     // at/rt/uid belong to the session handlers of app/session/ (rt HttpOnly); never re-emit them here.
     if (cid) res.cookies.set("cid", cid);

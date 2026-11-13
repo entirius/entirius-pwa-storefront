@@ -17,6 +17,7 @@ import {
   initial_selection,
   lowest_price,
   option_available,
+  option_line,
   select_option,
   type Selection,
 } from "./variant-selection";
@@ -114,6 +115,8 @@ export function useProductVariants(
         : block === "price"
           ? t("product.not_available_online")
           : t("product.add_to_cart"),
+    // the chosen variant's options, axis label first ("Size M"), for the back-in-stock request
+    option_line: variant ? option_line(data.axes, variant.selection) : undefined,
     // what goes into the cart: the variant's SKU, the product name with the chosen options
     buy: variant && {
       sku: variant.sku,

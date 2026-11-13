@@ -10,7 +10,7 @@ runtime (the optional message overrides).
 ```bash
 cp -r _CONFIG.example _CONFIG
 # app.config.json       → API_BASE_URL (backend URL), site name and URL, THEME, BRAND
-# channels.config.json  → CHANNEL_LABEL and API_CHECKOUT_KEY per channel (optional API_CONTACT_FORMS_KEY, API_NEWSLETTER_KEY, API_AGREEMENTS_KEY)
+# channels.config.json  → CHANNEL_LABEL and API_CHECKOUT_KEY per channel (optional API_CONTACT_FORMS_KEY, API_NEWSLETTER_KEY, API_AGREEMENTS_KEY, API_STOCK_ALERTS_KEY)
 # countries.config.json → country → languages/currencies/channels mapping
 # brand/                → identity assets (favicon, optional logo), named in app.config.json BRAND
 # theme.css             → client theme: values of the theme variables of app/globals.css (empty = default look)
@@ -51,6 +51,7 @@ The template ships the two channels of the reference dataset (`default-europe`, 
 | `channels.config.json` | `{channel}.API_CHECKOUT_KEY` | Checkout API key per channel (`x-api-key`) |
 | `channels.config.json` | `{channel}.API_CONTACT_FORMS_KEY` | Optional contact-forms API key per channel (`X-API-KEY`, scope `contact_form`). `proxy.ts` sends it as the `cf_key` cookie. Without it no contact form is offered |
 | `channels.config.json` | `{channel}.API_NEWSLETTER_KEY` | Optional newsletter key per channel (`X-API-KEY` of `agreements/v2/{channel}/newsletter/subscribe/`, a token with the scope `agreements.subscribe`). `proxy.ts` sends it as the `nl_key` cookie. Without it the footer has no newsletter form and the register form no opt-in |
+| `channels.config.json` | `{channel}.API_STOCK_ALERTS_KEY` | Optional back-in-stock alerts key per channel (`X-API-KEY` of `stock-alerts/v2/{channel}/subscriptions/`, a token with the scope `stock_alerts.subscribe`). `proxy.ts` sends it as the `sa_key` cookie. Without it a sold-out size stays disabled and the product page offers no "Tell me when it is back" form |
 | `channels.config.json` | `{channel}.API_AGREEMENTS_KEY` | Optional agreements key per channel (`X-API-KEY` of `agreements/v2/{channel}/orders/{order_id}/agreements/`, today a token with the same scope `agreements.subscribe`, set apart so a deployment can use its own). `proxy.ts` sends it as the `ag_key` cookie. Without it a guest order goes through but the agreements accepted at checkout are not recorded with it (a signed-in customer's JWT still records them) |
 | `countries.config.json` | `{country}.default_language` | Default language for country (the `lg` cookie: interface language and the API `language`) |
 | `countries.config.json` | `{country}.default_currency` | Default currency for country |
