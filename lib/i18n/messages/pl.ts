@@ -28,6 +28,7 @@ export const pl: Record<MessageKey, Message> = {
   "common.pagination": "Paginacja",
   "common.carousel": "karuzela",
   "common.slide": "slajd",
+  "common.retry": "Spróbuj ponownie",
 
   // header
   "header.menu": "Menu",

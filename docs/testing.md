@@ -27,3 +27,7 @@ pnpm test:e2e --ui         # Playwright UI mode
 - `checkout-guest.spec.ts` places a real order, and every order reserves stock for good. After ~50 runs the test product (`ENT-C001`) is out of stock and every spec that adds it to the cart fails with "Out of stock" — reseed the backend (the test customers, the demo one included, are signed up again on the next run).
 - Failure screenshots and traces land in `test-results/` (gitignored); open a trace with `pnpm exec playwright show-trace <path>`.
 - `visual.spec.ts` compares home, catalog, PDP and cart with baselines in `tests/e2e/visual.spec.ts-snapshots/` (per OS, product photos masked). After an intended visual change: `pnpm test:e2e visual --update-snapshots=all`, then review the new PNGs in the diff. `contrast.spec.ts` checks WCAG AA of the semantic color pairs.
+
+## JS budget
+
+The `build` job fails when the JS a page loads first (gzip) goes over the limits, shared (root layout) or per route. Locally: `pnpm build`, then `node .github/scripts/js-budget.mjs`. The limits are constants at the top of the script.

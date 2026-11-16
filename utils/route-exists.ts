@@ -31,7 +31,8 @@ const cache = new Map<string, Answer & { until: number }>();
 const pending = new Map<string, Promise<Answer>>();
 
 // First path segments that are app routes, not CMS pages (catch-all `(builder)/[[...slug]]`).
-// A new top-level app route must be added here.
+// A new top-level app route must be added here (except not-found-route, the proxy's 404 target: listed here,
+// a direct visit would answer 200).
 const APP_ROUTES = new Set([
   "cart",
   "checkout",
@@ -132,7 +133,7 @@ async function answer(segments: string[], ctx: RouteContext): Promise<Answer & {
   const [first, second, third] = segments.slice(0, 3).map(decode);
   if (first === null || second === null || third === null) return { exists: true };
   if (!first) return { exists: true }; // home
-  if (first.startsWith(LAYOUT_ROUTE_PREFIX)) return { exists: false }; // layout slots are not pages (the builder answers 404)
+  if (first.startsWith(LAYOUT_ROUTE_PREFIX)) return { exists: false }; // layout slots are not pages (the proxy answers 404)
   // `/blog/<slug>` is a post, `/blog/authors/<slug>` an author (`/blog/authors` alone: a post called "authors").
   const author = first === "blog" && second === "authors" && !!third;
   const kind = author

@@ -31,6 +31,7 @@ export const en = {
   "common.pagination": "pagination",
   "common.carousel": "carousel",
   "common.slide": "slide",
+  "common.retry": "Try again",
 
   // header
   "header.menu": "Menu",

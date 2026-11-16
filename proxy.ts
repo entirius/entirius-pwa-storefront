@@ -131,7 +131,7 @@ export default async function proxy(request: NextRequest) {
   };
 
   // Unknown product, category or CMS page: the page cannot set the status, so a missing address is
-  // rewritten to a CMS route that does not exist (the not-found page), with 404.
+  // rewritten to the not-found route (app/[customer_country]/not-found-route), with 404.
   const is_document = !request.headers.get("rsc");
   if (is_document && ch && !request.headers.has(NOT_FOUND_RENDER_HEADER)) {
     const rest = pathname.split("/").filter(Boolean).slice(country_from_path ? 1 : 0);

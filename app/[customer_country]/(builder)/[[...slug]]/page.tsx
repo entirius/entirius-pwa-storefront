@@ -23,6 +23,7 @@ import type { CmsPage } from "@/types/cms.types";
 import { profile_path } from "@/lib/profile-path";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { build_organization_jsonld } from "@/lib/seo/build";
+import NotFound, { generateMetadata as not_found_metadata } from "@/app/not-found";
 
 interface Props {
   params: Promise<{
@@ -42,7 +43,7 @@ const is_page_route = (slug?: string[]) =>
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { customer_country, ...route } = await params;
   const slug = route.slug?.map(decode_param);
-  if (!is_page_route(slug)) return {};
+  if (!is_page_route(slug)) return { ...(await not_found_metadata()), robots: { index: false } };
 
   const [, cms_data] = await load_static_page(await get_api(), {
     routes: slug?.[0] ? [slug[0]] : ["home"],
@@ -64,7 +65,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BuilderPage({ params }: Props) {
   const slug = (await params).slug?.map(decode_param);
 
-  if (!is_page_route(slug)) notFound();
+  // Rendered, not notFound(): thrown inside the root <Suspense> it leaves the SSR HTML without the not-found UI
+  // (React #419). Status stays 200, so generateMetadata sets noindex.
+  if (!is_page_route(slug)) return <NotFound />;
 
   const routes = slug?.[0] ? [slug[0]] : ["home"];
 

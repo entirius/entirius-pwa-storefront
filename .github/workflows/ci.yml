@@ -26,6 +26,8 @@ jobs:
       # JSON config imports (@/_CONFIG/*) must resolve before the build typechecks
       - run: cp -r _CONFIG.example _CONFIG
       - run: pnpm build
+      # Gzip size of the JS a page loads first; fails over the limits in the script.
+      - run: node .github/scripts/js-budget.mjs
 
   # Types + ESLint: no error and no warning.
   lint:
