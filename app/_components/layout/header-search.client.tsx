@@ -35,8 +35,6 @@ export function useHeaderSearch() {
 
   const access = useMemo(() => make_client_access(), []);
   const api = useMemo(() => create_api(access), [access]);
-  // The `cr` cookie holds the ISO code lowercase; prices display it uppercase.
-  const currency = (access.get("cr") ?? "").toUpperCase();
 
   // Debounce the typed value (~300ms) before it drives the query.
   useEffect(() => {
@@ -68,7 +66,7 @@ export function useHeaderSearch() {
     router.push(profile_path(params?.customer_country as string | undefined, search_path(phrase)));
   };
 
-  return { open, q, setQ, debounced, enabled, data, isFetching, isError, currency, onOpenChange, onSubmit };
+  return { open, q, setQ, debounced, enabled, data, isFetching, isError, onOpenChange, onSubmit };
 }
 
 type HeaderSearch = ReturnType<typeof useHeaderSearch>;
@@ -127,7 +125,6 @@ export function SearchBody({ search }: { search: HeaderSearch }) {
         <SearchResults
           data={search.data}
           query={search.debounced}
-          currency={search.currency}
           onNavigate={() => search.onOpenChange(false)}
           onPhrase={(text) => search.setQ(text)}
         />

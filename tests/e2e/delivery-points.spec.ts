@@ -6,7 +6,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { login, test_account } from "./support/account";
 import { fill_address } from "./support/checkout";
 
-// Delivery to a pickup point: the seed's `inpost-locker` (InPost lockers) and `pickup-point` (every point type) of
+// Delivery to a pickup point: the seed's `inpost-locker` (InPost lockers) and `europe-pickup` (every point type) of
 // default-europe, with the points of django_deliverypoints. The local config has no map key, so the picker is the
 // list: a search, "Near me" and the points.
 
@@ -91,7 +91,7 @@ test.describe("near me", () => {
     await fill_address(page);
     await continue_to_shipping(page);
 
-    await page.getByRole("radio", { name: /Pickup Point/ }).click();
+    await page.getByRole("radio", { name: /Pickup point/i }).click();
     await page.getByRole("button", { name: "Near me" }).click();
 
     const nearest = points(page).getByRole("radio").first();
