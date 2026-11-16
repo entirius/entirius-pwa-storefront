@@ -5,6 +5,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Header search reads the products of matrix `search/` in the shape of `products/` (matrix 5.0): the row reuses the
+  catalog's product normalizer, price and thumb instead of its own mapping. Breaking: needs matrix 5.0 or later; on
+  4.x the search rows show no prices and placeholder pictures.
+
 ### Added
 
 - Back-in-stock alerts: with the channel's `API_STOCK_ALERTS_KEY` a sold-out size can be selected and the product

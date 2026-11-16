@@ -82,7 +82,6 @@ export function NotFoundSearch() {
           <SearchResults
             data={data}
             query={debounced}
-            currency={(access.get("cr") ?? "").toUpperCase()}
             onNavigate={() => setQ("")}
             onPhrase={setQ}
           />
