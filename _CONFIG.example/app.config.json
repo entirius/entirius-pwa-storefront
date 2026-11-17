@@ -33,6 +33,9 @@
   "CATALOG": {
     "SORT_IN_STOCK_FIRST": false
   },
+  "LAYOUT_SLOTS": {
+    "ANNOUNCEMENT_COPIES": 1
+  },
   "PRODUCT": {
     "RELATED": ["category"],
     "KEY_FACTS": [],

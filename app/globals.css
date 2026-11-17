@@ -353,6 +353,9 @@ html.dark {
   h2 {
     font-weight: var(--brand-font-weight-light);
   }
+  [data-slot-copy] {
+    display: none;
+  }
   /* Links inside API/CMS rich text (SanitizeHTML output). */
   [data-rich-text] a {
     @apply link;

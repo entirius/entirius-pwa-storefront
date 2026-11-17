@@ -15,6 +15,7 @@ import { I18nProvider } from "@/providers/i18n.provider";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 import { HeaderComponent } from "./_components/layout/header-component";
 import { LayoutSlot } from "./_components/layout-slots/layout-slot";
+import { ANNOUNCEMENT_COPIES } from "./_components/layout-slots/slot-config";
 import { ScrollToTop } from "./_components/scroll-to-top.client";
 import { CookieConsent } from "./_components/cookie-consent/cookie-consent.client";
 import { FooterComponent } from "./_components/layout/footer-component";
@@ -105,7 +106,7 @@ async function AuthGate({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider initial={isLoggedIn}>
       <PrefetchBoundary prefetches={[agreement_definitions_query(api, language)]}>
-        <LayoutSlot name="announcement" />
+        <LayoutSlot name="announcement" copies={ANNOUNCEMENT_COPIES} />
         <HeaderComponent />
         <main className="mx-auto w-full max-w-(--page-max-width) p-4">{children}</main>
         <LayoutSlot name="before-footer" />
