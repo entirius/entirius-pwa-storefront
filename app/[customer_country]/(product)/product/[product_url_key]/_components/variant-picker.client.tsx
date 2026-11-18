@@ -17,6 +17,8 @@ type PickerProps = {
   selection: Record<string, string>;
   choose: (axis: string, value: string) => void;
   is_available: (axis: string, value: string) => boolean;
+  // Back-in-stock alerts are on: a sold-out option can be chosen (to ask for it) and keeps its sold-out look.
+  sold_out_selectable?: boolean;
 };
 
 // The colour itself, with a hairline so white and light colours stay visible; unavailable = a diagonal stroke,
@@ -33,7 +35,7 @@ function Swatch({ color, crossed }: { color: string; crossed: boolean }) {
 // One radio group per axis; each option is a radio styled as a chip. Arrow keys move inside a group, Tab moves
 // between groups. Selected = 2px frame in the text colour, no fill (the CTA stays the only filled control);
 // unavailable = muted and struck through, announced as unavailable, still readable.
-export function VariantPicker({ axes, selection, choose, is_available }: PickerProps) {
+export function VariantPicker({ axes, selection, choose, is_available, sold_out_selectable = false }: PickerProps) {
   const { t } = useI18n();
   const id = useId();
 
@@ -63,7 +65,7 @@ export function VariantPicker({ axes, selection, choose, is_available }: PickerP
                   <RadioGroupPrimitive.Item
                     key={option.value}
                     value={option.value}
-                    disabled={!available && !selected}
+                    disabled={!available && !selected && !sold_out_selectable}
                     aria-label={swatch_color ? option.label : undefined}
                     className={cn(
                       "relative touch-target inline-flex h-9 cursor-pointer items-center justify-center rounded-control border border-field-border bg-background text-xs transition-[color,box-shadow] outline-none hover:border-input sm:text-sm",

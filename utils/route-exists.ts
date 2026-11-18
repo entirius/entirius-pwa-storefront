@@ -39,6 +39,7 @@ const APP_ROUTES = new Set([
   "user-handler",
   "reset-password",
   "newsletter",
+  "stock-alert",
   "stylesheets",
   "catalog",
   "product",

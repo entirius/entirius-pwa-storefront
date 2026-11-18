@@ -100,6 +100,8 @@ test("a click outside closes the field, the close button too", async ({ page }) 
   await open_home(page);
   await magnifier(page).click();
   await expect(page.getByPlaceholder(PLACEHOLDER)).toBeFocused();
+  // The dialog listens for an outside click a tick after it opens: a click sent at once is lost when the run is busy.
+  await page.waitForTimeout(300);
   await page.mouse.click(700, 800);
   await expect(page.getByPlaceholder(PLACEHOLDER)).toHaveCount(0);
 

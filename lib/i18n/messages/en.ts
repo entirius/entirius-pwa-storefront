@@ -268,6 +268,25 @@ export const en = {
   "notify.invalid": "Enter a valid email address and accept the data processing.",
   "notify.failed": "The request could not be sent. Try again in a moment.",
 
+  // back-in-stock alerts
+  "stockAlert.title": "Tell me when it is back",
+  "stockAlert.for_option": "{product}, {option}",
+  "stockAlert.email": "Email address",
+  "stockAlert.consent": "I agree to get one email when this product is back in stock and to the processing of my email address for that purpose. How we process it is described in the {privacy}.",
+  "stockAlert.submit": "Notify me when available",
+  "stockAlert.short": "Notify me",
+  "stockAlert.saved": "We will email you when {option} is back.",
+  "stockAlert.saved_change": "Use another address",
+  "stockAlert.in_stock": "Good news: it is back in stock, you can buy it now.",
+  "stockAlert.throttled": "Too many requests. Try again later.",
+  "stockAlert.invalid": "Enter a valid email address and accept the consent.",
+  "stockAlert.failed": "The request could not be saved. Try again in a moment.",
+  "stockAlert.choose_option": "Choose an option to be notified when it is back.",
+  "stockAlert.cancel_pending": "Cancelling your request…",
+  "stockAlert.cancel_done": "Your request was cancelled",
+  "stockAlert.cancel_failed": "This link does not work any more",
+  "stockAlert.cancel_back": "Back to the shop",
+
   // checkout
   "checkout.title": "Checkout",
   "checkout.empty": "Your cart is empty.",
