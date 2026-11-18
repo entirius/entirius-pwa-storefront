@@ -12,7 +12,7 @@ const ease_out = (t: number) => 1 - (1 - t) ** 2;
 const ease_in = (t: number) => t ** 2;
 
 // Wraps the looping track of a layout slot: while the pointer is over it or keyboard focus is inside it, the theme's CSS animation
-// slows to a full stop (WCAG 2.2.2 pause); it eases back to full speed afterwards. Does nothing without a running animation.
+// slows to a full stop; it eases back to full speed afterwards. Does nothing without a running animation.
 export function SlotTrack({ style, children }: { style: CSSProperties; children: ReactNode }) {
   const track_ref = useRef<HTMLDivElement>(null);
   const frame_ref = useRef(0);
