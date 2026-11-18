@@ -34,10 +34,11 @@ test("brand typefaces: Lexend Deca headings (light, never bold), Inter UI", asyn
   await expect(page.locator("body")).toHaveCSS("font-family", /^Inter\b/);
   await expect(page.getByRole("button", { name: "Add to cart" })).toHaveCSS("font-family", /^Inter\b/);
 
-  // No heading on the page is bold (styleguide: Lexend Deca 300/400 only).
-  const weights = await page
-    .locator("h1, h2, h3, h4")
-    .evaluateAll((nodes) => nodes.map((n) => getComputedStyle(n).fontWeight));
+  // No heading on the page is bold (styleguide: Lexend Deca 300/400 only). document.querySelectorAll stays out of
+  // shadow roots, where page.locator() reaches the dev server's own overlay (Next.js dev tools headings).
+  const weights = await page.evaluate(() =>
+    [...document.querySelectorAll("h1, h2, h3, h4")].map((n) => getComputedStyle(n).fontWeight),
+  );
   expect(weights.filter((w) => Number(w) > 400)).toEqual([]);
 });
 
