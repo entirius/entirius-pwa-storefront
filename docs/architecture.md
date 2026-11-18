@@ -158,7 +158,7 @@ Priority order for React/Next.js code:
 
 The root layout renders CMS content above the header (`announcement`) and above the footer (`before-footer`) with
 the builder's own renderer. A slot is an ordinary contentdb static page published under the reserved route
-`layout-<slot>`; without that route nothing renders. The builder answers 404 for routes starting with `layout-`.
+`layout-<slot>`; without that route nothing renders. A route starting with `layout-` is not a page: the proxy answers 404.
 All slot pages come from one request per page render (`app/_components/layout-slots/api.query.ts`: the routes
 list, then `static-page?routes=…`, deduplicated with `React.cache()`); the draft in the active language wins.
 

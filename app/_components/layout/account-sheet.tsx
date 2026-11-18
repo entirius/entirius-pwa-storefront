@@ -4,7 +4,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { User } from "lucide-react";
 
@@ -19,10 +19,44 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/providers/auth.provider";
 import { HEADER_ICON } from "./header-icon";
-import { LoginForm } from "./login-form";
-import { RegisterForm } from "./register-form";
-import { ForgotPasswordForm } from "./forgot-password-form";
 import { useI18n } from "@/providers/i18n.provider";
+
+// The forms (react-hook-form, zod) load the first time they are shown, not with every page: a plain import() when
+// the view mounts, and the form renders once it is there (a few ms from the cache). No <Suspense> on purpose: React
+// holds a suspended boundary's fallback for at least 300 ms, even when the file is already loaded.
+const loadLoginForm = () => import("./login-form").then((m) => m.LoginForm);
+const loadRegisterForm = () => import("./register-form").then((m) => m.RegisterForm);
+const loadForgotPasswordForm = () => import("./forgot-password-form").then((m) => m.ForgotPasswordForm);
+
+// Renders `children` with what `load` resolves to. A load that fails (no network, a tab older than the last deploy)
+// offers a page reload: the bundler keeps a failed chunk failed for the page's lifetime.
+function Loaded<T>({ load, children }: { load: () => Promise<T>; children: (loaded: T) => ReactNode }) {
+  const { t } = useI18n();
+  const [state, setState] = useState<{ loaded: T } | "failed" | null>(null);
+
+  useEffect(() => {
+    let live = true;
+    void load().then(
+      (loaded) => live && setState({ loaded }),
+      () => live && setState("failed"),
+    );
+    return () => {
+      live = false;
+    };
+  }, [load]);
+
+  if (state === "failed") {
+    return (
+      <div role="alert" className="flex flex-col items-center gap-3 p-4 text-center text-sm">
+        <p>{t("common.try_again")}</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          {t("common.retry")}
+        </Button>
+      </div>
+    );
+  }
+  return state ? children(state.loaded) : null;
+}
 
 // Login/register entry point (shown only when logged out — see AccountNav).
 export function AccountSheet() {
@@ -65,6 +99,7 @@ export function AccountSheet() {
         ? t("auth.forgot_intro")
         : t("auth.sign_in_intro");
 
+  // `key={view}`: each view mounts its own <Loaded>, so a switch never renders one form with another's props.
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetTrigger asChild>
@@ -83,38 +118,50 @@ export function AccountSheet() {
           <SheetDescription>{intro}</SheetDescription>
         </SheetHeader>
         {view === "forgot" ? (
-          <ForgotPasswordForm
-            onBack={() => setView("login")}
-            onSent={() => {
-              setNotice(t("auth.reset_sent"));
-              setView("login");
-            }}
-          />
+          <Loaded key={view} load={loadForgotPasswordForm}>
+            {(ForgotPasswordForm) => (
+              <ForgotPasswordForm
+                onBack={() => setView("login")}
+                onSent={() => {
+                  setNotice(t("auth.reset_sent"));
+                  setView("login");
+                }}
+              />
+            )}
+          </Loaded>
         ) : view === "register" ? (
-          <RegisterForm
-            onSwitchToLogin={() => setView("login")}
-            onRegistered={() => {
-              setNotice(t("auth.registered"));
-              setView("login");
-            }}
-          />
+          <Loaded key={view} load={loadRegisterForm}>
+            {(RegisterForm) => (
+              <RegisterForm
+                onSwitchToLogin={() => setView("login")}
+                onRegistered={() => {
+                  setNotice(t("auth.registered"));
+                  setView("login");
+                }}
+              />
+            )}
+          </Loaded>
         ) : (
-          <LoginForm
-            notice={notice}
-            onSuccess={() => {
-              setLoggedIn(true);
-              setOpen(false);
-              goToProfile();
-            }}
-            onSwitchToRegister={() => {
-              setNotice(null);
-              setView("register");
-            }}
-            onForgotPassword={() => {
-              setNotice(null);
-              setView("forgot");
-            }}
-          />
+          <Loaded key={view} load={loadLoginForm}>
+            {(LoginForm) => (
+              <LoginForm
+                notice={notice}
+                onSuccess={() => {
+                  setLoggedIn(true);
+                  setOpen(false);
+                  goToProfile();
+                }}
+                onSwitchToRegister={() => {
+                  setNotice(null);
+                  setView("register");
+                }}
+                onForgotPassword={() => {
+                  setNotice(null);
+                  setView("forgot");
+                }}
+              />
+            )}
+          </Loaded>
         )}
       </SheetContent>
     </Sheet>
