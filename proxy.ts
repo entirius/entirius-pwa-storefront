@@ -15,47 +15,6 @@ import { DEFAULT_PROFILE } from "@/lib/profile-path";
 import { localized_catalog_key, route_exists } from "@/utils/route-exists";
 
 
-// Loop guard for the self request of `render_not_found`.
-const NOT_FOUND_RENDER_HEADER = "x-not-found-render";
-
-// The `status` of `NextResponse.rewrite` is ignored by `next start` and the page streams its body with 200,
-// so the 404 has to come from here: render the not-found page with an internal request and answer with its
-// body and status 404. Null (dev server, which answers 404 itself, or the request failed) = fall back to the
-// plain rewrite.
-async function render_not_found(request: NextRequest, path: string): Promise<NextResponse | null> {
-  if (process.env.NODE_ENV !== "production") return null;
-  try {
-    // Never derived from the request: behind a reverse proxy the forwarded host/proto name the public
-    // https address, which the loopback listener does not speak.
-    const origin = process.env.INTERNAL_ORIGIN ?? `http://localhost:${process.env.PORT ?? 3000}`;
-    const headers = new Headers({ [NOT_FOUND_RENDER_HEADER]: "1" });
-    for (const name of ["cookie", "accept-language", "cf-ipcountry", "user-agent"]) {
-      const value = request.headers.get(name);
-      if (value) headers.set(name, value);
-    }
-    // The timeout bounds the wait for the response head only; the body then streams through.
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 5_000);
-    const res = await fetch(new URL(path, origin), { headers, redirect: "manual", signal: controller.signal }).finally(
-      () => clearTimeout(timer),
-    );
-    // Only a rendered not-found page is relayed; anything else (an error page, a redirect, another service on
-    // that port) falls back to the plain rewrite.
-    const type = res.headers.get("content-type") ?? "";
-    if (res.status !== 404 || !type.startsWith("text/html")) {
-      await res.body?.cancel();
-      return null;
-    }
-    const out = new Headers({ "content-type": type, "cache-control": "no-store" });
-    // The page was rendered with the self request's own nonce: its policy goes along, not this request's.
-    const policy = res.headers.get("content-security-policy");
-    if (policy) out.set("content-security-policy", policy);
-    return new NextResponse(res.body, { status: 404, headers: out });
-  } catch {
-    return null;
-  }
-}
-
 export default async function proxy(request: NextRequest) {
   const { ct, lg, cr, th, ch, cid, visited, geo } = geo_CF_helper(request);
 
@@ -76,8 +35,8 @@ export default async function proxy(request: NextRequest) {
   const country_from_path = profile_from_path(pathname);
 
   // One address per page: the `default` profile lives without a prefix (`/catalog/x`), so `/default/...` is
-  // sent there for good. Not the self request of `render_not_found`, which renders `/default/not-found-route`.
-  if (country_from_path === DEFAULT_PROFILE && !request.headers.has(NOT_FOUND_RENDER_HEADER)) {
+  // sent there for good.
+  if (country_from_path === DEFAULT_PROFILE) {
     const url = request.nextUrl.clone();
     url.pathname = pathname.slice(`/${DEFAULT_PROFILE}`.length) || "/";
     return NextResponse.redirect(url, 301);
@@ -130,18 +89,17 @@ export default async function proxy(request: NextRequest) {
     return res;
   };
 
-  // Unknown product, category or CMS page: the page cannot set the status, so a missing address is
-  // rewritten to the not-found route (app/[customer_country]/not-found-route), with 404.
+  // Unknown product, category or CMS page: the page streams its body with 200 before it could call notFound(), so
+  // a missing address is rewritten here to the not-found route (app/[customer_country]/not-found-route) with 404.
   const is_document = !request.headers.get("rsc");
-  if (is_document && ch && !request.headers.has(NOT_FOUND_RENDER_HEADER)) {
+  if (is_document && ch) {
     const rest = pathname.split("/").filter(Boolean).slice(country_from_path ? 1 : 0);
     const ctx = { channel: ch, language: lg, currency: cr, country: ct };
     if (!(await route_exists(rest, ctx))) {
       const url = request.nextUrl.clone();
       const profile = country_from_path ?? DEFAULT_PROFILE;
       url.pathname = `/${profile}/not-found-route`;
-      const rendered = await render_not_found(request, url.pathname);
-      return finish(rendered ?? NextResponse.rewrite(url, { status: 404, request: { headers: request_headers } }));
+      return finish(NextResponse.rewrite(url, { status: 404, request: { headers: request_headers } }));
     }
 
     // A category written with another language's key (`/pl/catalog/chairs`): to the active language's key.
