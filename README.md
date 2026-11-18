@@ -46,7 +46,7 @@ Open `http://localhost:3100`. Unknown countries fall through to the `default` se
 | `_CONFIG/channels.config.json` | per channel: `CHANNEL_LABEL`, `API_CHECKOUT_KEY` (checkout `x-api-key`), optional `API_CONTACT_FORMS_KEY` (contact-forms `X-API-KEY`: switches on the enquiry form and the CMS form block), optional `API_STOCK_ALERTS_KEY` (stock-alerts `X-API-KEY`: switches on "Tell me when it is back" for sold-out sizes) |
 | `_CONFIG/countries.config.json` | per country: languages, currencies, channels + defaults |
 | `_CONFIG/theme.css` | client theme: overrides the values of the theme variables of `app/globals.css` (colours, `--radius`); empty = default look |
-| `_CONFIG/fonts.ts` | optional: typefaces of the shop, loaded and preloaded through `next/font`; the template loads Inter and Lexend Deca (also when the file is missing), a client font replaces them ([configuration](docs/configuration.md#typefaces-fontsts)) |
+| `_CONFIG/fonts.ts` | typefaces of the shop, loaded and preloaded through `next/font`; the template loads Inter and Lexend Deca, a client font replaces them ([configuration](docs/configuration.md#typefaces-fontsts)) |
 | `_CONFIG/messages.config.json` | optional: overrides of single interface messages per language |
 
 The template ships the two channels of the reference dataset (`default-europe`, `default-local`);

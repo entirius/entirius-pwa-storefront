@@ -14,7 +14,7 @@ cp -r _CONFIG.example _CONFIG
 # countries.config.json → country → languages/currencies/channels mapping
 # brand/                → identity assets (favicon, optional logo), named in app.config.json BRAND
 # theme.css             → client theme: values of the theme variables of app/globals.css (empty = default look)
-# fonts.ts              → optional: typefaces of the shop, loaded through next/font (template: Inter and Lexend Deca)
+# fonts.ts              → typefaces of the shop, loaded through next/font (template: Inter and Lexend Deca)
 # messages.config.json  → optional: overrides of single interface messages per language
 ```
 
@@ -66,7 +66,7 @@ metric-matched fallback face, so the text does not jump when the font arrives. T
 Lexend Deca (headings, prices, wordmark).
 
 A client typeface replaces them. Put the font file (`.woff2`) in `_CONFIG/assets/fonts/` and declare it under
-`--font-family-sans` (text); headings follow `--font-family-brand`:
+`--font-family-sans`; the text and the headings take it:
 
 ```ts
 import localFont from "next/font/local";
@@ -81,23 +81,15 @@ const sans = localFont({
 export const FONT_CLASSES = sans.variable;
 ```
 
-```css
-/* theme.css: headings in the same face. The variable sits on <body>, so :root cannot read it. */
-body {
-  --font-family-brand: var(--font-family-sans);
-}
-```
+A second face for headings, prices and the wordmark is a second `localFont` call with
+`variable: "--font-family-brand"`, its `.variable` added to `FONT_CLASSES`. `next/font` takes literal options only,
+which is why this is a file and not a key of `app.config.json`. `fonts.ts` is the supported way: a font declared
+with `@font-face` in `theme.css` still works, but it is not preloaded, and the template's `fonts.ts` keeps
+downloading Inter and Lexend Deca next to it.
 
-Without that rule the headings use the token stack (Arial in practice): the template's Lexend Deca is no longer
-loaded. A second face for headings is a second `localFont` call with `variable: "--font-family-brand"`, its
-`.variable` added to `FONT_CLASSES`. `next/font` takes literal options only, which is why this is a file and not a key of
-`app.config.json`. `fonts.ts` is the supported way: a font declared with `@font-face` in `theme.css` still works,
-but it is not preloaded, and the template's `fonts.ts` keeps downloading Inter and Lexend Deca next to it.
-
-The file is optional. Without `_CONFIG/fonts.ts` the import falls back to `_CONFIG.example/fonts.ts` (a `paths`
-entry in `tsconfig.json`), so the shop gets the template's typefaces. A client file that exists but does not export
-`FONT_CLASSES` still stops `tsc` and the build. The key is exactly `@/_CONFIG/font*`: a key without `*` and two
-targets makes the bundler (SWC) panic, and `fonts*` does not resolve in TypeScript (TS2307).
+The file is required, like `theme.css`. A `_CONFIG/` copied before the file existed gets it with
+`cp _CONFIG.example/fonts.ts _CONFIG/` (the default look); without it the build stops on the missing
+`@/_CONFIG/fonts` module. A file that does not export `FONT_CLASSES` stops `tsc` and the build as well.
 
 ## Client theme (`theme.css`)
 
