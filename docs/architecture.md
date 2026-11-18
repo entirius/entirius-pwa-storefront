@@ -16,7 +16,7 @@ entirius-pwa-storefront/
 │       ├── api.client-access.ts  # make_client_access() — uses document.cookie
 │       └── api.static-access.ts  # static values for ISR/build-time fetches
 ├── app/
-│   ├── layout.tsx                # Root layout (providers, fonts, language, layout slots, cookie banner)
+│   ├── layout.tsx                # Root layout (providers, language, layout slots, cookie banner)
 │   ├── _components/layout/       # Header, footer, navigation, search, cart link, wishlist/account sheets
 │   ├── _components/layout-slots/ # CMS content on every page (announcement, before-footer)
 │   ├── _components/cookie-consent/ # Cookie banner on django-agreements
@@ -52,7 +52,8 @@ entirius-pwa-storefront/
     ├── app.config.json           # API_BASE_URL, DEBUG_MODE, THEME, SITE_NAME, BRAND
     ├── channels.config.json      # Channel labels + checkout keys
     ├── countries.config.json     # Country → language/currency/channel mapping
-    └── theme.css                 # Client theme (empty = default look)
+    ├── theme.css                 # Client theme (empty = default look)
+    └── fonts.ts                  # Typefaces, loaded through next/font
 ```
 
 ## File Map
