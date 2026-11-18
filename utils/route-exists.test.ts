@@ -108,4 +108,8 @@ describe("is_app_route", () => {
     expect(is_app_route("newsletter")).toBe(true);
     expect(is_app_route("newsletter-archive")).toBe(false);
   });
+
+  it("knows the cancel page of the back-in-stock mails", () => {
+    expect(is_app_route("stock-alert")).toBe(true);
+  });
 });

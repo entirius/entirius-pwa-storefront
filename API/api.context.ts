@@ -19,6 +19,7 @@ export function create_api(cookie_access: COOKIE_ACCESS) {
     get_contact_forms_key: () => cookie_access.get("cf_key"),
     get_newsletter_key: () => cookie_access.get("nl_key"),
     get_agreements_key: () => cookie_access.get("ag_key"),
+    get_stock_alerts_key: () => cookie_access.get("sa_key"),
     set_tokens: (tokens: { access_token: string; refresh_token: string }) => {
       cookie_access.set?.("at", tokens.access_token);
       cookie_access.set?.("rt", tokens.refresh_token);

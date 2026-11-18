@@ -24,25 +24,24 @@ Response:
 }
 ```
 
-## ⚠️ Search results are a "lite" shape (diverges from catalog `products/`)
+## Shape: products of `search/` are items of `products/`
 
-The search product/category items are **not** the same shape as the catalog endpoints, so the shared catalog normalizers (`NORM_PRODUCTS_DATA`, `ProductTile`) are **deliberately not reused**. The divergence is contained inside the search components (local mapping), pending a backend/shape reconciliation.
+Since matrix 5.0 the products of `search/` come through the same serializer as `products/`: nested `price` object
+with `currency`, `main_image` as a media object, `badges` as `{ idx, name }`, `categories`. `search_query` runs them
+through `NORM_PRODUCTS_DATA` (`NORM_SEARCH_DATA`), so the row reads the same `Product` as the catalog tile. There is no
+search-only product type or mapping. This storefront needs matrix 5.0 or later: on 4.x the header search shows no prices.
 
-| Field | catalog `products/` | search `search/` |
-|---|---|---|
-| price | nested `{ gross, currency, final_gross, has_special_price, … }` | flat number `price` + siblings `gross`, `final_gross`, `special_gross`, `has_special_price`, `percent_off`, `promo_badge` |
-| image | `media: [{ source_set:[…] }]` (array) | `main_image`: **stringified JSON** of one media object (has `source_set`), or `null` |
-| currency | on the price object | absent — read from the `cr` cookie client-side |
-
-Category item: `{ idx, name, url_key, image_url, products_count }` (vs catalog `{ id, url_key, name, has_children }`).
+Category item: `{ idx, name, url_key, image_url, products_count }` (vs catalog `{ id, url_key, name, has_children }`);
+categories and phrases stay as the API sends them.
 
 ## Design
 
-- **No shared normalizer, no shared-flow coupling.** `search_query`'s `queryFn` returns the **raw** response. No `NORM_*` reuse, no `seed`/`["product", url_key]` cache warming.
-- **Local mapping** lives in `search-product-row.tsx`:
-  - `resolve_image(main_image)` — `try/catch JSON.parse`, picks a ~320px `source_set` thumb, falls back to `image_placeholder`.
-  - `to_price(product, currency)` — the lite price fields (including `range_from` of a configurable product) as a `Price`, rendered by `price_lines()` in the active language; base + optional struck-through special.
-  - `product_href(product)` — a variant (no `url_key`) links to its parent's page with `?variant=<sku>`.
+- **Normalized like the catalog.** `search_query`'s `queryFn` returns `NORM_SEARCH_DATA(response)`: products through
+  `NORM_PRODUCTS_DATA`, no `seed`/`["product", url_key]` cache warming.
+- **The row** (`search-product-row.tsx`) shows the catalog's `ProductPrice` (compact: base + struck-through special,
+  Omnibus line, "From" for a configurable product, in the active language), a thumb of `media[0]` (~320px source, else
+  the first, else the placeholder) and the name. `product_href(product)`: a variant (no `url_key`) links to its parent's
+  page with `?variant=<sku>`.
 - **Overlay:** phone: shadcn `Sheet` `side="top"`. Desktop: the same Radix dialog, non-modal and without a portal, so it stays in the header, the page behind stays usable, and Radix still handles Escape, a click outside and the focus. Its results sit right under the top row and cover the menu row: the pointer on its way to them must not cross a menu trigger, which would open the megamenu over them. **Input:** `InputGroup`. **Live query:** 300ms debounce, gated `enabled: q.trim().length >= 2`, `placeholderData: (prev) => prev`.
 
 ## Files
@@ -50,12 +49,12 @@ Category item: `{ idx, name, url_key, image_url, products_count }` (vs catalog `
 | File | Role |
 |---|---|
 | `API/api.routes.ts` | `API_SEARCH_ROUTE` + policy (`default_querys: ["language","currency","country"]`) |
-| `app/_components/layout/search.query.ts` | `search_query(api, {q, scope})` → **raw** `SearchResponse` |
+| `app/_components/layout/search.query.ts` | `search_query(api, {q, scope})` → `SearchResponse` (`NORM_SEARCH_DATA`) |
 | `app/_components/layout/header-search.client.tsx` | shared by both: `useHeaderSearch` (debounce + `useQuery`), the field, the states |
 | `app/_components/layout/search-sheet.tsx` | phone: trigger + top `Sheet` |
 | `app/_components/layout/search-bar.client.tsx` | desktop: magnifier + spreading field + results under the top row |
 | `app/_components/layout/search-results.tsx` | phrases / categories / products sections |
-| `app/_components/layout/search-product-row.tsx` | compact product row + **local** image/price mapping |
+| `app/_components/layout/search-product-row.tsx` | compact product row over the catalog's `Product`, `ProductPrice` and `ProductThumb` |
 | `app/_components/layout/header-component.tsx` | mounts both in the action row (each shows at its width) and anchors the desktop results |
 | `app/_components/not-found-search.client.tsx` | the same search inline on the 404 page |
 | `app/[customer_country]/search/page.tsx` | results page: the catalog listing over `products/?search=` |
@@ -89,4 +88,4 @@ pagination, Omnibus lines) with `{ search: q, page, page_size, ...q_/s_/r_ }` in
 
 - Filter counts for the results: needs `search` on `options/` (backend).
 - Recent-searches history.
-- Reconcile the lite product/category shape with the catalog shape (then the local mapping in `search-product-row.tsx` can be revisited).
+- Reconcile the category shape with the catalog's.

@@ -89,7 +89,7 @@ function MegamenuPanel({ main }: { main: CATEGORY }) {
     // Columns fill top to bottom, so a parent with many children leaves no empty row next to it;
     // a parent and its children always stay in one column.
     // `px-2` plus the links' own padding: their text starts where the header's content does.
-    <div className="mx-auto w-full max-w-7xl columns-3xs gap-6 px-2 py-6">
+    <div className="mx-auto w-full max-w-(--page-max-width) columns-3xs gap-6 px-2 py-6">
       {NORM_CATEGORY_BRANCH(main, data?.data).map((child) => (
         <MegamenuColumn key={child.id ?? child.url_key} child={child} />
       ))}

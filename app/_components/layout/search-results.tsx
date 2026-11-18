@@ -22,14 +22,12 @@ type SearchCategory = {
 export function SearchResults({
   data,
   query,
-  currency,
   onNavigate,
   onPhrase,
 }: {
   data: SearchResponse;
   // The searched phrase: the products end with a link to all its results.
   query?: string;
-  currency: string;
   onNavigate: () => void;
   onPhrase: (text: string) => void;
 }) {
@@ -104,7 +102,6 @@ export function SearchResults({
               <SearchProductRow
                 key={p.sku ?? p.url_key ?? i}
                 product={p}
-                currency={currency}
                 onNavigate={onNavigate}
               />
             ))}

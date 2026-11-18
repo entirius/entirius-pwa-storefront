@@ -5,7 +5,7 @@
 "use client";
 import Link from "next/link";
 import { useMemo, useRef, useState, type ReactNode } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { PageLoading } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -32,11 +32,13 @@ import { key_facts_line } from "./key-facts";
 import { ProductBadges } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-badges";
 import { EnquiryForm, PRODUCT_ENQUIRY_TYPE } from "@/components/enquiry-form.client";
 import { NotifySimilar, useNotifySimilarAvailable } from "@/components/notify-similar.client";
+import { StockAlertForm } from "@/components/stock-alert.client";
 import { NOTIFY_ATTRIBUTES } from "@/lib/contact-forms-config";
 import { notify_body } from "@/lib/notify-body";
 import { KEY_FACTS } from "@/lib/product-config";
 import { description_html, has_text } from "@/lib/rich-html";
 import { asks_stock, buy_block, sold_online } from "@/lib/buy-rules";
+import { useStockAlertsAvailable } from "@/lib/stock-alerts";
 
 const PLACEHOLDER_MEDIA = [[{ uri: image_placeholder, width: 600, height: 600 }]];
 
@@ -75,6 +77,8 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
   const notify_available = useNotifySimilarAvailable();
   const [notify_open, setNotifyOpen] = useState(false);
   const buy_area = useRef<HTMLDivElement>(null);
+  const alerts = useStockAlertsAvailable();
+  const query_client = useQueryClient();
 
   if (isLoading) return <PageLoading />;
   if (error || !product) return <div>{t("product.not_found")}</div>;
@@ -105,7 +109,11 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
   // A single piece cannot be bought twice: no stepper then.
   const single_piece = stock_known && max === 1;
   const facts = key_facts_line(product.attributes, KEY_FACTS, language);
-  const notify_visible = sold_out && notify_available;
+  // Back-in-stock request: the chosen variant (or the product) is sold out by the real-time stock. With every
+  // variant sold out and none chosen, the buy area asks for a choice first.
+  const alert_sku = alerts && stock_known && block === "quantity" ? buy.sku : null;
+  const alert_choose = alerts && stock_known && !!configurable?.sold_out && block === "variant";
+  const notify_visible = sold_out && notify_available && !alert_sku;
 
   // The variant's name carries its "(S/M)", so the notice names what went in.
   const add_to_cart = () => {
@@ -125,10 +133,53 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
       : block === null
         ? t("product.add_to_cart")
         : t("product.not_available_online"));
+  const scroll_to_buy_area = () => buy_area.current?.scrollIntoView({ block: "center", behavior: scroll_behavior() });
   const open_notify = () => {
     setNotifyOpen(true);
-    buy_area.current?.scrollIntoView({ block: "center", behavior: scroll_behavior() });
+    scroll_to_buy_area();
   };
+  // The backend says the SKU can be bought after all: re-read the stock, the buy button comes back with it.
+  const refetch_stock = () => {
+    query_client.invalidateQueries({ queryKey: ["stock"] });
+    query_client.invalidateQueries({ queryKey: ["stocks"] });
+  };
+  const buy_controls = alert_sku ? (
+    <StockAlertForm
+      key={alert_sku}
+      sku={alert_sku}
+      product_name={product.name}
+      option_line={configurable?.option_line}
+      onInStock={refetch_stock}
+      className="min-w-0 flex-1"
+    />
+  ) : alert_choose ? (
+    <p data-stock-alert data-stock-alert-state="choose" className="min-w-0 flex-1 text-sm text-muted-foreground">
+      {t("stockAlert.choose_option")}
+    </p>
+  ) : (
+    <>
+      {!single_piece && (
+        <>
+          <span className="sr-only">{t("product.quantity")}</span>
+          <QuantityStepper
+            size="lg"
+            value={Math.min(qty, Math.max(max, 1))}
+            onChange={setQty}
+            max={Math.max(max, 1)}
+            disabled={!canBuy}
+          />
+        </>
+      )}
+      <Button size="lg" className="min-w-0 flex-1 px-4 md:px-6" disabled={!canBuy} onClick={add_to_cart}>
+        {cta_label}
+      </Button>
+    </>
+  );
+  const alert_trigger = (
+    <Button className="min-w-0 flex-1" data-stock-alert-trigger onClick={scroll_to_buy_area}>
+      {t("stockAlert.short")}
+    </Button>
+  );
   const related_section = (
     <div
       data-stock={sold ? "out" : "in"}
@@ -192,23 +243,13 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
 
         {/* Actions. */}
         <div className="flex flex-col gap-3">
-          {configurable && <VariantPicker {...configurable} />}
-          <div ref={buy_area} data-buy-area className="flex items-center gap-2 md:gap-3">
-            {!single_piece && (
-              <>
-                <span className="sr-only">{t("product.quantity")}</span>
-                <QuantityStepper
-                  size="lg"
-                  value={Math.min(qty, Math.max(max, 1))}
-                  onChange={setQty}
-                  max={Math.max(max, 1)}
-                  disabled={!canBuy}
-                />
-              </>
-            )}
-            <Button size="lg" className="min-w-0 flex-1 px-4 md:px-6" disabled={!canBuy} onClick={add_to_cart}>
-              {cta_label}
-            </Button>
+          {configurable && <VariantPicker {...configurable} sold_out_selectable={alerts} />}
+          <div
+            ref={buy_area}
+            data-buy-area
+            className={cn("flex gap-2 md:gap-3", alert_sku ? "items-start" : "items-center")}
+          >
+            {buy_controls}
             <WishlistButton
               sku={product.sku}
               item={{
@@ -271,13 +312,15 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
           {sold_out ? (
             <>
               {/* With the notify action the bar has room for two buttons only: the marker stays in the buy area. */}
-              {!notify_visible && <span data-unavailable className="text-sm font-medium">{t("product.out_of_stock")}</span>}
+              {!notify_visible && !alert_sku && (
+                <span data-unavailable className="text-sm font-medium">{t("product.out_of_stock")}</span>
+              )}
               <Button
                 asChild
                 variant="outline"
                 className={cn(
                   "hidden group-has-[[data-related-products]]/product:inline-flex",
-                  notify_visible ? "shrink-0" : "ml-auto",
+                  notify_visible || alert_sku ? "shrink-0" : "ml-auto",
                 )}
               >
                 <Link href="#related-products">{t("product.see_similar")}</Link>
@@ -287,7 +330,10 @@ export function ProductClient({ product_url_key, related }: { product_url_key: s
                   {t("product.notify_short")}
                 </Button>
               )}
+              {alert_sku && alert_trigger}
             </>
+          ) : alert_sku ? (
+            alert_trigger
           ) : (
             <Button className="ml-auto flex-1" disabled={!canBuy} onClick={add_to_cart}>
               {cta_label}

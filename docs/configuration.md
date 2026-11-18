@@ -10,7 +10,7 @@ runtime (the optional message overrides).
 ```bash
 cp -r _CONFIG.example _CONFIG
 # app.config.json       → API_BASE_URL (backend URL), site name and URL, THEME, BRAND
-# channels.config.json  → CHANNEL_LABEL and API_CHECKOUT_KEY per channel (optional API_CONTACT_FORMS_KEY, API_NEWSLETTER_KEY, API_AGREEMENTS_KEY)
+# channels.config.json  → CHANNEL_LABEL and API_CHECKOUT_KEY per channel (optional API_CONTACT_FORMS_KEY, API_NEWSLETTER_KEY, API_AGREEMENTS_KEY, API_STOCK_ALERTS_KEY)
 # countries.config.json → country → languages/currencies/channels mapping
 # brand/                → identity assets (favicon, optional logo), named in app.config.json BRAND
 # theme.css             → client theme: values of the theme variables of app/globals.css (empty = default look)
@@ -52,6 +52,7 @@ The template ships the two channels of the reference dataset (`default-europe`, 
 | `channels.config.json` | `{channel}.API_CHECKOUT_KEY` | Checkout API key per channel (`x-api-key`) |
 | `channels.config.json` | `{channel}.API_CONTACT_FORMS_KEY` | Optional contact-forms API key per channel (`X-API-KEY`, scope `contact_form`). `proxy.ts` sends it as the `cf_key` cookie. Without it no contact form is offered |
 | `channels.config.json` | `{channel}.API_NEWSLETTER_KEY` | Optional newsletter key per channel (`X-API-KEY` of `agreements/v2/{channel}/newsletter/subscribe/`, a token with the scope `agreements.subscribe`). `proxy.ts` sends it as the `nl_key` cookie. Without it the footer has no newsletter form and the register form no opt-in |
+| `channels.config.json` | `{channel}.API_STOCK_ALERTS_KEY` | Optional back-in-stock alerts key per channel (`X-API-KEY` of `stock-alerts/v2/{channel}/subscriptions/`, a token with the scope `stock_alerts.subscribe`). `proxy.ts` sends it as the `sa_key` cookie. Without it a sold-out size stays disabled and the product page offers no "Tell me when it is back" form |
 | `channels.config.json` | `{channel}.API_AGREEMENTS_KEY` | Optional agreements key per channel (`X-API-KEY` of `agreements/v2/{channel}/orders/{order_id}/agreements/`, today a token with the same scope `agreements.subscribe`, set apart so a deployment can use its own). `proxy.ts` sends it as the `ag_key` cookie. Without it a guest order goes through but the agreements accepted at checkout are not recorded with it (a signed-in customer's JWT still records them) |
 | `countries.config.json` | `{country}.default_language` | Default language for country (the `lg` cookie: interface language and the API `language`) |
 | `countries.config.json` | `{country}.default_currency` | Default currency for country |
@@ -118,6 +119,62 @@ cart, checkout, search, wishlist. Layout slot wrappers carry `data-layout-slot="
 sits in a `display: contents` wrapper with `data-cms-type="<core_type>"`. The product page root carries `data-product-page`,
 the category header `data-catalog-header`; product tiles and search rows carry `data-product-tile` and
 `data-stock="in|out"`, and an out-of-stock tile's label `data-sold-out-label`.
+
+### Theme hooks and layout variables
+
+Besides the hooks above, theme rules can select these attributes (`[data-header-bar]`) instead of the DOM structure or Tailwind classes.
+
+| Hook | Element |
+|---|---|
+| `data-header-bar` | Header row inside `<header>`: logo, navigation, buttons (a grid from `md`) |
+| `data-header-logo` | Logo link |
+| `data-header-nav` | Desktop navigation: the megamenu inside `data-header-bar`, or the hamburger menu button inside `data-header-start` |
+| `data-header-actions` | Wrapper of both button groups; `display: contents` from `md`, a flex row from `xl` when the menu shares the top row |
+| `data-header-start` | Menu, search and language buttons |
+| `data-header-end` | Wishlist, account and cart buttons |
+| `data-locale-switch` | Language switch |
+| `data-footer-columns` | Footer grid: brand, newsletter, link columns |
+| `data-footer-bottom` | Footer bottom bar with the copyright line |
+| `data-cms-document` | Container of a CMS page's sections |
+| `data-section-header` | `<header>` of a CMS section: title, description, buttons |
+| `data-section-intro` | Title and description inside the section header |
+| `data-cms-buttons` | Wrapper of CMS buttons (section header, hero, accordion, tiles) |
+| `data-hero-card` | Hero tile card |
+| `data-hero-content` | Hero tile text column |
+| `data-hero-media` | Hero tile image |
+| `data-rich-text` | Rich text from the editor |
+| `data-product-tile-body` | Product tile name and description; in the compact tile the name, price and action |
+| `data-product-tile-description` | Product tile description |
+| `data-product-tile-footer` | Product tile price and quick-add button (not in the compact tile) |
+| `data-quick-add` | Quick-add button |
+| `data-single-piece` | Product tile of a single-piece product |
+| `data-product-grid` | Grid of product tiles: CMS product section in grid layout (not the slider), category listing, related products (tiles in wrapper `div`s) |
+| `data-related-products` | Related products section on the product page |
+| `data-gallery-thumb` | Product gallery thumbnail |
+| `data-catalog-list` | Category listing column beside the filters |
+| `data-filters-panel` | Filters sidebar (from `lg`) |
+| `data-filters-trigger` | Button that opens the filters sheet (below `lg`) |
+| `data-filters-heading` | Filters title in the sidebar and in the sheet |
+| `data-expandable` | Expandable category description |
+| `data-order-totals` | Order summary in the cart and checkout |
+| `data-cms-variant="<n>"` | CMS section or tile wrapper (the one with `data-cms-type`), when the published element has a `variant` |
+
+`data-cms-variant` names the look option of an element:
+`[data-cms-type="section-text"][data-cms-variant="2"] > section`. The editor offers it on sections ("variant 1-4"); its
+tiles have no such option. Without a `variant` the wrapper has no attribute, but the editor cannot clear a variant once
+set, so a theme gives variant 1 the default look and styles 2-4. Core does not style variants of the editor's section
+types; `section-type-a` (variants 1-4) and `tile-type-a` (1-3), which the editor does not offer, style their own
+`variant` (default 1).
+
+| Variable | Purpose | Default |
+|---|---|---|
+| `--page-max-width` | Max width of the header, main content, footer, megamenu and the `before-footer` slot | `var(--container-7xl)` (80rem) |
+| `--catalog-columns` | Category listing columns from `md`; phones always show 2 | `3` |
+
+```css
+:root { --page-max-width: 90rem; }
+@media (min-width: 64rem) { :root { --catalog-columns: 4; } }
+```
 
 ## Message overrides (`messages.config.json`)
 

@@ -111,6 +111,12 @@ export const API_AGREEMENT_DEFINITIONS_ROUTE = "/api/agreements/v2/__CHANNEL__/d
 // The order must exist with that email (404 otherwise); a repeat records nothing new. Needs the channel's agreements
 // key or the customer's JWT (django-agreements >= 3.0.1).
 export const API_ORDER_AGREEMENTS_ROUTE = "/api/agreements/v2/__CHANNEL__/orders/";
+// ----- BACK-IN-STOCK ALERTS (django_stock_alerts) -----
+// POST { email, sku, language, country, consent, consent_text, website } with the channel's stock-alerts key
+// (optional: without it no request is offered). 201 saved, 409 IN_STOCK, 429 throttled, 400 invalid.
+export const API_STOCK_ALERTS_SUBSCRIBE_ROUTE = "/api/stock-alerts/v2/__CHANNEL__/subscriptions/";
+// The cancel link of the alert mails: POST { token }. No key, the signed token is the credential.
+export const API_STOCK_ALERTS_CANCEL_ROUTE = "/api/stock-alerts/v2/__CHANNEL__/subscriptions/cancel/";
 // ----- COOKIE CONSENT (django-agreements >= 2.2.0) -----
 export const API_COOKIE_BANNER_ROUTE =
   "/api/agreements/v2/__CHANNEL__/cookie-banner/";
@@ -367,6 +373,12 @@ export const API_ROUTES_POLICY = {
     ],
   },
   [API_NEWSLETTER_CONFIRM_ROUTE]: {
+    default_headers: [{ "Content-Type": "application/json" }],
+  },
+  [API_STOCK_ALERTS_SUBSCRIBE_ROUTE]: {
+    default_headers: [["X-API-KEY", "stock_alerts_key"], { "Content-Type": "application/json" }],
+  },
+  [API_STOCK_ALERTS_CANCEL_ROUTE]: {
     default_headers: [{ "Content-Type": "application/json" }],
   },
   [API_CMS_STATIC_PAGE_ROUTE]: { shared_cache: true },

@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import type { Variant, VariantsData } from "@/utils/NORMALIZERS/variant.normalizer";
+import type { Variant, VariantAxis, VariantsData } from "@/utils/NORMALIZERS/variant.normalizer";
 
 // axis idx -> chosen option value. Partial while the shopper is still choosing.
 export type Selection = Record<string, string>;
@@ -64,4 +64,15 @@ export function lowest_price(variants: Variant[]): { variant: Variant; differs: 
   if (!priced.length) return null;
   const variant = priced.reduce((low, v) => (v.amount! < low.amount! ? v : low));
   return { variant, differs: priced.some((v) => v.amount !== variant.amount) };
+}
+
+// The chosen options as a shopper reads them, axis label first: "Size M, Colour Red".
+export function option_line(axes: VariantAxis[], selection: Selection): string {
+  return axes
+    .map((axis) => {
+      const option = axis.options.find((o) => o.value === selection[axis.idx]);
+      return option ? `${axis.label} ${option.label}` : "";
+    })
+    .filter(Boolean)
+    .join(", ");
 }
