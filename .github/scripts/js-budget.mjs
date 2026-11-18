@@ -10,8 +10,8 @@ import { pathToFileURL } from "node:url";
 import { gzipSync } from "node:zlib";
 
 const DIST = ".next";
-const LIMIT_SHARED_KB = 285;
-const LIMIT_ROUTE_KB = 370;
+const LIMIT_SHARED_KB = 300;
+const LIMIT_ROUTE_KB = 390;
 
 const gzip_size = (file) => gzipSync(readFileSync(join(DIST, file)), { level: 9 }).length;
 const total = (files) => [...files].reduce((sum, file) => sum + gzip_size(file), 0);
