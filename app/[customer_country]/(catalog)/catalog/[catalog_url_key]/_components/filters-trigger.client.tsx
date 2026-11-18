@@ -32,7 +32,7 @@ export function FiltersTriggerClient({ options }: { options: ListingOptions }) {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" size="sm" className="lg:hidden">
+        <Button data-filters-trigger variant="outline" size="sm" className="lg:hidden">
           <div className="relative">
             <FilterIcon className="size-4" />
             {has_active && (

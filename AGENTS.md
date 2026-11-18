@@ -48,7 +48,7 @@ Same rule applies to PR descriptions: no `Generated with [Claude Code]` footer.
 - `stores/` — Zustand cart and wishlist, both synced with the backend (the wishlist for a signed-in customer).
 - `components/ui/` — shadcn/ui primitives.
 - `lib/i18n/` — message catalogues, `t()`, `price()`; `providers/i18n.provider.tsx` for client components.
-- `_CONFIG/` (gitignored, from `_CONFIG.example/`) — backend URL, channels, countries, brand assets, client `theme.css`.
+- `_CONFIG/` (gitignored, from `_CONFIG.example/`) — backend URL, channels, countries, brand assets, client `theme.css`, typefaces (`fonts.ts`).
 - `tests/e2e/` — Playwright specs.
 
 Read the guide for the area before changing it: [architecture](docs/architecture.md) · [configuration](docs/configuration.md) · [patterns and gotchas](docs/patterns.md) · [search](docs/search.md) · [testing](docs/testing.md) · [styling](docs/styling.md).

@@ -14,6 +14,7 @@ cp -r _CONFIG.example _CONFIG
 # countries.config.json → country → languages/currencies/channels mapping
 # brand/                → identity assets (favicon, optional logo), named in app.config.json BRAND
 # theme.css             → client theme: values of the theme variables of app/globals.css (empty = default look)
+# fonts.ts              → typefaces of the shop, loaded through next/font (template: Inter and Lexend Deca)
 # messages.config.json  → optional: overrides of single interface messages per language
 ```
 
@@ -57,6 +58,39 @@ The template ships the two channels of the reference dataset (`default-europe`, 
 | `countries.config.json` | `{country}.default_currency` | Default currency for country |
 | `countries.config.json` | `{country}.default_channel` | Default channel for country |
 
+## Typefaces (`fonts.ts`)
+
+`_CONFIG/fonts.ts` declares the shop's typefaces with `next/font` and exports `FONT_CLASSES`, the class names
+`app/layout.tsx` puts on `<body>`. Only the fonts declared there are built, self-hosted and preloaded; each gets a
+metric-matched fallback face, so the text does not jump when the font arrives. The template loads Inter (text) and
+Lexend Deca (headings, prices, wordmark).
+
+A client typeface replaces them. Put the font file (`.woff2`) in `_CONFIG/assets/fonts/` and declare it under
+`--font-family-sans`; the text and the headings take it:
+
+```ts
+import localFont from "next/font/local";
+
+const sans = localFont({
+  src: "./assets/fonts/my-font.woff2",
+  variable: "--font-family-sans",
+  weight: "100 900",
+  fallback: ["sans-serif"],
+});
+
+export const FONT_CLASSES = sans.variable;
+```
+
+A second face for headings, prices and the wordmark is a second `localFont` call with
+`variable: "--font-family-brand"`, its `.variable` added to `FONT_CLASSES`. `next/font` takes literal options only,
+which is why this is a file and not a key of `app.config.json`. `fonts.ts` is the supported way: a font declared
+with `@font-face` in `theme.css` still works, but it is not preloaded, and the template's `fonts.ts` keeps
+downloading Inter and Lexend Deca next to it.
+
+The file is required, like `theme.css`. A `_CONFIG/` copied before the file existed gets it with
+`cp _CONFIG.example/fonts.ts _CONFIG/` (the default look); without it the build stops on the missing
+`@/_CONFIG/fonts` module. A file that does not export `FONT_CLASSES` stops `tsc` and the build as well.
+
 ## Client theme (`theme.css`)
 
 Loaded in `app/layout.tsx` right after `app/globals.css`, so it overrides the values of the theme variables
@@ -70,15 +104,69 @@ wants pill buttons sets `--control-radius: 9999px`, which rounds the inputs, sel
 background to `transparent`, paddings and radius to `0` and the divider to `var(--border)`, and the content lines up
 with the breadcrumbs. `surface-outline` keeps its border, the brand radius (`rounded-lg`) and `--surface-outline-padding`; `--surface-backdrop` is the
 category header's gradient (`none` turns it off). Other panel and card
-corners come from `--brand-radius-*`, and `--radius` only reaches the cookie banner's dialog. Fonts: set `--font-family-sans` (text) and `--font-family-brand` (headings, prices, wordmark; defaults to Lexend Deca);
-self-host them with
-`@font-face` and `url("./assets/...")` relative to the file. The dark set sits under `html.dark`, which a `:root`
+corners come from `--brand-radius-*`, and `--radius` only reaches the cookie banner's dialog. Fonts belong in `fonts.ts` (above): an `@font-face` in the theme is not preloaded. The dark set sits under `html.dark`, which a `:root`
 rule in the theme cannot beat. `--leading` is the colour of CMS dyes (`bg-leading`, `text-leading`); white text
 sits on it. `--product-image-ratio` (width / height, default `1 / 1`) shapes every product photo: listing, PDP gallery,
 cart, checkout, search, wishlist. Layout slot wrappers carry `data-layout-slot="<slot>"` for theme rules, and every CMS section and tile
 sits in a `display: contents` wrapper with `data-cms-type="<core_type>"`. The product page root carries `data-product-page`,
 the category header `data-catalog-header`; product tiles and search rows carry `data-product-tile` and
 `data-stock="in|out"`, and an out-of-stock tile's label `data-sold-out-label`.
+
+### Theme hooks and layout variables
+
+Besides the hooks above, theme rules can select these attributes (`[data-header-bar]`) instead of the DOM structure or Tailwind classes.
+
+| Hook | Element |
+|---|---|
+| `data-header-bar` | Header row inside `<header>`: logo, navigation, buttons (a grid from `md`) |
+| `data-header-logo` | Logo link |
+| `data-header-nav` | Desktop navigation: the megamenu inside `data-header-bar`, or the hamburger menu button inside `data-header-start` |
+| `data-header-actions` | Wrapper of both button groups; `display: contents` from `md`, a flex row from `xl` when the menu shares the top row |
+| `data-header-start` | Menu, search and language buttons |
+| `data-header-end` | Wishlist, account and cart buttons |
+| `data-locale-switch` | Language switch |
+| `data-footer-columns` | Footer grid: brand, newsletter, link columns |
+| `data-footer-bottom` | Footer bottom bar with the copyright line |
+| `data-cms-document` | Container of a CMS page's sections |
+| `data-section-header` | `<header>` of a CMS section: title, description, buttons |
+| `data-section-intro` | Title and description inside the section header |
+| `data-cms-buttons` | Wrapper of CMS buttons (section header, hero, accordion, tiles) |
+| `data-hero-card` | Hero tile card |
+| `data-hero-content` | Hero tile text column |
+| `data-hero-media` | Hero tile image |
+| `data-rich-text` | Rich text from the editor |
+| `data-product-tile-body` | Product tile name and description; in the compact tile the name, price and action |
+| `data-product-tile-description` | Product tile description |
+| `data-product-tile-footer` | Product tile price and quick-add button (not in the compact tile) |
+| `data-quick-add` | Quick-add button |
+| `data-single-piece` | Product tile of a single-piece product |
+| `data-product-grid` | Grid of product tiles: CMS product section in grid layout (not the slider), category listing, related products (tiles in wrapper `div`s) |
+| `data-related-products` | Related products section on the product page |
+| `data-gallery-thumb` | Product gallery thumbnail |
+| `data-catalog-list` | Category listing column beside the filters |
+| `data-filters-panel` | Filters sidebar (from `lg`) |
+| `data-filters-trigger` | Button that opens the filters sheet (below `lg`) |
+| `data-filters-heading` | Filters title in the sidebar and in the sheet |
+| `data-expandable` | Expandable category description |
+| `data-order-totals` | Order summary in the cart and checkout |
+| `data-cms-variant="<n>"` | CMS section or tile wrapper (the one with `data-cms-type`), when the published element has a `variant` |
+
+`data-cms-variant` names the look option of an element:
+`[data-cms-type="section-text"][data-cms-variant="2"] > section`. The editor offers it on sections ("variant 1-4"); its
+tiles have no such option. Without a `variant` the wrapper has no attribute, but the editor cannot clear a variant once
+set, so a theme gives variant 1 the default look and styles 2-4. Core does not style variants of the editor's section
+types; `section-type-a` (variants 1-4) and `tile-type-a` (1-3), which the editor does not offer, style their own
+`variant` (default 1).
+
+| Variable | Purpose | Default |
+|---|---|---|
+| `--page-max-width` | Max width of the header, main content, footer, megamenu and the `before-footer` slot | `var(--container-7xl)` (80rem) |
+| `--catalog-columns` | Category listing columns from `md`; phones always show 2 | `3` |
+
+```css
+:root { --page-max-width: 90rem; }
+@media (min-width: 64rem) { :root { --catalog-columns: 4; } }
+```
 
 ## Message overrides (`messages.config.json`)
 

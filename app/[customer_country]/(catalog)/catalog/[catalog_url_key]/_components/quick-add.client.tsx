@@ -26,6 +26,7 @@ export function QuickAdd({ item }: { item: QuickAddItem }) {
     <Button
       type="button"
       size="icon-lg"
+      data-quick-add
       className="shrink-0 rounded-full"
       aria-label={label}
       disabled={state === "none"}
