@@ -45,7 +45,7 @@ export function BuilderClient({ routes }: Props) {
   if (!document) return null;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div data-cms-document className="flex flex-col gap-4">
       {/* CMS documents have no title field for the page heading; the document
           name keeps one H1 per page for screen readers and SEO. */}
       {document.name && <h1 className="sr-only">{document.name}</h1>}

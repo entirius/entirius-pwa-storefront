@@ -116,6 +116,8 @@
   --chip-radius: var(--brand-radius-full);
   /* Width / height of every product photo (`aspect-product`); a client theme sets e.g. 2 / 3. */
   --product-image-ratio: 1 / 1;
+  --page-max-width: var(--container-7xl);
+  --catalog-columns: 3;
 
   /* Light theme: the package's light.neutral greys and light.tint backgrounds. */
   --background: var(--brand-light-neutral-100);

@@ -54,6 +54,7 @@ export default function TileHero({
   return (
     <div className="@container w-full" data-width={full_width ? "full_width" : "container"}>
       <div
+        data-hero-card
         className={cn(
           "grid w-full overflow-hidden @3xl:grid-cols-2",
           !full_width && "rounded-4xl",
@@ -61,6 +62,7 @@ export default function TileHero({
         )}
       >
         <div
+          data-hero-content
           className={cn(
             "flex flex-col justify-center gap-4 p-6 @md:p-8 @5xl:p-14",
             image_first && "@3xl:order-2",
@@ -82,6 +84,7 @@ export default function TileHero({
           </div>
         </div>
         <div
+          data-hero-media
           className={cn(
             "relative isolate min-h-56",
             shape === "banner" ? "@3xl:min-h-72" : "@3xl:min-h-96",
