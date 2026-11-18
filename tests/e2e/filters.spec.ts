@@ -40,4 +40,9 @@ test("phone: filters open in a sheet", async ({ page }) => {
   const sheet = page.getByRole("dialog", { name: "Filters" });
   await expect(sheet).toBeVisible();
   await expect(sheet.getByRole("checkbox", { name: "Orion Collection" })).toBeVisible();
+
+  await sheet.getByRole("checkbox", { name: "Orion Collection" }).click();
+  await sheet.getByRole("button", { name: "Apply (1)" }).click();
+  await expect(page).toHaveURL(/q_series=orion/);
+  await expect(sheet).toBeHidden();
 });
