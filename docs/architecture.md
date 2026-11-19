@@ -144,6 +144,11 @@ through `@theme/*` too, so an override reaches them (a theme's `Button` is the o
 `theme/` is gitignored: a shop build or the theme's dev server puts it there. `app/globals.css` has `@source "../theme"`
 for its classes.
 
+A theme's colours and shapes are `@theme/tokens.css`: the root layout loads `app/globals.css`, then this file, then the
+shop's `_CONFIG/theme.css`, so a theme overrides the default look and a shop overrides the theme. It sets the semantic
+variables of `app/globals.css` (`--primary`, `--surface-radius`, `--product-image-ratio`, `--catalog-columns`...); the
+default theme's file is empty. Typefaces stay in `_CONFIG/fonts.ts` (`next/font`).
+
 A theme never imports the core. What it needs from it comes through `@entirius/storefront-sdk`:
 
 - **Types** of what it renders (`/product`, `/product/card`): the shapes the normalizers produce, not raw API data.
@@ -185,14 +190,18 @@ shows.
 
 `docker/verdaccio/compose.yaml` runs a local npm registry on :4873 to publish `@entirius/*` before anything is public.
 
-A theme author never clones this repository. `pnpm create @entirius/theme <name>` (`packages/create-theme`) writes a
-theme folder: `package.json` with the SDK, the default theme and `@entirius/theme-cli`, a `tsconfig.json` that resolves
+A theme author never clones this repository. `pnpm create @entirius/theme <name>` (`packages/create-theme`, `--example`
+for a theme with a look of its own: `tokens.css` and a product card) writes a theme folder: `package.json` with the SDK, the default theme and `@entirius/theme-cli`, a `tsconfig.json` that resolves
 `@theme/*` like the core (`src/` first, then the default theme), `theme.json`, an empty `src/`. The `entirius` command
 (`packages/theme-cli`) then runs in it:
 
 - `dev`: the `storefront-dev` image of the installed SDK's version with `src/` mounted at `/app/theme/src` (only
   `src/`: the theme's `node_modules` would bring a second React and SDK) and `_CONFIG.dev` at `/app/_CONFIG`. The
-  first run writes `_CONFIG.dev` from the image's `_CONFIG.example`.
+  first run writes `_CONFIG.dev` from the image's `_CONFIG.example` and asks for the backend URL, the channel and its
+  checkout key (or takes `--backend`, `--channel`, `--key`), then starts.
+- `build [--tag] [--config]`: a production image of the shop with this theme and `_CONFIG.dev`, on the
+  `storefront-builder` of the same version (`storefront build` with the theme copied in); the registry and a shop's own
+  `Dockerfile` stay the way for real shops.
 - `list` (script `pnpm overrides`, `pnpm list` is pnpm's own), `eject <path>`: what the default theme has; a copy of
   one file into `src/`.
 - `check`: `tsc` over the theme with the SDK and the default theme, imports only from the contract (SDK, `@theme/*`,

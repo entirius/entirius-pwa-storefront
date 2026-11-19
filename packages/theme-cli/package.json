@@ -1,6 +1,6 @@
 {
   "name": "@entirius/theme-cli",
-  "version": "0.1.0-alpha.3",
+  "version": "0.1.0-alpha.5",
   "description": "The `entirius` command for Entirius storefront themes: dev, list, eject, check",
   "license": "MPL-2.0",
   "repository": {

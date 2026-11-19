@@ -4,7 +4,8 @@
 #   storefront dev              `next dev` on :3100 for theme work: the theme at /app/theme, the configuration at
 #                               /app/_CONFIG, both mounted (without a configuration the template's _CONFIG.example)
 #   storefront build [<theme>]  a shop's image: installs the theme package (npm spec, e.g. @acme/theme@1.3.0) at
-#                               /app/theme, then `next build` with /app/_CONFIG; no theme: the default one
+#                               /app/theme, then `next build` with /app/_CONFIG; no package: the theme already
+#                               copied to /app/theme, else the default one
 #   storefront start            `next start` on :3000 of that build
 #
 # A backend on localhost (API_BASE_URL http://localhost:<port>) has to answer the browser and the server at one
@@ -49,6 +50,8 @@ case "${1:-dev}" in
       [ -f "$tmp/package/theme.json" ] && cp "$tmp/package/theme.json" theme/
       rm -rf "$tmp"
       echo "storefront: theme $2"
+    elif [ -d theme/src ]; then
+      echo "storefront: the theme in /app/theme"
     else
       echo "storefront: the default theme"
     fi

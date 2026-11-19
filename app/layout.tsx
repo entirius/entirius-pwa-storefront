@@ -4,6 +4,8 @@
 
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+// A theme's colours and shapes, then the shop's own: the later file wins.
+import "@theme/tokens.css";
 import "@/_CONFIG/theme.css";
 import { FONT_CLASSES } from "@/_CONFIG/fonts";
 

@@ -1,6 +1,6 @@
 {
   "name": "@entirius/theme-default",
-  "version": "0.1.0-alpha.3",
+  "version": "0.1.0-alpha.5",
   "description": "Default theme of the Entirius storefront: the components every other theme starts from",
   "license": "MPL-2.0",
   "repository": {
@@ -17,7 +17,8 @@
     "./ui/*": "./src/ui/*.tsx",
     "./lib/*": "./src/lib/*.ts",
     "./components/*": "./src/components/*.tsx",
-    "./product/*": "./src/product/*.tsx"
+    "./product/*": "./src/product/*.tsx",
+    "./tokens.css": "./src/tokens.css"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

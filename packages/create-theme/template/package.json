@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "dev": "entirius dev",
+    "build": "entirius build",
     "overrides": "entirius list",
     "eject": "entirius eject",
     "check": "entirius check"

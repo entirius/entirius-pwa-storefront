@@ -3,12 +3,13 @@
 A theme for the Entirius storefront. The core (pages, data, cart, checkout, SEO) runs in a container; this folder
 holds only what looks different from the default theme.
 
-- `pnpm dev`: the shop with this theme on http://localhost:3100. The first run writes `_CONFIG.dev`: set your backend
-  in it (`API_BASE_URL` in `app.config.json`, your channel and its `API_CHECKOUT_KEY` in `channels.config.json`, the
-  countries in `countries.config.json`), then run it again. Saving a file in `src/` shows on the next page load.
+- `pnpm dev`: the shop with this theme on http://localhost:3100. The first run asks for your backend (URL, channel,
+  checkout key) and writes `_CONFIG.dev`; change it there any time. Saving a file in `src/` shows on the next page
+  load. Colours and shapes live in `src/tokens.css` (`pnpm eject tokens.css`).
 - `pnpm overrides`: the default theme's files you can override, and the ones you do (`pnpm list` is pnpm's own).
 - `pnpm eject <path>`: copies a default file to `src/<path>`; from then on that copy is used everywhere, the rest
   still comes from the default theme. Eject only what you change: a copy no longer gets the default theme's fixes.
+- `pnpm build`: a production image of the shop with this theme and `_CONFIG.dev` (`--tag`, `--config <dir>`).
 - `pnpm check`: types against the SDK, imports only from the theme's contract, an override keeps the exports of the
   file it replaces.
 

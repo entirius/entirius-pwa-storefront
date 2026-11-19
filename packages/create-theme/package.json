@@ -1,7 +1,7 @@
 {
   "name": "@entirius/create-theme",
-  "version": "0.1.0-alpha.3",
-  "description": "Starts a theme for the Entirius storefront: pnpm create @entirius/theme <name>",
+  "version": "0.1.0-alpha.5",
+  "description": "Starts a theme for the Entirius storefront: pnpm create @entirius/theme <name> [--example]",
   "license": "MPL-2.0",
   "repository": {
     "type": "git",
@@ -14,6 +14,7 @@
   },
   "files": [
     "index.mjs",
-    "template"
+    "template",
+    "example"
   ]
 }

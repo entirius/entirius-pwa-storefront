@@ -1,0 +1,42 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+/* The example theme's look (pnpm create @entirius/theme <name> --example): an editorial shop with sharp corners,
+   tall pictures in four columns, deep green on stone, an orange heart. Change any value and save: the shop follows. */
+:root {
+  --background: #f3f2ee;
+  --foreground: #2a2622;
+  --heading: #141210;
+  --card: #ffffff;
+  --card-foreground: #141210;
+  --primary: #1e3a2f;
+  --primary-foreground: #f3f2ee;
+  --secondary: #e8e5dd;
+  --secondary-foreground: #141210;
+  --muted: #e8e5dd;
+  --muted-foreground: #5f5850;
+  --accent: #e2e9e4;
+  --accent-foreground: #1e3a2f;
+  --border: #d9d4ca;
+  --input: #8c857a;
+  --field-border: #c9c3b8;
+  --ring: #1e3a2f;
+  --link: #1e3a2f;
+  --highlight: #c2410c;
+
+  --radius: 0px;
+  --control-radius: 0px;
+  --chip-radius: 0px;
+  --surface-radius: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --product-image-ratio: 3 / 4;
+  --catalog-columns: 4;
+}

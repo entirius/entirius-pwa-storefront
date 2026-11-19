@@ -5,13 +5,17 @@
 
 // The theme author's command, run in a theme's folder (pnpm create @entirius/theme):
 //
-//   entirius dev [--port 3100] [--image <ref>]   the shop with this theme, the core in the storefront-dev container
+//   entirius dev [--port 3100] [--image <ref>]   the shop with this theme, the core in the storefront-dev container;
+//       [--backend <url> --channel <code> --key <checkout key>]   the first run asks for them (or takes these)
+//   entirius build [--tag <image>] [--config <dir>]   a production image of the shop with this theme
 //   entirius list                                the default theme's files, and the ones src/ overrides
 //   entirius eject <path>                        copies a default file to src/<path>
 //   entirius check                               types, the contract's imports, an override's exports
 import { spawnSync } from "node:child_process";
-import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync } from "node:fs";
+import { copyFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { basename, dirname, join, relative } from "node:path";
+import { createInterface } from "node:readline/promises";
 
 const ROOT = process.cwd();
 const SRC = join(ROOT, "src");
@@ -19,6 +23,8 @@ const CONFIG = join(ROOT, "_CONFIG.dev");
 const DEFAULT_SRC = join(ROOT, "node_modules/@entirius/theme-default/src");
 const SDK_PACKAGE = join(ROOT, "node_modules/@entirius/storefront-sdk/package.json");
 const IMAGE = "ghcr.io/entirius/storefront-dev";
+const BUILDER = "ghcr.io/entirius/storefront-builder";
+const LOCAL_BACKEND = "http://localhost:8100";
 
 // Imports a theme may use: the SDK, the default theme, other theme files, React and Next, and the default theme's
 // own dependencies (the core installs them). Anything else is not in the container that runs the theme.
@@ -46,7 +52,7 @@ function files(dir, base = dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const path = join(dir, entry.name);
     if (entry.isDirectory()) return files(path, base);
-    return /\.tsx?$/.test(entry.name) && !entry.name.endsWith(".test.ts") ? [relative(base, path)] : [];
+    return /\.(tsx?|css)$/.test(entry.name) && !entry.name.endsWith(".test.ts") ? [relative(base, path)] : [];
   });
 }
 const component = (file) => file.replace(/\.tsx?$/, "");
@@ -56,26 +62,62 @@ function installed_sdk() {
   return JSON.parse(readFileSync(SDK_PACKAGE, "utf8")).version;
 }
 
-function dev(args) {
-  const image = option(args, "--image") ?? `${IMAGE}:${installed_sdk()}`;
-  const port = option(args, "--port") ?? "3100";
-  // Files the container writes into this folder stay yours (Linux; Docker Desktop maps them anyway).
-  const user = process.getuid ? ["--user", `${process.getuid()}:${process.getgid()}`] : [];
-  if (!existsSync(CONFIG)) {
-    const copy = spawnSync(
-      "docker",
-      ["run", "--rm", ...user, "--entrypoint", "sh", "-v", `${ROOT}:/out`, image, "-c", "cp -r /app/_CONFIG.example /out/_CONFIG.dev"],
-      { stdio: "inherit" },
-    );
-    if (copy.status !== 0) fail(`Could not read the configuration template from ${image}.`);
+const read_json = (path) => JSON.parse(readFileSync(path, "utf8"));
+const write_json = (path, data) => writeFileSync(path, `${JSON.stringify(data, null, 2)}\n`);
+
+// The shop configuration for theme work: the core's template from the image, then this backend, channel and key.
+async function configure(image, args, user) {
+  const copy = spawnSync(
+    "docker",
+    ["run", "--rm", ...user, "--entrypoint", "sh", "-v", `${ROOT}:/out`, image, "-c", "cp -r /app/_CONFIG.example /out/_CONFIG.dev"],
+    { stdio: "inherit" },
+  );
+  if (copy.status !== 0) fail(`Could not read the configuration template from ${image}.`);
+
+  let backend = option(args, "--backend");
+  let channel = option(args, "--channel");
+  let key = option(args, "--key");
+  if (!backend && !process.stdin.isTTY) {
     console.log(`_CONFIG.dev written from the core's template. Point it at your backend:
   app.config.json        API_BASE_URL (a backend on this machine: http://localhost:<port>)
   channels.config.json   your channel and its API_CHECKOUT_KEY
   countries.config.json  the countries and the channel they use
-then run it again.`);
-    return 0;
+or run entirius dev --backend <url> --channel <code> --key <checkout key>.`);
+    return false;
   }
+  if (!backend) {
+    const ask = createInterface({ input: process.stdin, output: process.stdout });
+    console.log("The shop needs a backend: your staging, your own installation or a local zeno.");
+    backend = (await ask.question(`Backend URL [${LOCAL_BACKEND}]: `)).trim() || LOCAL_BACKEND;
+    channel = (await ask.question("Channel [default-europe]: ")).trim() || "default-europe";
+    key = (await ask.question("Checkout API key of that channel (empty: browsing works, checkout does not): ")).trim();
+    ask.close();
+  }
+  channel ||= "default-europe";
+
+  const app = read_json(join(CONFIG, "app.config.json"));
+  write_json(join(CONFIG, "app.config.json"), { ...app, API_BASE_URL: backend.replace(/\/$/, "") });
+  write_json(join(CONFIG, "channels.config.json"), { [channel]: { CHANNEL_LABEL: channel, API_CHECKOUT_KEY: key ?? "" } });
+  const countries = read_json(join(CONFIG, "countries.config.json"));
+  for (const country of Object.values(countries)) {
+    if (country && typeof country === "object" && "channels" in country) {
+      country.channels = [channel];
+      if ("default_channel" in country) country.default_channel = channel;
+    }
+  }
+  write_json(join(CONFIG, "countries.config.json"), countries);
+  console.log(`_CONFIG.dev: ${backend}, channel ${channel}. Change it there any time.`);
+  return true;
+}
+
+async function dev(args) {
+  const image = option(args, "--image") ?? `${IMAGE}:${installed_sdk()}`;
+  const port = option(args, "--port") ?? "3100";
+  // Files the container writes into this folder stay yours (Linux; Docker Desktop maps them anyway).
+  const user = process.getuid ? ["--user", `${process.getuid()}:${process.getgid()}`] : [];
+  if (!existsSync(CONFIG) && !(await configure(image, args, user))) return 0;
   mkdirSync(SRC, { recursive: true });
+  console.log(`The shop with this theme: http://localhost:${port}`);
   // Only src/ goes in: the theme's node_modules would bring a second React and SDK next to the core's.
   const run = spawnSync(
     "docker",
@@ -91,6 +133,37 @@ then run it again.`);
     { stdio: "inherit" },
   );
   return run.status ?? 1;
+}
+
+// A production image of the shop: the core's builder of the installed SDK's version, this theme's src/ and a
+// configuration (_CONFIG.dev unless --config). The way to a shop's own repository and registry is the Dockerfile
+// in the README; this is the short way to see the theme built.
+function build(args) {
+  const image = option(args, "--builder") ?? `${BUILDER}:${installed_sdk()}`;
+  const config = option(args, "--config") ?? CONFIG;
+  const tag = option(args, "--tag") ?? `${basename(ROOT).toLowerCase().replace(/[^a-z0-9._-]+/g, "-")}:local`;
+  if (!existsSync(join(config, "app.config.json"))) fail(`No configuration in ${config}: run entirius dev first, or pass --config <dir>.`);
+  const context = mkdtempSync(join(tmpdir(), "entirius-build-"));
+  try {
+    cpSync(SRC, join(context, "theme", "src"), { recursive: true });
+    if (existsSync(join(ROOT, "theme.json"))) copyFileSync(join(ROOT, "theme.json"), join(context, "theme", "theme.json"));
+    cpSync(config, join(context, "_CONFIG"), { recursive: true });
+    writeFileSync(
+      join(context, "Dockerfile"),
+      `FROM ${image}\nCOPY _CONFIG /app/_CONFIG\nCOPY theme /app/theme\nRUN storefront build\n`,
+    );
+    const run = spawnSync("docker", ["build", "-t", tag, context], { stdio: "inherit" });
+    if (run.status !== 0) return run.status ?? 1;
+  } finally {
+    rmSync(context, { recursive: true, force: true });
+  }
+  console.log(`
+Image ${tag}: this theme and this configuration on the core of ${image}. It holds the configuration's keys: keep it
+private. Run it:
+
+  docker run --rm -p 3100:3000 --add-host host.docker.internal:host-gateway ${tag}
+`);
+  return 0;
 }
 
 function list() {
@@ -109,7 +182,7 @@ function eject(path) {
   installed_sdk();
   if (!path) fail("Usage: entirius eject <path>   (entirius list shows the paths)");
   const base = component(path);
-  const source = [".tsx", ".ts"].map((ext) => join(DEFAULT_SRC, base + ext)).find(existsSync);
+  const source = [".tsx", ".ts", ""].map((ext) => join(DEFAULT_SRC, base + ext)).find((path) => existsSync(path) && /\.(tsx?|css)$/.test(path));
   if (!source) fail(`@entirius/theme-default has no ${base}: entirius list shows what it has.`);
   const target = join(SRC, relative(DEFAULT_SRC, source));
   if (existsSync(target)) fail(`src/${relative(SRC, target)} exists already.`);
@@ -137,7 +210,7 @@ function check() {
   const problems = [];
   const own = files(SRC);
 
-  for (const file of own) {
+  for (const file of own.filter((file) => /\.tsx?$/.test(file))) {
     const source = readFileSync(join(SRC, file), "utf8");
     for (const m of source.matchAll(/(?:\bfrom\s*|\bimport\s*\(?\s*)["']([^"']+)["']/g)) {
       if (!CONTRACT.some((allowed) => allowed.test(m[1]))) {
@@ -163,9 +236,9 @@ function check() {
 }
 
 const [command, ...rest] = process.argv.slice(2);
-const commands = { dev: () => dev(rest), list, eject: () => eject(rest[0]), check };
+const commands = { dev: () => dev(rest), build: () => build(rest), list, eject: () => eject(rest[0]), check };
 if (!commands[command]) {
-  console.log("entirius dev [--port 3100] [--image <ref>] | list | eject <path> | check");
+  console.log("entirius dev [--port 3100] [--backend <url> --channel <code> --key <key>] | build [--tag <image>] | list | eject <path> | check");
   process.exit(command ? 1 : 0);
 }
-process.exit(commands[command]());
+process.exit(await commands[command]());
