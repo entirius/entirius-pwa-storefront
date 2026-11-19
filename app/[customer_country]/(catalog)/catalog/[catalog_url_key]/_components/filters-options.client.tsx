@@ -22,6 +22,7 @@ import { FilterSortItem } from "./filter-sort-item.client";
 import { FilterRange } from "./filter-range.client";
 import { useFiltersStore } from "./filters.store";
 import { useI18n } from "@/providers/i18n.provider";
+import { cn } from "@/lib/utils";
 
 const FILTER_PREFIXES = ["q_", "s_", "r_"];
 
@@ -79,11 +80,13 @@ const SortGroup = memo(function SortGroup({
 export function FiltersOptionsClient({
   options,
   in_sheet = false,
+  on_apply,
 }: {
   options: ListingOptions;
   // In the sheet the dialog title names the panel; the visible line is not a
   // second heading.
   in_sheet?: boolean;
+  on_apply?: () => void;
 }) {
   const router = useRouter();
   const search_params = useSearchParams();
@@ -94,10 +97,18 @@ export function FiltersOptionsClient({
   // useLayoutEffect — runs before browser paint, prevents flash of unselected state
   const init = useFiltersStore((s) => s.init);
   const clear = useFiltersStore((s) => s.clear);
+  // The sidebar and the sheet share the store and follow the filters in the URL.
+  // The sheet unmounts on every close; only the sidebar (mounted, hidden below lg)
+  // clears the store on unmount.
+  const applied_filters = new URLSearchParams(
+    Array.from(search_params).filter(([k]) => FILTER_PREFIXES.some((p) => k.startsWith(p))),
+  ).toString();
   useLayoutEffect(() => {
-    init(search_params);
-    return () => clear();
-  }, []);  // eslint-disable-line react-hooks/exhaustive-deps
+    init(new URLSearchParams(applied_filters));
+  }, [init, applied_filters]);
+  useLayoutEffect(() => () => {
+    if (!in_sheet) clear();
+  }, [in_sheet, clear]);
 
   // Subscribe only to counts needed for Apply button
   const active_filters_count = useFiltersStore((s) => s.active_filters.length);
@@ -124,8 +135,10 @@ export function FiltersOptionsClient({
       params.append(key, String(max));
     });
 
+    params.delete("page");
     router.push(`?${params.toString()}`);
-  }, [router, search_params]);
+    on_apply?.();
+  }, [router, search_params, on_apply]);
 
   const has_applied = FILTER_PREFIXES.some((p) =>
     Array.from(search_params.keys()).some((k) => k.startsWith(p)),
@@ -136,6 +149,7 @@ export function FiltersOptionsClient({
     Array.from(params.keys())
       .filter((k) => FILTER_PREFIXES.some((p) => k.startsWith(p)))
       .forEach((k) => params.delete(k));
+    params.delete("page");
     useFiltersStore.getState().clear();
     router.push(`?${params.toString()}`);
   }, [router, search_params]);
@@ -162,7 +176,7 @@ export function FiltersOptionsClient({
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex items-center justify-between gap-2">
+      <div data-filters-header className={cn("flex items-center justify-between gap-2", in_sheet && "flex-wrap pr-8")}>
         {in_sheet ? (
           <p data-filters-heading aria-hidden className="font-brand text-xl text-heading">{t("catalog.filters")}</p>
         ) : (

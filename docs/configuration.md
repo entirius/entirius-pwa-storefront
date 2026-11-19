@@ -147,6 +147,7 @@ Besides the hooks above, theme rules can select these attributes (`[data-header-
 | `data-filters-panel` | Filters sidebar (from `lg`) |
 | `data-filters-trigger` | Button that opens the filters sheet (below `lg`) |
 | `data-filters-heading` | Filters title in the sidebar and in the sheet |
+| `data-filters-header` | Row with the filters title and the clear-all button, in the sidebar and in the sheet |
 | `data-expandable` | Expandable category description |
 | `data-order-totals` | Order summary in the cart and checkout |
 | `data-cms-variant="<n>"` | CMS section or tile wrapper (the one with `data-cms-type`), when the published element has a `variant` |

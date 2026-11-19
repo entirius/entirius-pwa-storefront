@@ -4,6 +4,7 @@
 
 "use client";
 
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   Sheet,
@@ -14,6 +15,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { FiltersOptionsClient } from "./filters-options.client";
+import { useFiltersStore } from "./filters.store";
 import type { ListingOptions } from "../api.query";
 import { FilterIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,13 +26,20 @@ const FILTER_PREFIXES = ["q_", "s_", "r_"];
 export function FiltersTriggerClient({ options }: { options: ListingOptions }) {
   const search_params = useSearchParams();
   const { t } = useI18n();
+  const [open, set_open] = useState(false);
 
   const has_active = FILTER_PREFIXES.some((p) =>
     Array.from(search_params.keys()).some((k) => k.startsWith(p)),
   );
 
+  // Closing without Apply drops the pending choices: the store follows the URL again.
+  const handle_open_change = (next_open: boolean) => {
+    set_open(next_open);
+    if (!next_open) useFiltersStore.getState().init(search_params);
+  };
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={handle_open_change}>
       <SheetTrigger asChild>
         <Button data-filters-trigger variant="outline" size="sm" className="lg:hidden">
           <div className="relative">
@@ -49,7 +58,7 @@ export function FiltersTriggerClient({ options }: { options: ListingOptions }) {
           <SheetDescription>{t("catalog.filters_hint")}</SheetDescription>
         </SheetHeader>
         <div className="p-4">
-          <FiltersOptionsClient options={options} in_sheet />
+          <FiltersOptionsClient options={options} in_sheet on_apply={() => set_open(false)} />
         </div>
       </SheetContent>
     </Sheet>
