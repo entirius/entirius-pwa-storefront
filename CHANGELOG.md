@@ -37,6 +37,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- A shop is a `Dockerfile` on `storefront-builder` with its `_CONFIG` and theme: `storefront build <theme package>`
+  installs the theme and builds, `storefront start` serves it; the previous image is the way back. New themes publish
+  only `src/` and `theme.json` and take `@entirius/*` releases at once under pnpm 11+.
 - Tools for theme authors: `pnpm create @entirius/theme <name>` starts a theme folder, the `entirius` command runs
   it in the `storefront-dev` container (`dev`), lists and copies the default theme's files (`list`, `eject`) and checks
   a theme against the SDK (`check`). The `@entirius/*` packages are `0.1.0-alpha.1`.

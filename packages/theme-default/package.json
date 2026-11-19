@@ -1,6 +1,6 @@
 {
   "name": "@entirius/theme-default",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Default theme of the Entirius storefront: the components every other theme starts from",
   "license": "MPL-2.0",
   "repository": {

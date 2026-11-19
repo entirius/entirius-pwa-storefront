@@ -14,3 +14,7 @@ holds only what looks different from the default theme.
 
 Data and actions come from `@entirius/storefront-sdk` (a page's model, `useProductCard`, `Media`, `RichText`,
 `Link`, `useI18n`), other theme components from `@theme/...`, never a path into the default theme.
+
+To build a shop with this theme, publish it to your registry: give it your scope (`@acme/theme-{{name}}`), drop
+`"private": true`, `pnpm publish`. A shop's image installs it by version (`storefront build @acme/theme-{{name}}@1.0.0`);
+only `src/` and `theme.json` go into the package.

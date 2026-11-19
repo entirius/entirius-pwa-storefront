@@ -1,0 +1,3 @@
+# pnpm 11+ skips packages younger than a day; the platform's releases are installed as soon as they are out.
+minimumReleaseAgeExclude:
+  - "@entirius/*"

@@ -162,10 +162,18 @@ their own (enquiry, back-in-stock, notify about a similar product) come from the
 The core also ships as two images (`docker/storefront.Dockerfile`, no configuration or data inside; `.dockerignore`
 is an allowlist):
 
-- `storefront-dev` (`--target dev`): `next dev` on :3100 with a theme mounted at `/app/theme` and a configuration at
-  `/app/_CONFIG` (else `_CONFIG.example`). An `API_BASE_URL` on `http://localhost:<port>` is forwarded to the host, so
-  the browser and the server use one address.
-- `storefront-builder` (`--target builder`): the source with its dependencies, the base of a shop's own image.
+- `storefront-builder` (`--target builder`): the source with its dependencies and the `storefront` command
+  (`docker/storefront-entrypoint.sh`), the base of a shop's own image. A shop is a folder with a `Dockerfile`
+  (`FROM storefront-builder:<version>`, `COPY _CONFIG /app/_CONFIG`, `RUN storefront build @acme/theme@1.3.0`), its
+  `_CONFIG` and an `.npmrc` for the theme's registry: `storefront build` installs the theme package's `src/` at
+  `/app/theme` and runs `next build`, the image's default command is `storefront start` (`next start` on :3000). The
+  shop's image holds its configuration and keys: it is never public. Going back is running the previous image.
+- `storefront-dev` (`--target dev`): the same core running `storefront dev`, `next dev` on :3100 with a theme mounted
+  at `/app/theme` and a configuration at `/app/_CONFIG` (else `_CONFIG.example`).
+
+In `dev` and `start` an `API_BASE_URL` on `http://localhost:<port>` is forwarded to the host, so the browser and the
+server use one address. `next build` asks the API for nothing (the static routes are the manifest, the share image
+and `robots.txt`), so a shop's image builds without its backend.
 
 The page shell works the same way. `LayoutRuntime` (`lib/layout/`, in the root layout) works out on the server what
 the header and footer need (logo, menu types and whether the megamenu fits the logo's row, the visitor's languages and
