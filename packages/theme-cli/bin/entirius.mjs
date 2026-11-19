@@ -8,7 +8,7 @@
 //   entirius dev [--port 3100] [--image <ref>]   the shop with this theme, the core in the storefront-dev container;
 //       [--backend <url> --channel <code> --key <checkout key>]   the first run asks for them (or takes these)
 //   entirius build [--tag <image>] [--config <dir>]   a production image of the shop with this theme
-//   entirius list                                the default theme's files, and the ones src/ overrides
+//   entirius list [--all]                        what a theme can override, by where it shows; ✓ = in src/
 //   entirius eject <path>                        copies a default file to src/<path>
 //   entirius check                               types, the contract's imports, an override's exports
 import { spawnSync } from "node:child_process";
@@ -21,6 +21,7 @@ const ROOT = process.cwd();
 const SRC = join(ROOT, "src");
 const CONFIG = join(ROOT, "_CONFIG.dev");
 const DEFAULT_SRC = join(ROOT, "node_modules/@entirius/theme-default/src");
+const CATALOGUE = join(ROOT, "node_modules/@entirius/theme-default/overrides.json");
 const SDK_PACKAGE = join(ROOT, "node_modules/@entirius/storefront-sdk/package.json");
 const IMAGE = "ghcr.io/entirius/storefront-dev";
 const BUILDER = "ghcr.io/entirius/storefront-builder";
@@ -166,24 +167,59 @@ private. Run it:
   return 0;
 }
 
-function list() {
+// The default theme's catalogue (overrides.json) groups its files by where they show, one line each; an older
+// default theme without it gets the plain list of paths.
+function list(args) {
   installed_sdk();
+  const all = args.includes("--all");
   const defaults = files(DEFAULT_SRC).map(component).filter((path) => !path.startsWith("lib/")).sort();
   const own = new Set(files(SRC).map(component));
-  console.log("Overridden in src/:");
-  for (const path of [...own].sort()) console.log(`  ${path}${defaults.includes(path) ? "" : "   (no default: a file of the theme's own)"}`);
-  if (!own.size) console.log("  nothing yet");
-  console.log("\nFrom @entirius/theme-default (pnpm eject <path> to override):");
-  for (const path of defaults.filter((path) => !own.has(path))) console.log(`  ${path}`);
+  const extra = [...own].filter((path) => !defaults.includes(path)).sort();
+  if (!existsSync(CATALOGUE)) {
+    console.log("Overridden in src/:");
+    for (const path of [...own].sort()) console.log(`  ${path}${defaults.includes(path) ? "" : "   (no default: a file of the theme's own)"}`);
+    if (!own.size) console.log("  nothing yet");
+    console.log("\nFrom @entirius/theme-default (pnpm eject <path> to override):");
+    for (const path of defaults.filter((path) => !own.has(path))) console.log(`  ${path}`);
+    return 0;
+  }
+  const { groups } = JSON.parse(readFileSync(CATALOGUE, "utf8"));
+  const listed = new Set(groups.flatMap((group) => Object.keys({ ...group.items, ...group.more })));
+  // A default file the catalogue does not describe still shows, without a description.
+  const rest = defaults.filter((path) => !listed.has(path));
+  if (rest.length) groups.push({ title: "Other", items: Object.fromEntries(rest.map((path) => [path, ""])) });
+  const width = Math.max(...[...listed, ...rest].map((path) => path.length));
+  const line = (path, about) => console.log(`${own.has(path) ? "✓" : " "} ${about ? path.padEnd(width) + "  " + about : path}`);
+  console.log("What this theme can override (✓: your copy in src/; pnpm eject <path> makes one)");
+  let hidden = 0;
+  for (const group of groups) {
+    console.log(`\n${group.title}${group.where ? ` (${group.where})` : ""}`);
+    const items = Object.entries(group.items);
+    const more = Object.entries(group.more ?? {});
+    if (group.compact && !all) {
+      for (const [path, about] of items.filter(([path]) => own.has(path))) line(path, about);
+      const names = items.filter(([path]) => !own.has(path)).map(([path]) => basename(path));
+      console.log(`  ${names.slice(0, 4).join(", ")}${names.length > 4 ? ` and ${names.length - 4} more` : ""}: pnpm overrides --all`);
+      continue;
+    }
+    for (const [path, about] of items) line(path, about);
+    for (const [path, about] of more) if (all || own.has(path)) line(path, about);
+    hidden += all ? 0 : more.filter(([path]) => !own.has(path)).length;
+  }
+  if (extra.length) {
+    console.log("\nYour own files (no default)");
+    for (const path of extra) console.log(`✓ ${path}`);
+  }
+  if (hidden) console.log(`\n${hidden} smaller parts not shown: pnpm overrides --all`);
   return 0;
 }
 
 function eject(path) {
   installed_sdk();
-  if (!path) fail("Usage: entirius eject <path>   (entirius list shows the paths)");
+  if (!path) fail("Usage: entirius eject <path>   (pnpm overrides shows the paths)");
   const base = component(path);
   const source = [".tsx", ".ts", ""].map((ext) => join(DEFAULT_SRC, base + ext)).find((path) => existsSync(path) && /\.(tsx?|css)$/.test(path));
-  if (!source) fail(`@entirius/theme-default has no ${base}: entirius list shows what it has.`);
+  if (!source) fail(`@entirius/theme-default has no ${base}: pnpm overrides shows what it has.`);
   const target = join(SRC, relative(DEFAULT_SRC, source));
   if (existsSync(target)) fail(`src/${relative(SRC, target)} exists already.`);
   mkdirSync(dirname(target), { recursive: true });
@@ -236,9 +272,9 @@ function check() {
 }
 
 const [command, ...rest] = process.argv.slice(2);
-const commands = { dev: () => dev(rest), build: () => build(rest), list, eject: () => eject(rest[0]), check };
+const commands = { dev: () => dev(rest), build: () => build(rest), list: () => list(rest), eject: () => eject(rest[0]), check };
 if (!commands[command]) {
-  console.log("entirius dev [--port 3100] [--backend <url> --channel <code> --key <key>] | build [--tag <image>] | list | eject <path> | check");
+  console.log("entirius dev [--port 3100] [--backend <url> --channel <code> --key <key>] | build [--tag <image>] | list [--all] | eject <path> | check");
   process.exit(command ? 1 : 0);
 }
 process.exit(await commands[command]());

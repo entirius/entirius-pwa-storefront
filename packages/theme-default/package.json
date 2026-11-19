@@ -11,7 +11,8 @@
   "sideEffects": false,
   "files": [
     "src",
-    "components.json"
+    "components.json",
+    "overrides.json"
   ],
   "exports": {
     "./ui/*": "./src/ui/*.tsx",

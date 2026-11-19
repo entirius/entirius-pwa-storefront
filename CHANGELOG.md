@@ -47,8 +47,8 @@ All notable changes to this project are documented here. The format follows
   installs the theme and builds, `storefront start` serves it; the previous image is the way back. New themes publish
   only `src/` and `theme.json` and take `@entirius/*` releases at once under pnpm 11+.
 - Tools for theme authors: `pnpm create @entirius/theme <name>` starts a theme folder, the `entirius` command runs
-  it in the `storefront-dev` container (`dev`), lists and copies the default theme's files (`list`, `eject`) and checks
-  a theme against the SDK (`check`). The `@entirius/*` packages are `0.1.0-alpha.1`.
+  it in the `storefront-dev` container (`dev`), lists what a theme can override, grouped by where it shows (`list`,
+  from `overrides.json` of the default theme), copies a file (`eject`) and checks a theme against the SDK (`check`). The `@entirius/*` packages are `0.1.0-alpha.1`.
 - Images of the core for themes: `docker/storefront.Dockerfile` builds `storefront-dev` (`next dev` with a mounted
   theme and configuration) and `storefront-builder` (the base of a shop's image); `docker/verdaccio/` is a local npm
   registry for the `@entirius/*` packages.

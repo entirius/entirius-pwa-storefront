@@ -204,8 +204,10 @@ for a theme with a look of its own: `tokens.css` and a product card) writes a th
 - `build [--tag] [--config]`: a production image of the shop with this theme and `_CONFIG.dev`, on the
   `storefront-builder` of the same version (`storefront build` with the theme copied in); the registry and a shop's own
   `Dockerfile` stay the way for real shops.
-- `list` (script `pnpm overrides`, `pnpm list` is pnpm's own), `eject <path>`: what the default theme has; a copy of
-  one file into `src/`.
+- `list [--all]` (script `pnpm overrides`, `pnpm list` is pnpm's own): what a theme can override, grouped by where it
+  shows in the shop with one line each, ✓ at the theme's copies; smaller parts and the UI elements only with `--all`.
+  The groups and lines are `packages/theme-default/overrides.json`: a new file of the default theme needs its line
+  there (`overrides.test.ts`). `eject <path>`: a copy of one file into `src/`.
 - `check`: `tsc` over the theme with the SDK and the default theme, imports only from the contract (SDK, `@theme/*`,
   React, Next, the default theme's dependencies), an override keeps the exports of the file it replaces.
 

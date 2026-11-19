@@ -1,0 +1,114 @@
+{
+  "$comment": "What a theme can override, for `entirius list` (pnpm overrides): grouped by where it shows in the shop, one line each. `more`: smaller parts, shown with --all; `compact`: the group is one line without --all. Every file in src/ (but lib/) has an entry: overrides.test.ts checks it.",
+  "groups": [
+    {
+      "title": "Colours and shapes",
+      "where": "the whole shop",
+      "items": {
+        "tokens.css": "palette, corners, picture ratio, catalogue columns"
+      }
+    },
+    {
+      "title": "Product card",
+      "where": "catalogue, search, similar products, CMS tiles",
+      "items": {
+        "components/product-card": "the card: picture, labels, name, price, the + button",
+        "components/product-price": "price, struck old price, lowest 30-day price",
+        "components/product-badges": "labels on the picture: discount, New, …",
+        "components/quick-add": "the card's + button: one unit into the cart",
+        "components/wishlist-button": "the heart on cards and on the product page"
+      },
+      "more": {
+        "components/product-thumb": "small picture in cart, checkout and search rows"
+      }
+    },
+    {
+      "title": "Product page",
+      "where": "/product/…",
+      "items": {
+        "product/product-page": "which parts the page has, in what order",
+        "product/gallery": "pictures and thumbnails",
+        "product/gallery-viewer": "full-screen picture viewer",
+        "product/header": "brands, labels, name, key facts, SKU",
+        "product/price": "price: from-price, lowest 30-day price, VAT",
+        "product/variant-picker": "options such as size or series",
+        "product/stock-status": "in stock or not",
+        "product/buy-box": "quantity, Add to cart, wishlist, back-in-stock form",
+        "product/sticky-buy-bar": "buy bar on phones once the buy box scrolls away",
+        "product/description": "description",
+        "product/specs": "specification table",
+        "product/stories": "long-text sections after the specification",
+        "product/related": "similar products"
+      },
+      "more": {
+        "product/gallery-utils": "gallery helpers: picture sizes and positions"
+      }
+    },
+    {
+      "title": "Header and footer",
+      "where": "every page",
+      "items": {
+        "layout/header": "the whole header, the order of its parts",
+        "layout/brand-mark": "the logo",
+        "layout/megamenu": "category menu on desktop",
+        "layout/menu": "which menu shows on phones and on desktop",
+        "layout/hamburger-menu": "category list in a side panel",
+        "layout/search-bar": "search on desktop: a field in the header",
+        "layout/search-sheet": "search on phones: a panel from the top",
+        "layout/search-results": "search suggestions: products, categories",
+        "layout/account-nav": "account icon: profile link or sign-in panel",
+        "layout/account-sheet": "sign-in and registration panel",
+        "layout/cart-link": "cart icon",
+        "layout/wishlist-sheet": "wishlist panel",
+        "layout/locale-switch": "language and currency",
+        "layout/notices": "short notices: added to cart, errors",
+        "layout/footer": "footer: logo, newsletter, link columns"
+      },
+      "more": {
+        "layout/count-badge": "number on the cart and wishlist icons",
+        "layout/header-icon": "shared look of the header icons",
+        "layout/search-field": "search box shared by desktop and phones",
+        "layout/search-product-row": "a product row in search suggestions",
+        "layout/wishlist-items": "the list inside the wishlist panel"
+      }
+    },
+    {
+      "title": "Across pages",
+      "where": "product, catalogue, search, blog",
+      "items": {
+        "components/page-breadcrumbs": "breadcrumbs above the title"
+      }
+    },
+    {
+      "title": "UI elements",
+      "where": "every page and form, the checkout's too",
+      "compact": true,
+      "items": {
+        "ui/button": "buttons",
+        "ui/input": "text fields",
+        "ui/select": "drop-down lists",
+        "ui/sheet": "side and top panels",
+        "ui/checkbox": "checkboxes",
+        "ui/radio-group": "radio buttons",
+        "ui/textarea": "multi-line fields",
+        "ui/label": "field labels",
+        "ui/form-fields": "a field with its label and error (TextField, …)",
+        "ui/form": "form wiring for react-hook-form",
+        "ui/input-group": "a field with an icon or a button inside",
+        "ui/honeypot-field": "hidden anti-spam field",
+        "ui/quantity-stepper": "quantity: − 1 +",
+        "ui/slider": "range slider (price filter)",
+        "ui/pagination": "page numbers",
+        "ui/accordion": "collapsible sections",
+        "ui/expandable-text": "text with Show more",
+        "ui/carousel": "slider of pictures or cards",
+        "ui/tooltip": "tooltips",
+        "ui/alert": "message boxes",
+        "ui/spinner": "loading indicator",
+        "ui/aspect-ratio": "box with a fixed ratio",
+        "ui/breadcrumb": "breadcrumb pieces",
+        "ui/navigation-menu": "menu pieces of the megamenu"
+      }
+    }
+  ]
+}
