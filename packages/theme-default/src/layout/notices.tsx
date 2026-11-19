@@ -4,13 +4,13 @@
 
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Check, CircleAlert, Info, TriangleAlert, X, type LucideIcon } from "lucide-react";
+import { Link } from "@entirius/storefront-sdk/components/link";
+import type { Notice, NoticeTone } from "@entirius/storefront-sdk/layout";
+import { useNotices } from "@entirius/storefront-sdk/storefront";
 import { Button } from "@theme/ui/button";
-import { cn } from "@/lib/utils";
-import { LinkDynamic } from "@/lib/link-dynamic";
-import { useNotices, type Notice, type NoticeTone } from "@/stores/notices.store";
+import { cn } from "@theme/lib/utils";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 const TONES: Record<NoticeTone, { icon: LucideIcon; badge: string }> = {
@@ -24,15 +24,7 @@ const TONES: Record<NoticeTone, { icon: LucideIcon; badge: string }> = {
 // a polite status region: both are on the page before any notice, so a screen reader announces what lands in them.
 // Errors sit on top. A notice is about the page it came on: moving to another page closes them all.
 export function Notices() {
-  const notices = useNotices((s) => s.notices);
-  const clear = useNotices((s) => s.clear);
-  const pathname = usePathname();
-  const shown_on = useRef(pathname);
-  useEffect(() => {
-    if (pathname === shown_on.current) return;
-    shown_on.current = pathname;
-    clear();
-  }, [pathname, clear]);
+  const { notices, dismiss } = useNotices();
 
   return (
     <>
@@ -40,14 +32,14 @@ export function Notices() {
         {notices
           .filter((n) => n.tone === "destructive")
           .map((n) => (
-            <NoticeCard key={n.id} notice={n} />
+            <NoticeCard key={n.id} notice={n} dismiss={dismiss} />
           ))}
       </div>
       <div role="status" aria-live="polite" aria-atomic="false">
         {notices
           .filter((n) => n.tone !== "destructive")
           .map((n) => (
-            <NoticeCard key={n.id} notice={n} />
+            <NoticeCard key={n.id} notice={n} dismiss={dismiss} />
           ))}
       </div>
     </>
@@ -56,9 +48,8 @@ export function Notices() {
 
 // Goes after its timeout, but never while the pointer or keyboard focus is on it (WCAG 2.2.1): leaving restarts the
 // full delay.
-function NoticeCard({ notice }: { notice: Notice }) {
+function NoticeCard({ notice, dismiss }: { notice: Notice; dismiss: (id: number) => void }) {
   const { t } = useI18n();
-  const dismiss = useNotices((s) => s.dismiss);
   const [held, setHeld] = useState(false);
   useEffect(() => {
     if (held) return;
@@ -89,9 +80,9 @@ function NoticeCard({ notice }: { notice: Notice }) {
         {action &&
           ("href" in action ? (
             <Button variant="link" className="h-auto self-start p-0" asChild>
-              <LinkDynamic href={action.href} onClick={() => dismiss(notice.id)}>
+              <Link href={action.href} onClick={() => dismiss(notice.id)}>
                 {t(action.label)}
-              </LinkDynamic>
+              </Link>
             </Button>
           ) : (
             <Button

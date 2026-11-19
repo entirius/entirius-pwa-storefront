@@ -4,26 +4,26 @@
 
 "use client";
 
-import { useHydrated } from "@/lib/use-hydrated";
 import { ShoppingBag } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { LinkDynamic } from "@/lib/link-dynamic";
-import { CountBadge } from "./count-badge";
-import { HEADER_ICON } from "./header-icon";
-import { useCartStore } from "@/stores/cart.store";
+import { Link } from "@entirius/storefront-sdk/components/link";
+import { useHydrated } from "@entirius/storefront-sdk/hooks";
+import { useCartCount } from "@entirius/storefront-sdk/storefront";
+import { cn } from "@theme/lib/utils";
+import { CountBadge } from "@theme/layout/count-badge";
+import { HEADER_ICON } from "@theme/layout/header-icon";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // Header cart icon: a link to the cart page with the item count.
 export function CartLink() {
-  const count = useCartStore((s) => s.count());
+  const count = useCartCount();
   const pathname = usePathname() ?? "";
   const mounted = useHydrated();
   const { t } = useI18n();
   const on_cart = /\/cart$/.test(pathname);
 
   return (
-    <LinkDynamic
+    <Link
       href="/cart"
       aria-current={on_cart ? "page" : undefined}
       // The count joins the name only after mount, like the badge (no hydration mismatch).
@@ -37,6 +37,6 @@ export function CartLink() {
     >
       <ShoppingBag className={HEADER_ICON} />
       <CountBadge count={count} mounted={mounted} />
-    </LinkDynamic>
+    </Link>
   );
 }

@@ -15,64 +15,37 @@ import {
 import { Spinner } from "@theme/ui/spinner";
 import { ChevronLeft, ChevronRight, Menu } from "lucide-react";
 
-import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { create_api } from "@/API/api.context";
-import { make_client_access } from "@/API/access/api.client-access";
-import { categories_query } from "./api.query";
-import { HEADER_ICON } from "./header-icon";
-import { type CATEGORY, type CONFIG_QUERY } from "./menu-config";
-import { LinkDynamic } from "@/lib/link-dynamic";
-import { cn } from "@/lib/utils";
-import { NORM_CATEGORY_BRANCH } from "@/utils/NORMALIZERS/category.normalizer";
+import { useState } from "react";
+import { Link } from "@entirius/storefront-sdk/components/link";
+import type { MenuCategory } from "@entirius/storefront-sdk/layout";
+import { useMenuBranch } from "@entirius/storefront-sdk/storefront";
+import { HEADER_ICON } from "@theme/layout/header-icon";
+import { cn } from "@theme/lib/utils";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 type Level = { url_key: string | null; name: string };
 
 // `footer` is rendered under the list (the language and currency switch on small screens).
-export function HamburgerMenuSheet({
-  query,
-  footer,
-}: {
-  query: CONFIG_QUERY;
-  footer?: React.ReactNode;
-}) {
+export function HamburgerMenu({ footer }: { footer?: React.ReactNode }) {
   const { t } = useI18n();
-  const api = useMemo(() => create_api(make_client_access()), []);
 
   // Drill-down stack — root level has a null url_key (fetches the configured roots).
   const root_level: Level = { url_key: null, name: t("header.menu") };
   const [stack, setStack] = useState<Level[]>([root_level]);
   const current = stack[stack.length - 1];
 
-  // Root uses the shared CONFIG_QUERY; deeper levels lazily list children by parent.
-  const queryOptions =
-    current.url_key === null ? query : { parent_url_key: current.url_key };
+  // The configured roots, then each level's children (its own row first), loaded and cached per level.
+  const { url_key, name } = current;
+  const { categories: items, loading: isLoading, error } = useMenuBranch(url_key === null ? null : { url_key, name });
+  const isError = error !== null;
 
-  // Each level is fetched lazily and cached by its own query key.
-  const {
-    data: response,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
-    ...categories_query(api, queryOptions),
-    refetchOnWindowFocus: false,
-  });
-
-  const goDeeper = (category: CATEGORY) =>
+  const goDeeper = (category: MenuCategory) =>
     setStack((prev) => [
       ...prev,
       { url_key: category.url_key, name: category.name },
     ]);
 
   const goBack = () => setStack((prev) => prev.slice(0, -1));
-
-  // Scoping happens server-side via CONFIG_QUERY; render rows as returned. Inside a category its own row
-  // comes first: a row with children only leads deeper, so this is the way to the collective category.
-  const rows: CATEGORY[] = response?.data ?? [];
-  const { url_key, name } = current;
-  const items = url_key === null ? rows : NORM_CATEGORY_BRANCH({ url_key, name }, rows);
 
   // Reset to root whenever the sheet is closed so it reopens at the top level.
   const onOpenChange = (open: boolean) => {
@@ -110,13 +83,13 @@ export function HamburgerMenuSheet({
           {isLoading && <Spinner className="size-4 mx-4" />}
           {isError && (
             <span className="px-4 text-sm text-destructive">
-              {t("common.error", { message: (error as Error)?.message })}
+              {t("common.error", { message: error })}
             </span>
           )}
           {!isLoading && !isError && items.length === 0 && (
             <p className="px-4 text-sm text-muted-foreground">{t("common.no_data")}</p>
           )}
-          {items.map((category: CATEGORY) =>
+          {items.map((category) =>
             category.has_children ? (
               <button
                 type="button"
@@ -129,7 +102,7 @@ export function HamburgerMenuSheet({
               </button>
             ) : (
               <SheetClose asChild key={category.id ?? category.url_key}>
-                <LinkDynamic
+                <Link
                   href={`/catalog/${category.url_key}`}
                   className={cn(
                     "w-full block text-sm px-4 py-2 hover:bg-accent hover:text-accent-foreground",
@@ -137,7 +110,7 @@ export function HamburgerMenuSheet({
                   )}
                 >
                   {category.is_self ? t("menu.view_all", { name: category.name }) : category.name}
-                </LinkDynamic>
+                </Link>
               </SheetClose>
             ),
           )}

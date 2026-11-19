@@ -22,7 +22,10 @@
     "./components/*": "./src/components/*.tsx",
     "./product": "./src/product/types.ts",
     "./product/card": "./src/product/card.ts",
-    "./product/page": "./src/product/page.tsx"
+    "./product/page": "./src/product/page.tsx",
+    "./layout": "./src/layout/types.ts",
+    "./layout/context": "./src/layout/context.tsx",
+    "./hooks": "./src/hooks.ts"
   },
   "dependencies": {
     "isomorphic-dompurify": "^4.6.0"

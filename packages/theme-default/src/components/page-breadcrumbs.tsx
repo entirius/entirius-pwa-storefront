@@ -2,9 +2,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import { Fragment } from "react";
+"use client";
 
-import { LinkDynamic } from "@/lib/link-dynamic";
+import { Fragment } from "react";
+import { Link } from "@entirius/storefront-sdk/components/link";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
+import type { Crumb } from "@entirius/storefront-sdk/layout";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,13 +16,10 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@theme/ui/breadcrumb";
-import { get_i18n } from "@/lib/i18n/i18n.server";
-
-export type Crumb = { name: string; href?: string };
 
 // Home + trail; the last crumb is the current page (not a link).
-export async function PageBreadcrumbs({ trail }: { trail: Crumb[] }) {
-  const { t } = await get_i18n();
+export function PageBreadcrumbs({ trail }: { trail: Crumb[] }) {
+  const { t } = useI18n();
   const crumbs: Crumb[] = [{ name: t("breadcrumbs.home"), href: "/" }, ...trail];
   return (
     <Breadcrumb className="mb-4">
@@ -33,7 +33,7 @@ export async function PageBreadcrumbs({ trail }: { trail: Crumb[] }) {
                   <BreadcrumbPage>{crumb.name}</BreadcrumbPage>
                 ) : (
                   <BreadcrumbLink asChild>
-                    <LinkDynamic href={crumb.href}>{crumb.name}</LinkDynamic>
+                    <Link href={crumb.href}>{crumb.name}</Link>
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>
@@ -47,13 +47,3 @@ export async function PageBreadcrumbs({ trail }: { trail: Crumb[] }) {
 }
 
 // API category trail ({ name, url_key }[]) → crumbs linking to the catalog.
-export function category_trail(
-  path: { name?: string; url_key?: string }[] | undefined,
-): Crumb[] {
-  return (path ?? [])
-    .filter((c) => c?.name)
-    .map((c) => ({
-      name: c.name as string,
-      href: c.url_key ? `/catalog/${c.url_key}` : undefined,
-    }));
-}

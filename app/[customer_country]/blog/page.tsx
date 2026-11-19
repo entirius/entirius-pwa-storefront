@@ -12,7 +12,7 @@ import { build_blog_list_jsonld } from "@/lib/seo/build";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { profile_path } from "@/lib/profile-path";
 import { BLOG_PATH, blog_list_path, page_param } from "@/lib/blog-paths";
-import { PageBreadcrumbs } from "@/app/_components/layout/page-breadcrumbs";
+import { PageBreadcrumbs } from "@theme/components/page-breadcrumbs";
 import { render_cms_document } from "@/app/[customer_country]/(builder)/[[...slug]]/_components/cms-renderer";
 import {
   cms_content_prefetches,

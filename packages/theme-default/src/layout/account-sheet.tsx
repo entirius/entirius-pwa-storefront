@@ -5,8 +5,8 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { useRouter, useParams } from "next/navigation";
 import { User } from "lucide-react";
+import { useAccount, useStorefront } from "@entirius/storefront-sdk/storefront";
 
 import {
   Sheet,
@@ -17,17 +17,12 @@ import {
   SheetTrigger,
 } from "@theme/ui/sheet";
 import { Button } from "@theme/ui/button";
-import { useAuth } from "@/providers/auth.provider";
-import { HEADER_ICON } from "./header-icon";
+import { HEADER_ICON } from "@theme/layout/header-icon";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // The forms (react-hook-form, zod) load the first time they are shown, not with every page: a plain import() when
 // the view mounts, and the form renders once it is there (a few ms from the cache). No <Suspense> on purpose: React
 // holds a suspended boundary's fallback for at least 300 ms, even when the file is already loaded.
-const loadLoginForm = () => import("./login-form").then((m) => m.LoginForm);
-const loadRegisterForm = () => import("./register-form").then((m) => m.RegisterForm);
-const loadForgotPasswordForm = () => import("./forgot-password-form").then((m) => m.ForgotPasswordForm);
-
 // Renders `children` with what `load` resolves to. A load that fails (no network, a tab older than the last deploy)
 // offers a page reload: the bundler keeps a failed chunk failed for the page's lifetime.
 function Loaded<T>({ load, children }: { load: () => Promise<T>; children: (loaded: T) => ReactNode }) {
@@ -60,9 +55,9 @@ function Loaded<T>({ load, children }: { load: () => Promise<T>; children: (load
 
 // Login/register entry point (shown only when logged out — see AccountNav).
 export function AccountSheet() {
-  const router = useRouter();
-  const params = useParams();
-  const { setLoggedIn } = useAuth();
+  const { signed_in } = useAccount();
+  // The forms carry the core's logic; they load on first use.
+  const { forms } = useStorefront();
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<"login" | "register" | "forgot">("login");
@@ -75,15 +70,6 @@ export function AccountSheet() {
       setView("login");
       setNotice(null);
     }
-  };
-
-  // After login: flip auth, close the sheet, and go to the profile hub.
-  // Mirror LinkDynamic's country prefixing.
-  const goToProfile = () => {
-    const country = params?.customer_country as string | undefined;
-    const href =
-      !country || country === "default" ? "/profile" : `/${country}/profile`;
-    router.push(href);
   };
 
   const title =
@@ -118,7 +104,7 @@ export function AccountSheet() {
           <SheetDescription>{intro}</SheetDescription>
         </SheetHeader>
         {view === "forgot" ? (
-          <Loaded key={view} load={loadForgotPasswordForm}>
+          <Loaded key={view} load={forms.forgot_password}>
             {(ForgotPasswordForm) => (
               <ForgotPasswordForm
                 onBack={() => setView("login")}
@@ -130,7 +116,7 @@ export function AccountSheet() {
             )}
           </Loaded>
         ) : view === "register" ? (
-          <Loaded key={view} load={loadRegisterForm}>
+          <Loaded key={view} load={forms.register}>
             {(RegisterForm) => (
               <RegisterForm
                 onSwitchToLogin={() => setView("login")}
@@ -142,14 +128,13 @@ export function AccountSheet() {
             )}
           </Loaded>
         ) : (
-          <Loaded key={view} load={loadLoginForm}>
+          <Loaded key={view} load={forms.login}>
             {(LoginForm) => (
               <LoginForm
                 notice={notice}
                 onSuccess={() => {
-                  setLoggedIn(true);
                   setOpen(false);
-                  goToProfile();
+                  signed_in();
                 }}
                 onSwitchToRegister={() => {
                   setNotice(null);

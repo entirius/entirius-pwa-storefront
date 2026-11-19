@@ -17,7 +17,6 @@ entirius-pwa-storefront/
 │       └── api.static-access.ts  # static values for ISR/build-time fetches
 ├── app/
 │   ├── layout.tsx                # Root layout (providers, language, layout slots, cookie banner)
-│   ├── _components/layout/       # Header, footer, navigation, search, cart link, wishlist/account sheets
 │   ├── _components/layout-slots/ # CMS content on every page (announcement, before-footer)
 │   ├── _components/cookie-consent/ # Cookie banner on django-agreements
 │   └── [customer_country]/       # All routed pages live under the country segment
@@ -131,7 +130,7 @@ All pages live under `app/[customer_country]/`. The `ct` cookie (set by middlewa
 | Theme components | `packages/theme-default/src/components/`, `src/product/` | Product card, price, badges, wishlist button; the product page and its parts. `@theme/components/<name>`, `@theme/product/<part>` |
 | Domain UI | `components/ui/` | `TokenLinks` (consent texts of the forms): moves with the forms |
 | Shared | `lib/` | Cross-page components (PrefetchBoundary, LinkDynamic); `lib/storefront/` fills the SDK's `Storefront` |
-| Layout | `app/_components/layout/` | Header, navigation, search, cart/wishlist/account sheets |
+| Layout | `packages/theme-default/src/layout/` (look), `lib/layout/` (data, menu queries, hooks) | Header, footer, menus, search, account, cart link, wishlist sheet, locale switch, notices: `@theme/layout/<part>` |
 | Page feature | `app/[customer_country]/.../_components/` | Co-located with owning page (filters, product tile, listing) |
 
 Client components use `.client.tsx` suffix. Server components have no suffix.
@@ -167,6 +166,14 @@ is an allowlist):
   `/app/_CONFIG` (else `_CONFIG.example`). An `API_BASE_URL` on `http://localhost:<port>` is forwarded to the host, so
   the browser and the server use one address.
 - `storefront-builder` (`--target builder`): the source with its dependencies, the base of a shop's own image.
+
+The page shell works the same way. `LayoutRuntime` (`lib/layout/`, in the root layout) works out on the server what
+the header and footer need (logo, menu types and whether the megamenu fits the logo's row, the visitor's languages and
+currencies, the CMS footer), prefetches the menu's top level and hands it over as `useLayout()`. The theme's
+`@theme/layout/header` and `footer` and their parts read it, and take the rest from `Storefront` hooks (menu branches,
+header search, account, cart count, wishlist sheet, notices, locale switch). Account forms load on first use through
+`Storefront.forms`; signing in to the account's wishlist runs in the core (`WishlistAccountSync`), whatever the theme
+shows.
 
 `docker/verdaccio/compose.yaml` runs a local npm registry on :4873 to publish `@entirius/*` before anything is public.
 
@@ -217,7 +224,7 @@ All slot pages come from one request per page render (`app/_components/layout-sl
 list, then `static-page?routes=…`, deduplicated with `React.cache()`); the draft in the active language wins.
 
 The footer is not a slot: it is the CMS footer extender (`layout-extender-published/footer/`, edited in the CMS
-navigation editor), rendered by `app/_components/layout/footer-component.tsx`.
+navigation editor), read by `lib/layout/layout-data.ts` and drawn by the theme's `@theme/layout/footer`.
 
 ## Blog
 

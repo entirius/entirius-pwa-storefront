@@ -13,7 +13,7 @@ import { build_blog_author_jsonld, build_blog_author_metadata } from "@/lib/seo/
 import { JsonLd } from "@/lib/seo/json-ld";
 import { profile_path } from "@/lib/profile-path";
 import { BLOG_PATH, blog_author_path, page_param } from "@/lib/blog-paths";
-import { PageBreadcrumbs } from "@/app/_components/layout/page-breadcrumbs";
+import { PageBreadcrumbs } from "@theme/components/page-breadcrumbs";
 import { NORM_BLOG_AUTHOR } from "@/utils/NORMALIZERS/blog-post.normalizer";
 import { languages_with_posts, load_blog_posts } from "../../api.query";
 import { AuthorPhoto } from "../../_components/author-photo";

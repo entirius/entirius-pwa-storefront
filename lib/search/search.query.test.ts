@@ -3,8 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { describe, expect, it } from "vitest";
-import { NORM_SEARCH_DATA } from "./search.query";
-import { product_href, thumb_src } from "./search-product-row";
+import { NORM_SEARCH_DATA, product_href } from "./search.query";
 
 const media = (...widths: number[]) => ({
   position: 0,
@@ -29,7 +28,8 @@ describe("NORM_SEARCH_DATA", () => {
     const [p] = products?.results ?? [];
     expect(p.price).toEqual({ gross: "100.00", currency: "EUR", final_gross: "80.00" });
     expect(p.percent_off).toBe("20");
-    expect(thumb_src(p.media)).toMatch(/\/m\/320\.jpg$/);
+    expect(p.media[0].map((m) => m.uri)).toContainEqual(expect.stringMatching(/\/m\/320\.jpg$/));
+    expect(p.href).toBe("/product/chair");
   });
 
   it("shows a configurable product as a From price", () => {
@@ -45,7 +45,7 @@ describe("NORM_SEARCH_DATA", () => {
     const { products } = NORM_SEARCH_DATA({ products: { results: [item({ price: null, main_image: null })] } });
     const [p] = products?.results ?? [];
     expect(p.price).toBeNull();
-    expect(thumb_src(p.media)).toBe("/placeholder.svg");
+    expect(p.media.flat().every((m) => m.uri === "/placeholder.svg")).toBe(true);
   });
 
   it("keeps total, categories and phrases", () => {

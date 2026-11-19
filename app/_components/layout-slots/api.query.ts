@@ -10,7 +10,7 @@ import type { CmsPage } from "@/types/cms.types";
 import { _LOGGER } from "@/lib/logger";
 
 // A layout slot is an ordinary contentdb page published under a reserved route ("layout-announcement").
-// The footer is not a slot: it is the CMS footer extender (app/_components/layout/footer-component.tsx).
+// The footer is not a slot: it is the CMS footer extender (lib/layout/layout-data.ts, drawn by the theme's layout/footer).
 export const LAYOUT_SLOTS = ["announcement", "before-footer"] as const;
 export type LayoutSlotName = (typeof LAYOUT_SLOTS)[number];
 // The builder page answers 404 for routes with this prefix: slots are not pages.

@@ -3,24 +3,10 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { create } from "zustand";
-import type { MessageKey } from "@entirius/storefront-sdk/i18n";
-import type { Params } from "@entirius/storefront-sdk/i18n";
+import type { Notice, NoticeInput, NoticeTone } from "@entirius/storefront-sdk/layout";
 
 // The tones are the status colour tokens of app/globals.css.
-export type NoticeTone = "positive" | "destructive" | "notice" | "informative";
-
-export type NoticeInput = {
-  message: MessageKey;
-  params?: Params;
-  title?: MessageKey;
-  tone?: NoticeTone;
-  // How long it stays, while neither the pointer nor the focus is on it.
-  timeout?: number;
-  // One button or link next to the message (View wishlist, View cart); the notice closes when it is used.
-  action?: { label: MessageKey; run: () => void } | { label: MessageKey; href: string };
-};
-
-export type Notice = NoticeInput & { id: number; tone: NoticeTone; timeout: number };
+export type { Notice, NoticeInput, NoticeTone };
 
 export const NOTICE_TIMEOUT = 5000;
 // An error waits longer: it asks the visitor to do something.
@@ -40,7 +26,7 @@ let last_id = 0;
 const same = (a: NoticeInput, b: NoticeInput) =>
   a.message === b.message && JSON.stringify(a.params ?? {}) === JSON.stringify(b.params ?? {});
 
-// Short messages after an action, stacked under the header (app/_components/layout/notices.client.tsx). The store
+// Short messages after an action, stacked under the header (the theme's layout/notices). The store
 // holds message keys, not text, so code outside React (stores/wishlist-sync.ts) can call notify() too. The same
 // message again replaces the one showing and starts its time anew.
 export const useNotices = create<NoticesStore>()((set) => ({

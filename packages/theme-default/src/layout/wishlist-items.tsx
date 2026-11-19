@@ -4,30 +4,16 @@
 
 "use client";
 
+import type { Price, WishlistItem } from "@entirius/storefront-sdk/product";
+import { useMoveToCart, useWishlistSheet } from "@entirius/storefront-sdk/storefront";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { Button } from "@theme/ui/button";
 import { Spinner } from "@theme/ui/spinner";
-import { useWishlistStore, type WishlistItem } from "@/stores/wishlist.store";
-import { remove_from_account } from "@/stores/wishlist-sync";
-import { useAuth } from "@/providers/auth.provider";
-import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { ProductCard } from "@theme/components/product-card";
-import { useQuickAdd } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/use-quick-add";
-import { buy_block } from "@/lib/buy-rules";
 
-// Whether the item can go straight to the cart, by the rules of its type (the click asks the real-time stock).
-// An item saved before the type was kept has only its price to go by: one price, not a range.
-const movable = (item: WishlistItem) =>
-  item.product_type ? buy_block(item.product_type, { price: item.price }) === null : !item.price?.from;
-
-// One unit into the cart, then off the wishlist. A variant to choose or a price on request goes through the
-// product page, which the card links to.
-function MoveToCart({ item }: { item: WishlistItem & { price: NonNullable<WishlistItem["price"]> } }) {
+function MoveToCart({ item }: { item: WishlistItem & { price: Price } }) {
   const { t } = useI18n();
-  const { isLoggedIn } = useAuth();
-  const remove = useWishlistStore((s) => s.remove);
-  const { state, run } = useQuickAdd(item, () =>
-    isLoggedIn ? void remove_from_account(item.sku) : remove(item.sku),
-  );
+  const { state, run } = useMoveToCart(item);
   const sold_out = state === "none";
 
   return (
@@ -50,10 +36,9 @@ function MoveToCart({ item }: { item: WishlistItem & { price: NonNullable<Wishli
 
 export function WishlistItems() {
   const { t } = useI18n();
-  const items = useWishlistStore((s) => s.items);
-  const entries = Object.entries(items);
+  const { items, movable } = useWishlistSheet();
 
-  if (entries.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="flex flex-col gap-1 px-4 py-8 text-center">
         <p className="text-muted-foreground">{t("wishlist.empty")}</p>
@@ -64,9 +49,9 @@ export function WishlistItems() {
 
   return (
     <div className="flex flex-col gap-2 overflow-y-auto px-4">
-      {entries.map(([sku, item]) => (
+      {items.map((item) => (
         <ProductCard
-          key={sku}
+          key={item.sku}
           product={item}
           variant="compact"
           action={item.price && movable(item) ? <MoveToCart item={{ ...item, price: item.price }} /> : undefined}

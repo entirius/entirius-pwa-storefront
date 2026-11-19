@@ -6,20 +6,20 @@
 
 import { User } from "lucide-react";
 
-import { useAuth } from "@/providers/auth.provider";
-import { LinkDynamic } from "@/lib/link-dynamic";
+import { Link } from "@entirius/storefront-sdk/components/link";
+import { useAccount } from "@entirius/storefront-sdk/storefront";
 import { Button } from "@theme/ui/button";
-import { AccountSheet } from "./account-sheet";
-import { HEADER_ICON } from "./header-icon";
+import { AccountSheet } from "@theme/layout/account-sheet";
+import { HEADER_ICON } from "@theme/layout/header-icon";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // Logged in → the User icon links to the /profile hub. Logged out → it opens the
 // login/register Sheet. Auth state comes from the shared AuthProvider context.
 export function AccountNav() {
-  const { isLoggedIn } = useAuth();
+  const { logged_in } = useAccount();
   const { t } = useI18n();
 
-  if (isLoggedIn) {
+  if (logged_in) {
     return (
       <Button
         asChild
@@ -27,9 +27,9 @@ export function AccountNav() {
         size="icon"
         className="relative cursor-pointer text-foreground"
       >
-        <LinkDynamic href="/profile" aria-label={t("header.account")}>
+        <Link href="/profile" aria-label={t("header.account")}>
           <User className={HEADER_ICON} />
-        </LinkDynamic>
+        </Link>
       </Button>
     );
   }

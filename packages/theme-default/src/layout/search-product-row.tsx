@@ -4,34 +4,25 @@
 
 "use client";
 
-import { ProductThumb } from "@theme/components/product-thumb";
-import { LinkDynamic } from "@/lib/link-dynamic";
-import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
-import type { Product } from "@/utils/NORMALIZERS/product.normalizer";
-import { ProductPrice } from "@theme/components/product-price";
+import { Link } from "@entirius/storefront-sdk/components/link";
+import type { ProductMedia } from "@entirius/storefront-sdk/product";
+import type { SearchProduct } from "@entirius/storefront-sdk/layout";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
-import { VARIANT_PARAM } from "@/app/[customer_country]/(product)/product/[product_url_key]/_components/variant-selection";
+import { ProductThumb } from "@theme/components/product-thumb";
+import { ProductPrice } from "@theme/components/product-price";
 
-// A small picture of the product's first image: the ~320px source, else the first one.
-export function thumb_src(media: Product["media"]): string {
+// The 320 px picture when there is one, else the first size; null gives the placeholder.
+export function thumb_src(media: ProductMedia): string | null {
   const set = media[0] ?? [];
-  return (set.find((m) => m.width === 320) ?? set[0])?.uri ?? image_placeholder;
+  return (set.find((m) => m.width === 320) ?? set[0])?.uri ?? null;
 }
 
-// A variant has no page of its own: link to its parent's page with the variant chosen.
-export function product_href(product: Pick<Product, "sku" | "url_key" | "parent_url_key">): string {
-  if (product.url_key) return `/product/${product.url_key}`;
-  if (!product.parent_url_key) return "#";
-  const variant = product.sku ? `?${VARIANT_PARAM}=${encodeURIComponent(product.sku)}` : "";
-  return `/product/${product.parent_url_key}${variant}`;
-}
-
-export function SearchProductRow({ product, onNavigate }: { product: Product; onNavigate: () => void }) {
+export function SearchProductRow({ product, onNavigate }: { product: SearchProduct; onNavigate: () => void }) {
   const i18n = useI18n();
 
   return (
-    <LinkDynamic
-      href={product_href(product)}
+    <Link
+      href={product.href}
       onClick={onNavigate}
       data-product-tile
       data-stock={product.on_stock === false ? "out" : "in"}
@@ -54,6 +45,6 @@ export function SearchProductRow({ product, onNavigate }: { product: Product; on
           </span>
         )}
       </div>
-    </LinkDynamic>
+    </Link>
   );
 }

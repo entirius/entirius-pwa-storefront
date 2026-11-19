@@ -16,10 +16,8 @@ import { ExpandableText } from "@theme/ui/expandable-text";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 import { ListingClient } from "./_components/listing.client";
 import { LinkDynamic } from "@/lib/link-dynamic";
-import {
-  PageBreadcrumbs,
-  category_trail,
-} from "@/app/_components/layout/page-breadcrumbs";
+import { PageBreadcrumbs } from "@theme/components/page-breadcrumbs";
+import { category_trail } from "@/lib/breadcrumbs";
 
 interface Props {
   params: Promise<{

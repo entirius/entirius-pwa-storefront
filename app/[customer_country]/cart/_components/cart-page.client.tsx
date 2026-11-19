@@ -4,7 +4,7 @@
 
 "use client";
 
-import { useHydrated } from "@/lib/use-hydrated";
+import { useHydrated } from "@entirius/storefront-sdk/hooks";
 import { Trash2 } from "lucide-react";
 
 import { Button } from "@theme/ui/button";
@@ -17,8 +17,8 @@ import { LinkDynamic } from "@/lib/link-dynamic";
 import { useCartSync } from "@/stores/use-cart-sync";
 import type { CartItem } from "@/stores/cart.store";
 import type { Cart } from "@/utils/NORMALIZERS/cart.normalizer";
-import { UnitPrice } from "@/app/_components/layout/cart-price";
-import { DiscountCode } from "@/app/_components/layout/discount-code.client";
+import { UnitPrice } from "@/app/_components/order/cart-price";
+import { DiscountCode } from "@/app/_components/order/discount-code.client";
 import { CartAlerts } from "@/app/_components/order/cart-alerts";
 import { GiftCard, GiftLine, gift_rule } from "@/app/_components/order/cart-gifts.client";
 import { useCartGifts, useGiftSetter } from "@/app/_components/order/use-cart-gifts";

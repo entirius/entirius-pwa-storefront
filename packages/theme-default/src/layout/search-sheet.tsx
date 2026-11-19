@@ -14,8 +14,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@theme/ui/sheet";
-import { SearchBody, SearchField, useHeaderSearch } from "./header-search.client";
-import { HEADER_ICON } from "./header-icon";
+import { useHeaderSearch } from "@entirius/storefront-sdk/storefront";
+import { SearchBody, SearchField } from "@theme/layout/search-field";
+import { HEADER_ICON } from "@theme/layout/header-icon";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // The phone's search: an icon that opens a sheet from the top. From md up the header has the search bar.

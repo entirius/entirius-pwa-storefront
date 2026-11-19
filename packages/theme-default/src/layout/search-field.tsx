@@ -4,13 +4,9 @@
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
 import { Search, X } from "lucide-react";
-
-import { create_api } from "@/API/api.context";
-import { make_client_access } from "@/API/access/api.client-access";
+import type { HeaderSearch } from "@entirius/storefront-sdk/layout";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { Spinner } from "@theme/ui/spinner";
 import { SheetClose } from "@theme/ui/sheet";
 import {
@@ -20,57 +16,9 @@ import {
   InputGroupInput,
   InputGroupText,
 } from "@theme/ui/input-group";
-import { SEARCH_MIN_CHARS, search_path, search_query } from "./search.query";
-import { SearchResults } from "./search-results";
-import { useI18n } from "@entirius/storefront-sdk/i18n/client";
-import { profile_path } from "@/lib/profile-path";
+import { SearchResults } from "@theme/layout/search-results";
 
-// The header's search, shared by the phone's sheet and the desktop's bar: the state, the field and the results.
-export function useHeaderSearch() {
-  const router = useRouter();
-  const params = useParams();
-  const [open, setOpen] = useState(false);
-  const [q, setQ] = useState("");
-  const [debounced, setDebounced] = useState("");
-
-  const access = useMemo(() => make_client_access(), []);
-  const api = useMemo(() => create_api(access), [access]);
-
-  // Debounce the typed value (~300ms) before it drives the query.
-  useEffect(() => {
-    const id = setTimeout(() => setDebounced(q.trim()), 300);
-    return () => clearTimeout(id);
-  }, [q]);
-
-  const enabled = debounced.length >= SEARCH_MIN_CHARS;
-  const { data, isFetching, isError } = useQuery({
-    ...search_query(api, { q: debounced }),
-    enabled,
-    placeholderData: (prev) => prev,
-  });
-
-  const onOpenChange = (next: boolean) => {
-    setOpen(next);
-    if (!next) {
-      setQ("");
-      setDebounced("");
-    }
-  };
-
-  // Enter: every result of the typed phrase on the results page.
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const phrase = q.trim();
-    if (phrase.length < SEARCH_MIN_CHARS) return;
-    onOpenChange(false);
-    router.push(profile_path(params?.customer_country as string | undefined, search_path(phrase)));
-  };
-
-  return { open, q, setQ, debounced, enabled, data, isFetching, isError, onOpenChange, onSubmit };
-}
-
-type HeaderSearch = ReturnType<typeof useHeaderSearch>;
-
+// The header's search box and what it found, shared by the desktop bar and the phone sheet.
 export function SearchField({ search }: { search: HeaderSearch }) {
   const { t } = useI18n();
   return (
@@ -111,7 +59,7 @@ export function SearchBody({ search }: { search: HeaderSearch }) {
     <div className="mx-auto w-full max-w-2xl px-4 py-4">
       {!search.enabled ? (
         <p className="py-6 text-center text-sm text-muted-foreground">
-          {t("search.min_chars", { count: SEARCH_MIN_CHARS })}
+          {t("search.min_chars", { count: search.min_chars })}
         </p>
       ) : search.isError ? (
         <p className="py-6 text-center text-sm text-muted-foreground">

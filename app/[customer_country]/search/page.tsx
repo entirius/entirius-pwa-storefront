@@ -7,8 +7,8 @@ import { PrefetchBoundary } from "@/lib/prefetch_boundary";
 import { omnibus_prefetch, is_discounted } from "@/lib/omnibus/omnibus.query";
 import { get_server_api } from "@/lib/seo/server-api";
 import { get_i18n } from "@/lib/i18n/i18n.server";
-import { PageBreadcrumbs } from "@/app/_components/layout/page-breadcrumbs";
-import { SEARCH_MIN_CHARS } from "@/app/_components/layout/search.query";
+import { PageBreadcrumbs } from "@theme/components/page-breadcrumbs";
+import { SEARCH_MIN_CHARS } from "@/lib/search/search.query";
 import {
   catalog_query,
   listing_filters,

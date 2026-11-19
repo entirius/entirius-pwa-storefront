@@ -9,9 +9,10 @@ import { Dialog as DialogPrimitive } from "radix-ui";
 
 import { Button } from "@theme/ui/button";
 import { Sheet, SheetTitle, SheetTrigger } from "@theme/ui/sheet";
-import { cn } from "@/lib/utils";
-import { HEADER_ICON } from "./header-icon";
-import { SearchBody, SearchField, useHeaderSearch } from "./header-search.client";
+import { cn } from "@theme/lib/utils";
+import { HEADER_ICON } from "@theme/layout/header-icon";
+import { useHeaderSearch } from "@entirius/storefront-sdk/storefront";
+import { SearchBody, SearchField } from "@theme/layout/search-field";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // The desktop's search: a magnifier that spreads into a field in the free space next to it. A non-modal dialog

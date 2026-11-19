@@ -14,11 +14,13 @@ import { AuthProvider } from "@/providers/auth.provider";
 import { I18nProvider } from "@entirius/storefront-sdk/i18n/client";
 import { StorefrontRuntime } from "@/lib/storefront/storefront.client";
 import { get_i18n } from "@/lib/i18n/i18n.server";
-import { HeaderComponent } from "./_components/layout/header-component";
+import { Header } from "@theme/layout/header";
+import { Footer } from "@theme/layout/footer";
+import { LayoutRuntime } from "@/lib/layout/layout-runtime";
+import { WishlistAccountSync } from "@/lib/layout/wishlist-account-sync.client";
 import { LayoutSlot } from "./_components/layout-slots/layout-slot";
 import { ScrollToTop } from "./_components/scroll-to-top.client";
 import { CookieConsent } from "./_components/cookie-consent/cookie-consent.client";
-import { FooterComponent } from "./_components/layout/footer-component";
 import { Suspense } from "react";
 import { SITE_URL, SITE_NAME } from "@/lib/seo/config";
 import { COLOR_SCHEME } from "@/_CONFIG/app.config.json";
@@ -108,11 +110,14 @@ async function AuthGate({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider initial={isLoggedIn}>
       <PrefetchBoundary prefetches={[agreement_definitions_query(api, language)]}>
-        <LayoutSlot name="announcement" />
-        <HeaderComponent />
-        <main className="mx-auto w-full max-w-(--page-max-width) p-4">{children}</main>
-        <LayoutSlot name="before-footer" />
-        <FooterComponent />
+        <LayoutRuntime>
+          <WishlistAccountSync />
+          <LayoutSlot name="announcement" />
+          <Header />
+          <main className="mx-auto w-full max-w-(--page-max-width) p-4">{children}</main>
+          <LayoutSlot name="before-footer" />
+          <Footer />
+        </LayoutRuntime>
       </PrefetchBoundary>
     </AuthProvider>
   );

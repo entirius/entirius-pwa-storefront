@@ -7,6 +7,11 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- The page shell is the theme's: header, footer, megamenu, mobile menu, search, account, cart link, wishlist sheet,
+  locale switch, notices and breadcrumbs moved from `app/_components/layout/` to `@theme/layout/*` (breadcrumbs:
+  `@theme/components/page-breadcrumbs`). The core works the layout out in `lib/layout/` (`LayoutRuntime`, `useLayout()`,
+  `Storefront` hooks), the search query is `lib/search/`, the account forms are `components/*-form.client.tsx`, the
+  cart's price and discount code `app/_components/order/`. The shop looks and works as before.
 - The product page is a theme template: `@theme/product/product-page` arranges named parts (`gallery`, `header`,
   `price`, `stock-status`, `variant-picker`, `buy-box`, `description`, `specs`, `stories`, `related`,
   `sticky-buy-bar`), each reading the page from `useProductPage()`; the core works the page out in

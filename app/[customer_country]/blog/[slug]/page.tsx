@@ -12,7 +12,7 @@ import { get_i18n } from "@/lib/i18n/i18n.server";
 import { page_alternates } from "@/lib/seo/alternates";
 import { build_blog_post_jsonld, build_blog_post_metadata } from "@/lib/seo/build";
 import { JsonLd } from "@/lib/seo/json-ld";
-import { PageBreadcrumbs } from "@/app/_components/layout/page-breadcrumbs";
+import { PageBreadcrumbs } from "@theme/components/page-breadcrumbs";
 import CmsImage from "@/app/[customer_country]/(builder)/[[...slug]]/_components/cms-image";
 import { render_cms_document } from "@/app/[customer_country]/(builder)/[[...slug]]/_components/cms-renderer";
 import { cms_content_prefetches } from "@/app/[customer_country]/(builder)/[[...slug]]/api.query";

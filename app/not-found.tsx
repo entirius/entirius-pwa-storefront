@@ -5,8 +5,8 @@
 import type { Metadata } from "next";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 import { get_server_api } from "@/lib/seo/server-api";
-import { categories_query } from "./_components/layout/api.query";
-import { CONFIG_QUERY } from "./_components/layout/menu-config";
+import { categories_query } from "@/lib/layout/menu.query";
+import { CONFIG_QUERY } from "@/lib/layout/menu-config";
 import { Button } from "@theme/ui/button";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { NotFoundSearch } from "./_components/not-found-search.client";

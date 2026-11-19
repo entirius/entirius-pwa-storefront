@@ -50,6 +50,7 @@ Same rule applies to PR descriptions: no `Generated with [Claude Code]` footer.
 - `packages/theme-default/` — the default theme: shadcn/ui primitives in `src/ui/`, imported as `@theme/ui/<name>`. `@theme/*` resolves to `theme/src/*` first (an installed theme, gitignored), then here.
 - `packages/sdk/` — `@entirius/storefront-sdk`, the contract between core and theme: message catalogues, `t()`, `price()`, `price_lines()` (`/i18n`), `useI18n` (`/i18n/client`), product types (`/product`), `Storefront` with the hooks the core lends (`/storefront`), `Media` / `RichText` / `Link` (`/components/*`), page models (`/product/page`).
 - `packages/create-theme/`, `packages/theme-cli/` — `pnpm create @entirius/theme` and the `entirius` command (dev, list, eject, check) for theme authors; plain `.mjs`, released with the SDK at one version.
+- `lib/layout/`, `lib/search/` — the shell's data and hooks (`LayoutRuntime`, menus, header search, account, wishlist sheet, notices, locale switch) and the search query; the look is the theme's `layout/`.
 - `lib/storefront/` — the core's side of `Storefront`, set in the root layout. A page's model is worked out next to its route (`ProductPageRuntime`) and read by the theme's parts.
 - `components/ui/` — `TokenLinks`, until the forms move into the theme.
 - `lib/i18n/` — language resolution, `_CONFIG` overrides, `get_i18n()` for server components, `price_lines()`.

@@ -6,18 +6,11 @@
 
 import { Search, Tag } from "lucide-react";
 
-import { LinkDynamic } from "@/lib/link-dynamic";
+import { Link } from "@entirius/storefront-sdk/components/link";
+import type { SearchResults as Results } from "@entirius/storefront-sdk/layout";
 import { Button } from "@theme/ui/button";
-import { search_path, type SearchResponse } from "./search.query";
-import { SearchProductRow } from "./search-product-row";
+import { SearchProductRow } from "@theme/layout/search-product-row";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
-
-type SearchCategory = {
-  idx?: string;
-  name?: string;
-  url_key?: string;
-  products_count?: number;
-};
 
 export function SearchResults({
   data,
@@ -25,7 +18,7 @@ export function SearchResults({
   onNavigate,
   onPhrase,
 }: {
-  data: SearchResponse;
+  data: Results;
   // The searched phrase: the products end with a link to all its results.
   query?: string;
   onNavigate: () => void;
@@ -33,7 +26,7 @@ export function SearchResults({
 }) {
   const { t } = useI18n();
   const phrases = data.phrases ?? [];
-  const categories = (data.categories?.results ?? []) as SearchCategory[];
+  const categories = data.categories?.results ?? [];
   const products = data.products?.results ?? [];
   const total = data.products?.total ?? products.length;
 
@@ -70,7 +63,7 @@ export function SearchResults({
           </h3>
           <div className="flex flex-col gap-1">
             {categories.map((c) => (
-              <LinkDynamic
+              <Link
                 key={c.idx ?? c.url_key}
                 href={`/catalog/${c.url_key}`}
                 onClick={onNavigate}
@@ -86,7 +79,7 @@ export function SearchResults({
                       {c.products_count}
                     </span>
                   )}
-              </LinkDynamic>
+              </Link>
             ))}
           </div>
         </section>
@@ -100,7 +93,7 @@ export function SearchResults({
           <div className="flex flex-col gap-2">
             {products.map((p, i) => (
               <SearchProductRow
-                key={p.sku ?? p.url_key ?? i}
+                key={p.sku || p.href || i}
                 product={p}
                 onNavigate={onNavigate}
               />
@@ -108,9 +101,9 @@ export function SearchResults({
           </div>
           {query && (
             <Button asChild variant="link" size="sm" className="self-start px-1">
-              <LinkDynamic href={search_path(query)} onClick={onNavigate} data-search-all>
+              <Link href={`/search?q=${encodeURIComponent(query)}`} onClick={onNavigate} data-search-all>
                 {t("search.show_all")}
-              </LinkDynamic>
+              </Link>
             </Button>
           )}
         </section>

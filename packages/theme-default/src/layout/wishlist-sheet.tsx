@@ -4,7 +4,6 @@
 
 "use client";
 
-import { useEffect } from "react";
 import {
   Sheet,
   SheetTrigger,
@@ -12,34 +11,23 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@theme/ui/sheet";
-import { useWishlistStore } from "@/stores/wishlist.store";
-import { useWishlistSheet } from "@/stores/wishlist-sheet.store";
-import { load_account_wishlist } from "@/stores/wishlist-sync";
-import { useAuth } from "@/providers/auth.provider";
-import { WishlistItems } from "./wishlist-items";
+import { useWishlistSheet } from "@entirius/storefront-sdk/storefront";
+import { WishlistItems } from "@theme/layout/wishlist-items";
 import { Heart } from "lucide-react";
 import { Button } from "@theme/ui/button";
-import { CountBadge } from "./count-badge";
-import { HEADER_ICON } from "./header-icon";
-import { useHydrated } from "@/lib/use-hydrated";
+import { CountBadge } from "@theme/layout/count-badge";
+import { HEADER_ICON } from "@theme/layout/header-icon";
+import { useHydrated } from "@entirius/storefront-sdk/hooks";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 export function WishlistSheet() {
   const { t } = useI18n();
-  const count = useWishlistStore((s) => s.count());
-  const mounted = useHydrated();
-  // Signed in, the account's list replaces the device's once per page load (and after sign-in).
-  const { isLoggedIn } = useAuth();
-  useEffect(() => {
-    if (isLoggedIn) void load_account_wishlist();
-  }, [isLoggedIn]);
-
   // Controlled, so "View wishlist" in a notice opens it too.
-  const open = useWishlistSheet((s) => s.open);
-  const setOpen = useWishlistSheet((s) => s.setOpen);
+  const { count, open, set_open } = useWishlistSheet();
+  const mounted = useHydrated();
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet open={open} onOpenChange={set_open}>
       <SheetTrigger asChild>
         <Button
           variant="ghost"

@@ -22,8 +22,8 @@ import {
   SEARCH_MIN_CHARS,
   search_path,
   search_query,
-} from "@/app/_components/layout/search.query";
-import { SearchResults } from "@/app/_components/layout/search-results";
+} from "@/lib/search/search.query";
+import { SearchResults } from "@theme/layout/search-results";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { profile_path } from "@/lib/profile-path";
 

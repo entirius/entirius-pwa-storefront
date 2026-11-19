@@ -20,10 +20,8 @@ import { get_i18n } from "@/lib/i18n/i18n.server";
 import { ProductPage } from "@theme/product/product-page";
 import { ProductPageRuntime } from "./_components/product-page.client";
 import { RelatedSection } from "./related-products";
-import {
-  PageBreadcrumbs,
-  category_trail,
-} from "@/app/_components/layout/page-breadcrumbs";
+import { PageBreadcrumbs } from "@theme/components/page-breadcrumbs";
+import { category_trail } from "@/lib/breadcrumbs";
 
 interface Props {
   params: Promise<{ customer_country: string; product_url_key: string }>;

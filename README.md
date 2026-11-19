@@ -73,7 +73,6 @@ The cookie banner needs no config: when the backend has a published banner for t
 API/                    Fetch engine: route constants, policies, cookie access adapters
 app/
 ├── layout.tsx          Root layout (providers)
-├── _components/layout/ Header, navigation, search, cart / wishlist / account sheets
 └── [customer_country]/ All routed pages
     ├── (builder)/      CMS pages (catch-all slug)
     ├── blog/           Blog from the CMS: list, posts, authors
