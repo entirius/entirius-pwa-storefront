@@ -37,6 +37,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- `docker/try-themes.sh`: the theme flow before anything is public, from a checkout: a local registry, the core's
+  images and the four `@entirius` packages in one command.
 - A theme sets its colours and shapes in `tokens.css` (`@theme/tokens.css`, between `app/globals.css` and the shop's
   `_CONFIG/theme.css`). `pnpm create @entirius/theme <name> --example` starts from a theme with a look of its own; the
   first `entirius dev` asks for the backend, channel and checkout key; `entirius build` makes a production image of

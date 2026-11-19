@@ -189,6 +189,8 @@ header search, account, cart count, wishlist sheet, notices, locale switch). Acc
 shows.
 
 `docker/verdaccio/compose.yaml` runs a local npm registry on :4873 to publish `@entirius/*` before anything is public.
+`docker/try-themes.sh` does all of it from a checkout: the registry, both images and the four packages at their
+version, then prints the theme author's commands.
 
 A theme author never clones this repository. `pnpm create @entirius/theme <name>` (`packages/create-theme`, `--example`
 for a theme with a look of its own: `tokens.css` and a product card) writes a theme folder: `package.json` with the SDK, the default theme and `@entirius/theme-cli`, a `tsconfig.json` that resolves
