@@ -30,12 +30,14 @@ Server Component prefetches TanStack Query data; Client Component reads it via `
 const api = create_api(await make_server_access());
 return (
   <PrefetchBoundary prefetches={[catalog_query(api, opts), products_query(api, opts)]}>
-    <ListingClient options={opts} />
+    <ListingPageRuntime kind="category" options={opts} header={header}>
+      <ListingPage />
+    </ListingPageRuntime>
   </PrefetchBoundary>
 );
 
-// listing.client.tsx ("use client")
-const { data } = useQuery(catalog_query(make_client_access_api(), opts));
+// listing-runtime.client.tsx ("use client")
+const { data } = useQuery(catalog_query(create_api(make_client_access()), opts));
 ```
 
 Use `seed` on a `PrefetchEntry` to pre-populate individual product cache entries from the list response (avoids redundant fetches on PDP navigation).

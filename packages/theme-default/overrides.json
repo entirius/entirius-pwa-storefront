@@ -45,6 +45,22 @@
       }
     },
     {
+      "title": "Catalogue and search",
+      "where": "/catalog/…, /search",
+      "items": {
+        "catalog/listing-page": "which parts the list has, in what order",
+        "catalog/listing-header": "title, breadcrumbs, description, subcategories",
+        "catalog/product-grid": "the grid of product cards",
+        "catalog/filters": "filter panel: sorting, ranges, values, Apply",
+        "catalog/filters-sheet": "filters on phones: a button and a side panel",
+        "catalog/filter-options": "a filter by values: checkboxes with counts",
+        "catalog/filter-range": "a filter by range: slider and bounds",
+        "catalog/sort-options": "sorting: ascending and descending buttons",
+        "catalog/pagination": "previous and next page",
+        "catalog/listing-empty": "nothing found; a notify-me form in a category"
+      }
+    },
+    {
       "title": "Header and footer",
       "where": "every page",
       "items": {

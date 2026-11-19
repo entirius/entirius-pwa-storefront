@@ -18,6 +18,11 @@ All notable changes to this project are documented here. The format follows
   `ProductPageRuntime`. The product card (`@theme/components/product-card`), price, badges, quick add, wishlist
   button and thumb moved into the theme, `MediaImage` / `SanitizeHTML` into the SDK as `Media` / `RichText`. The
   shop looks and works as before. `pnpm test:e2e:theme` checks a theme's override (`tests/theme-example/`).
+- The category listing and the search results are a theme template: `@theme/catalog/listing-page` arranges named
+  parts (`listing-header`, `filters`, `sort-options`, `filter-range`, `filter-options`, `filters-sheet`,
+  `pagination`, `product-grid`, `listing-empty`), each reading the list from `useListingPage()` and the filter
+  panel's hooks; the core works the list out in `ListingPageRuntime` (query, filters in the URL, pages). The shop
+  looks and works as before.
 - `THEME` in `_CONFIG/app.config.json` is now `COLOR_SCHEME` (`"light"` or `"dark"`), so that "theme" means only the
   installed theme. Breaking: rename the key in every `_CONFIG/app.config.json`; a config with `THEME` fails the build.
 - First step to themes installed on the core: a pnpm workspace with `packages/sdk` (`@entirius/storefront-sdk`:

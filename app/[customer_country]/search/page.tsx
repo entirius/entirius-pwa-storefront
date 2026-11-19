@@ -7,14 +7,14 @@ import { PrefetchBoundary } from "@/lib/prefetch_boundary";
 import { omnibus_prefetch, is_discounted } from "@/lib/omnibus/omnibus.query";
 import { get_server_api } from "@/lib/seo/server-api";
 import { get_i18n } from "@/lib/i18n/i18n.server";
-import { PageBreadcrumbs } from "@theme/components/page-breadcrumbs";
 import { SEARCH_MIN_CHARS } from "@/lib/search/search.query";
 import {
   catalog_query,
   listing_filters,
   load_catalog,
 } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/api.query";
-import { ListingClient } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/listing.client";
+import { ListingPageRuntime } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/listing-runtime.client";
+import { ListingPage } from "@theme/catalog/listing-page";
 
 // Search results: the catalog listing (tiles, filters, sorting, pagination) over `products/?search=`, which
 // finds what the header's search sheet finds, in the same order, in the catalog's shape.
@@ -46,23 +46,19 @@ export default async function SearchPage({ searchParams }: Props) {
   const q = phrase(raw_q);
   const { t } = await get_i18n();
 
-  const header = (title: string) => (
-    <header data-search-header className="mb-6 flex flex-col gap-4">
-      <PageBreadcrumbs trail={[{ name: t("search.title") }]} />
-      <div className="surface bg-gradient-backdrop">
-        <h1 className="text-4xl leading-tight md:text-5xl">{title}</h1>
-      </div>
-    </header>
-  );
+  const trail = [{ name: t("search.title") }];
+  const header = (title: string) => ({ title, trail, description_html: null, description_long: false, subcategories: [] });
 
   if (q.length < SEARCH_MIN_CHARS) {
     return (
-      <>
-        {header(t("search.title"))}
-        <p data-search-hint className="py-12 text-center text-muted-foreground">
-          {t("search.min_chars", { count: SEARCH_MIN_CHARS })}
-        </p>
-      </>
+      <ListingPageRuntime
+        kind="search"
+        options={null}
+        header={header(t("search.title"))}
+        hint={t("search.min_chars", { count: SEARCH_MIN_CHARS })}
+      >
+        <ListingPage />
+      </ListingPageRuntime>
     );
   }
 
@@ -89,10 +85,11 @@ export default async function SearchPage({ searchParams }: Props) {
           : []),
       ]}
     >
-      {header(t("search.results_title", { query: q }))}
       {/* A new phrase is the same route: the key remounts the listing, so the filter panel drops the
           previous phrase's choices (its store is read from the URL on mount). */}
-      <ListingClient key={q} options={options} empty_text={t("search.no_results")} />
+      <ListingPageRuntime key={q} kind="search" options={options} header={header(t("search.results_title", { query: q }))}>
+        <ListingPage />
+      </ListingPageRuntime>
     </PrefetchBoundary>
   );
 }

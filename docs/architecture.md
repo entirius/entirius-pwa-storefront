@@ -156,13 +156,18 @@ A theme never imports the core. What it needs from it comes through `@entirius/s
   `useQuickAdd`, `useOmnibus`, the picture origin, the localized link). `lib/storefront/storefront.client.tsx` fills
   it once in the root layout; SDK components use it (`Media`, `Link`; `RichText` sanitizes on its own).
 - **A page model** per page (`/product/page`): the core works out the page (data, real-time stock, buy rules,
-  actions) in `ProductPageRuntime`, and every part of the template reads it with `useProductPage()`.
+  actions) in `ProductPageRuntime`, and every part of the template reads it with `useProductPage()`. The listing
+  (`/catalog/listing`, a category or a search) the same way: `ListingPageRuntime`, `useListingPage()`; the filter
+  panel's hooks (`useListingFilters`, `useFilterOption`, `useSortCriterion`, `useRangeFilter`, `useAppliedFilters`)
+  come with it, each following only its own piece of the panel's state, so a click re-renders one checkbox.
 
 A page template is an arrangement of named parts: `@theme/product/product-page` puts `gallery`, `header`, `price`,
 `stock-status`, `variant-picker`, `buy-box`, `description`, `specs`, `stories`, `related` and `sticky-buy-bar` in
 place. Since a part reads the model itself, a theme replaces one part, the arrangement, or both. Forms with logic of
-their own (enquiry, back-in-stock, notify about a similar product) come from the core whole, in `blocks`. Files in
-`packages/` carry no `.client` suffix: the path is the contract.
+their own (enquiry, back-in-stock, notify about a similar product) come from the core whole, in `blocks`. The
+listing's template `@theme/catalog/listing-page` arranges `listing-header`, `filters` (with `sort-options`,
+`filter-range`, `filter-options`), `filters-sheet`, `pagination`, `product-grid` and `listing-empty`, for the category
+and the search page alike. Files in `packages/` carry no `.client` suffix: the path is the contract.
 
 The core also ships as two images (`docker/storefront.Dockerfile`, no configuration or data inside; `.dockerignore`
 is an allowlist):

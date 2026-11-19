@@ -71,8 +71,9 @@ categories and phrases stay as the API sends them.
 
 ## Results page
 
-`app/[customer_country]/search/page.tsx` renders the catalog's `ListingClient` (tiles, filter panel, sorting,
-pagination, Omnibus lines) with `{ search: q, page, page_size, ...q_/s_/r_ }` instead of `{ category }`.
+`app/[customer_country]/search/page.tsx` renders the catalog's listing (`ListingPageRuntime` with the theme's
+`@theme/catalog/listing-page`: tiles, filter panel, sorting, pagination, Omnibus lines) with
+`{ search: q, page, page_size, ...q_/s_/r_ }` instead of `{ category }`.
 
 - **Source: `products/?search=`, not `search/`.** Same matches in the same order (relevance) as the sheet, but in
   the catalog shape, so `catalog_query` / `NORM_PRODUCTS_DATA` / `ProductCard` work unchanged; `q_`/`r_`/`s_` and
