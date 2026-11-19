@@ -12,7 +12,8 @@ import { UnitPrice } from "@/app/_components/order/cart-price";
 import { DiscountCode } from "@/app/_components/order/discount-code.client";
 import type { Cart } from "@/utils/NORMALIZERS/cart.normalizer";
 import type { CartItem } from "@/stores/cart.store";
-import { OrderSummaryCard, OrderTotals } from "@/app/_components/order/order-totals";
+import { OrderTotals } from "@/app/_components/order/order-totals";
+import { OrderSummaryCard } from "@theme/order/summary-card";
 import { GiftSummaryLine } from "@/app/_components/order/cart-gifts.client";
 import { useGiftProducts } from "@/app/_components/order/use-cart-gifts";
 

@@ -6,21 +6,12 @@
 
 import type * as React from "react";
 import { ShoppingBag } from "lucide-react";
-
+import { Link } from "@entirius/storefront-sdk/components/link";
 import { Button } from "@theme/ui/button";
 import { Spinner } from "@theme/ui/spinner";
-import { LinkDynamic } from "@/lib/link-dynamic";
 
 // The title row of the cart and checkout pages: one size, an optional line under it, a sync spinner.
-export function OrderPageHeader({
-  title,
-  meta,
-  busy,
-}: {
-  title: string;
-  meta?: React.ReactNode;
-  busy?: boolean;
-}) {
+export function OrderPageHeader({ title, meta, busy }: { title: string; meta?: React.ReactNode; busy?: boolean }) {
   return (
     <div className="mb-6">
       <div className="flex items-center gap-3">
@@ -42,7 +33,7 @@ export function EmptyCart({ message, action, hint }: { message: string; action: 
         {hint && <p className="text-sm text-muted-foreground">{hint}</p>}
       </div>
       <Button asChild>
-        <LinkDynamic href="/">{action}</LinkDynamic>
+        <Link href="/">{action}</Link>
       </Button>
     </div>
   );

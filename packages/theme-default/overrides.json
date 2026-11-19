@@ -61,6 +61,20 @@
       }
     },
     {
+      "title": "Cart",
+      "where": "/cart; the order parts also in checkout",
+      "items": {
+        "cart/cart-page": "which parts the cart has, in what order",
+        "cart/cart-line": "a line: picture, name, prices, quantity, remove",
+        "cart/cart-summary": "summary column: code, totals, to checkout",
+        "cart/cart-bar": "total and to checkout, fixed on phones",
+        "order/page-header": "title row; the empty cart (also checkout)",
+        "order/order-steps": "cart → checkout steps (also checkout)",
+        "order/unit-price": "unit price, struck regular price, −N% (also checkout)",
+        "order/summary-card": "the summary's frame (also checkout)"
+      }
+    },
+    {
       "title": "Header and footer",
       "where": "every page",
       "items": {

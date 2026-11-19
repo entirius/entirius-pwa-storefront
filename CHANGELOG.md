@@ -23,6 +23,9 @@ All notable changes to this project are documented here. The format follows
   `pagination`, `product-grid`, `listing-empty`), each reading the list from `useListingPage()` and the filter
   panel's hooks; the core works the list out in `ListingPageRuntime` (query, filters in the URL, pages). The shop
   looks and works as before.
+- The cart page is a theme template: `@theme/cart/cart-page` arranges `cart-line`, `cart-summary` and `cart-bar`,
+  reading the cart from `useCartPage()` (`CartPageRuntime` in the core). The page header, the order steps, the unit
+  price and the summary card moved to `@theme/order/*` and serve checkout too; checkout works as before.
 - `THEME` in `_CONFIG/app.config.json` is now `COLOR_SCHEME` (`"light"` or `"dark"`), so that "theme" means only the
   installed theme. Breaking: rename the key in every `_CONFIG/app.config.json`; a config with `THEME` fails the build.
 - First step to themes installed on the core: a pnpm workspace with `packages/sdk` (`@entirius/storefront-sdk`:

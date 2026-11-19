@@ -23,6 +23,8 @@
     "./product": "./src/product/types.ts",
     "./product/card": "./src/product/card.ts",
     "./product/page": "./src/product/page.tsx",
+    "./cart": "./src/cart/types.ts",
+    "./cart/page": "./src/cart/page.tsx",
     "./catalog/listing": "./src/catalog/listing.tsx",
     "./layout": "./src/layout/types.ts",
     "./layout/context": "./src/layout/context.tsx",

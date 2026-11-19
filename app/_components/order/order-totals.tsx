@@ -6,7 +6,6 @@
 
 import type * as React from "react";
 
-import { FormHeading } from "@theme/ui/form";
 import { Spinner } from "@theme/ui/spinner";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
@@ -20,22 +19,6 @@ const num = (v: string | null | undefined) => {
 // A backend amount worth a row: present and not zero.
 const has_amount = (v: string | null | undefined) => num(v) !== 0;
 
-// The card around the order summary, the same on the cart page and in checkout.
-export function OrderSummaryCard({
-  className,
-  children,
-}: {
-  className?: string;
-  children: React.ReactNode;
-}) {
-  const { t } = useI18n();
-  return (
-    <aside data-order-totals aria-label={t("checkout.summary")} className={cn("surface-outline flex flex-col gap-4", className)}>
-      <FormHeading>{t("checkout.summary")}</FormHeading>
-      {children}
-    </aside>
-  );
-}
 
 // Totals of the synced backend cart: subtotal, savings, gifts, discount codes, delivery, fee, total.
 // `shipping_pending`: the cart page, where delivery is chosen later, says so instead of hiding the row.

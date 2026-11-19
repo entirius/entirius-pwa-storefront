@@ -16,7 +16,7 @@ import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { CheckoutStepper, type CheckoutStep } from "./checkout-stepper";
 import { CheckoutSummary } from "./checkout-summary";
 import { CartAlerts } from "@/app/_components/order/cart-alerts";
-import { EmptyCart, OrderPageHeader } from "@/app/_components/order/page-header";
+import { EmptyCart, OrderPageHeader } from "@theme/order/page-header";
 import { AddressStep } from "./address-step";
 import { ShippingStep } from "./shipping-step";
 import { PaymentStep } from "./payment-step";

@@ -159,7 +159,8 @@ A theme never imports the core. What it needs from it comes through `@entirius/s
   actions) in `ProductPageRuntime`, and every part of the template reads it with `useProductPage()`. The listing
   (`/catalog/listing`, a category or a search) the same way: `ListingPageRuntime`, `useListingPage()`; the filter
   panel's hooks (`useListingFilters`, `useFilterOption`, `useSortCriterion`, `useRangeFilter`, `useAppliedFilters`)
-  come with it, each following only its own piece of the panel's state, so a click re-renders one checkbox.
+  come with it, each following only its own piece of the panel's state, so a click re-renders one checkbox. The
+  cart (`/cart/page`): `CartPageRuntime`, `useCartPage()`.
 
 A page template is an arrangement of named parts: `@theme/product/product-page` puts `gallery`, `header`, `price`,
 `stock-status`, `variant-picker`, `buy-box`, `description`, `specs`, `stories`, `related` and `sticky-buy-bar` in
@@ -167,7 +168,12 @@ place. Since a part reads the model itself, a theme replaces one part, the arran
 their own (enquiry, back-in-stock, notify about a similar product) come from the core whole, in `blocks`. The
 listing's template `@theme/catalog/listing-page` arranges `listing-header`, `filters` (with `sort-options`,
 `filter-range`, `filter-options`), `filters-sheet`, `pagination`, `product-grid` and `listing-empty`, for the category
-and the search page alike. Files in `packages/` carry no `.client` suffix: the path is the contract.
+and the search page alike. The cart's `@theme/cart/cart-page` arranges `cart-line`, `cart-summary` and `cart-bar` with
+the order parts it shares with checkout (`@theme/order/page-header`, `order-steps`, `unit-price`, `summary-card`);
+checkout reaches those through thin adapters in the core (`order_steps()`, `unit_price()`), and its forms, delivery,
+payment and the order button stay in the core (a theme must not be able to break an order). Gifts,
+the discount code, the cart's problems and the totals come whole in `blocks`. Files in `packages/` carry no
+`.client` suffix: the path is the contract.
 
 The core also ships as two images (`docker/storefront.Dockerfile`, no configuration or data inside; `.dockerignore`
 is an allowlist):
