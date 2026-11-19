@@ -12,7 +12,7 @@ import { build_catalog_metadata, build_catalog_jsonld } from "@/lib/seo/build";
 import { catalog_alternates } from "@/lib/seo/alternates";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { RichText } from "@entirius/storefront-sdk/components/rich-text";
-import { ExpandableText } from "@theme/ui/expandable-text.client";
+import { ExpandableText } from "@theme/ui/expandable-text";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 import { ListingClient } from "./_components/listing.client";
 import { LinkDynamic } from "@/lib/link-dynamic";

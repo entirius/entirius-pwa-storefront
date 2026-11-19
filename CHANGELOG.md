@@ -32,9 +32,12 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Tools for theme authors: `pnpm create @entirius/theme <name>` starts a theme folder, the `entirius` command runs
+  it in the `storefront-dev` container (`dev`), lists and copies the default theme's files (`list`, `eject`) and checks
+  a theme against the SDK (`check`). The `@entirius/*` packages are `0.1.0-alpha.1`.
 - Images of the core for themes: `docker/storefront.Dockerfile` builds `storefront-dev` (`next dev` with a mounted
   theme and configuration) and `storefront-builder` (the base of a shop's image); `docker/verdaccio/` is a local npm
-  registry for the `@entirius/*` packages (`0.1.0-alpha.0`).
+  registry for the `@entirius/*` packages.
 - Back-in-stock alerts: with the channel's `API_STOCK_ALERTS_KEY` a sold-out size can be selected and the product
   page offers "Tell me when it is back" (e-mail, consent, honeypot) for that SKU; a saved request stays shown as saved
   after a reload, "Notify me" in the phone buy bar scrolls to the form, and `/stock-alert/cancel?token=` cancels a

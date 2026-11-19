@@ -170,6 +170,22 @@ is an allowlist):
 
 `docker/verdaccio/compose.yaml` runs a local npm registry on :4873 to publish `@entirius/*` before anything is public.
 
+A theme author never clones this repository. `pnpm create @entirius/theme <name>` (`packages/create-theme`) writes a
+theme folder: `package.json` with the SDK, the default theme and `@entirius/theme-cli`, a `tsconfig.json` that resolves
+`@theme/*` like the core (`src/` first, then the default theme), `theme.json`, an empty `src/`. The `entirius` command
+(`packages/theme-cli`) then runs in it:
+
+- `dev`: the `storefront-dev` image of the installed SDK's version with `src/` mounted at `/app/theme/src` (only
+  `src/`: the theme's `node_modules` would bring a second React and SDK) and `_CONFIG.dev` at `/app/_CONFIG`. The
+  first run writes `_CONFIG.dev` from the image's `_CONFIG.example`.
+- `list` (script `pnpm overrides`, `pnpm list` is pnpm's own), `eject <path>`: what the default theme has; a copy of
+  one file into `src/`.
+- `check`: `tsc` over the theme with the SDK and the default theme, imports only from the contract (SDK, `@theme/*`,
+  React, Next, the default theme's dependencies), an override keeps the exports of the file it replaces.
+
+The four packages release together (one version); `packages/create-theme/template.test.ts` keeps the template's
+React, Next and TypeScript at the core's versions.
+
 ## State Management
 
 Two patterns:

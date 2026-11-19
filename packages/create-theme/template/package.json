@@ -1,0 +1,24 @@
+{
+  "name": "{{name}}",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "entirius dev",
+    "overrides": "entirius list",
+    "eject": "entirius eject",
+    "check": "entirius check"
+  },
+  "devDependencies": {
+    "@entirius/storefront-sdk": "^{{version}}",
+    "@entirius/theme-cli": "^{{version}}",
+    "@entirius/theme-default": "^{{version}}",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "next": "16.4.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-hook-form": "^7.89.0",
+    "typescript": "^6.0.3"
+  }
+}
