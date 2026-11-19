@@ -50,13 +50,13 @@ All notable changes to this project are documented here. The format follows
 - A theme sets its colours and shapes in `tokens.css` (`@theme/tokens.css`, between `app/globals.css` and the shop's
   `_CONFIG/theme.css`). `pnpm create @entirius/theme <name> --example` starts from a theme with a look of its own; the
   first `entirius dev` asks for the backend, channel and checkout key; `entirius build` makes a production image of
-  the shop from the theme's folder. The `@entirius` packages are `0.1.0-alpha.5`.
+  the shop from the theme's folder. The `@entirius` packages are `0.1.0-alpha.6`.
 - A shop is a `Dockerfile` on `storefront-builder` with its `_CONFIG` and theme: `storefront build <theme package>`
   installs the theme and builds, `storefront start` serves it; the previous image is the way back. New themes publish
   only `src/` and `theme.json` and take `@entirius/*` releases at once under pnpm 11+.
 - Tools for theme authors: `pnpm create @entirius/theme <name>` starts a theme folder, the `entirius` command runs
   it in the `storefront-dev` container (`dev`), lists what a theme can override, grouped by where it shows (`list`,
-  from `overrides.json` of the default theme), copies a file (`eject`) and checks a theme against the SDK (`check`). The `@entirius/*` packages are `0.1.0-alpha.1`.
+  from `overrides.json` of the default theme), copies a file (`eject`) and checks a theme against the SDK (`check`).
 - Images of the core for themes: `docker/storefront.Dockerfile` builds `storefront-dev` (`next dev` with a mounted
   theme and configuration) and `storefront-builder` (the base of a shop's image); `docker/verdaccio/` is a local npm
   registry for the `@entirius/*` packages.

@@ -1,6 +1,6 @@
 {
   "name": "@entirius/create-theme",
-  "version": "0.1.0-alpha.5",
+  "version": "0.1.0-alpha.6",
   "description": "Starts a theme for the Entirius storefront: pnpm create @entirius/theme <name> [--example]",
   "license": "MPL-2.0",
   "repository": {
