@@ -32,6 +32,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Images of the core for themes: `docker/storefront.Dockerfile` builds `storefront-dev` (`next dev` with a mounted
+  theme and configuration) and `storefront-builder` (the base of a shop's image); `docker/verdaccio/` is a local npm
+  registry for the `@entirius/*` packages (`0.1.0-alpha.0`).
 - Back-in-stock alerts: with the channel's `API_STOCK_ALERTS_KEY` a sold-out size can be selected and the product
   page offers "Tell me when it is back" (e-mail, consent, honeypot) for that SKU; a saved request stays shown as saved
   after a reload, "Notify me" in the phone buy bar scrolls to the form, and `/stock-alert/cancel?token=` cancels a

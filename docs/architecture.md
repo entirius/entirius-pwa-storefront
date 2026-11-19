@@ -160,6 +160,16 @@ place. Since a part reads the model itself, a theme replaces one part, the arran
 their own (enquiry, back-in-stock, notify about a similar product) come from the core whole, in `blocks`. Files in
 `packages/` carry no `.client` suffix: the path is the contract.
 
+The core also ships as two images (`docker/storefront.Dockerfile`, no configuration or data inside; `.dockerignore`
+is an allowlist):
+
+- `storefront-dev` (`--target dev`): `next dev` on :3100 with a theme mounted at `/app/theme` and a configuration at
+  `/app/_CONFIG` (else `_CONFIG.example`). An `API_BASE_URL` on `http://localhost:<port>` is forwarded to the host, so
+  the browser and the server use one address.
+- `storefront-builder` (`--target builder`): the source with its dependencies, the base of a shop's own image.
+
+`docker/verdaccio/compose.yaml` runs a local npm registry on :4873 to publish `@entirius/*` before anything is public.
+
 ## State Management
 
 Two patterns:

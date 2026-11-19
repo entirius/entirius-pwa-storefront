@@ -1,0 +1,22 @@
+# A local stand-in for npm, to try the theme flow before anything is public (docker/verdaccio/compose.yaml).
+# @entirius/* is published here without an account; every other package comes from npmjs.
+storage: /verdaccio/storage/data
+auth:
+  htpasswd:
+    file: /verdaccio/storage/htpasswd
+    max_users: -1
+uplinks:
+  npmjs:
+    url: https://registry.npmjs.org/
+packages:
+  "@entirius/*":
+    access: $all
+    publish: $all
+    unpublish: $all
+  "**":
+    access: $all
+    proxy: npmjs
+log:
+  type: stdout
+  format: pretty
+  level: warn

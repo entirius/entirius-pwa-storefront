@@ -1,0 +1,14 @@
+# Local npm registry on http://localhost:4873:  docker compose -f docker/verdaccio/compose.yaml up -d
+# Publish a package:  pnpm publish --registry http://localhost:4873 --tag next --no-git-checks  (in packages/<name>)
+services:
+  verdaccio:
+    image: verdaccio/verdaccio:6
+    container_name: entirius-verdaccio
+    ports:
+      - "4873:4873"
+    volumes:
+      - ./config.yaml:/verdaccio/conf/config.yaml:ro
+      - storage:/verdaccio/storage
+volumes:
+  storage:
+    name: entirius-verdaccio-storage

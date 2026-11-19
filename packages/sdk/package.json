@@ -1,6 +1,6 @@
 {
   "name": "@entirius/storefront-sdk",
-  "version": "0.0.0",
+  "version": "0.1.0-alpha.0",
   "description": "Contract between the Entirius storefront core and its themes: types, hooks and headless building blocks",
   "license": "MPL-2.0",
   "repository": {
@@ -9,6 +9,10 @@
     "directory": "packages/sdk"
   },
   "sideEffects": false,
+  "files": [
+    "src",
+    "!src/**/*.test.ts"
+  ],
   "exports": {
     "./i18n": "./src/i18n/translate.ts",
     "./i18n/client": "./src/i18n/client.tsx",

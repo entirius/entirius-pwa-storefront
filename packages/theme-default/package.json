@@ -1,6 +1,6 @@
 {
   "name": "@entirius/theme-default",
-  "version": "0.0.0",
+  "version": "0.1.0-alpha.0",
   "description": "Default theme of the Entirius storefront: the components every other theme starts from",
   "license": "MPL-2.0",
   "repository": {
@@ -9,6 +9,10 @@
     "directory": "packages/theme-default"
   },
   "sideEffects": false,
+  "files": [
+    "src",
+    "components.json"
+  ],
   "exports": {
     "./ui/*": "./src/ui/*.tsx",
     "./lib/*": "./src/lib/*.ts",
