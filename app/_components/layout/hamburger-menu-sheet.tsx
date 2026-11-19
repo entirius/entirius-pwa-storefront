@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 "use client";
-import { Button } from "@/components/ui/button";
+import { Button } from "@theme/ui/button";
 import {
   Sheet,
   SheetClose,
@@ -11,8 +11,8 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
-import { Spinner } from "@/components/ui/spinner";
+} from "@theme/ui/sheet";
+import { Spinner } from "@theme/ui/spinner";
 import { ChevronLeft, ChevronRight, Menu } from "lucide-react";
 
 import { useQuery } from "@tanstack/react-query";
@@ -25,7 +25,7 @@ import { type CATEGORY, type CONFIG_QUERY } from "./menu-config";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { cn } from "@/lib/utils";
 import { NORM_CATEGORY_BRANCH } from "@/utils/NORMALIZERS/category.normalizer";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 type Level = { url_key: string | null; name: string };
 

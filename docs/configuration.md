@@ -9,7 +9,7 @@ runtime (the optional message overrides).
 
 ```bash
 cp -r _CONFIG.example _CONFIG
-# app.config.json       → API_BASE_URL (backend URL), site name and URL, THEME, BRAND
+# app.config.json       → API_BASE_URL (backend URL), site name and URL, COLOR_SCHEME, BRAND
 # channels.config.json  → CHANNEL_LABEL and API_CHECKOUT_KEY per channel (optional API_CONTACT_FORMS_KEY, API_NEWSLETTER_KEY, API_AGREEMENTS_KEY, API_STOCK_ALERTS_KEY)
 # countries.config.json → country → languages/currencies/channels mapping
 # brand/                → identity assets (favicon, optional logo), named in app.config.json BRAND
@@ -30,7 +30,7 @@ The template ships the two channels of the reference dataset (`default-europe`, 
 |------|-----|---------|
 | `app.config.json` | `API_BASE_URL` | Backend URL (template `http://localhost:8000`; the zeno local stack serves `:8100`) |
 | `app.config.json` | `DEBUG_MODE` | Request/response logging of `_LOGGER` and DEBUG-only dev tools; errors and warnings are always logged |
-| `app.config.json` | `THEME` | `"light"` (default) or `"dark"`: which semantic colour set of `app/globals.css` applies |
+| `app.config.json` | `COLOR_SCHEME` | `"light"` (default) or `"dark"`: which semantic colour set of `app/globals.css` applies |
 | `app.config.json` | `SITE_URL` | Public URL of the shop: canonical/Open Graph URLs, Playwright `baseURL`, and the payment return URL: the success page a payment gateway (PayU, Stripe) sends the customer back to, sent as `continue_url` of `PATCH carts/{id}/payment/`. Only an `https` URL is sent; on `http` (local dev) the gateway falls back to its own default. The backend checks the return URL against its payment redirect settings (`PAYMENT_REDIRECT_ALLOWED_HOSTS` must hold the shop's host, platform 4.2 upgrade notes) and answers a refused one with 400, which stops the payment step |
 | `app.config.json` | `SITE_NAME` | Shop name: header wordmark (when no logo), page titles, Open Graph |
 | `app.config.json` | `CLIENT_IP_HEADER` | Optional name of the request header in which the hosting edge passes the visitor's address to the shop, e.g. `"cf-connecting-ip"` (Cloudflare) or `"x-real-ip"`; a list (`x-forwarded-for`) gives its last entry, the address the closest proxy saw. The login goes from the shop's server to accounts (`app/session/login`), so without it the backend's per-address limits (accounts 6.0.2: 30 logins a minute; access: failed logins) count every visitor as the shop's server and lock everybody out at once. With it the shop sends the visitor's address as `X-Client-IP`; the backend reads it only from the addresses listed in its `CLIENT_IP_TRUSTED_PROXIES` (the shop's server; `CLIENT_IP_FORWARDED_HEADER` keeps its default `HTTP_X_CLIENT_IP`). `entirius-django-access` 1.1.0 still counts its failed logins per server address (100 in 15 minutes); the fix that reads `X-Client-IP` there too is pending upstream. Name only a header the edge always sets itself: a header the visitor can send would let them pick their own counter. `null` (default) = nothing is sent |
@@ -172,7 +172,7 @@ types; `section-type-a` (variants 1-4) and `tile-type-a` (1-3), which the editor
 ## Message overrides (`messages.config.json`)
 
 Optional, read at runtime (not imported — no file, no overrides): `{ "pl": { "cart.view": "Pokaż koszyk" } }`.
-Keys are the ones of `lib/i18n/messages/en.ts`; see [patterns](patterns.md#translations-and-prices).
+Keys are the ones of `packages/sdk/src/i18n/messages/en.ts`; see [patterns](patterns.md#translations-and-prices).
 
 `checkout.transfer_next` is empty by default. A shop that takes offline bank transfers sets it per language
 (for example the time limit for the payment): the line then shows on the review step and on the success page for

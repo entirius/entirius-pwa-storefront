@@ -8,8 +8,8 @@ import * as React from "react"
 import { XIcon } from "lucide-react"
 import { Dialog as SheetPrimitive } from "radix-ui"
 
-import { cn } from "@/lib/utils"
-import { useI18n } from "@/providers/i18n.provider"
+import { cn } from "@theme/lib/utils"
+import { useI18n } from "@entirius/storefront-sdk/i18n/client"
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />

@@ -12,7 +12,7 @@ import { LinkDynamic } from "@/lib/link-dynamic";
 import { CountBadge } from "./count-badge";
 import { HEADER_ICON } from "./header-icon";
 import { useCartStore } from "@/stores/cart.store";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // Header cart icon: a link to the cart page with the item count.
 export function CartLink() {

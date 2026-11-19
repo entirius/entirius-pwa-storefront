@@ -12,7 +12,7 @@ import { categories_query } from "./api.query";
 import { type CATEGORY, type CONFIG_QUERY } from "./menu-config";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { cn } from "@/lib/utils";
-import { Spinner } from "@/components/ui/spinner";
+import { Spinner } from "@theme/ui/spinner";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -21,9 +21,9 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
+} from "@theme/ui/navigation-menu";
 import { NORM_CATEGORY_BRANCH } from "@/utils/NORMALIZERS/category.normalizer";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // As tall as their row (the header sets --menu-item), so there is no gap to cross between a trigger and its panel.
 // The text lines up with the logo; an open item is underlined, without a filled block or a chevron.

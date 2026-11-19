@@ -7,6 +7,15 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- `THEME` in `_CONFIG/app.config.json` is now `COLOR_SCHEME` (`"light"` or `"dark"`), so that "theme" means only the
+  installed theme. Breaking: rename the key in every `_CONFIG/app.config.json`; a config with `THEME` fails the build.
+- First step to themes installed on the core: a pnpm workspace with `packages/sdk` (`@entirius/storefront-sdk`:
+  message catalogues, `t()`, `price()`, `useI18n`) and `packages/theme-default` (`@entirius/theme-default`: the
+  shadcn/ui primitives). The core imports them as `@theme/ui/<name>`; `@theme/*` resolves to an installed theme in
+  `theme/` first, then to the default theme. The shop looks and works as before. Breaking for code built on the
+  template: `@/components/ui/<primitive>` → `@theme/ui/<primitive>`, `@/providers/i18n.provider` →
+  `@entirius/storefront-sdk/i18n/client`, `@/lib/i18n/translate` → `@entirius/storefront-sdk/i18n`, message
+  catalogues in `packages/sdk/src/i18n/messages/`.
 - Header search reads the products of matrix `search/` in the shape of `products/` (matrix 5.0): the row reuses the
   catalog's product normalizer, price and thumb instead of its own mapping. Breaking: needs matrix 5.0 or later; on
   4.x the search rows show no prices and placeholder pictures.

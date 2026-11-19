@@ -9,8 +9,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, Pencil, Star, Trash2 } from "lucide-react";
 
 import { LinkDynamic } from "@/lib/link-dynamic";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@theme/ui/button";
+import { Spinner } from "@theme/ui/spinner";
 import {
   addresses_query,
   defaults_query,
@@ -25,7 +25,7 @@ import {
   type CustomerAddressFormValues,
 } from "@/utils/validation/customer-address.schema";
 import { AddressFormSheet } from "./address-form";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 function to_form_values(a: CustomerAddress): CustomerAddressFormValues {
   return {

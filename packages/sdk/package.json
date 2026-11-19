@@ -1,0 +1,20 @@
+{
+  "name": "@entirius/storefront-sdk",
+  "version": "0.0.0",
+  "description": "Contract between the Entirius storefront core and its themes: types, hooks and headless building blocks",
+  "license": "MPL-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/entirius/entirius-pwa-storefront.git",
+    "directory": "packages/sdk"
+  },
+  "sideEffects": false,
+  "exports": {
+    "./i18n": "./src/i18n/translate.ts",
+    "./i18n/client": "./src/i18n/client.tsx",
+    "./i18n/messages/*": "./src/i18n/messages/*.ts"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  }
+}

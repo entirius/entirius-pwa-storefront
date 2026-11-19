@@ -7,12 +7,12 @@
 import { Search } from "lucide-react";
 import { Dialog as DialogPrimitive } from "radix-ui";
 
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@theme/ui/button";
+import { Sheet, SheetTitle, SheetTrigger } from "@theme/ui/sheet";
 import { cn } from "@/lib/utils";
 import { HEADER_ICON } from "./header-icon";
 import { SearchBody, SearchField, useHeaderSearch } from "./header-search.client";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // The desktop's search: a magnifier that spreads into a field in the free space next to it. A non-modal dialog
 // without a portal: it stays in the header, the page behind stays usable, and Radix handles Escape, a click outside

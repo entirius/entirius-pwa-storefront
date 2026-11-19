@@ -9,12 +9,12 @@ import { Heart } from "lucide-react";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@theme/ui/button";
 import { useWishlistStore, type WishlistItem } from "@/stores/wishlist.store";
 import { toggle_on_account } from "@/stores/wishlist-sync";
 import { dismiss_notice, notify } from "@/stores/notices.store";
 import { open_wishlist } from "@/stores/wishlist-sheet.store";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { useAuth } from "@/providers/auth.provider";
 import { useHydrated } from "@/lib/use-hydrated";
 

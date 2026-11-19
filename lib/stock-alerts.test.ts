@@ -11,8 +11,8 @@ vi.mock("next/navigation", () => ({ useParams: () => ({ customer_country: "defau
 import { make_static_access } from "@/API/access/api.static-access";
 import { create_api } from "@/API/api.context";
 import { TokenLinks } from "@/components/ui/token-links";
-import { en } from "@/lib/i18n/messages/en";
-import { pl } from "@/lib/i18n/messages/pl";
+import { en } from "@entirius/storefront-sdk/i18n/messages/en";
+import { pl } from "@entirius/storefront-sdk/i18n/messages/pl";
 import { cancel_stock_alert, consent_sentence, country_segment, subscribe_stock_alert } from "./stock-alerts";
 
 const api = () => create_api(make_static_access({ channel: "eu", language: "en" }));

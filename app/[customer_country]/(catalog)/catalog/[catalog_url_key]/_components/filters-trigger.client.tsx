@@ -13,13 +13,13 @@ import {
   SheetTitle,
   SheetDescription,
   SheetTrigger,
-} from "@/components/ui/sheet";
+} from "@theme/ui/sheet";
 import { FiltersOptionsClient } from "./filters-options.client";
 import { useFiltersStore } from "./filters.store";
 import type { ListingOptions } from "../api.query";
 import { FilterIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useI18n } from "@/providers/i18n.provider";
+import { Button } from "@theme/ui/button";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 const FILTER_PREFIXES = ["q_", "s_", "r_"];
 

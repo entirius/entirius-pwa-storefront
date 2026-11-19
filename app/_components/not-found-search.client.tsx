@@ -11,20 +11,20 @@ import { Search } from "lucide-react";
 
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
-import { Spinner } from "@/components/ui/spinner";
+import { Spinner } from "@theme/ui/spinner";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
   InputGroupText,
-} from "@/components/ui/input-group";
+} from "@theme/ui/input-group";
 import {
   SEARCH_MIN_CHARS,
   search_path,
   search_query,
 } from "@/app/_components/layout/search.query";
 import { SearchResults } from "@/app/_components/layout/search-results";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { profile_path } from "@/lib/profile-path";
 
 // Search field of the 404 page: the header's search, inline, so a dead link does not end the visit.

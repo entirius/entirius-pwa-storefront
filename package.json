@@ -38,6 +38,8 @@
   },
   "dependencies": {
     "@entirius/brand-tokens": "github:entirius/entirius-pwa-brand-tokens#v0.1.0",
+    "@entirius/storefront-sdk": "workspace:*",
+    "@entirius/theme-default": "workspace:*",
     "@hookform/resolvers": "^5.9.1",
     "@tanstack/react-query": "^5.104.4",
     "@tanstack/react-query-devtools": "^5.104.4",

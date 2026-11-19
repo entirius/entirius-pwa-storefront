@@ -11,18 +11,18 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-} from "@/components/ui/sheet";
+} from "@theme/ui/sheet";
 import { useWishlistStore } from "@/stores/wishlist.store";
 import { useWishlistSheet } from "@/stores/wishlist-sheet.store";
 import { load_account_wishlist } from "@/stores/wishlist-sync";
 import { useAuth } from "@/providers/auth.provider";
 import { WishlistItems } from "./wishlist-items";
 import { Heart } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@theme/ui/button";
 import { CountBadge } from "./count-badge";
 import { HEADER_ICON } from "./header-icon";
 import { useHydrated } from "@/lib/use-hydrated";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 export function WishlistSheet() {
   const { t } = useI18n();

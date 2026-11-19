@@ -8,14 +8,14 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { ChevronLeft } from "lucide-react";
 
 import { LinkDynamic } from "@/lib/link-dynamic";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@theme/ui/button";
+import { Spinner } from "@theme/ui/spinner";
 import { DEBUG_MODE } from "@/_CONFIG/app.config.json";
 import { API_CART_ORDERS_LIST_ROUTE } from "@/API/api.routes";
 import { DevProbeButton } from "@/app/[customer_country]/checkout/_components/dev-probe-button";
 import { orders_query } from "../api.query";
 import { OrderCard } from "./order-card";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 export function OrdersList() {
   const { t } = useI18n();

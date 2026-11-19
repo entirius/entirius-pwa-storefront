@@ -9,7 +9,7 @@ import { useShallow } from "zustand/react/shallow";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFiltersStore, to_filter_key } from "./filters.store";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 type FilterSortItemProps = {
   option_idx: string;

@@ -10,10 +10,10 @@ import { ChevronRight } from "lucide-react";
 
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@theme/ui/button";
+import { Spinner } from "@theme/ui/spinner";
 import { format_order_date, status_style } from "@/utils/NORMALIZERS/order.normalizer";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { profile_query } from "../api.query";
 import { orders_query } from "../orders/api.query";
 import { addresses_query, defaults_query } from "../addresses/api.query";

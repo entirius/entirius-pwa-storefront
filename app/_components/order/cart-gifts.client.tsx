@@ -7,15 +7,15 @@
 import { useId } from "react";
 import { Gift, Trash2 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { FormError, FormHeading } from "@/components/ui/form";
+import { Button } from "@theme/ui/button";
+import { FormError, FormHeading } from "@theme/ui/form";
 import { ProductThumb } from "@/components/ui/product-thumb";
-import { QuantityStepper } from "@/components/ui/quantity-stepper";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { QuantityStepper } from "@theme/ui/quantity-stepper";
+import { RadioGroup, RadioGroupItem } from "@theme/ui/radio-group";
 import { price_lines } from "@/lib/i18n/price-lines";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { cn } from "@/lib/utils";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import type { Cart, CartLine, GratisRule } from "@/utils/NORMALIZERS/cart.normalizer";
 import type { GiftProduct, GiftSetter } from "@/app/_components/order/use-cart-gifts";
 

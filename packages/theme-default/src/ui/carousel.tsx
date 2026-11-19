@@ -10,9 +10,9 @@ import useEmblaCarousel, {
 } from "embla-carousel-react"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { useI18n } from "@/providers/i18n.provider"
+import { cn } from "@theme/lib/utils"
+import { Button } from "@theme/ui/button"
+import { useI18n } from "@entirius/storefront-sdk/i18n/client"
 
 type CarouselApi = UseEmblaCarouselType[1]
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>

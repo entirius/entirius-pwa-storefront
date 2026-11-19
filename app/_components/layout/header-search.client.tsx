@@ -11,18 +11,18 @@ import { Search, X } from "lucide-react";
 
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
-import { Spinner } from "@/components/ui/spinner";
-import { SheetClose } from "@/components/ui/sheet";
+import { Spinner } from "@theme/ui/spinner";
+import { SheetClose } from "@theme/ui/sheet";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
   InputGroupText,
-} from "@/components/ui/input-group";
+} from "@theme/ui/input-group";
 import { SEARCH_MIN_CHARS, search_path, search_query } from "./search.query";
 import { SearchResults } from "./search-results";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { profile_path } from "@/lib/profile-path";
 
 // The header's search, shared by the phone's sheet and the desktop's bar: the state, the field and the results.

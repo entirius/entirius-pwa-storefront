@@ -76,9 +76,9 @@ The catalog page's `build_params()` helper strips prefixes before forwarding to 
 ## Translations and prices
 
 - Every interface text goes through a message key: client components `const { t, price } = useI18n()`, server
-  components `const { t, price } = await get_i18n()`. `lib/i18n/messages/en.ts` is the source catalogue (key naming
+  components `const { t, price } = await get_i18n()`. `packages/sdk/src/i18n/messages/en.ts` is the source catalogue (key naming
   at its top); every other language (`pl.ts`) is typed against its keys, so a missing key is a type error. Adding
-  a language: a file in `messages/` and one line in `lib/i18n/catalogues.ts`.
+  a language: a file in `packages/sdk/src/i18n/messages/` and one line in `lib/i18n/catalogues.ts`.
 - Active language = the `lg` cookie (from `countries.config.json`; the API layer sends the same `language`).
   Unknown language → `en`. Fallback per key: `_CONFIG/messages.config.json` override, language catalogue, `en`.
 - Zod schemas hold keys wrapped in `msg("validation.x")`; `<FormMessage>` turns them into text (`text()` passes

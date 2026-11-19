@@ -13,8 +13,8 @@ import { clear_cart_on_logout } from "@/stores/cart-login";
 import { clear_wishlist_on_logout } from "@/stores/wishlist-sync";
 import { useAuth } from "@/providers/auth.provider";
 import { LinkDynamic } from "@/lib/link-dynamic";
-import type { MessageKey } from "@/lib/i18n/translate";
-import { useI18n } from "@/providers/i18n.provider";
+import type { MessageKey } from "@entirius/storefront-sdk/i18n";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 const ITEMS: { href: string; label: MessageKey; icon: typeof LayoutGrid; exact: boolean }[] = [
   { href: "/profile", label: "profile.overview", icon: LayoutGrid, exact: true },

@@ -4,7 +4,7 @@
 
 import type * as React from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@theme/lib/utils";
 
 // A full-width error box above a form or a list (cart sync, items that need attention).
 // Field and form-level errors are FormMessage / FormError.

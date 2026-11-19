@@ -15,11 +15,11 @@ import {
   SheetDescription,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
+} from "@theme/ui/sheet";
+import { Button } from "@theme/ui/button";
 import { useAuth } from "@/providers/auth.provider";
 import { HEADER_ICON } from "./header-icon";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // The forms (react-hook-form, zod) load the first time they are shown, not with every page: a plain import() when
 // the view mounts, and the form renders once it is there (a few ms from the cache). No <Suspense> on purpose: React

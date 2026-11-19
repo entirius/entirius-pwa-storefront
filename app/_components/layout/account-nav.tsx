@@ -8,10 +8,10 @@ import { User } from "lucide-react";
 
 import { useAuth } from "@/providers/auth.provider";
 import { LinkDynamic } from "@/lib/link-dynamic";
-import { Button } from "@/components/ui/button";
+import { Button } from "@theme/ui/button";
 import { AccountSheet } from "./account-sheet";
 import { HEADER_ICON } from "./header-icon";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // Logged in → the User icon links to the /profile hub. Logged out → it opens the
 // login/register Sheet. Auth state comes from the shared AuthProvider context.

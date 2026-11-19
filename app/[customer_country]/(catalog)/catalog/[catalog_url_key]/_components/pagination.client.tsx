@@ -12,7 +12,7 @@ import {
   PaginationItem,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination";
+} from "@theme/ui/pagination";
 import type { ListingPagination } from "../api.query";
 
 interface Props {

@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import type { MessageKey, Translate } from "@/lib/i18n/translate";
+import type { MessageKey, Translate } from "@entirius/storefront-sdk/i18n";
 import type { CartError } from "@/utils/NORMALIZERS/cart.normalizer";
 
 // Cart validation errors arrive as English text with a stable `code`. The code picks the message

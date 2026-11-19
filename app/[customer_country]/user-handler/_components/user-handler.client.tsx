@@ -8,10 +8,10 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { client_activate } from "@/lib/auth-client";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@theme/ui/button";
+import { Spinner } from "@theme/ui/spinner";
 import { LinkDynamic } from "@/lib/link-dynamic";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // Email double-opt-in receiver. The confirmation link is /user-handler?key=&uid=;
 // we POST it to the activation endpoint and report the result. Activation returns

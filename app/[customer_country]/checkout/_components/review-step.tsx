@@ -14,9 +14,9 @@ import {
   NORM_PLACED_ORDER,
   type PlacedOrder,
 } from "@/utils/NORMALIZERS/order.normalizer";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@theme/ui/button";
+import { Checkbox } from "@theme/ui/checkbox";
+import { Spinner } from "@theme/ui/spinner";
 import { SanitizeHTML } from "@/components/ui/sanitize-html";
 import { TokenLinks } from "@/components/ui/token-links";
 import { record_order_agreements, useAgreementDefinitions, useLegalRoutes } from "@/lib/agreements";
@@ -30,9 +30,9 @@ import { order_refs, save_receipt, type OrderReceipt } from "./order-receipt";
 import { FIX_LABEL, order_refusal, type RefusalFix } from "./order-refusal";
 import type { CheckoutStep } from "./checkout-stepper";
 import { usePaymentMethods } from "./payment-step";
-import { CheckLabel, FormError } from "@/components/ui/form";
+import { CheckLabel, FormError } from "@theme/ui/form";
 import { LinkDynamic } from "@/lib/link-dynamic";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { point_address } from "@/utils/NORMALIZERS/delivery-point.normalizer";
 
 export function ReviewStep({

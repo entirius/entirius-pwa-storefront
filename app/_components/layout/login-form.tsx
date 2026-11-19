@@ -21,12 +21,12 @@ import { throttled_message } from "@/lib/throttling";
 import {
   Form,
   FormError,
-} from "@/components/ui/form";
-import { TextField } from "@/components/ui/form-fields";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+} from "@theme/ui/form";
+import { TextField } from "@theme/ui/form-fields";
+import { Button } from "@theme/ui/button";
+import { Spinner } from "@theme/ui/spinner";
 import { DEBUG_MODE } from "@/_CONFIG/app.config.json";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 export function LoginForm({
   onSuccess,

@@ -5,9 +5,9 @@
 "use client";
 
 import { Minus, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { useI18n } from "@/providers/i18n.provider";
+import { Button } from "@theme/ui/button";
+import { cn } from "@theme/lib/utils";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 export function QuantityStepper({
   value,

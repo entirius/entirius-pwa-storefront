@@ -25,13 +25,13 @@ import {
   FormError,
   FormSection,
   PHONE_ROW,
-} from "@/components/ui/form";
-import { CheckboxField, SelectField, TextField } from "@/components/ui/form-fields";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+} from "@theme/ui/form";
+import { CheckboxField, SelectField, TextField } from "@theme/ui/form-fields";
+import { Button } from "@theme/ui/button";
+import { Spinner } from "@theme/ui/spinner";
 import { useCountryOptions } from "@/utils/checkout-countries";
 import { postcode_example } from "@/utils/validation/address-rules";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { useAuth } from "@/providers/auth.provider";
 import {
   addresses_query,

@@ -11,8 +11,8 @@ import { make_client_access } from "@/API/access/api.client-access";
 import { pick_static_page, static_page_query } from "../api.query";
 import { render_cms_document } from "./cms-renderer";
 import type { CmsDocumentContent } from "@/types/cms.types";
-import { useI18n } from "@/providers/i18n.provider";
-import { PageLoading } from "@/components/ui/spinner";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
+import { PageLoading } from "@theme/ui/spinner";
 
 interface Props {
   routes: string[];

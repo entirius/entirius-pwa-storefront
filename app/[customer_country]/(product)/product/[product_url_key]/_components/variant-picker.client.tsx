@@ -5,9 +5,9 @@
 "use client";
 import { useId } from "react";
 import { RadioGroup as RadioGroupPrimitive } from "radix-ui";
-import { RadioGroup } from "@/components/ui/radio-group";
+import { RadioGroup } from "@theme/ui/radio-group";
 import { cn } from "@/lib/utils";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import type { Price } from "@/utils/NORMALIZERS/price.normalizer";
 import type { VariantAxis } from "@/utils/NORMALIZERS/variant.normalizer";
 import { ProductPrice } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-price.client";

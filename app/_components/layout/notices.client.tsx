@@ -7,11 +7,11 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Check, CircleAlert, Info, TriangleAlert, X, type LucideIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@theme/ui/button";
 import { cn } from "@/lib/utils";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { useNotices, type Notice, type NoticeTone } from "@/stores/notices.store";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 const TONES: Record<NoticeTone, { icon: LucideIcon; badge: string }> = {
   positive: { icon: Check, badge: "bg-positive-surface text-positive" },

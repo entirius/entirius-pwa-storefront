@@ -7,12 +7,12 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import { PageLoading } from "@/components/ui/spinner";
+import { PageLoading } from "@theme/ui/spinner";
 import { NORM_CART } from "@/utils/NORMALIZERS/cart.normalizer";
 import type { PlacedOrder } from "@/utils/NORMALIZERS/order.normalizer";
 import { cart_to_address_form } from "@/utils/validation/address.schema";
 import { useCartSync } from "@/stores/use-cart-sync";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { CheckoutStepper, type CheckoutStep } from "./checkout-stepper";
 import { CheckoutSummary } from "./checkout-summary";
 import { CartAlerts } from "@/app/_components/order/cart-alerts";

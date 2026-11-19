@@ -7,12 +7,12 @@
 import { useHydrated } from "@/lib/use-hydrated";
 import { Trash2 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@theme/ui/button";
 import { ProductThumb } from "@/components/ui/product-thumb";
 import { price_lines } from "@/lib/i18n/price-lines";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { useAuth } from "@/providers/auth.provider";
-import { QuantityStepper } from "@/components/ui/quantity-stepper";
+import { QuantityStepper } from "@theme/ui/quantity-stepper";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { useCartSync } from "@/stores/use-cart-sync";
 import type { CartItem } from "@/stores/cart.store";

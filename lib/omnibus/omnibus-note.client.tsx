@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
 import { omnibus_query } from "./omnibus.query";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // The Omnibus line under a reduced price. Render it only next to a reduced price;
 // nothing shows while loading or when the backend has no price history.

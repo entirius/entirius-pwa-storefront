@@ -6,7 +6,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "@theme/ui/accordion";
 import { SanitizeHTML } from "@/components/ui/sanitize-html";
 
 type AccordionEntry = { label?: string; wysiwyg?: string };

@@ -7,8 +7,8 @@
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LinkDynamic } from "@/lib/link-dynamic";
-import type { MessageKey } from "@/lib/i18n/translate";
-import { useI18n } from "@/providers/i18n.provider";
+import type { MessageKey } from "@entirius/storefront-sdk/i18n";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 export type CheckoutStep = "address" | "shipping" | "payment" | "review";
 

@@ -81,7 +81,10 @@ app/
     ├── (product)/      Product detail page
     ├── checkout/       Address → shipping → payment → review stepper
     └── profile/        Account: profile, addresses, orders
-components/ui/          shadcn/ui primitives
+components/ui/          Domain components not yet in the theme (media, rich text, wishlist button)
+packages/
+├── sdk/                @entirius/storefront-sdk: contract between core and theme (i18n)
+└── theme-default/      Default theme: shadcn/ui primitives, imported as @theme/ui/<name>
 lib/                    Auth client and session, CSP, prefetch boundary, logger, cn()
 stores/                 Zustand stores (cart, wishlist) + cart and wishlist sync
 utils/                  NORMALIZERS (API → view shapes), Zod schemas, cookie helper

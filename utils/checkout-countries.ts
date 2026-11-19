@@ -10,7 +10,7 @@ import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
 import { API_CHECKOUT_COUNTRIES_ROUTE } from "@/API/api.routes";
 import { COUNTRY_OPTIONS } from "@/utils/validation/address.schema";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 export type CountryOption = { code: string; dialling_code: string; label: string };
 

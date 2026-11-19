@@ -6,17 +6,17 @@
 
 import { Search } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@theme/ui/button";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
+} from "@theme/ui/sheet";
 import { SearchBody, SearchField, useHeaderSearch } from "./header-search.client";
 import { HEADER_ICON } from "./header-icon";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // The phone's search: an icon that opens a sheet from the top. From md up the header has the search bar.
 export function SearchSheet() {

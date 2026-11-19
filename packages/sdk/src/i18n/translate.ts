@@ -6,6 +6,8 @@ import type { en } from "./messages/en";
 import { format_price } from "./format-price";
 import type { Message, Params } from "./types";
 
+export type { Message, Params, PluralForms } from "./types";
+
 // Pure and bundle-light: no catalogue is imported here (type-only), so client components
 // receive just the resolved messages of the active language from <I18nProvider>.
 export type MessageKey = keyof typeof en;

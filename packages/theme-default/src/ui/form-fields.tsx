@@ -7,7 +7,7 @@
 import type * as React from "react";
 import type { Control, FieldValues, Path } from "react-hook-form";
 
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox } from "@theme/ui/checkbox";
 import {
   FormControl,
   FormDescription,
@@ -15,15 +15,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@theme/ui/form";
+import { Input } from "@theme/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@theme/ui/select";
 
 // The storefront's form fields: label (+ optional (?) tooltip), control, optional hint, error.
 // A new field uses one of these, not FormField with local classes.

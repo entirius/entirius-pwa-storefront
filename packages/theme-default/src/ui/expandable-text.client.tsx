@@ -6,8 +6,8 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 
-import { cn } from "@/lib/utils";
-import { useI18n } from "@/providers/i18n.provider";
+import { cn } from "@theme/lib/utils";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // Text clamped to 2 lines (3 from md) with a "Show more" / "Show less" link. The full text is always in the DOM
 // (SEO); clamping is CSS only. The link appears only when the text overflows, measured after mount and on resize.

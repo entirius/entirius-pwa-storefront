@@ -16,12 +16,12 @@ import {
   type FieldValues,
 } from "react-hook-form";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@theme/lib/utils";
 import { CircleHelp } from "lucide-react";
 
-import { Label } from "@/components/ui/label";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useI18n } from "@/providers/i18n.provider";
+import { Label } from "@theme/ui/label";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@theme/ui/tooltip";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 const Form = FormProvider;
 

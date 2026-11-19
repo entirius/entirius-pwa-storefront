@@ -9,11 +9,14 @@ import { defineConfig } from "vitest/config";
 // Browser flows against the backend are Playwright's job (tests/e2e/).
 export default defineConfig({
   resolve: {
-    alias: { "@": fileURLToPath(new URL(".", import.meta.url)) },
+    alias: {
+      "@theme": fileURLToPath(new URL("./packages/theme-default/src", import.meta.url)),
+      "@": fileURLToPath(new URL(".", import.meta.url)),
+    },
   },
   test: {
     environment: "node",
     include: ["**/*.test.ts"],
-    exclude: ["node_modules/**", ".next/**", "tests/e2e/**"],
+    exclude: ["**/node_modules/**", ".next/**", "tests/e2e/**"],
   },
 });

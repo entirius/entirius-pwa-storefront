@@ -3,9 +3,9 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { describe, expect, it } from "vitest";
-import { en } from "./messages/en";
-import { pl } from "./messages/pl";
-import { create_i18n } from "./translate";
+import { en } from "@entirius/storefront-sdk/i18n/messages/en";
+import { pl } from "@entirius/storefront-sdk/i18n/messages/pl";
+import { create_i18n } from "@entirius/storefront-sdk/i18n";
 import { price_lines } from "./price-lines";
 
 const EN = create_i18n("en", en);

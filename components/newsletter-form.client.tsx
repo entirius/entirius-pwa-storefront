@@ -7,18 +7,18 @@
 import { useMemo, useState } from "react";
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { HONEYPOT_NAME, HoneypotField } from "@/components/ui/honeypot-field";
-import { Input } from "@/components/ui/input";
-import { CheckLabel, Field, FormError, FormHeading } from "@/components/ui/form";
-import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@theme/ui/button";
+import { Checkbox } from "@theme/ui/checkbox";
+import { HONEYPOT_NAME, HoneypotField } from "@theme/ui/honeypot-field";
+import { Input } from "@theme/ui/input";
+import { CheckLabel, Field, FormError, FormHeading } from "@theme/ui/form";
+import { Spinner } from "@theme/ui/spinner";
 import { TokenLinks } from "@/components/ui/token-links";
 import { useLegalRoutes } from "@/lib/agreements";
 import { is_email } from "@/lib/contact-forms";
 import { subscribe_newsletter, useNewsletterAvailable } from "@/lib/newsletter";
 import { cn } from "@/lib/utils";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 type State = "idle" | "sending" | "sent" | "failed" | "invalid";
 

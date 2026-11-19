@@ -11,7 +11,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel";
+} from "@theme/ui/carousel";
 
 // Product cards of a CMS product section: `grid: slider` scrolls one row,
 // anything else is a grid.

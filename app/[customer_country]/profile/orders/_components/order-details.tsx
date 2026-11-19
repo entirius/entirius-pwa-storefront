@@ -8,7 +8,7 @@ import { CreditCard, Package, Receipt, Truck } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { Order } from "@/utils/NORMALIZERS/order.normalizer";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { point_address } from "@/utils/NORMALIZERS/delivery-point.normalizer";
 
 function SectionHeader({

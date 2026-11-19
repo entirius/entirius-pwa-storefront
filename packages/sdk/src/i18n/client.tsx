@@ -5,7 +5,7 @@
 "use client";
 
 import { createContext, useContext, useMemo } from "react";
-import { create_i18n, type I18n, type Messages } from "@/lib/i18n/translate";
+import { create_i18n, type I18n, type Messages } from "./translate";
 
 const I18nContext = createContext<I18n | null>(null);
 

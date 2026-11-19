@@ -19,17 +19,17 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-} from "@/components/ui/sheet";
+} from "@theme/ui/sheet";
 import {
   Form,
   FormError,
   PHONE_ROW,
-} from "@/components/ui/form";
-import { CheckboxField, SelectField, TextField } from "@/components/ui/form-fields";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+} from "@theme/ui/form";
+import { CheckboxField, SelectField, TextField } from "@theme/ui/form-fields";
+import { Button } from "@theme/ui/button";
+import { Spinner } from "@theme/ui/spinner";
 import { useCountryOptions } from "@/utils/checkout-countries";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 export function AddressFormSheet({
   open,

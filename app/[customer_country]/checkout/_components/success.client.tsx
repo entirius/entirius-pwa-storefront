@@ -8,13 +8,13 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Check, Copy } from "lucide-react";
 import { SITE_NAME } from "@/_CONFIG/app.config.json";
-import { Button } from "@/components/ui/button";
+import { Button } from "@theme/ui/button";
 import { SanitizeHTML } from "@/components/ui/sanitize-html";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { make_client_access } from "@/API/access/api.client-access";
 import { useCartStore } from "@/stores/cart.store";
-import { Alert } from "@/components/ui/alert";
-import { useI18n } from "@/providers/i18n.provider";
+import { Alert } from "@theme/ui/alert";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { transfer_details, useOrderReceipt, type OrderReceipt } from "./order-receipt";
 import { payment_failed } from "./payment-return";
 

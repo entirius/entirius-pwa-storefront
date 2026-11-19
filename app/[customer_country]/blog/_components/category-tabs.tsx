@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@theme/ui/button";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { blog_list_path } from "@/lib/blog-paths";

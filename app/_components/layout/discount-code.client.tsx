@@ -9,10 +9,10 @@ import { X } from "lucide-react";
 import type { Cart } from "@/utils/NORMALIZERS/cart.normalizer";
 import { kept_discounts } from "@/utils/cart-discounts";
 import { useDiscountsPatch } from "@/app/_components/order/use-cart-gifts";
-import { Field, FormError } from "@/components/ui/form";
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/ui/input-group";
-import { Spinner } from "@/components/ui/spinner";
-import { useI18n } from "@/providers/i18n.provider";
+import { Field, FormError } from "@theme/ui/form";
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@theme/ui/input-group";
+import { Spinner } from "@theme/ui/spinner";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // Manual discount codes on the backend cart. PATCH replaces the whole set of
 // manual codes, so applying sends the codes already on the cart plus the new

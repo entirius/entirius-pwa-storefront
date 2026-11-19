@@ -6,7 +6,7 @@
 
 import { memo, useCallback, useId } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox } from "@theme/ui/checkbox";
 import { useFiltersStore, to_filter_key } from "./filters.store";
 
 type FilterItemProps = {

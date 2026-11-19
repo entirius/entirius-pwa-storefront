@@ -4,12 +4,12 @@
 
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@theme/ui/button";
+import { Spinner } from "@theme/ui/spinner";
 import { useWishlistStore, type WishlistItem } from "@/stores/wishlist.store";
 import { remove_from_account } from "@/stores/wishlist-sync";
 import { useAuth } from "@/providers/auth.provider";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { ProductTile } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-tile.client";
 import { useQuickAdd } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/use-quick-add";
 import { buy_block } from "@/lib/buy-rules";

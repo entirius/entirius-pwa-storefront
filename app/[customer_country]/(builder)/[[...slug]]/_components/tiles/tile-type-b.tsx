@@ -5,7 +5,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Spinner } from "@/components/ui/spinner";
+import { Spinner } from "@theme/ui/spinner";
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
 import { API_PRODUCTS_ROUTE } from "@/API/api.routes";
@@ -13,7 +13,7 @@ import { NORM_PRODUCTS_DATA } from "@/utils/NORMALIZERS/product.normalizer";
 import { ProductTile } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-tile.client";
 import type { CmsSectionBaseProps } from "@/types/cms.types";
 import type { ProductsResponse } from "../../api.query";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 interface TileTypeBProps extends CmsSectionBaseProps {
   url_key?: string;

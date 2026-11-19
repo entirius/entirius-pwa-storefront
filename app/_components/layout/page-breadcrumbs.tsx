@@ -12,7 +12,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+} from "@theme/ui/breadcrumb";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 
 export type Crumb = { name: string; href?: string };

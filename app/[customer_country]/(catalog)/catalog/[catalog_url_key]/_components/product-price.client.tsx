@@ -7,7 +7,7 @@
 import type { Price } from "@/utils/NORMALIZERS/price.normalizer";
 import { OmnibusNote } from "@/lib/omnibus/omnibus-note.client";
 import { price_lines } from "@/lib/i18n/price-lines";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // A reduced price (two entries) carries the Omnibus line when the SKU is known.
 export function ProductPrice({

@@ -15,13 +15,13 @@ import {
   type SortFilter,
   type ValueFilter,
 } from "../api.query";
-import { Spinner } from "@/components/ui/spinner";
-import { Button } from "@/components/ui/button";
+import { Spinner } from "@theme/ui/spinner";
+import { Button } from "@theme/ui/button";
 import { FilterItem } from "./filter-item.client";
 import { FilterSortItem } from "./filter-sort-item.client";
 import { FilterRange } from "./filter-range.client";
 import { useFiltersStore } from "./filters.store";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { cn } from "@/lib/utils";
 
 const FILTER_PREFIXES = ["q_", "s_", "r_"];

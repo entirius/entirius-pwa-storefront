@@ -10,7 +10,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination";
+} from "@theme/ui/pagination";
 import { page_numbers } from "@/lib/blog-paths";
 
 // Numbered pages as plain links (`?page=`). `href`: the address of a page, profile included.

@@ -9,13 +9,13 @@ import { ChevronLeft } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { LinkDynamic } from "@/lib/link-dynamic";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@theme/ui/button";
+import { Spinner } from "@theme/ui/spinner";
 import {
   format_order_date,
   status_style,
 } from "@/utils/NORMALIZERS/order.normalizer";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { OrderDetails } from "../../_components/order-details";
 import { order_query } from "../api.query";
 

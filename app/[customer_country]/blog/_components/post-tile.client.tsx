@@ -7,7 +7,7 @@
 import { ImageIcon } from "lucide-react";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { blog_post_path } from "@/lib/blog-paths";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import CmsImage from "@/app/[customer_country]/(builder)/[[...slug]]/_components/cms-image";
 import { format_blog_date, type BlogPostCard } from "@/utils/NORMALIZERS/blog-post.normalizer";
 

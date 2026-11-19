@@ -11,7 +11,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel";
+} from "@theme/ui/carousel";
 
 export default function HeroCarousel({ children }: { children: React.ReactNode }) {
   return (

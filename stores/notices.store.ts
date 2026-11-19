@@ -3,8 +3,8 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { create } from "zustand";
-import type { MessageKey } from "@/lib/i18n/translate";
-import type { Params } from "@/lib/i18n/types";
+import type { MessageKey } from "@entirius/storefront-sdk/i18n";
+import type { Params } from "@entirius/storefront-sdk/i18n";
 
 // The tones are the status colour tokens of app/globals.css.
 export type NoticeTone = "positive" | "destructive" | "notice" | "informative";

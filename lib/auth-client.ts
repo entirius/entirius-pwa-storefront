@@ -6,7 +6,7 @@ import { create_api } from "@/API/api.context";
 import { end_session } from "@/API/api.setup";
 import { SESSION_LOGIN_PATH, SESSION_LOGOUT_PATH } from "@/lib/session";
 import { make_client_access } from "@/API/access/api.client-access";
-import { msg } from "@/lib/i18n/translate";
+import { msg } from "@entirius/storefront-sdk/i18n";
 import {
   API_USER_SIGNUP_ROUTE,
   API_USER_PROFILE_ROUTE,

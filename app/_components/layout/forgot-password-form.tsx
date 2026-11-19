@@ -13,11 +13,11 @@ import {
   type ForgotPasswordFormValues,
 } from "@/utils/validation/auth.schema";
 import { client_request_password_reset } from "@/lib/auth-client";
-import { Form, FormError } from "@/components/ui/form";
-import { TextField } from "@/components/ui/form-fields";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
-import { useI18n } from "@/providers/i18n.provider";
+import { Form, FormError } from "@theme/ui/form";
+import { TextField } from "@theme/ui/form-fields";
+import { Button } from "@theme/ui/button";
+import { Spinner } from "@theme/ui/spinner";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // Asks for the reset mail; the link in it opens /reset-password. The sheet goes back to the login view
 // with a notice that does not say whether the e-mail has an account.

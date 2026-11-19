@@ -29,9 +29,12 @@ entirius-pwa-storefront/
 │       ├── profile/              # Account: profile, addresses, orders
 │       ├── reset-password/       # Landing of the password reset mail (new password from ?key=)
 │       └── user-handler/         # Double-opt-in activation landing
-├── components/ui/                # shadcn/ui components
+├── components/ui/                # Domain components not yet in the theme (media, rich text, wishlist button)
+├── packages/
+│   ├── sdk/                      # @entirius/storefront-sdk: messages (src/i18n/messages/en.ts, pl.ts), t(), price(), useI18n()
+│   └── theme-default/            # @entirius/theme-default: shadcn/ui primitives (src/ui/), imported as @theme/ui/<name>
 ├── lib/
-│   ├── i18n/                     # Messages (messages/en.ts, pl.ts), t(), price(), server loader
+│   ├── i18n/                     # Language resolution, _CONFIG overrides, server loader, price_lines()
 │   ├── auth-client.ts            # Login/signup/activate/password/logout against Accounts
 │   ├── prefetch_boundary.tsx     # Server-side TanStack Query prefetch + hydration
 │   ├── link-dynamic.tsx          # Dynamic import wrapper
@@ -39,7 +42,6 @@ entirius-pwa-storefront/
 │   └── utils.ts                  # cn() utility
 ├── providers/
 │   ├── auth.provider.tsx         # Per-request logged-in flag (seeded server-side)
-│   ├── i18n.provider.tsx         # useI18n() for client components (seeded by the root layout)
 │   └── Tanstack-query.provider.tsx
 ├── stores/                       # Zustand cart + wishlist, cart query & sync hook, wishlist account sync
 ├── utils/
@@ -49,7 +51,7 @@ entirius-pwa-storefront/
 ├── types/                        # Shared TypeScript types
 ├── proxy.ts                      # Next.js middleware — geo routing + cookie injection
 └── _CONFIG.example/              # Committed config templates (copy to _CONFIG/)
-    ├── app.config.json           # API_BASE_URL, DEBUG_MODE, THEME, SITE_NAME, BRAND
+    ├── app.config.json           # API_BASE_URL, DEBUG_MODE, COLOR_SCHEME, SITE_NAME, BRAND
     ├── channels.config.json      # Channel labels + checkout keys
     ├── countries.config.json     # Country → language/currency/channel mapping
     ├── theme.css                 # Client theme (empty = default look)
@@ -125,12 +127,21 @@ All pages live under `app/[customer_country]/`. The `ct` cookie (set by middlewa
 
 | Tier | Location | Purpose |
 |------|----------|---------|
-| shadcn/ui | `components/ui/` | Base primitives (Button, Input, Sheet, Carousel). Added via `pnpm dlx shadcn add <name>` |
+| Theme | `packages/theme-default/src/ui/` | Base primitives (Button, Input, Sheet, Carousel), imported as `@theme/ui/<name>`. Added via shadcn, see [styling](styling.md) |
+| Domain UI | `components/ui/` | Media, rich text, wishlist button: move into the theme with their SDK hooks |
 | Shared | `lib/` | Cross-page components (PrefetchBoundary, LinkDynamic) |
 | Layout | `app/_components/layout/` | Header, navigation, search, cart/wishlist/account sheets |
 | Page feature | `app/[customer_country]/.../_components/` | Co-located with owning page (filters, product tile, listing) |
 
 Client components use `.client.tsx` suffix. Server components have no suffix.
+
+### Themes
+
+`@theme/<path>` resolves through `tsconfig.json` paths: `theme/src/<path>` when an installed theme has that file,
+else `packages/theme-default/src/<path>`. A theme overrides a component by shipping a file at the same path with the
+same exports; everything else comes from the default theme. Components inside the default theme import each other
+through `@theme/*` too, so an override reaches them (a theme's `Button` is the one in the default `QuantityStepper`).
+`theme/` is gitignored: a shop build or the theme's dev server puts it there.
 
 ## State Management
 

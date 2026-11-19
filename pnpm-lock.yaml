@@ -15,6 +15,12 @@ importers:
       '@entirius/brand-tokens':
         specifier: github:entirius/entirius-pwa-brand-tokens#v0.1.0
         version: https://codeload.github.com/entirius/entirius-pwa-brand-tokens/tar.gz/4c88a824ea18d983a9131dd3c634ef8a79259733
+      '@entirius/storefront-sdk':
+        specifier: workspace:*
+        version: link:packages/sdk
+      '@entirius/theme-default':
+        specifier: workspace:*
+        version: link:packages/theme-default
       '@hookform/resolvers':
         specifier: ^5.9.1
         version: 5.9.1(ajv@8.18.0)(react-hook-form@7.89.0(@types/react@19.3.0)(react@19.3.0))(zod@4.6.7)
@@ -109,6 +115,45 @@ importers:
       vitest:
         specifier: ^5.0.3
         version: 5.0.3(@types/node@22.20.4)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.3.5(@types/node@22.20.4)(jiti@2.6.1))
+
+  packages/sdk:
+    dependencies:
+      react:
+        specifier: ^19.0.0
+        version: 19.3.0
+
+  packages/theme-default:
+    dependencies:
+      '@entirius/storefront-sdk':
+        specifier: workspace:*
+        version: link:../sdk
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      embla-carousel-react:
+        specifier: ^8.6.0
+        version: 8.6.0(react@19.3.0)
+      lucide-react:
+        specifier: ^1.49.0
+        version: 1.49.0(@types/react@19.3.0)(react@19.3.0)
+      radix-ui:
+        specifier: ^1.6.7
+        version: 1.6.7(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      react:
+        specifier: ^19.0.0
+        version: 19.3.0
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.3.0(react@19.3.0)
+      react-hook-form:
+        specifier: ^7.0.0
+        version: 7.89.0(@types/react@19.3.0)(react@19.3.0)
+      tailwind-merge:
+        specifier: ^3.7.0
+        version: 3.7.0
 
 packages:
 

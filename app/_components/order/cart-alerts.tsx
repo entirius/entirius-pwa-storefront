@@ -4,9 +4,9 @@
 
 "use client";
 
-import { Alert } from "@/components/ui/alert";
+import { Alert } from "@theme/ui/alert";
 import { cn } from "@/lib/utils";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { cart_error_texts } from "@/utils/cart-errors";
 import type { Cart } from "@/utils/NORMALIZERS/cart.normalizer";
 

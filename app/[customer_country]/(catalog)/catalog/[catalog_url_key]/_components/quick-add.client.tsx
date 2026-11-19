@@ -5,9 +5,9 @@
 "use client";
 
 import { Check, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
-import { useI18n } from "@/providers/i18n.provider";
+import { Button } from "@theme/ui/button";
+import { Spinner } from "@theme/ui/spinner";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { useQuickAdd, type QuickAddItem } from "./use-quick-add";
 
 // "+" on a product card: one unit into the cart.

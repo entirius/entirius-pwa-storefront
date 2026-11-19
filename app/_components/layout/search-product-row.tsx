@@ -9,7 +9,7 @@ import { LinkDynamic } from "@/lib/link-dynamic";
 import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
 import type { Product } from "@/utils/NORMALIZERS/product.normalizer";
 import { ProductPrice } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-price.client";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { VARIANT_PARAM } from "@/app/[customer_country]/(product)/product/[product_url_key]/_components/variant-selection";
 
 // A small picture of the product's first image: the ~320px source, else the first one.

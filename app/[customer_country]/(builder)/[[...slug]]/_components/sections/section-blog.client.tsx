@@ -8,7 +8,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { PostTile } from "@/app/[customer_country]/blog/_components/post-tile.client";
 import { SectionShell } from "./section-text";
 import { blog_section_routes, cms_blog_posts_query } from "../../api.query";

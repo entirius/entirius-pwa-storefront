@@ -11,7 +11,7 @@ import { cookies } from "next/headers";
 
 import { TanstackQueryProvider } from "@/providers/Tanstack-query.provider";
 import { AuthProvider } from "@/providers/auth.provider";
-import { I18nProvider } from "@/providers/i18n.provider";
+import { I18nProvider } from "@entirius/storefront-sdk/i18n/client";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 import { HeaderComponent } from "./_components/layout/header-component";
 import { LayoutSlot } from "./_components/layout-slots/layout-slot";
@@ -20,9 +20,9 @@ import { CookieConsent } from "./_components/cookie-consent/cookie-consent.clien
 import { FooterComponent } from "./_components/layout/footer-component";
 import { Suspense } from "react";
 import { SITE_URL, SITE_NAME } from "@/lib/seo/config";
-import { THEME } from "@/_CONFIG/app.config.json";
+import { COLOR_SCHEME } from "@/_CONFIG/app.config.json";
 import { DEFAULT_OG_IMAGES, MANIFEST_PATH, THEME_COLOR, brand_url, has_manifest } from "@/lib/brand";
-import { PageLoading } from "@/components/ui/spinner";
+import { PageLoading } from "@theme/ui/spinner";
 import { PrefetchBoundary } from "@/lib/prefetch_boundary";
 import { get_server_api } from "@/lib/seo/server-api";
 import { agreement_definitions_query } from "@/lib/agreements.query";
@@ -73,10 +73,10 @@ export default async function RootLayout({
   // <html lang> and the messages follow the language cookie (lib/i18n/i18n.server.ts).
   const { language, messages } = await get_i18n();
   return (
-    // Light by default; an instance sets THEME: "dark" in _CONFIG/app.config.json
+    // Light by default; an instance sets COLOR_SCHEME: "dark" in _CONFIG/app.config.json
     // for the brand's dark set (app/globals.css), which also turns shadcn's dark:
     // variants on.
-    <html lang={language} className={THEME === "dark" ? "dark" : undefined}>
+    <html lang={language} className={COLOR_SCHEME === "dark" ? "dark" : undefined}>
       <body className={`${FONT_CLASSES} antialiased`}>
         <I18nProvider language={language} messages={messages}>
           <TanstackQueryProvider>

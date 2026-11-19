@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import tokens from "@entirius/brand-tokens/tokens.json";
-import { THEME } from "@/_CONFIG/app.config.json";
+import { COLOR_SCHEME } from "@/_CONFIG/app.config.json";
 import { THEME_COLOR } from "@/lib/brand";
 import { get_path } from "@/lib/seo/config";
 
@@ -19,10 +19,10 @@ export function brand_token(path: string): string {
 }
 
 // The image is drawn outside the CSS, so it reads the same tokens app/globals.css maps for the page
-// background and headings of the active THEME. Only the accent band takes BRAND.THEME_COLOR: it carries
+// background and headings of the active COLOR_SCHEME. Only the accent band takes BRAND.THEME_COLOR: it carries
 // no text, so any configured colour keeps the name readable.
-export function share_image_colors(theme: string = THEME) {
-  const dark = theme === "dark";
+export function share_image_colors(color_scheme: string = COLOR_SCHEME) {
+  const dark = color_scheme === "dark";
   return {
     background: brand_token(dark ? "black" : "light.neutral.100"),
     foreground: brand_token(dark ? "basic.950" : "light.neutral.900"),

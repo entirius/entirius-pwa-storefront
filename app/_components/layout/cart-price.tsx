@@ -5,7 +5,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import type { CartLine } from "@/utils/NORMALIZERS/cart.normalizer";
 
 // Per-unit price. When a special/sale price applies, strikes the list price and

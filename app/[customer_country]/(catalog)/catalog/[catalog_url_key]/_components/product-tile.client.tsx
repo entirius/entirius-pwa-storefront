@@ -12,7 +12,7 @@ import { WishlistButton } from "@/components/ui/wishlist-button";
 import { ProductPrice } from "./product-price.client";
 import { ProductBadges } from "./product-badges";
 import { QuickAdd } from "./quick-add.client";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { useSinglePiece } from "./use-single-piece";
 import { buy_block } from "@/lib/buy-rules";
 

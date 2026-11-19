@@ -13,12 +13,12 @@ import { client_update_profile, type Profile } from "@/lib/auth-client";
 import {
   Form,
   FormError,
-} from "@/components/ui/form";
-import { TextField } from "@/components/ui/form-fields";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
-import { msg } from "@/lib/i18n/translate";
-import { useI18n } from "@/providers/i18n.provider";
+} from "@theme/ui/form";
+import { TextField } from "@theme/ui/form-fields";
+import { Button } from "@theme/ui/button";
+import { Spinner } from "@theme/ui/spinner";
+import { msg } from "@entirius/storefront-sdk/i18n";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 const profile_schema = z.object({
   firstname: z.string().trim().min(1, msg("validation.firstname_required")),

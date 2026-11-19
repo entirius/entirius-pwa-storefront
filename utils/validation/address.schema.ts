@@ -4,7 +4,7 @@
 
 import { z } from "zod";
 import { email_field } from "./auth.schema";
-import { msg, type MessageKey } from "@/lib/i18n/translate";
+import { msg, type MessageKey } from "@entirius/storefront-sdk/i18n";
 import type { Cart, CartAddress } from "@/utils/NORMALIZERS/cart.normalizer";
 import { PHONE_CHARS, address_format_issues } from "./address-rules";
 

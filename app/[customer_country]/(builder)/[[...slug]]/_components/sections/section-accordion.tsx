@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import React from "react";
-import { Accordion } from "@/components/ui/accordion";
+import { Accordion } from "@theme/ui/accordion";
 import { SanitizeHTML } from "@/components/ui/sanitize-html";
 import { CmsButtons, type CmsButtonData } from "../cms-button";
 

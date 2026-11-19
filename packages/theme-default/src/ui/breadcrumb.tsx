@@ -5,10 +5,10 @@
 "use client"
 
 import * as React from "react"
-import { cn } from "@/lib/utils"
+import { cn } from "@theme/lib/utils"
 import { ChevronRight, MoreHorizontal } from "lucide-react"
 import { Slot } from "radix-ui"
-import { useI18n } from "@/providers/i18n.provider"
+import { useI18n } from "@entirius/storefront-sdk/i18n/client"
 
 function Breadcrumb({ ...props }: React.ComponentProps<"nav">) {
   const { t } = useI18n()

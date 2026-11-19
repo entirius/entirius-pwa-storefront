@@ -6,10 +6,10 @@
 
 import type * as React from "react";
 
-import { FormHeading } from "@/components/ui/form";
-import { Spinner } from "@/components/ui/spinner";
+import { FormHeading } from "@theme/ui/form";
+import { Spinner } from "@theme/ui/spinner";
 import { cn } from "@/lib/utils";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import type { Cart } from "@/utils/NORMALIZERS/cart.normalizer";
 
 const num = (v: string | null | undefined) => {

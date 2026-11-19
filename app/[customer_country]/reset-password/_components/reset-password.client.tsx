@@ -14,12 +14,12 @@ import {
   type ResetPasswordFormValues,
 } from "@/utils/validation/auth.schema";
 import { client_reset_password } from "@/lib/auth-client";
-import { Form, FormError } from "@/components/ui/form";
-import { TextField } from "@/components/ui/form-fields";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { Form, FormError } from "@theme/ui/form";
+import { TextField } from "@theme/ui/form-fields";
+import { Button } from "@theme/ui/button";
+import { Spinner } from "@theme/ui/spinner";
 import { LinkDynamic } from "@/lib/link-dynamic";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // Receiver of the reset mail: /reset-password?key=. The key is checked only when the form is sent, so a
 // bad link shows the form first and the "link does not work" state after the submit. Setting the

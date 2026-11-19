@@ -13,9 +13,9 @@ import { ProductTile } from "./product-tile.client";
 import { PaginationClient } from "./pagination.client";
 import { FiltersTriggerClient } from "./filters-trigger.client";
 import { FiltersOptionsClient } from "./filters-options.client";
-import { Spinner } from "@/components/ui/spinner";
+import { Spinner } from "@theme/ui/spinner";
 import { NotifySimilar } from "@/components/notify-similar.client";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 export function ListingClient({
   options,

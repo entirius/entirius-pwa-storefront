@@ -8,11 +8,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@theme/ui/button";
+import { Spinner } from "@theme/ui/spinner";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { newsletter_token_action, type NewsletterAction } from "@/lib/newsletter";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 const TEXT = {
   confirm: { pending: "newsletter.confirming", title: "newsletter.confirmed_title", text: "newsletter.confirmed_text" },

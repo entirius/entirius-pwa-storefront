@@ -6,8 +6,8 @@
 
 import { Loader2Icon } from "lucide-react"
 
-import { cn } from "@/lib/utils"
-import { useI18n } from "@/providers/i18n.provider"
+import { cn } from "@theme/lib/utils"
+import { useI18n } from "@entirius/storefront-sdk/i18n/client"
 
 // `decorative`: inside something that already announces the loading (PageLoading, a labelled button).
 function Spinner({

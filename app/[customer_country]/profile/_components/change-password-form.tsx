@@ -13,11 +13,11 @@ import {
   type ChangePasswordFormValues,
 } from "@/utils/validation/auth.schema";
 import { client_change_password } from "@/lib/auth-client";
-import { Form, FormError } from "@/components/ui/form";
-import { TextField } from "@/components/ui/form-fields";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
-import { useI18n } from "@/providers/i18n.provider";
+import { Form, FormError } from "@theme/ui/form";
+import { TextField } from "@theme/ui/form-fields";
+import { Button } from "@theme/ui/button";
+import { Spinner } from "@theme/ui/spinner";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // The session stays signed in after the change: the backend keeps the issued tokens valid.
 export function ChangePasswordForm({

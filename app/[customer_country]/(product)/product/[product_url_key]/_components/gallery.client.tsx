@@ -6,10 +6,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@theme/ui/button";
 import { MediaImage } from "@/components/ui/media-image.client";
 import { cn } from "@/lib/utils";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { GalleryViewer } from "./gallery-viewer.client";
 import { scroll_behavior, slide_index, type GalleryMedia } from "./gallery-utils";
 

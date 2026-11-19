@@ -7,10 +7,10 @@
 import { Search, Tag } from "lucide-react";
 
 import { LinkDynamic } from "@/lib/link-dynamic";
-import { Button } from "@/components/ui/button";
+import { Button } from "@theme/ui/button";
 import { search_path, type SearchResponse } from "./search.query";
 import { SearchProductRow } from "./search-product-row";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 type SearchCategory = {
   idx?: string;

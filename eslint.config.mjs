@@ -18,6 +18,10 @@ const RAW_COLOR = `(^|[^\\w-])${UTILITY}-(${PALETTE}|black|white)\\b|#[0-9a-fA-F
 const RAW_COLOR_MESSAGE =
   "Raw color value. Use a semantic token from app/globals.css (e.g. bg-card, text-positive, var(--border)).";
 
+const THEME_VIA_REGISTRY = "Import theme components through @theme/* so a theme's override applies.";
+const NO_CORE_IMPORT = "Packages and themes do not import the core (@/). Take it from @entirius/storefront-sdk or props.";
+const SDK_STANDALONE = "The SDK is the contract: it imports neither the core nor a theme.";
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
@@ -29,6 +33,30 @@ const eslintConfig = defineConfig([
         "error",
         { selector: `Literal[value=/${RAW_COLOR}/]`, message: RAW_COLOR_MESSAGE },
         { selector: `TemplateElement[value.raw=/${RAW_COLOR}/]`, message: RAW_COLOR_MESSAGE },
+      ],
+    },
+  },
+  // Themes and the SDK are published packages: they never reach into the core (`@/`). The core takes components
+  // through `@theme/*` only, so a theme's override applies everywhere; the SDK knows no theme at all.
+  {
+    files: ["**/*.{ts,tsx}"],
+    ignores: ["packages/**", "theme/**"],
+    rules: {
+      "no-restricted-imports": ["error", { patterns: [{ group: ["@entirius/theme-default", "@entirius/theme-default/*"], message: THEME_VIA_REGISTRY }] }],
+    },
+  },
+  {
+    files: ["packages/**/*.{ts,tsx}", "theme/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": ["error", { patterns: [{ group: ["@/*"], message: NO_CORE_IMPORT }] }],
+    },
+  },
+  {
+    files: ["packages/sdk/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        { patterns: [{ group: ["@/*", "@theme/*", "@entirius/theme-default", "@entirius/theme-default/*"], message: SDK_STANDALONE }] },
       ],
     },
   },

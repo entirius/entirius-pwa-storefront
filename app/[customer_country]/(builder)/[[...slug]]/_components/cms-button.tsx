@@ -8,10 +8,10 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
-import { Button } from "@/components/ui/button";
+import { Button } from "@theme/ui/button";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { link_target, url_key_query } from "@/lib/url-keys";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // `internal` is what the CMS editor saves (`custom_buttons[].type`), with the
 // CMS link convention in `url`: `/p/<url_key>` product, `/c/<url_key>` category,

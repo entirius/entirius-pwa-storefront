@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { resolve_media_url } from "@/utils/media-url";
-import { msg, type MessageKey } from "@/lib/i18n/translate";
+import { msg, type MessageKey } from "@entirius/storefront-sdk/i18n";
 import { NORM_CART_POINT, type CartDeliveryPoint } from "./delivery-point.normalizer";
 
 // Normalizes checkout v2 order responses:

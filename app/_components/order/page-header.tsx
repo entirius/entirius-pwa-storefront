@@ -7,8 +7,8 @@
 import type * as React from "react";
 import { ShoppingBag } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@theme/ui/button";
+import { Spinner } from "@theme/ui/spinner";
 import { LinkDynamic } from "@/lib/link-dynamic";
 
 // The title row of the cart and checkout pages: one size, an optional line under it, a sync spinner.

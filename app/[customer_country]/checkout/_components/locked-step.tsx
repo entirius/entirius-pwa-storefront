@@ -5,8 +5,8 @@
 "use client";
 
 import { Lock } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useI18n } from "@/providers/i18n.provider";
+import { Button } from "@theme/ui/button";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // Placeholder for the Shipping / Payment / Review steps. Their backend endpoints
 // (GET shipping-methods / payment-methods lists, POST orders) currently 500 —

@@ -12,7 +12,7 @@ import { build_catalog_metadata, build_catalog_jsonld } from "@/lib/seo/build";
 import { catalog_alternates } from "@/lib/seo/alternates";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { SanitizeHTML } from "@/components/ui/sanitize-html";
-import { ExpandableText } from "@/components/ui/expandable-text.client";
+import { ExpandableText } from "@theme/ui/expandable-text.client";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 import { ListingClient } from "./_components/listing.client";
 import { LinkDynamic } from "@/lib/link-dynamic";

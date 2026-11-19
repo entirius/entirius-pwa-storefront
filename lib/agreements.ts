@@ -12,7 +12,7 @@ import { API_ORDER_AGREEMENTS_ROUTE } from "@/API/api.routes";
 import { agreement_definitions_query } from "@/lib/agreements.query";
 import { PRIVACY_ROUTE, TERMS_ROUTE } from "@/lib/checkout-config";
 import { _LOGGER } from "@/lib/logger";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { legal_routes } from "@/utils/NORMALIZERS/agreement.normalizer";
 
 type Api = ReturnType<typeof create_api>;

@@ -11,9 +11,9 @@ import {
   MoreHorizontalIcon,
 } from "lucide-react"
 
-import { cn } from "@/lib/utils"
-import { buttonVariants, type Button } from "@/components/ui/button"
-import { useI18n } from "@/providers/i18n.provider"
+import { cn } from "@theme/lib/utils"
+import { buttonVariants, type Button } from "@theme/ui/button"
+import { useI18n } from "@entirius/storefront-sdk/i18n/client"
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   const { t } = useI18n()

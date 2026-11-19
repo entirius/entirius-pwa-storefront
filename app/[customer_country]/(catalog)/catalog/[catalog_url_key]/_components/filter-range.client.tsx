@@ -7,10 +7,10 @@
 import { memo, useCallback, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { X } from "lucide-react";
-import { Slider } from "@/components/ui/slider";
-import { Button } from "@/components/ui/button";
+import { Slider } from "@theme/ui/slider";
+import { Button } from "@theme/ui/button";
 import { useFiltersStore } from "./filters.store";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 type FilterRangeProps = {
   filter_idx: string;

@@ -9,19 +9,19 @@ import { Search, Mail, Eye, DollarSign } from "lucide-react";
 import type { VariantAxis } from "@/utils/NORMALIZERS/variant.normalizer";
 import { VariantPicker } from "@/app/[customer_country]/(product)/product/[product_url_key]/_components/variant-picker.client";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Slider } from "@/components/ui/slider";
-import { Spinner } from "@/components/ui/spinner";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Button } from "@theme/ui/button";
+import { Input } from "@theme/ui/input";
+import { Textarea } from "@theme/ui/textarea";
+import { Checkbox } from "@theme/ui/checkbox";
+import { Slider } from "@theme/ui/slider";
+import { Spinner } from "@theme/ui/spinner";
+import { AspectRatio } from "@theme/ui/aspect-ratio";
 import {
   Accordion,
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
-} from "@/components/ui/accordion";
+} from "@theme/ui/accordion";
 import {
   Pagination,
   PaginationContent,
@@ -30,7 +30,7 @@ import {
   PaginationPrevious,
   PaginationNext,
   PaginationEllipsis,
-} from "@/components/ui/pagination";
+} from "@theme/ui/pagination";
 import {
   Sheet,
   SheetTrigger,
@@ -40,7 +40,7 @@ import {
   SheetDescription,
   SheetFooter,
   SheetClose,
-} from "@/components/ui/sheet";
+} from "@theme/ui/sheet";
 import {
   InputGroup,
   InputGroupAddon,
@@ -48,7 +48,7 @@ import {
   InputGroupButton,
   InputGroupText,
   InputGroupTextarea,
-} from "@/components/ui/input-group";
+} from "@theme/ui/input-group";
 import { WishlistButton } from "@/components/ui/wishlist-button";
 
 // ─── helpers ────────────────────────────────────────────────────────────────

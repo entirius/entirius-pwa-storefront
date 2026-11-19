@@ -13,7 +13,7 @@ import {
   status_style,
   type OrderSummary,
 } from "@/utils/NORMALIZERS/order.normalizer";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 export function OrderCard({ order }: { order: OrderSummary }) {
   const i18n = useI18n();

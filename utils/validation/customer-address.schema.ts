@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { z } from "zod";
-import { msg, type MessageKey } from "@/lib/i18n/translate";
+import { msg, type MessageKey } from "@entirius/storefront-sdk/i18n";
 import { PHONE_CHARS, address_format_issues } from "./address-rules";
 
 // Address-book entry (accounts service). Distinct from the checkout billing+shipping

@@ -102,7 +102,7 @@
   /* Semantic layer: shadcn variables -> @entirius/brand-tokens. The only place in
      the storefront that names brand values; components use the semantic names
      (bg-background, text-primary...). A client theme overrides these blocks, not
-     the components. Light is the default; `THEME: "dark"` in _CONFIG/app.config.json
+     the components. Light is the default; `COLOR_SCHEME: "dark"` in _CONFIG/app.config.json
      puts `dark` on <html> and the second block applies. Contrast (WCAG AA) for every
      text/background pair is checked by tests/e2e/contrast.spec.ts. */
   color-scheme: light;
