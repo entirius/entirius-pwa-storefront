@@ -4,11 +4,11 @@
 
 "use client";
 
-import { ProductThumb } from "@/components/ui/product-thumb";
+import { ProductThumb } from "@theme/components/product-thumb";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
 import type { Product } from "@/utils/NORMALIZERS/product.normalizer";
-import { ProductPrice } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-price.client";
+import { ProductPrice } from "@theme/components/product-price";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { VARIANT_PARAM } from "@/app/[customer_country]/(product)/product/[product_url_key]/_components/variant-selection";
 

@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import { SanitizeHTML } from "@/components/ui/sanitize-html";
+import { RichText } from "@entirius/storefront-sdk/components/rich-text";
 import { FAQ_ANCHOR } from "@/utils/NORMALIZERS/blog-post.normalizer";
 
 type FaqItem = { question?: string; answer?: string };
@@ -22,7 +22,7 @@ export default function SectionFaq({ title, faq_items }: { title?: string; faq_i
               <dt className="text-lg">{item.question}</dt>
               {item.answer && (
                 <dd>
-                  <SanitizeHTML html={item.answer} />
+                  <RichText html={item.answer} />
                 </dd>
               )}
             </div>

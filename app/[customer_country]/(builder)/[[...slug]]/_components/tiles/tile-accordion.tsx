@@ -7,7 +7,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@theme/ui/accordion";
-import { SanitizeHTML } from "@/components/ui/sanitize-html";
+import { RichText } from "@entirius/storefront-sdk/components/rich-text";
 
 type AccordionEntry = { label?: string; wysiwyg?: string };
 
@@ -35,7 +35,7 @@ export default function TileAccordion({
         <AccordionTrigger className="text-left">{entry.label}</AccordionTrigger>
         <AccordionContent>
           {entry.wysiwyg && (
-            <SanitizeHTML html={entry.wysiwyg} className="text-sm text-muted-foreground" />
+            <RichText html={entry.wysiwyg} className="text-sm text-muted-foreground" />
           )}
         </AccordionContent>
       </AccordionItem>

@@ -17,7 +17,7 @@ import {
 import { Button } from "@theme/ui/button";
 import { Checkbox } from "@theme/ui/checkbox";
 import { Spinner } from "@theme/ui/spinner";
-import { SanitizeHTML } from "@/components/ui/sanitize-html";
+import { RichText } from "@entirius/storefront-sdk/components/rich-text";
 import { TokenLinks } from "@/components/ui/token-links";
 import { record_order_agreements, useAgreementDefinitions, useLegalRoutes } from "@/lib/agreements";
 import { subscribe_newsletter, useNewsletterAvailable } from "@/lib/newsletter";
@@ -289,7 +289,7 @@ function AgreementCheck({
   return (
     <CheckLabel data-agreement={definition.slug} data-agreement-required={required ? "" : undefined}>
       <Checkbox checked={checked} onCheckedChange={(v) => onChange(v === true)} aria-required={required || undefined} />
-      <SanitizeHTML as="span" html={definition.summary} new_tab_links="all" className="[&_a]:underline" />
+      <RichText as="span" html={definition.summary} new_tab_links="all" className="[&_a]:underline" />
     </CheckLabel>
   );
 }

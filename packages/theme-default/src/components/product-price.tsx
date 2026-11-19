@@ -4,10 +4,23 @@
 
 "use client";
 
-import type { Price } from "@/utils/NORMALIZERS/price.normalizer";
-import { OmnibusNote } from "@/lib/omnibus/omnibus-note.client";
-import { price_lines } from "@/lib/i18n/price-lines";
+import type { Price } from "@entirius/storefront-sdk/product";
+import { price_lines } from "@entirius/storefront-sdk/i18n/price-lines";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
+import { useOmnibus } from "@entirius/storefront-sdk/storefront";
+
+// The lowest price of the last 30 days next to a reduced price (EU Omnibus); nothing until it is known.
+function OmnibusNote({ sku, compact = false }: { sku: string; compact?: boolean }) {
+  const lowest = useOmnibus(sku);
+  const i18n = useI18n();
+  if (!lowest) return null;
+  const price = i18n.price(lowest.gross, lowest.currency);
+  return (
+    <p className={compact ? "text-[10px] text-muted-foreground" : "text-xs text-muted-foreground"}>
+      {compact ? i18n.t("omnibus.lowest_short", { price }) : i18n.t("omnibus.lowest", { price })}
+    </p>
+  );
+}
 
 // A reduced price (two entries) carries the Omnibus line when the SKU is known.
 export function ProductPrice({

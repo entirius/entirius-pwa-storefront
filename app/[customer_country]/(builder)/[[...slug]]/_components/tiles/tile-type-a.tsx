@@ -4,7 +4,7 @@
 
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { SanitizeHTML } from "@/components/ui/sanitize-html";
+import { RichText } from "@entirius/storefront-sdk/components/rich-text";
 import CmsImage, {
   type CmsImagesSet,
   normalize_image_source,
@@ -140,7 +140,7 @@ export default function TileTypeA({
             </h3>
           )}
           {description && (
-            <SanitizeHTML
+            <RichText
               html={description}
               className="text-sm"
               style={{ color: dye_styles.html_text_color }}
@@ -184,7 +184,7 @@ export default function TileTypeA({
             </h3>
           )}
           {description && (
-            <SanitizeHTML
+            <RichText
               html={description}
               className="text-sm"
               style={{ color: dye_styles.html_text_color }}
@@ -224,7 +224,7 @@ export default function TileTypeA({
           </h3>
         )}
         {description && (
-          <SanitizeHTML
+          <RichText
             html={description}
             className="text-sm"
             style={{ color: dye_styles.html_text_color }}

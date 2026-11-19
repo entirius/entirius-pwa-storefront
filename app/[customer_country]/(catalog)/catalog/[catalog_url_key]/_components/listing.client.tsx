@@ -9,7 +9,7 @@ import { catalog_query, type ListingOptions } from "../api.query";
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
 import { useMemo } from "react";
-import { ProductTile } from "./product-tile.client";
+import { ProductCard } from "@theme/components/product-card";
 import { PaginationClient } from "./pagination.client";
 import { FiltersTriggerClient } from "./filters-trigger.client";
 import { FiltersOptionsClient } from "./filters-options.client";
@@ -76,7 +76,7 @@ export function ListingClient({
         ) : (
           <div data-product-grid className="grid grid-cols-2 gap-4 md:grid-cols-[repeat(var(--catalog-columns),minmax(0,1fr))]">
             {products.map((product) => (
-              <ProductTile key={product.sku ?? "no-sku-error"} product={product} />
+              <ProductCard key={product.sku ?? "no-sku-error"} product={product} />
             ))}
           </div>
         )}

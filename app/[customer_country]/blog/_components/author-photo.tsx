@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { cn } from "@/lib/utils";
-import { MediaImage } from "@/components/ui/media-image.client";
+import { Media } from "@entirius/storefront-sdk/components/media";
 import type { BlogAuthor } from "@/utils/NORMALIZERS/blog-post.normalizer";
 
 const SIZES = { md: { px: 56, className: "size-14 text-lg" }, lg: { px: 128, className: "size-32 text-4xl" } };
@@ -13,7 +13,7 @@ export function AuthorPhoto({ author, size = "md" }: { author: Pick<BlogAuthor, 
   const { px, className } = SIZES[size];
   if (author.photo) {
     return (
-      <MediaImage
+      <Media
         src={author.photo}
         alt={author.name}
         width={px}

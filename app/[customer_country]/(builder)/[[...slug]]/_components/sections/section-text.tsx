@@ -4,7 +4,7 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
-import { SanitizeHTML } from "@/components/ui/sanitize-html";
+import { RichText } from "@entirius/storefront-sdk/components/rich-text";
 import { CmsButtons, type CmsButtonData } from "../cms-button";
 
 // Title + description + a grid of tiles.
@@ -37,7 +37,7 @@ export function SectionShell({
           <div data-section-intro className="flex flex-col gap-1">
             {title && <h2 className="text-3xl md:text-4xl">{title}</h2>}
             {description && (
-              <SanitizeHTML html={description} className="text-muted-foreground" />
+              <RichText html={description} className="text-muted-foreground" />
             )}
           </div>
           <CmsButtons buttons={custom_buttons} variant="outline" />

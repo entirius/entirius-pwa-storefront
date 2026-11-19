@@ -3,8 +3,8 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { cn } from "@/lib/utils";
-import { SanitizeHTML } from "@/components/ui/sanitize-html";
-import { MediaImage } from "@/components/ui/media-image.client";
+import { RichText } from "@entirius/storefront-sdk/components/rich-text";
+import { Media } from "@entirius/storefront-sdk/components/media";
 import { CmsButtons, type CmsButtonData } from "../cms-button";
 import { hero_desktop_sizes, is_full_width } from "../cms-width";
 import { normalize_image_source, type CmsImagesSet } from "../cms-image";
@@ -73,7 +73,7 @@ export default function TileHero({
             <h2 className={cn("text-3xl leading-tight @5xl:text-5xl", style.text)}>{title}</h2>
           )}
           {description && (
-            <SanitizeHTML html={description} className={cn("max-w-md @3xl:text-lg", style.muted)} />
+            <RichText html={description} className={cn("max-w-md @3xl:text-lg", style.muted)} />
           )}
           <div className="pt-2">
             <CmsButtons
@@ -92,7 +92,7 @@ export default function TileHero({
           )}
         >
           {mobile && (
-            <MediaImage
+            <Media
               src={mobile.uri}
               alt={mobile.alt}
               fill
@@ -101,7 +101,7 @@ export default function TileHero({
             />
           )}
           {desktop && (
-            <MediaImage
+            <Media
               src={desktop.uri}
               alt={desktop.alt}
               fill

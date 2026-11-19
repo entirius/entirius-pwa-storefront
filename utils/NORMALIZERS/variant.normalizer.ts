@@ -5,13 +5,7 @@
 import { NORM_MEDIA_DATA } from "@/utils/NORMALIZERS/media.normalizer";
 import { NORM_PRICE_DATA } from "@/utils/NORMALIZERS/price.normalizer";
 import type { Price } from "@/utils/NORMALIZERS/price.normalizer";
-
-// color_hash: "#RGB" / "#RRGGBB" from the option's extension, null for a pattern or a text option.
-type VariantOption = { value: string; label: string; color_hash: string | null };
-
-// One axis of a configurable product (size, colour, ...). Feature names come from the backend.
-// swatch: the API's widget_type is "Swatch_Visual" (colours), so options with a color_hash draw as swatches.
-type VariantAxis = { idx: string; label: string; swatch: boolean; options: VariantOption[] };
+import type { VariantAxis, VariantOption } from "@entirius/storefront-sdk/product";
 
 type Variant = {
   sku: string;

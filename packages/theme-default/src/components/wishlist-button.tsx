@@ -8,15 +8,11 @@ import * as React from "react";
 import { Heart } from "lucide-react";
 import { cva, type VariantProps } from "class-variance-authority";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@theme/lib/utils";
 import { Button, buttonVariants } from "@theme/ui/button";
-import { useWishlistStore, type WishlistItem } from "@/stores/wishlist.store";
-import { toggle_on_account } from "@/stores/wishlist-sync";
-import { dismiss_notice, notify } from "@/stores/notices.store";
-import { open_wishlist } from "@/stores/wishlist-sheet.store";
+import type { WishlistItem } from "@entirius/storefront-sdk/product";
+import { useWishlist } from "@entirius/storefront-sdk/storefront";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
-import { useAuth } from "@/providers/auth.provider";
-import { useHydrated } from "@/lib/use-hydrated";
 
 // ─── variants ────────────────────────────────────────────────────────────────
 
@@ -85,28 +81,13 @@ const WishlistButton = React.forwardRef<HTMLButtonElement, WishlistButtonProps>(
     ref
   ) => {
     const { t } = useI18n();
-    const mounted = useHydrated();
-
-    const storeActive = useWishlistStore((s) => (sku ? s.has(sku) : false));
-    const toggle = useWishlistStore((s) => s.toggle);
-    const { isLoggedIn } = useAuth();
-    const isActive = mounted ? (sku ? storeActive : isActiveProp) : false;
+    const wishlist = useWishlist(sku, item);
+    const isActive = wishlist.mounted ? (sku ? wishlist.active : isActiveProp) : false;
 
     const isIconOnly = size === "icon" || size === "icon-sm" || size === "icon-lg" || size === "icon-xs";
 
-    // Signed in, the account keeps the list too. Saving says so with a way to the list; a save the account
-    // refuses takes that notice back (toggle_on_account shows the error).
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-      if (sku && item) {
-        const saved = storeActive
-          ? null
-          : notify({ message: "wishlist.added", action: { label: "wishlist.view", run: open_wishlist } });
-        if (isLoggedIn) {
-          void toggle_on_account(sku, item).then((ok) => {
-            if (!ok && saved !== null) dismiss_notice(saved);
-          });
-        } else toggle(sku, item);
-      }
+      wishlist.toggle();
       onClick?.(e);
     };
 

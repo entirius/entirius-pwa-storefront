@@ -46,7 +46,7 @@ const eslintConfig = defineConfig([
     },
   },
   {
-    files: ["packages/**/*.{ts,tsx}", "theme/**/*.{ts,tsx}"],
+    files: ["packages/**/*.{ts,tsx}", "theme/**/*.{ts,tsx}", "tests/theme-example/**/*.{ts,tsx}"],
     rules: {
       "no-restricted-imports": ["error", { patterns: [{ group: ["@/*"], message: NO_CORE_IMPORT }] }],
     },

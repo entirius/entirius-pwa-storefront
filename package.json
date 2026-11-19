@@ -34,7 +34,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:theme": "node tests/theme-example/run-e2e.mjs"
   },
   "dependencies": {
     "@entirius/brand-tokens": "github:entirius/entirius-pwa-brand-tokens#v0.1.0",

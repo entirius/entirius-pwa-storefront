@@ -8,6 +8,8 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@entirius/brand-tokens/tokens.css";
+/* An installed theme (gitignored, so not found by Tailwind's own scan). */
+@source "../theme";
 
 @custom-variant dark (&:where(.dark, .dark *));
 /* Inside an out-of-stock product tile or search row (data-stock="out"): dimmed picture, muted text. Scoped to the

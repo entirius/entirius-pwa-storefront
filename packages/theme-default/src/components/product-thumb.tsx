@@ -2,9 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import { MediaImage } from "@/components/ui/media-image.client";
-import { cn } from "@/lib/utils";
-import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
+import { Media } from "@entirius/storefront-sdk/components/media";
+import { cn } from "@theme/lib/utils";
 
 // A product picture in a line (cart, checkout summary, search row): the product ratio, one
 // radius, the placeholder without a picture. The width comes in className (w-16, w-20 md:w-24…), `sizes` must match.
@@ -21,7 +20,7 @@ export function ProductThumb({
 }) {
   return (
     <div className={cn("relative aspect-product shrink-0 self-start overflow-hidden rounded-md bg-muted", className)}>
-      <MediaImage src={src ?? image_placeholder} alt={alt} fill sizes={sizes} className="object-cover" />
+      <Media src={src} alt={alt} fill sizes={sizes} className="object-cover" />
     </div>
   );
 }

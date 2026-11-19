@@ -8,7 +8,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
-import { ProductTile } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-tile.client";
+import { ProductCard } from "@theme/components/product-card";
 import { SectionShell } from "./section-text";
 import { ProductRail } from "./product-rail.client";
 import { ProductTileSkeleton } from "../tiles/tile-product.client";
@@ -45,7 +45,7 @@ export default function SectionProductSliderCategory({
           ? Array.from({ length: Math.min(4, CMS_CATEGORY_PRODUCTS_LIMIT) }, (_, i) => (
               <ProductTileSkeleton key={i} />
             ))
-          : products?.map((product) => <ProductTile key={product.sku} product={product} />)}
+          : products?.map((product) => <ProductCard key={product.sku} product={product} />)}
       </ProductRail>
     </SectionShell>
   );

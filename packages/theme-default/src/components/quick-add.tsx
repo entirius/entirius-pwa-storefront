@@ -8,7 +8,8 @@ import { Check, Plus } from "lucide-react";
 import { Button } from "@theme/ui/button";
 import { Spinner } from "@theme/ui/spinner";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
-import { useQuickAdd, type QuickAddItem } from "./use-quick-add";
+import type { QuickAddItem } from "@entirius/storefront-sdk/product/card";
+import { useQuickAdd } from "@entirius/storefront-sdk/storefront";
 
 // "+" on a product card: one unit into the cart.
 export function QuickAdd({ item }: { item: QuickAddItem }) {

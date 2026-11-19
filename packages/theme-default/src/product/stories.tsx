@@ -2,12 +2,15 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import { SanitizeHTML } from "@/components/ui/sanitize-html";
-import type { Story } from "@/utils/NORMALIZERS/product.normalizer";
+"use client";
 
-// Long-text attributes, one section each after the specification (see is_story in lib/rich-html.ts).
-export function ProductStories({ stories }: { stories: Story[] }) {
-  return stories.map((story) => (
+import { RichText } from "@entirius/storefront-sdk/components/rich-text";
+import { useProductPage } from "@entirius/storefront-sdk/product/page";
+
+// Long-text attributes (the core picks them), one section each after the specification.
+export function ProductStories() {
+  const { product } = useProductPage();
+  return product.stories.map((story) => (
     <section
       key={story.idx}
       data-product-story={story.idx}
@@ -17,7 +20,7 @@ export function ProductStories({ stories }: { stories: Story[] }) {
       <h2 id={`story-${story.idx}`} className="text-2xl md:text-3xl">
         {story.name}
       </h2>
-      <SanitizeHTML html={story.html} new_tab_links className="text-muted-foreground" />
+      <RichText html={story.html} new_tab_links className="text-muted-foreground" />
     </section>
   ));
 }

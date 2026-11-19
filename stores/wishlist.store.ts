@@ -4,18 +4,8 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { stored_price, type Price } from "@/utils/NORMALIZERS/price.normalizer";
-
-type WishlistItem = {
-  sku: string;
-  name: string;
-  url_key: string;
-  price: Price | null;
-  // Missing on items saved before the type was kept.
-  product_type?: string;
-  description: string;
-  media: { uri: string; width: number; height: number }[][];
-};
+import { stored_price } from "@/utils/NORMALIZERS/price.normalizer";
+import type { WishlistItem } from "@entirius/storefront-sdk/product";
 
 type WishlistStore = {
   items: Record<string, WishlistItem>;

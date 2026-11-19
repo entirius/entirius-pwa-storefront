@@ -4,25 +4,16 @@
 
 "use client";
 
-import { MediaImage } from "@/components/ui/media-image.client";
-import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
-import type { Product } from "@/utils/NORMALIZERS/product.normalizer";
-import { LinkDynamic } from "@/lib/link-dynamic";
-import { WishlistButton } from "@/components/ui/wishlist-button";
-import { ProductPrice } from "./product-price.client";
-import { ProductBadges } from "./product-badges";
-import { QuickAdd } from "./quick-add.client";
+import { Media } from "@entirius/storefront-sdk/components/media";
+import { Link } from "@entirius/storefront-sdk/components/link";
+import type { ProductCardData } from "@entirius/storefront-sdk/product/card";
+import { useProductCard } from "@entirius/storefront-sdk/storefront";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
-import { useSinglePiece } from "./use-single-piece";
-import { buy_block } from "@/lib/buy-rules";
+import { WishlistButton } from "@theme/components/wishlist-button";
+import { ProductPrice } from "@theme/components/product-price";
+import { ProductBadges } from "@theme/components/product-badges";
+import { QuickAdd } from "@theme/components/quick-add";
 
-const PLACEHOLDER_MEDIA = [{ uri: image_placeholder, width: 600, height: 600 }];
-
-// A listing product, or a wishlist item (compact), which lacks the stock, badge and quick-add fields.
-export type TileProduct = Pick<Product, "sku" | "name" | "url_key" | "price" | "media"> &
-  Partial<Pick<Product, "on_stock" | "description" | "product_type" | "badges" | "percent_off">>;
-
-// The description is HTML (the product page sanitizes and renders it); the tile shows it as plain text.
 const plain_text = (html: string) =>
   html
     .replace(/<[^>]*>/g, " ")
@@ -30,38 +21,24 @@ const plain_text = (html: string) =>
     .replace(/\s+/g, " ")
     .trim();
 
-export function ProductTile({
+export function ProductCard({
   product,
   variant = "default",
   action,
 }: {
-  product: TileProduct;
+  product: ProductCardData;
   variant?: "default" | "compact";
   // Compact only: a control under the price (the wishlist's "Move to cart").
   action?: React.ReactNode;
 }) {
   const { t } = useI18n();
-  // Only an explicit `false` counts as sold out: items without the field (wishlist) stay neutral.
-  const sold_out = product?.on_stock === false;
-  const media = product?.media?.[0] ?? PLACEHOLDER_MEDIA;
-  const firstMedia = Array.isArray(media) ? media[0] : media;
   const compact = variant === "compact";
-  const single_piece = useSinglePiece(product?.sku, !compact && !sold_out);
-
-  const wishlistItem = {
-    sku: product.sku,
-    name: product.name,
-    url_key: product.url_key,
-    price: product.price,
-    product_type: product.product_type,
-    description: product.description ?? "",
-    media: Array.isArray(media) ? [media] : [[media]],
-  };
+  const { sold_out, image, single_piece, quick_add, wishlist_item } = useProductCard(product, compact);
 
   const wishlist = (
     <WishlistButton
       sku={product.sku}
-      item={wishlistItem}
+      item={wishlist_item}
       className={compact ? "absolute top-2 right-2" : "absolute top-2 right-2 z-raised"}
       variant={compact ? "ghost" : "secondary"}
       size={compact ? "icon-xs" : "icon-sm"}
@@ -71,15 +48,15 @@ export function ProductTile({
 
   if (compact) {
     return (
-      <LinkDynamic
+      <Link
         href={`/product/${product.url_key}`}
         data-product-tile
         data-stock={sold_out ? "out" : "in"}
         className="grid grid-cols-[5rem_1fr] gap-3 rounded-xl bg-card bg-gradient-card p-2 group relative"
       >
         <div className="relative w-20 aspect-product self-start rounded-md bg-muted overflow-hidden">
-          <MediaImage
-            src={firstMedia.uri}
+          <Media
+            src={image}
             alt={product.name}
             fill
             sizes="80px"
@@ -102,17 +79,12 @@ export function ProductTile({
           </span>
         )}
         {wishlist}
-      </LinkDynamic>
+      </Link>
     );
   }
 
-  // The "+" quick add when the rules of the type let it (the click asks the real-time stock). Sold out by the
-  // read model, a variant to choose or no price leaves only the link to the product page.
-  const can_quick_add =
-    buy_block(product.product_type, { quantity: sold_out ? 0 : undefined, price: product.price }) === null;
-
   return (
-    <LinkDynamic
+    <Link
       href={`/product/${product.url_key}`}
       data-product-tile
       data-stock={sold_out ? "out" : "in"}
@@ -121,8 +93,8 @@ export function ProductTile({
     >
       <div className="relative w-full aspect-product rounded-2xl bg-muted overflow-hidden">
         {wishlist}
-        <MediaImage
-          src={firstMedia.uri}
+        <Media
+          src={image}
           alt={product.name}
           sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
           fill
@@ -152,18 +124,8 @@ export function ProductTile({
       </div>
       <div data-product-tile-footer className="flex items-end justify-between gap-2 px-1 pb-1 unavailable:opacity-70">
         <ProductPrice price={product.price} sku={product.sku} />
-        {can_quick_add && product.price && (
-          <QuickAdd
-            item={{
-              sku: product.sku,
-              name: product.name,
-              url_key: product.url_key,
-              price: product.price,
-              media: Array.isArray(media) ? [media] : [[media]],
-            }}
-          />
-        )}
+        {quick_add && <QuickAdd item={quick_add} />}
       </div>
-    </LinkDynamic>
+    </Link>
   );
 }

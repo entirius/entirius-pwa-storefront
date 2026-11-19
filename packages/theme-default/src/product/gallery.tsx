@@ -7,16 +7,21 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@theme/ui/button";
-import { MediaImage } from "@/components/ui/media-image.client";
-import { cn } from "@/lib/utils";
+import { Media } from "@entirius/storefront-sdk/components/media";
+import { cn } from "@theme/lib/utils";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
-import { GalleryViewer } from "./gallery-viewer.client";
-import { scroll_behavior, slide_index, type GalleryMedia } from "./gallery-utils";
+import { useProductPage } from "@entirius/storefront-sdk/product/page";
+import { GalleryViewer } from "@theme/product/gallery-viewer";
+import { scroll_behavior, slide_index } from "@theme/product/gallery-utils";
 
 // Phone: a swipeable scroll-snap row with a "3 / 12" counter. Desktop: the same row plus arrows and a thumbnail
 // strip. A tap / click opens the full-screen viewer. Slides are fixed square boxes: nothing jumps while loading.
-export function Gallery({ media, name }: { media: GalleryMedia; name: string }) {
+export function ProductGallery() {
   const { t } = useI18n();
+  const {
+    media,
+    product: { name },
+  } = useProductPage();
   const track = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
   const [viewer, setViewer] = useState(false);
@@ -61,7 +66,7 @@ export function Gallery({ media, name }: { media: GalleryMedia; name: string }) 
               aria-label={t("product.gallery_open", { number: i + 1 })}
               className="relative aspect-product w-full shrink-0 cursor-zoom-in snap-center snap-always overflow-hidden"
             >
-              <MediaImage
+              <Media
                 src={variants[0].uri}
                 alt={t("product.image", { name, number: i + 1 })}
                 fill
@@ -123,7 +128,7 @@ export function Gallery({ media, name }: { media: GalleryMedia; name: string }) 
               )}
             >
               {/* One of five columns in the half-width gallery: about a tenth of the viewport, at most 128px. */}
-              <MediaImage src={variants[0].uri} alt="" fill sizes="(min-width: 1280px) 128px, 10vw" className="object-cover" />
+              <Media src={variants[0].uri} alt="" fill sizes="(min-width: 1280px) 128px, 10vw" className="object-cover" />
             </button>
           ))}
         </div>

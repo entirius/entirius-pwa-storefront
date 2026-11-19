@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import { SanitizeHTML } from "@/components/ui/sanitize-html";
+import { RichText } from "@entirius/storefront-sdk/components/rich-text";
 import { CmsButtons, type CmsButtonData } from "../cms-button";
 
 // Text tile: title, rich description, buttons.
@@ -19,7 +19,7 @@ export default function TileTxtBtn({
     <div className="flex h-full flex-col gap-3 rounded-3xl bg-card bg-gradient-card p-6 md:p-8">
       {title && <h3 className="text-lg">{title}</h3>}
       {description && (
-        <SanitizeHTML html={description} className="text-muted-foreground" />
+        <RichText html={description} className="text-muted-foreground" />
       )}
       {custom_buttons?.length ? (
         <div className="mt-auto pt-2">

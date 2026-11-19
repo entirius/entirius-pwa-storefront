@@ -8,8 +8,8 @@ import { useHydrated } from "@/lib/use-hydrated";
 import { Trash2 } from "lucide-react";
 
 import { Button } from "@theme/ui/button";
-import { ProductThumb } from "@/components/ui/product-thumb";
-import { price_lines } from "@/lib/i18n/price-lines";
+import { ProductThumb } from "@theme/components/product-thumb";
+import { price_lines } from "@entirius/storefront-sdk/i18n/price-lines";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { useAuth } from "@/providers/auth.provider";
 import { QuantityStepper } from "@theme/ui/quantity-stepper";

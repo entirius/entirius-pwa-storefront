@@ -74,7 +74,7 @@ categories and phrases stay as the API sends them.
 pagination, Omnibus lines) with `{ search: q, page, page_size, ...q_/s_/r_ }` instead of `{ category }`.
 
 - **Source: `products/?search=`, not `search/`.** Same matches in the same order (relevance) as the sheet, but in
-  the catalog shape, so `catalog_query` / `NORM_PRODUCTS_DATA` / `ProductTile` work unchanged; `q_`/`r_`/`s_` and
+  the catalog shape, so `catalog_query` / `NORM_PRODUCTS_DATA` / `ProductCard` work unchanged; `q_`/`r_`/`s_` and
   `page`/`page_size` combine with it. It carries no `total`, so the heading names the phrase, not a count.
 - **Filter counts:** `options/` takes no `search`, so its counts are the whole channel's. On the search page
   (`filters_query` with `options.search`) only the zeros are kept (no result can have that value); positive counts

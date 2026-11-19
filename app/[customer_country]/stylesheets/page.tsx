@@ -7,7 +7,7 @@
 import { useState } from "react";
 import { Search, Mail, Eye, DollarSign } from "lucide-react";
 import type { VariantAxis } from "@/utils/NORMALIZERS/variant.normalizer";
-import { VariantPicker } from "@/app/[customer_country]/(product)/product/[product_url_key]/_components/variant-picker.client";
+import { VariantPicker } from "@theme/product/variant-picker";
 
 import { Button } from "@theme/ui/button";
 import { Input } from "@theme/ui/input";
@@ -49,7 +49,7 @@ import {
   InputGroupText,
   InputGroupTextarea,
 } from "@theme/ui/input-group";
-import { WishlistButton } from "@/components/ui/wishlist-button";
+import { WishlistButton } from "@theme/components/wishlist-button";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 

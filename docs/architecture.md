@@ -128,8 +128,9 @@ All pages live under `app/[customer_country]/`. The `ct` cookie (set by middlewa
 | Tier | Location | Purpose |
 |------|----------|---------|
 | Theme | `packages/theme-default/src/ui/` | Base primitives (Button, Input, Sheet, Carousel), imported as `@theme/ui/<name>`. Added via shadcn, see [styling](styling.md) |
-| Domain UI | `components/ui/` | Media, rich text, wishlist button: move into the theme with their SDK hooks |
-| Shared | `lib/` | Cross-page components (PrefetchBoundary, LinkDynamic) |
+| Theme components | `packages/theme-default/src/components/`, `src/product/` | Product card, price, badges, wishlist button; the product page and its parts. `@theme/components/<name>`, `@theme/product/<part>` |
+| Domain UI | `components/ui/` | `TokenLinks` (consent texts of the forms): moves with the forms |
+| Shared | `lib/` | Cross-page components (PrefetchBoundary, LinkDynamic); `lib/storefront/` fills the SDK's `Storefront` |
 | Layout | `app/_components/layout/` | Header, navigation, search, cart/wishlist/account sheets |
 | Page feature | `app/[customer_country]/.../_components/` | Co-located with owning page (filters, product tile, listing) |
 
@@ -141,7 +142,23 @@ Client components use `.client.tsx` suffix. Server components have no suffix.
 else `packages/theme-default/src/<path>`. A theme overrides a component by shipping a file at the same path with the
 same exports; everything else comes from the default theme. Components inside the default theme import each other
 through `@theme/*` too, so an override reaches them (a theme's `Button` is the one in the default `QuantityStepper`).
-`theme/` is gitignored: a shop build or the theme's dev server puts it there.
+`theme/` is gitignored: a shop build or the theme's dev server puts it there. `app/globals.css` has `@source "../theme"`
+for its classes.
+
+A theme never imports the core. What it needs from it comes through `@entirius/storefront-sdk`:
+
+- **Types** of what it renders (`/product`, `/product/card`): the shapes the normalizers produce, not raw API data.
+- **`Storefront`** (`/storefront`): hooks and settings the core lends at run time (`useWishlist`, `useProductCard`,
+  `useQuickAdd`, `useOmnibus`, the picture origin, the localized link). `lib/storefront/storefront.client.tsx` fills
+  it once in the root layout; SDK components use it (`Media`, `Link`; `RichText` sanitizes on its own).
+- **A page model** per page (`/product/page`): the core works out the page (data, real-time stock, buy rules,
+  actions) in `ProductPageRuntime`, and every part of the template reads it with `useProductPage()`.
+
+A page template is an arrangement of named parts: `@theme/product/product-page` puts `gallery`, `header`, `price`,
+`stock-status`, `variant-picker`, `buy-box`, `description`, `specs`, `stories`, `related` and `sticky-buy-bar` in
+place. Since a part reads the model itself, a theme replaces one part, the arrangement, or both. Forms with logic of
+their own (enquiry, back-in-stock, notify about a similar product) come from the core whole, in `blocks`. Files in
+`packages/` carry no `.client` suffix: the path is the contract.
 
 ## State Management
 

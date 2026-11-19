@@ -4,7 +4,7 @@
 
 import React from "react";
 import { Accordion } from "@theme/ui/accordion";
-import { SanitizeHTML } from "@/components/ui/sanitize-html";
+import { RichText } from "@entirius/storefront-sdk/components/rich-text";
 import { CmsButtons, type CmsButtonData } from "../cms-button";
 
 // FAQ-style list: every `tile-accordion` child is one item.
@@ -26,7 +26,7 @@ export default function SectionAccordion({
         {(title || description || custom_buttons?.length) && (
           <header className="flex flex-col gap-3">
             {title && <h2 className="text-3xl md:text-4xl">{title}</h2>}
-            {description && <SanitizeHTML html={description} className="text-muted-foreground" />}
+            {description && <RichText html={description} className="text-muted-foreground" />}
             <CmsButtons buttons={custom_buttons} variant="outline" />
           </header>
         )}

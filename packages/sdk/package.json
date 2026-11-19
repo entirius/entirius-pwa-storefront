@@ -12,9 +12,19 @@
   "exports": {
     "./i18n": "./src/i18n/translate.ts",
     "./i18n/client": "./src/i18n/client.tsx",
-    "./i18n/messages/*": "./src/i18n/messages/*.ts"
+    "./i18n/price-lines": "./src/i18n/price-lines.ts",
+    "./i18n/messages/*": "./src/i18n/messages/*.ts",
+    "./storefront": "./src/storefront.tsx",
+    "./components/*": "./src/components/*.tsx",
+    "./product": "./src/product/types.ts",
+    "./product/card": "./src/product/card.ts",
+    "./product/page": "./src/product/page.tsx"
+  },
+  "dependencies": {
+    "isomorphic-dompurify": "^4.6.0"
   },
   "peerDependencies": {
+    "next": ">=16.0.0",
     "react": "^19.0.0"
   }
 }

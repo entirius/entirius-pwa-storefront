@@ -6,11 +6,10 @@
 import { useId } from "react";
 import { RadioGroup as RadioGroupPrimitive } from "radix-ui";
 import { RadioGroup } from "@theme/ui/radio-group";
-import { cn } from "@/lib/utils";
+import { cn } from "@theme/lib/utils";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
-import type { Price } from "@/utils/NORMALIZERS/price.normalizer";
-import type { VariantAxis } from "@/utils/NORMALIZERS/variant.normalizer";
-import { ProductPrice } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-price.client";
+import type { VariantAxis } from "@entirius/storefront-sdk/product";
+import { useProductPage } from "@entirius/storefront-sdk/product/page";
 
 type PickerProps = {
   axes: VariantAxis[];
@@ -93,20 +92,9 @@ export function VariantPicker({ axes, selection, choose, is_available, sold_out_
 }
 
 // The product price until a variant is chosen ("from <lowest>" when variants differ), then the variant's.
-export function VariantPrice({
-  price,
-  from,
-  large = false,
-}: {
-  price: Price | null;
-  from: boolean;
-  large?: boolean;
-}) {
-  const { t } = useI18n();
-  return (
-    <div className="flex items-baseline gap-1.5">
-      {from && <span className="text-sm text-muted-foreground">{t("product.price_from")}</span>}
-      <ProductPrice price={price} large={large} />
-    </div>
-  );
+
+// A configurable product's options (size, colour, ...); nothing for other types.
+export function ProductVariantPicker() {
+  const { variants } = useProductPage();
+  return variants && <VariantPicker {...variants} />;
 }

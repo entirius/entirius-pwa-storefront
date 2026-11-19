@@ -6,6 +6,9 @@ import { NORM_MEDIA_DATA } from "@/utils/NORMALIZERS/media.normalizer";
 import { NORM_PRICE_DATA, type RawPrice } from "@/utils/NORMALIZERS/price.normalizer";
 import type { ProductCategory } from "@/lib/categories";
 import { is_story } from "@/lib/rich-html";
+import type { SpecGroup, SpecRow, Story } from "@entirius/storefront-sdk/product";
+
+export type { SpecGroup, SpecRow, Story };
 
 function main_media(product: { media?: unknown[]; main_image?: unknown }): unknown[] {
   if (product.media?.length) return product.media;
@@ -13,21 +16,7 @@ function main_media(product: { media?: unknown[]; main_image?: unknown }): unkno
 }
 
 // `parts` keeps the single values (with the idx the catalog filter knows) behind the joined `value`.
-export type SpecRow = {
-  idx: string | null;
-  name: string;
-  value: string;
-  parts: { label: string; value_idx: string | null }[];
-};
-
-export type SpecGroup = {
-  name: string | null; // null: attributes without a group
-  rows: SpecRow[];
-};
-
 // A long-text attribute shown as a section of its own after the specification.
-export type Story = { idx: string; name: string; html: string };
-
 type RawAttribute = {
   feature_idx?: string;
   feature_name?: string;

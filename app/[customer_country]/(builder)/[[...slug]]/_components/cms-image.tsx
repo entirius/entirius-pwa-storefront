@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { cn } from "@/lib/utils";
-import { MediaImage } from "@/components/ui/media-image.client";
+import { Media } from "@entirius/storefront-sdk/components/media";
 import { resolve_media_uri } from "@/utils/NORMALIZERS/media.normalizer";
 
 interface ImageSetItem {
@@ -75,7 +75,7 @@ export default function CmsImage({
 
   if (width && height) {
     return (
-      <MediaImage
+      <Media
         src={image_data.uri}
         alt={image_data.alt}
         width={width}
@@ -97,7 +97,7 @@ export default function CmsImage({
       className={cn("relative w-full overflow-hidden", className)}
       style={{ aspectRatio: ratio }}
     >
-      <MediaImage
+      <Media
         src={image_data.uri}
         alt={image_data.alt}
         fill

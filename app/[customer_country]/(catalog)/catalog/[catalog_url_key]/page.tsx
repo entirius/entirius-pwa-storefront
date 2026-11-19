@@ -11,7 +11,7 @@ import { get_server_api } from "@/lib/seo/server-api";
 import { build_catalog_metadata, build_catalog_jsonld } from "@/lib/seo/build";
 import { catalog_alternates } from "@/lib/seo/alternates";
 import { JsonLd } from "@/lib/seo/json-ld";
-import { SanitizeHTML } from "@/components/ui/sanitize-html";
+import { RichText } from "@entirius/storefront-sdk/components/rich-text";
 import { ExpandableText } from "@theme/ui/expandable-text.client";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 import { ListingClient } from "./_components/listing.client";
@@ -112,7 +112,7 @@ export default async function CatalogPage({ params, searchParams }: Props) {
                   className="mt-1 text-muted-foreground md:text-lg"
                   likely_long={category.description.replace(/<[^>]*>/g, "").length > LONG_DESCRIPTION}
                 >
-                  <SanitizeHTML html={category.description} />
+                  <RichText html={category.description} />
                 </ExpandableText>
               )}
             </div>

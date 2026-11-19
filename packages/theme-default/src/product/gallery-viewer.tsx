@@ -3,13 +3,14 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 "use client";
-import { MediaImage } from "@/components/ui/media-image.client";
+import { Media } from "@entirius/storefront-sdk/components/media";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal, flushSync } from "react-dom";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@theme/lib/utils";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
-import { scroll_behavior, slide_index, type GalleryMedia } from "./gallery-utils";
+import type { ProductMedia } from "@entirius/storefront-sdk/product";
+import { scroll_behavior, slide_index } from "@theme/product/gallery-utils";
 
 const MAX_SCALE = 4;
 const DOUBLE_TAP_MS = 300;
@@ -78,7 +79,7 @@ function ZoomSlide({ src, alt, active, eager }: { src: string; alt: string; acti
       }}
     >
       <div className="relative" style={{ width: `${scale * 100}%`, height: `${scale * 100}%` }}>
-        <MediaImage
+        <Media
           src={src}
           alt={alt}
           fill
@@ -100,7 +101,7 @@ export function GalleryViewer({
   start,
   onClose,
 }: {
-  media: GalleryMedia;
+  media: ProductMedia;
   name: string;
   start: number;
   onClose: (index: number) => void;

@@ -8,7 +8,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
-import { ProductTile } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-tile.client";
+import { ProductCard } from "@theme/components/product-card";
 import { cms_product_by_sku_query } from "../../api.query";
 
 export function ProductTileSkeleton() {
@@ -34,5 +34,5 @@ export default function TileProduct({ sku }: { sku?: string }) {
   if (!sku) return null;
   if (isLoading) return <ProductTileSkeleton />;
   if (!product) return null;
-  return <ProductTile product={product} />;
+  return <ProductCard product={product} />;
 }

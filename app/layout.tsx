@@ -12,6 +12,7 @@ import { cookies } from "next/headers";
 import { TanstackQueryProvider } from "@/providers/Tanstack-query.provider";
 import { AuthProvider } from "@/providers/auth.provider";
 import { I18nProvider } from "@entirius/storefront-sdk/i18n/client";
+import { StorefrontRuntime } from "@/lib/storefront/storefront.client";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 import { HeaderComponent } from "./_components/layout/header-component";
 import { LayoutSlot } from "./_components/layout-slots/layout-slot";
@@ -79,13 +80,15 @@ export default async function RootLayout({
     <html lang={language} className={COLOR_SCHEME === "dark" ? "dark" : undefined}>
       <body className={`${FONT_CLASSES} antialiased`}>
         <I18nProvider language={language} messages={messages}>
-          <TanstackQueryProvider>
-            {/* AuthGate reads the cookie inside Suspense so the dynamic read
-                doesn't block the static shell (Next 16 blocking-route rule). */}
-            <Suspense fallback={<PageLoading />}>
-              <AuthGate>{children}</AuthGate>
-            </Suspense>
-          </TanstackQueryProvider>
+          <StorefrontRuntime>
+            <TanstackQueryProvider>
+              {/* AuthGate reads the cookie inside Suspense so the dynamic read
+                  doesn't block the static shell (Next 16 blocking-route rule). */}
+              <Suspense fallback={<PageLoading />}>
+                <AuthGate>{children}</AuthGate>
+              </Suspense>
+            </TanstackQueryProvider>
+          </StorefrontRuntime>
         </I18nProvider>
         <ScrollToTop />
         <CookieConsent />

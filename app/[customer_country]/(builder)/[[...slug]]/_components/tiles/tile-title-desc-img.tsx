@@ -3,8 +3,8 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { BadgeCheck } from "lucide-react";
-import { SanitizeHTML } from "@/components/ui/sanitize-html";
-import { MediaImage } from "@/components/ui/media-image.client";
+import { RichText } from "@entirius/storefront-sdk/components/rich-text";
+import { Media } from "@entirius/storefront-sdk/components/media";
 import { normalize_image_source, type CmsImagesSet } from "../cms-image";
 
 // Icon + title + short text. Without an uploaded icon a neutral one stands in.
@@ -22,7 +22,7 @@ export default function TileTitleDescImg({
     <div className="flex items-center gap-4 rounded-3xl bg-card bg-gradient-card p-5">
       <div className="relative flex size-12 shrink-0 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
         {icon ? (
-          <MediaImage src={icon.uri} alt={icon.alt} fill sizes="48px" className="object-contain p-2" />
+          <Media src={icon.uri} alt={icon.alt} fill sizes="48px" className="object-contain p-2" />
         ) : (
           <BadgeCheck className="size-6" aria-hidden />
         )}
@@ -30,7 +30,7 @@ export default function TileTitleDescImg({
       <div className="flex flex-col gap-1">
         {title && <h3 className="text-lg">{title}</h3>}
         {description && (
-          <SanitizeHTML html={description} className="text-sm text-muted-foreground" />
+          <RichText html={description} className="text-sm text-muted-foreground" />
         )}
       </div>
     </div>

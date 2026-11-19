@@ -4,8 +4,8 @@
 
 "use client";
 
-import { ProductThumb } from "@/components/ui/product-thumb";
-import { price_lines } from "@/lib/i18n/price-lines";
+import { ProductThumb } from "@theme/components/product-thumb";
+import { price_lines } from "@entirius/storefront-sdk/i18n/price-lines";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
 import { UnitPrice } from "@/app/_components/layout/cart-price";

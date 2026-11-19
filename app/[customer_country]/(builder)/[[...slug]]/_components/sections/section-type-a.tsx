@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { cn } from "@/lib/utils";
-import { SanitizeHTML } from "@/components/ui/sanitize-html";
+import { RichText } from "@entirius/storefront-sdk/components/rich-text";
 import ChildrenWrapper, { type ChildrenLayout } from "../children-wrapper";
 import CmsButton, { type CmsButtonData } from "../cms-button";
 import { EnquiryForm } from "@/components/enquiry-form.client";
@@ -145,13 +145,13 @@ export default function SectionTypeA({
 
       {description && (
         <>
-          {enquiry?.before && <SanitizeHTML html={enquiry.before} {...description_props} />}
+          {enquiry?.before && <RichText html={enquiry.before} {...description_props} />}
           {enquiry ? (
             <EnquiryForm form_type={enquiry.form_type} slug={enquiry.slug} className="mt-4 max-w-xl" />
           ) : (
-            <SanitizeHTML html={description} {...description_props} />
+            <RichText html={description} {...description_props} />
           )}
-          {enquiry?.after && <SanitizeHTML html={enquiry.after} {...description_props} />}
+          {enquiry?.after && <RichText html={enquiry.after} {...description_props} />}
         </>
       )}
 

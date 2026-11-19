@@ -9,7 +9,7 @@ import { useSearchParams } from "next/navigation";
 import { Check, Copy } from "lucide-react";
 import { SITE_NAME } from "@/_CONFIG/app.config.json";
 import { Button } from "@theme/ui/button";
-import { SanitizeHTML } from "@/components/ui/sanitize-html";
+import { RichText } from "@entirius/storefront-sdk/components/rich-text";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { make_client_access } from "@/API/access/api.client-access";
 import { useCartStore } from "@/stores/cart.store";
@@ -141,7 +141,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 
 // The method text is whatever the shop wrote in the backend: plain text or HTML.
 function Description({ text }: { text: string }) {
-  if (/<[a-z][\s\S]*>/i.test(text)) return <SanitizeHTML html={text} />;
+  if (/<[a-z][\s\S]*>/i.test(text)) return <RichText html={text} />;
   return <span className="whitespace-pre-line">{text}</span>;
 }
 

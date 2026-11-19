@@ -11,7 +11,9 @@
   "sideEffects": false,
   "exports": {
     "./ui/*": "./src/ui/*.tsx",
-    "./lib/*": "./src/lib/*.ts"
+    "./lib/*": "./src/lib/*.ts",
+    "./components/*": "./src/components/*.tsx",
+    "./product/*": "./src/product/*.tsx"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
@@ -23,6 +25,7 @@
   },
   "peerDependencies": {
     "@entirius/storefront-sdk": "workspace:*",
+    "next": ">=16.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.0.0"

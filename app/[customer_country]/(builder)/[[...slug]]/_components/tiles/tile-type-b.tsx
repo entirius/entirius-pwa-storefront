@@ -10,7 +10,7 @@ import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
 import { API_PRODUCTS_ROUTE } from "@/API/api.routes";
 import { NORM_PRODUCTS_DATA } from "@/utils/NORMALIZERS/product.normalizer";
-import { ProductTile } from "@/app/[customer_country]/(catalog)/catalog/[catalog_url_key]/_components/product-tile.client";
+import { ProductCard } from "@theme/components/product-card";
 import type { CmsSectionBaseProps } from "@/types/cms.types";
 import type { ProductsResponse } from "../../api.query";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
@@ -73,5 +73,5 @@ export default function TileTypeB({ url_key }: TileTypeBProps) {
     );
   }
 
-  return <ProductTile product={product} />;
+  return <ProductCard product={product} />;
 }

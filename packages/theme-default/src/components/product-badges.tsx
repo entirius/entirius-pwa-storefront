@@ -2,10 +2,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import { cn } from "@/lib/utils";
-import { useI18n } from "@entirius/storefront-sdk/i18n/client";
+"use client";
 
-export type ProductBadge = { idx: string; name: string };
+import { cn } from "@theme/lib/utils";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
+import type { ProductBadge } from "@entirius/storefront-sdk/product";
 
 // Merchandising labels from the backend (`badges`: idx + display name) and the
 // percentage off a special price. Colours by idx; an unknown idx gets the

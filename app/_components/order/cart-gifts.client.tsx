@@ -9,10 +9,10 @@ import { Gift, Trash2 } from "lucide-react";
 
 import { Button } from "@theme/ui/button";
 import { FormError, FormHeading } from "@theme/ui/form";
-import { ProductThumb } from "@/components/ui/product-thumb";
+import { ProductThumb } from "@theme/components/product-thumb";
 import { QuantityStepper } from "@theme/ui/quantity-stepper";
 import { RadioGroup, RadioGroupItem } from "@theme/ui/radio-group";
-import { price_lines } from "@/lib/i18n/price-lines";
+import { price_lines } from "@entirius/storefront-sdk/i18n/price-lines";
 import { LinkDynamic } from "@/lib/link-dynamic";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
