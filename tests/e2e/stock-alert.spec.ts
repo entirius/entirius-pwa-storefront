@@ -10,8 +10,8 @@ import { login, test_account } from "./support/account";
 // "Tell me when it is back" needs the channel's stock-alerts key (cookie `sa_key`, from API_STOCK_ALERTS_KEY). The
 // UI tests set the cookie and answer the stock-alerts API and the stock themselves; the last test posts for real
 // and skips unless the channel has a key.
-// Seeded: captains-living-room-set has the series Orion (ENT-C001) and Nebula (ENT-S002); promenade-bench
-// (ENT-X002, no variants) is sold out.
+// Seeded: captains-living-room-set has several series, Nebula (ENT-S002) among them; promenade-bench (ENT-X002, no
+// variants) is sold out.
 
 const CONFIGURABLE = "/product/captains-living-room-set";
 const SOLD_OUT_SIZE = "ENT-S002";
@@ -25,12 +25,13 @@ async function with_key(page: Page) {
   await page.context().addCookies([{ name: "sa_key", value: "test-key", domain: host, path: "/" }]);
 }
 
-// Every asked SKU is in stock except the `sold_out` ones (left out of the answer, as the backend does).
-async function stock(page: Page, sold_out: () => string[]) {
+// Every asked SKU is in stock except the `sold_out` ones (left out of the answer, as the backend does); "all": none is.
+async function stock(page: Page, sold_out: () => string[] | "all") {
   await page.route(STOCK, (route) => {
     const skus = new URL(route.request().url()).searchParams.getAll("sku");
+    const out = sold_out();
     const body = Object.fromEntries(
-      skus.filter((sku) => !sold_out().includes(sku)).map((sku) => [sku, { quantity: 5, is_in_stock: true }]),
+      skus.filter((sku) => out !== "all" && !out.includes(sku)).map((sku) => [sku, { quantity: 5, is_in_stock: true }]),
     );
     return route.fulfill({ json: body });
   });
@@ -181,7 +182,7 @@ test.describe("answers", () => {
   });
 
   test("with every size sold out and none chosen, the area asks for a choice", async ({ page }) => {
-    await stock(page, () => ["ENT-C001", "ENT-S001", SOLD_OUT_SIZE]);
+    await stock(page, () => "all");
     await page.goto(CONFIGURABLE);
     await expect(page.locator('[data-stock-alert-state="choose"]')).toBeVisible();
     await sold_out_option(page).click();
