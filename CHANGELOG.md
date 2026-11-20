@@ -26,6 +26,12 @@ All notable changes to this project are documented here. The format follows
 - The cart page is a theme template: `@theme/cart/cart-page` arranges `cart-line`, `cart-summary` and `cart-bar`,
   reading the cart from `useCartPage()` (`CartPageRuntime` in the core). The page header, the order steps, the unit
   price and the summary card moved to `@theme/order/*` and serve checkout too; checkout works as before.
+- `entirius check` renders the theme: every page template and every part the core draws with props, on the SDK's
+  mocks (`@entirius/storefront-sdk/mocks`, the list in `@theme/lib/check`), with the theme's files in place and
+  outside Next; a failing part is named with its file and line. The page shell (`@theme/layout/page-shell`, with the
+  layout slots), the 404 page (`@theme/layout/not-found-page`, `not-found-search`), a CMS page's frame
+  (`@theme/cms/cms-page`) and the cart's problems (`@theme/order/cart-alerts`, from a model; the cart's
+  `blocks.alerts` is now `alerts`) are theme parts.
 - The forms are theme views with their logic in the core: `@theme/forms/<name>` (login, register, forgot and reset
   password, profile, change password, address sheet, newsletter, enquiry, notify about a similar product, back in
   stock, discount code) draws the fields and the layout from a model in props typed in the SDK (`/forms`); the core

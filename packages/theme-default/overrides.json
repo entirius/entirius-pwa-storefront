@@ -72,7 +72,8 @@
         "order/order-steps": "cart → checkout steps (also checkout)",
         "order/unit-price": "unit price, struck regular price, −N% (also checkout)",
         "order/summary-card": "the summary's frame (also checkout)",
-        "order/order-totals": "totals: subtotal, savings, delivery, total (also checkout)"
+        "order/order-totals": "totals: subtotal, savings, delivery, total (also checkout)",
+        "order/cart-alerts": "the cart’s problems (also checkout)"
       }
     },
     {
@@ -103,7 +104,8 @@
         "cms/tile-product": "a product in a CMS product section",
         "cms/product-rail": "product cards in a row or a grid",
         "cms/hero-carousel": "the hero’s carousel",
-        "cms/picture": "a CMS picture in its ratio box"
+        "cms/picture": "a CMS picture in its ratio box",
+        "cms/cms-page": "a CMS page’s frame and its hidden heading"
       }
     },
     {
@@ -192,6 +194,7 @@
       "title": "Header and footer",
       "where": "every page",
       "items": {
+        "layout/page-shell": "the frame of every page: slots, header, page, footer",
         "layout/header": "the whole header, the order of its parts",
         "layout/brand-mark": "the logo",
         "layout/megamenu": "category menu on desktop",
@@ -213,7 +216,9 @@
         "layout/header-icon": "shared look of the header icons",
         "layout/search-field": "search box shared by desktop and phones",
         "layout/search-product-row": "a product row in search suggestions",
-        "layout/wishlist-items": "the list inside the wishlist panel"
+        "layout/wishlist-items": "the list inside the wishlist panel",
+        "layout/not-found-page": "the 404 page: search, categories, way back",
+        "layout/not-found-search": "the 404 page’s search"
       }
     },
     {

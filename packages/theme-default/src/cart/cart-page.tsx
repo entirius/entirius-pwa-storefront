@@ -12,12 +12,13 @@ import { OrderSteps } from "@theme/order/order-steps";
 import { CartLine } from "@theme/cart/cart-line";
 import { CartSummary } from "@theme/cart/cart-summary";
 import { CartBar } from "@theme/cart/cart-bar";
+import { CartAlerts } from "@theme/order/cart-alerts";
 
 // The cart page: the default arrangement of its parts, in the same frame as checkout (title, steps, then a list
 // column and a 20rem summary column). Every part reads the cart from useCartPage().
 export function CartPage() {
   const { t } = useI18n();
-  const { ready, lines, pieces, logged_in, steps, blocks } = useCartPage();
+  const { ready, lines, pieces, logged_in, steps, alerts, blocks } = useCartPage();
   const has_lines = ready && lines.length > 0;
 
   return (
@@ -38,7 +39,7 @@ export function CartPage() {
         ) : (
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
             <section aria-label={t("cart.items_label")} className="flex min-w-0 flex-col gap-4">
-              {blocks.alerts}
+              <CartAlerts alerts={alerts} />
               <ul className="flex flex-col divide-y rounded-lg border px-4">
                 {lines.map((line) => (
                   <CartLine key={line.sku} line={line} />

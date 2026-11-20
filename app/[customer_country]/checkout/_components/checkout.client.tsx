@@ -16,7 +16,8 @@ import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { CheckoutStepper, type CheckoutStep } from "./checkout-stepper";
 import { CheckoutSummary } from "@theme/checkout/checkout-summary";
 import { useCheckoutSummary } from "./checkout-summary";
-import { CartAlerts } from "@/app/_components/order/cart-alerts";
+import { CartAlerts } from "@theme/order/cart-alerts";
+import { cart_alerts } from "@/app/_components/order/cart-alerts";
 import { EmptyCart, OrderPageHeader } from "@theme/order/page-header";
 import { AddressStep } from "./address-step";
 import { ShippingStep } from "./shipping-step";
@@ -108,12 +109,7 @@ export function CheckoutClient() {
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="min-w-0">
-          <CartAlerts
-            className="mb-4"
-            backend={backend}
-            sync_failed={!!error}
-            sync_message={t("checkout.sync_error")}
-          />
+          <CartAlerts className="mb-4" alerts={cart_alerts(backend, error ? t("checkout.sync_error") : null, t)} />
 
           {step === "address" ? (
             <AddressStep

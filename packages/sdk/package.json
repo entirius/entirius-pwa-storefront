@@ -27,6 +27,7 @@
     "./cart/page": "./src/cart/page.tsx",
     "./checkout": "./src/checkout/types.ts",
     "./forms": "./src/forms/types.ts",
+    "./mocks": "./src/mocks/index.tsx",
     "./account": "./src/account/types.ts",
     "./account/page": "./src/account/page.tsx",
     "./catalog/listing": "./src/catalog/listing.tsx",

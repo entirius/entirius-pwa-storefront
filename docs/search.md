@@ -57,7 +57,7 @@ categories and phrases stay as the API sends them.
 | `@theme/layout/search-results` | phrases / categories / products sections |
 | `@theme/layout/search-product-row` | compact product row with `ProductPrice` and `ProductThumb` |
 | `@theme/layout/header` | mounts both in the action row (each shows at its width) and anchors the desktop results |
-| `app/_components/not-found-search.client.tsx` | the same search inline on the 404 page |
+| `@theme/layout/not-found-search` | the same search inline on the 404 page (`useHeaderSearch()` from the SDK) |
 | `app/[customer_country]/search/page.tsx` | results page: the catalog listing over `products/?search=` |
 
 ## Behavior

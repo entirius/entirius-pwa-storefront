@@ -42,3 +42,7 @@ export type OrderTotalsModel = {
   total: string;
   vat: string | null;
 };
+
+// The cart's problems above the cart page's list and the checkout steps: a failed sync, and every line the backend
+// refuses (out of stock, over the limit...), as sentences.
+export type CartAlertsModel = { sync: string | null; problems: string[] };

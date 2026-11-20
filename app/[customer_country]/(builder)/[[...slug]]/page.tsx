@@ -8,6 +8,7 @@ import { PrefetchBoundary } from "@/lib/prefetch_boundary";
 import { decode_param } from "@/lib/route-params";
 import { get_server_api } from "@/lib/seo/server-api";
 import { load_static_page, pick_static_page, cms_content_prefetches } from "./api.query";
+import { CmsPage as CmsPageFrame } from "@theme/cms/cms-page";
 import { CmsDocument } from "./_components/cms-document";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 import { LAYOUT_ROUTE_PREFIX } from "@/app/_components/layout-slots/api.query";
@@ -75,12 +76,9 @@ export default async function BuilderPage({ params }: Props) {
       {/* The shop's Organization goes on the home page, where search engines look for it. */}
       {!slug?.length && <JsonLd data={build_organization_jsonld()} />}
       <PrefetchBoundary prefetches={await cms_content_prefetches(api, document.content)}>
-        <div data-cms-document className="flex flex-col gap-4">
-          {/* CMS documents have no title field for the page heading; the document name keeps one H1 per page for
-              screen readers and SEO. */}
-          {document.name && <h1 className="sr-only">{document.name}</h1>}
+        <CmsPageFrame name={document.name || null}>
           <CmsDocument content={document.content} />
-        </div>
+        </CmsPageFrame>
       </PrefetchBoundary>
     </>
   );

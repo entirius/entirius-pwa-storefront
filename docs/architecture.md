@@ -239,7 +239,10 @@ currencies, the CMS footer), prefetches the menu's top level and hands it over a
 `@theme/layout/header` and `footer` and their parts read it, and take the rest from `Storefront` hooks (menu branches,
 header search, account, cart count, wishlist sheet, notices, locale switch). Account forms load on first use through
 `Storefront.forms`; signing in to the account's wishlist runs in the core (`WishlistAccountSync`), whatever the theme
-shows.
+shows. `@theme/layout/page-shell` arranges the frame around every page (the layout slots, the header, `main`, the
+footer); the root layout reads the slots' CMS pages and hands them over rendered, or null. The 404 page is
+`@theme/layout/not-found-page` (the menu's top categories from the core) with `not-found-search`, the header's
+search hook inline.
 
 `docker/verdaccio/compose.yaml` runs a local npm registry on :4873 to publish `@entirius/*` before anything is public.
 `docker/try-themes.sh` does all of it from a checkout: the registry, both images and the four packages at their
@@ -262,7 +265,13 @@ for a theme with a look of its own: `tokens.css` and a product card) writes a th
   The groups and lines are `packages/theme-default/overrides.json`: a new file of the default theme needs its line
   there (`overrides.test.ts`). `eject <path>`: a copy of one file into `src/`.
 - `check`: `tsc` over the theme with the SDK and the default theme, imports only from the contract (SDK, `@theme/*`,
-  React, Next, the default theme's dependencies), an override keeps the exports of the file it replaces.
+  React, Next, the default theme's dependencies), an override keeps the exports of the file it replaces, and the
+  theme renders: every page template and every part the core draws with props (`@theme/lib/check`, on the SDK's
+  mocks, `/mocks`) is rendered with the theme's files in place, outside Next (`bin/check/`: Node hooks resolve
+  `@theme/*` like the core, transpile TSX with the theme's TypeScript and stand in for `next/link`, `next/image`,
+  `next/dynamic` and `next/navigation`). A part that throws is named with the template that reached it and its own
+  file and line; a part inside a sheet (the address form) renders nothing on the server, so only that it loads is
+  checked. `packages/theme-default/check.test.ts` renders the same checks on the default theme.
 
 The four packages release together (one version); `packages/create-theme/template.test.ts` keeps the template's
 React, Next and TypeScript at the core's versions.

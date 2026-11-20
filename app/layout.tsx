@@ -16,11 +16,11 @@ import { AuthProvider } from "@/providers/auth.provider";
 import { I18nProvider } from "@entirius/storefront-sdk/i18n/client";
 import { StorefrontRuntime } from "@/lib/storefront/storefront.client";
 import { get_i18n } from "@/lib/i18n/i18n.server";
-import { Header } from "@theme/layout/header";
-import { Footer } from "@theme/layout/footer";
+import { PageShell } from "@theme/layout/page-shell";
 import { LayoutRuntime } from "@/lib/layout/layout-runtime";
 import { WishlistAccountSync } from "@/lib/layout/wishlist-account-sync.client";
-import { LayoutSlot } from "./_components/layout-slots/layout-slot";
+import { load_layout_slot } from "./_components/layout-slots/api.query";
+import { CmsDocument } from "./[customer_country]/(builder)/[[...slug]]/_components/cms-document";
 import { ScrollToTop } from "./_components/scroll-to-top.client";
 import { CookieConsent } from "./_components/cookie-consent/cookie-consent.client";
 import { Suspense } from "react";
@@ -102,23 +102,29 @@ export default async function RootLayout({
 }
 
 // Seeds the client AuthProvider from the readable `at` cookie (SSR-correct, no
-// hydration flash), and wraps the header, the page and the layout slots so all share context.
+// hydration flash), and wraps the theme's page shell (header, the page, the layout slots, footer) so all share context.
 // The agreement definitions are prefetched here (shared cache): their routes are the legal links of the forms on
 // every page, and the review step shows them, so the client asks for them only when the prefetch failed.
 async function AuthGate({ children }: { children: React.ReactNode }) {
   const isLoggedIn = Boolean((await cookies()).get("at")?.value);
   const { language } = await get_i18n();
   const api = await get_server_api();
+  // The CMS pages of the layout slots (one cached request); without a page a slot renders nothing.
+  const [announcement, before_footer] = await Promise.all([
+    load_layout_slot("announcement", language),
+    load_layout_slot("before-footer", language),
+  ]);
   return (
     <AuthProvider initial={isLoggedIn}>
       <PrefetchBoundary prefetches={[agreement_definitions_query(api, language)]}>
         <LayoutRuntime>
           <WishlistAccountSync />
-          <LayoutSlot name="announcement" />
-          <Header />
-          <main className="mx-auto w-full max-w-(--page-max-width) p-4">{children}</main>
-          <LayoutSlot name="before-footer" />
-          <Footer />
+          <PageShell
+            announcement={announcement && <CmsDocument content={announcement.content} />}
+            before_footer={before_footer && <CmsDocument content={before_footer.content} />}
+          >
+            {children}
+          </PageShell>
         </LayoutRuntime>
       </PrefetchBoundary>
     </AuthProvider>

@@ -10,12 +10,14 @@
 //   entirius build [--tag <image>] [--config <dir>]   a production image of the shop with this theme
 //   entirius list [--all]                        what a theme can override, by where it shows; ✓ = in src/
 //   entirius eject <path>                        copies a default file to src/<path>
-//   entirius check                               types, the contract's imports, an override's exports
+//   entirius check                               types, the contract's imports, an override's exports, and every
+//                                                template rendered with this theme on the SDK's mocks
 import { spawnSync } from "node:child_process";
 import { copyFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, dirname, join, relative } from "node:path";
 import { createInterface } from "node:readline/promises";
+import { fileURLToPath } from "node:url";
 
 const ROOT = process.cwd();
 const SRC = join(ROOT, "src");
@@ -265,6 +267,16 @@ function check() {
   const types = existsSync(tsc) ? spawnSync(tsc, ["--noEmit", "-p", ROOT], { stdio: "inherit" }) : null;
   if (!types) problems.push("TypeScript is not installed: pnpm install");
   else if (types.status !== 0) problems.push("types: see the TypeScript errors above");
+
+  // Every page template and every part the core draws with props, rendered with this theme on the SDK's mocks.
+  if (types) {
+    const here = dirname(fileURLToPath(import.meta.url));
+    const render = spawnSync(process.execPath, ["--enable-source-maps", "--import", join(here, "check/register.mjs"), join(here, "check/render.mjs")], {
+      stdio: "inherit",
+      env: { ...process.env, ENTIRIUS_THEME_ROOT: ROOT },
+    });
+    if (render.status !== 0) problems.push("render: see the parts above that failed on the mocks");
+  }
 
   for (const problem of problems) console.error(problem);
   console.log(problems.length ? `${problems.length} problem(s).` : `OK: ${own.length} file(s) in src/.`);

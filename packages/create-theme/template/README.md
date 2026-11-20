@@ -12,7 +12,8 @@ holds only what looks different from the default theme.
   still comes from the default theme. Eject only what you change: a copy no longer gets the default theme's fixes.
 - `pnpm build`: a production image of the shop with this theme and `_CONFIG.dev` (`--tag`, `--config <dir>`).
 - `pnpm check`: types against the SDK, imports only from the theme's contract, an override keeps the exports of the
-  file it replaces.
+  file it replaces, and every page template and part renders with your files on sample data (the SDK's mocks); a part
+  that fails is named with its file and line.
 
 Data and actions come from `@entirius/storefront-sdk` (a page's model, `useProductCard`, `Media`, `RichText`,
 `Link`, `useI18n`), other theme components from `@theme/...`, never a path into the default theme.

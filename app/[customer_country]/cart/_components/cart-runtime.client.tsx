@@ -13,7 +13,7 @@ import { useAuth } from "@/providers/auth.provider";
 import { useCartSync } from "@/stores/use-cart-sync";
 import { unit_price } from "@/app/_components/order/cart-price";
 import { DiscountCode } from "@/app/_components/order/discount-code.client";
-import { CartAlerts } from "@/app/_components/order/cart-alerts";
+import { cart_alerts } from "@/app/_components/order/cart-alerts";
 import { GiftCard, GiftLine, gift_rule } from "@/app/_components/order/cart-gifts.client";
 import { useCartGifts, useGiftSetter } from "@/app/_components/order/use-cart-gifts";
 import { order_steps } from "@/app/[customer_country]/checkout/_components/checkout-stepper";
@@ -68,10 +68,10 @@ export function CartPageRuntime({ children }: { children: ReactNode }) {
     pieces: lines.reduce((n, line) => n + line.quantity, 0),
     logged_in: isLoggedIn,
     total: i18n.price(backend?.total_gross, currency),
+    alerts: cart_alerts(backend, error ? t("cart.sync_error") : null, t),
     totals: order_totals(backend, currency, i18n, { fetching: isFetching, delivery_at_checkout: true }),
     steps: order_steps(t, "cart", NO_STEPS_DONE),
     blocks: {
-      alerts: <CartAlerts backend={backend} sync_failed={!!error} sync_message={t("cart.sync_error")} />,
       gift_lines: (backend?.gifts ?? []).map((line) => {
         const { code, rule } = gift_rule(backend, rules, line.sku);
         return (
