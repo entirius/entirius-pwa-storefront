@@ -286,10 +286,18 @@ function check() {
   return problems.length ? 1 : 0;
 }
 
+// What `entirius`, `entirius --help` and `entirius <command> --help` print. A flag a command does not know is never
+// taken as a go: `build --help` used to start a build.
+const USAGE = `entirius dev [--port 3100] [--backend <url> --channel <code> --key <key>] [--image <ref>]
+entirius build [--tag <image>] [--config <folder with the shop's app.config.json>]
+entirius list [--all]
+entirius eject <path>
+entirius check`;
+const HELP = ["--help", "-h", "help"];
 const [command, ...rest] = process.argv.slice(2);
 const commands = { dev: () => dev(rest), build: () => build(rest), list: () => list(rest), eject: () => eject(rest[0]), check };
-if (!commands[command]) {
-  console.log("entirius dev [--port 3100] [--backend <url> --channel <code> --key <key>] | build [--tag <image>] [--config <dir>] | list [--all] | eject <path> | check");
-  process.exit(command ? 1 : 0);
+if (!commands[command] || rest.some((arg) => HELP.includes(arg))) {
+  console.log(USAGE);
+  process.exit(command && !HELP.includes(command) && !commands[command] ? 1 : 0);
 }
 process.exit(await commands[command]());
