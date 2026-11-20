@@ -13,8 +13,7 @@ Two kinds:
 - **A pre-release** (`1.2.3-beta.1`, `1.2.3-rc.1`) is a build to try: for a tester, or for a theme author who needs a
   change of the core and tries it on a client's staging before the release. It is a tag on `develop`, with no
   release commit and no pull request to `master`. On npm it is `next`: no `^` range of a theme picks it up, only its
-  exact version. (The Handbook puts every tag on `master` today; until it allows pre-release tags on `develop`, tag
-  a pre-release on `master` too.)
+  exact version. The Handbook's versioning page allows pre-release tags on `develop`.
 
 ## A release
 
@@ -39,6 +38,9 @@ Two kinds:
      anywhere; the packages carry provenance); a version that is on npm already is skipped;
    - `images`: the three images for `linux/amd64` and `linux/arm64` to `ghcr.io/entirius/storefront-<target>:<version>`,
      never `latest`.
+
+   The `npm` job waits for a reviewer of the repository's `npm` environment: on GitHub, Actions → the `publish` run →
+   Review deployments → `npm` → Approve deployment.
 
 5. Afterwards, from a machine with nothing of the repository: `pnpm create @entirius/theme@<version> check-it`,
    `pnpm install`, `pnpm check`, and `docker pull ghcr.io/entirius/storefront-dev:<version>` without a login.
@@ -115,7 +117,8 @@ npmjs.com, Settings → Trusted publishing → GitHub Actions:
 | Workflow filename | `publish.yml` |
 | Environment | `npm` |
 
-Then the GitHub release: `npm` skips a version that is on npm already, `images` pushes the images.
+Then the GitHub release: `npm` skips a version that is on npm already, `images` pushes the images. That release does
+not need the trusted publisher yet; the next version the workflow publishes does.
 
 In the repository's settings an environment named `npm` (its protection rules, such as a required reviewer, then
 guard every publication). Once the workflow has published, the packages' publishing access can require two-factor
