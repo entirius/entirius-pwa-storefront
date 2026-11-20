@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-/* Client theme. Override the values of the theme variables from app/globals.css here, for example:
+/* Client theme. Override the values of the theme variables here (the theme contract lists them), for example:
 
    :root {
      --primary: #1d4ed8;

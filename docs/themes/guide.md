@@ -36,7 +36,8 @@ pnpm install
 ```
 
 On the day of a platform release pnpm may still run the previous generator (it waits a day before it takes a new
-package, and caches the generator): name the version, `pnpm create @entirius/theme@0.1.0 my-theme`.
+package, and caches the generator): name the version, `pnpm create @entirius/theme@<version> my-theme` (for example
+`@0.1.0-alpha.9`).
 
 The `@entirius` packages from a registry other than npm (a mirror, a company proxy): the generator itself comes
 through the `.npmrc` of the folder you run `pnpm create` in, and `--registry` writes the same line into the new
@@ -72,8 +73,8 @@ starts the shop on http://localhost:3100. The core runs in the `storefront-dev` 
 foreground: Ctrl+C stops the shop and removes the container.
 
 Without a terminal (a script, a CI job, an editor's task) nobody can answer the questions: pass
-`--backend <url> --channel <code> --key <key>`. A key passed that way stays in your shell's history; the questions
-keep it out of it. The answers are written once: `_CONFIG.dev` exists from then on and `pnpm dev` starts straight
+`--backend <url> --channel <code> --key <key>`. A key passed that way stays in your shell's history and shows in the
+process list while the shop runs; the questions keep it out of both. The answers are written once: `_CONFIG.dev` exists from then on and `pnpm dev` starts straight
 away, so to point the theme at another backend edit `_CONFIG.dev` (or delete it and answer again). `_CONFIG.dev` is a whole shop configuration: change it any time (languages,
 countries, brand, see [configuration](../configuration.md)).
 
@@ -171,8 +172,10 @@ Packages, GitLab, Verdaccio...).
 A shop then names `@acme/theme-my-theme@1.3.0` in its build ([the shop guide](shop.md)). Every change is a new version;
 a published version is never changed.
 
-To see the theme as a production shop before that, `pnpm build` makes an image of the shop with this theme and
-`_CONFIG.dev` (`--tag <image>`, `--config <folder>` for another configuration); run it as in the shop guide.
+To see the theme as a production shop before that, `pnpm build` makes an image of the shop with this theme, tagged
+`<the theme folder's name>:local` (`--tag <image>` for another), and prints how to run it. It takes `_CONFIG.dev`, a
+configuration for development (developer tools on, links to `localhost:3100`): `--config <folder>` builds with a
+shop's configuration instead.
 
 ## 7. A new platform release
 

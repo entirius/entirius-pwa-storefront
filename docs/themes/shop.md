@@ -12,17 +12,17 @@ The core's template configuration comes out of the builder image:
 
 ```bash
 mkdir my-shop && cd my-shop
-docker run --rm --entrypoint sh -v "$PWD":/out ghcr.io/entirius/storefront-builder:<version> \
-  -c 'cp -r /app/_CONFIG.example /out/_CONFIG'
+docker run --rm --user "$(id -u):$(id -g)" --entrypoint sh -v "$PWD":/out \
+  ghcr.io/entirius/storefront-builder:<version> -c 'cp -r /app/_CONFIG.example /out/_CONFIG'
 ```
 
 In `_CONFIG` ([every setting](../configuration.md)), at least:
 
 | File | What to set |
 |---|---|
-| `app.config.json` | `API_BASE_URL`: the backend's public address. The browser calls it directly and the shop's server too, so it must be reachable from both (and allow the shop's address, CORS). `SITE_URL`: the shop's own public address (canonical links, the sitemap). `SITE_NAME`. **`DEBUG_MODE: false`** for a shop people use (the template and `_CONFIG.dev` have it on: developer tools and logs). |
+| `app.config.json` | `API_BASE_URL`: the backend's public address. The browser calls it directly and the shop's server too, so it must be reachable from both (and allow the shop's address, CORS). `SITE_URL`: the shop's own public address (canonical links, the sitemap). `SITE_NAME`. **`DEBUG_MODE: false`** for a shop people use (the template and `_CONFIG.dev` have it on: developer tools and logs). `MENU_CINFGURATION.CONFIG_QUERY.url_key`: the categories of the menu's top level (the template names `chairs` and `sofas` of the demo data). |
 | `channels.config.json` | One entry per channel the shop sells in, under the channel's code (the key, e.g. `"default-europe"`: the code of the channel in the backend): `CHANNEL_LABEL` (a name), `API_CHECKOUT_KEY`, and the optional keys that switch on contact forms, the newsletter, agreements and back-in-stock alerts. Delete the template's placeholder entry and the channels you do not sell in. |
-| `countries.config.json` | The countries the shop serves, each a key (`"pl"`; `"default"` serves every other visitor): `languages` and `default_language` (one of them), `currencies` and `default_currency`, `channels` and `default_channel` (codes from `channels.config.json`). Delete the template's example countries. |
+| `countries.config.json` | The countries the shop serves, each a key (`"pl"`; `"default"` serves every other visitor): `languages` and `default_language` (one of them), `currencies` and `default_currency`, `channels` and `default_channel` (codes from `channels.config.json`). Keep `default` (adapt it) and replace the template's example `uk` with the shop's countries. |
 | `brand/` | The logo, favicon and share image. |
 | `messages.config.json` | Optional: the shop's own wording of any interface text, by message key (the keys and the default texts: `node_modules/@entirius/storefront-sdk/src/i18n/messages/en.ts` in a theme). |
 | `theme.css` | Optional: the shop's own colour or shape on top of the theme (it loads after the theme's `tokens.css`). |
@@ -43,8 +43,8 @@ FROM ghcr.io/entirius/storefront-runtime:0.1.0
 COPY --from=build /app/out /app
 ```
 
-- The two `FROM` lines name the core's version, the same in both. Take the version of the theme's `@entirius/*`
-  packages.
+- The two `FROM` lines name the core's version, the same in both: the version of the theme's `@entirius/*`
+  packages itself, without the `^` of `package.json` (`pnpm list @entirius/storefront-sdk` in the theme shows it).
 - `storefront build <package>@<version>` installs the theme from its registry and builds the shop. The build needs
   no backend. The result, `/app/out`, is all the shop needs to run: the server, its static files and the
   configuration.
@@ -60,15 +60,22 @@ COPY --from=build /app/out /app
   ```
 
   A registry on your own machine is `@acme:registry=http://host.docker.internal:4873/` from inside the build (no
-  token line when it has no login). Pass the file as a build secret, so the token stays out of the image:
+  token line when it has no login). The build takes the file as a secret, so the token stays out of the image:
 
   ```dockerfile
+  FROM ghcr.io/entirius/storefront-builder:0.1.0 AS build
+  COPY _CONFIG /app/_CONFIG
   RUN --mount=type=secret,id=npmrc,target=/root/.npmrc storefront build @acme/theme-my-theme@1.3.0
+
+  FROM ghcr.io/entirius/storefront-runtime:0.1.0
+  COPY --from=build /app/out /app
   ```
 
   ```bash
   docker build --secret id=npmrc,src=build.npmrc -t my-shop:1 .
   ```
+
+  On Linux a registry on your machine also needs `--add-host host.docker.internal:host-gateway` on `docker build`.
 
 ## 3. Build and run
 

@@ -289,7 +289,7 @@ function check() {
 const [command, ...rest] = process.argv.slice(2);
 const commands = { dev: () => dev(rest), build: () => build(rest), list: () => list(rest), eject: () => eject(rest[0]), check };
 if (!commands[command]) {
-  console.log("entirius dev [--port 3100] [--backend <url> --channel <code> --key <key>] | build [--tag <image>] | list [--all] | eject <path> | check");
+  console.log("entirius dev [--port 3100] [--backend <url> --channel <code> --key <key>] | build [--tag <image>] [--config <dir>] | list [--all] | eject <path> | check");
   process.exit(command ? 1 : 0);
 }
 process.exit(await commands[command]());

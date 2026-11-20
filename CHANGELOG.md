@@ -99,6 +99,11 @@ All notable changes to this project are documented here. The format follows
   every `_CONFIG/` needs the file; `cp _CONFIG.example/fonts.ts _CONFIG/` keeps the default look.
 - A release skips a package version that is on npm already: the first version of each package goes out by hand
   ([releasing](docs/releasing.md)), and its release still pushes the images.
+- From a walkthrough of the theme and shop guides on `0.1.0-alpha.9`: the menu settings `MENU_CINFGURATION.TYPES` and
+  `MENU_CINFGURATION.CONFIG_QUERY` are documented, the template's example country `uk` defaults to one of its
+  languages (`en`), and the shop guide shows the whole `Dockerfile` for a private registry, the version without `^`
+  and the Linux flags (`--user` when copying the configuration out, `--add-host` for a registry on the host).
+
 ### Added
 
 - `docker/try-themes.sh`: the theme flow before anything is public, from a checkout: a local registry, the core's
