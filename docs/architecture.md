@@ -235,7 +235,7 @@ is an allowlist):
   `/app/theme`, runs `next build` with `STOREFRONT_OUTPUT=standalone` (Next's standalone server, `next.config.ts`) and
   puts the server, `.next/static`, `public/` and `_CONFIG` (read at run time: messages, brand files) in `/app/out`.
   The shop's image holds its configuration and keys: it is never public. Going back is running the previous image.
-- `storefront-runtime` (`--target runtime`): `node:22-slim` and the `storefront` command; `storefront start` runs the
+- `storefront-runtime` (`--target runtime`): `node:24-slim` and the `storefront` command; `storefront start` runs the
   standalone server on :3000 (`/app/server.js`, or `/app/out/server.js` in a single-stage image).
 - `storefront-dev` (`--target dev`): the same core running `storefront dev`, `next dev` on :3100 with a theme mounted
   at `/app/theme` and a configuration at `/app/_CONFIG` (else `_CONFIG.example`).

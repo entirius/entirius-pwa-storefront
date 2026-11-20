@@ -29,8 +29,7 @@ export function RegisterForm({
   const newsletter = useNewsletterAvailable();
   const api = useMemo(() => create_api(make_client_access()), []);
   const form = useForm<RegisterFormValues>({
-    // Same nominal zod type-brand cast as login-form (duplicate zod@4 in the tree).
-    resolver: zodResolver(register_schema as never),
+    resolver: zodResolver(register_schema),
     mode: "onBlur",
     defaultValues: {
       email: "",

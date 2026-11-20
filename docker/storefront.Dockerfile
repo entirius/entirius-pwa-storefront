@@ -16,7 +16,7 @@
 #
 # .dockerignore lists what goes in (allowlist): a new top-level source directory has to be added there.
 
-FROM node:22-slim AS core
+FROM node:24-slim AS core
 ENV NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app
 RUN npm install --global pnpm@10
@@ -40,7 +40,7 @@ FROM builder AS dev
 EXPOSE 3100
 CMD ["dev"]
 
-FROM node:22-slim AS runtime
+FROM node:24-slim AS runtime
 ENV NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends socat && rm -rf /var/lib/apt/lists/*

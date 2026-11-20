@@ -38,7 +38,7 @@
     "./hooks": "./src/hooks.ts"
   },
   "dependencies": {
-    "isomorphic-dompurify": "^4.6.0"
+    "isomorphic-dompurify": "^4.8.0"
   },
   "peerDependencies": {
     "next": ">=16.0.0",

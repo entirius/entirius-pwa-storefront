@@ -32,8 +32,7 @@ export function ProfileEditForm({
   const { t } = useI18n();
   const [pending, startTransition] = useTransition();
   const form = useForm<ProfileFormValues>({
-    // Same nominal zod type-brand cast used across the auth forms.
-    resolver: zodResolver(profile_schema as never),
+    resolver: zodResolver(profile_schema),
     mode: "onBlur",
     defaultValues: { firstname: profile.firstname, lastname: profile.lastname },
   });

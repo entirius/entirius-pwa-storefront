@@ -79,8 +79,7 @@ export function AddressStep({
   const [pending, startTransition] = useTransition();
 
   const form = useForm<AddressFormValues>({
-    // Same nominal zod type-brand cast as the auth forms (duplicate zod@4 in the tree).
-    resolver: zodResolver(address_schema as never),
+    resolver: zodResolver(address_schema),
     mode: "onBlur",
     defaultValues: empty_address_defaults,
   });

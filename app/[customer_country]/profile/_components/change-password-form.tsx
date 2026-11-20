@@ -25,8 +25,7 @@ export function ChangePasswordForm({
   const { t } = useI18n();
   const [pending, startTransition] = useTransition();
   const form = useForm<ChangePasswordFormValues>({
-    // Same nominal zod type-brand cast used across the auth forms.
-    resolver: zodResolver(change_password_schema as never),
+    resolver: zodResolver(change_password_schema),
     mode: "onBlur",
     defaultValues: { old_password: "", password: "", confirm_password: "" },
   });

@@ -26,8 +26,7 @@ export function ForgotPasswordForm({
   const { t } = useI18n();
   const [pending, startTransition] = useTransition();
   const form = useForm<ForgotPasswordFormValues>({
-    // See LoginForm for the cast.
-    resolver: zodResolver(forgot_password_schema as never),
+    resolver: zodResolver(forgot_password_schema),
     mode: "onBlur",
     defaultValues: { email: "" },
   });

@@ -26,8 +26,7 @@ export function ResetPasswordClient() {
   const [status, setStatus] = useState<"form" | "done" | "invalid">(() => (key ? "form" : "invalid"));
   const [pending, startTransition] = useTransition();
   const form = useForm<ResetPasswordFormValues>({
-    // See LoginForm for the cast.
-    resolver: zodResolver(reset_password_schema as never),
+    resolver: zodResolver(reset_password_schema),
     mode: "onBlur",
     defaultValues: { password: "", confirm_password: "" },
   });

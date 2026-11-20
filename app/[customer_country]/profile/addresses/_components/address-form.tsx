@@ -36,7 +36,7 @@ export function AddressFormSheet({
   const { options: countries, dialling } = useCountryOptions();
   const [pending, startTransition] = useTransition();
   const form = useForm<AddressFormValues>({
-    resolver: zodResolver(customer_address_schema as never),
+    resolver: zodResolver(customer_address_schema),
     mode: "onBlur",
     values: initial,
   });

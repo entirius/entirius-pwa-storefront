@@ -23,10 +23,11 @@ describe("sanitize_html", () => {
   });
 
   it("keeps markup hidden in a quoted attribute inert", () => {
-    // The `<img>` stays text inside `title`; the new-tab attributes land on the real tag.
+    // The `<img>` stays text inside `title` (serialized with `<` and `>` escaped, as browsers now do); the new-tab
+    // attributes land on the real tag.
     expect(
       sanitize_html('<a href="https://x.test" title="><img src=x onerror=alert(1)>">t</a>', { new_tab_links: true }),
-    ).toBe('<a href="https://x.test" title="><img src=x onerror=alert(1)>" target="_blank" rel="noopener">t</a>');
+    ).toBe('<a href="https://x.test" title="&gt;&lt;img src=x onerror=alert(1)&gt;" target="_blank" rel="noopener">t</a>');
   });
 
   it("removes the hook after the call", () => {

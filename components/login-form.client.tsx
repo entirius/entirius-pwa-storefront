@@ -33,9 +33,7 @@ export function LoginForm({
   const { t } = useI18n();
   const [pending, startTransition] = useTransition();
   const form = useForm<LoginFormValues>({
-    // zodResolver is correct at runtime; the cast bridges a nominal zod type-brand
-    // mismatch caused by eslint-config-next pulling a second zod@4 copy into the tree.
-    resolver: zodResolver(login_schema as never),
+    resolver: zodResolver(login_schema),
     mode: "onBlur",
     // DEBUG starts prefilled with the local test account; Clear empties it.
     defaultValues: DEBUG_MODE ? dummy_login_defaults : empty_login_defaults,

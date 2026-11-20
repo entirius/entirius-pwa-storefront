@@ -32,6 +32,12 @@ All notable changes to this project are documented here. The format follows
   the type packages, shadcn's stylesheet) moved from `devDependencies` to `dependencies`. Upgrade: a shop's
   `Dockerfile` gets the second stage (`FROM storefront-runtime:<version>`, `COPY --from=build /app/out /app`); a
   single-stage one still runs, as large as before.
+- Dependencies at their current versions: React 19.3.1, TanStack Query 5.108, Radix 1.8, Zustand 5.1, React Hook Form
+  7.92 with `@hookform/resolvers` 7 (the form schemas no longer need a cast), DOMPurify 3.4.18 through
+  `isomorphic-dompurify` 4.8 (it escapes `<` and `>` inside attribute values), ESLint 10, Vitest 5.1, Playwright 1.65;
+  `minimatch` is held at a patched version (GHSA-g3hv-75wg-m249, through `shadcn`). The images and CI run Node 24
+  (the core's `engines`: `>=24`); the workflow actions are at their current major versions. TypeScript stays at 6:
+  `typescript-eslint` does not support 7 yet.
 - A release of the theme platform is a GitHub release of a `v<version>` tag: `.github/workflows/publish.yml` checks the
   tag against the four packages, publishes them to npm through trusted publishing (with the `LICENSE`, under `next`
   for a prerelease) and pushes the core images for `linux/amd64` and `linux/arm64` to ghcr.io ([releasing](docs/releasing.md)).
