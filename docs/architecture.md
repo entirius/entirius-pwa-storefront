@@ -223,15 +223,20 @@ with their data in props, as content needs no browser JS:
 - A server part gets `t` as a prop; a function cannot reach the browser, so a client component inside one reads its
   words with `useI18n()`. A theme must not make a server part a client component (`t` would fail to serialize).
 
-The core also ships as two images (`docker/storefront.Dockerfile`, no configuration or data inside; `.dockerignore`
+The core also ships as three images (`docker/storefront.Dockerfile`, no configuration or data inside; `.dockerignore`
 is an allowlist):
 
-- `storefront-builder` (`--target builder`): the source with its dependencies and the `storefront` command
-  (`docker/storefront-entrypoint.sh`), the base of a shop's own image. A shop is a folder with a `Dockerfile`
-  (`FROM storefront-builder:<version>`, `COPY _CONFIG /app/_CONFIG`, `RUN storefront build @acme/theme@1.3.0`), its
-  `_CONFIG` and an `.npmrc` for the theme's registry: `storefront build` installs the theme package's `src/` at
-  `/app/theme` and runs `next build`, the image's default command is `storefront start` (`next start` on :3000). The
-  shop's image holds its configuration and keys: it is never public. Going back is running the previous image.
+- `storefront-builder` (`--target builder`): the source with its production dependencies (what `next build` needs,
+  `pnpm install --prod`: the test and lint tools stay out) and the `storefront` command
+  (`docker/storefront-entrypoint.sh`), where a shop is built. A shop is a folder with a two-stage `Dockerfile`
+  (`FROM storefront-builder:<version> AS build`, `COPY _CONFIG /app/_CONFIG`, `RUN storefront build
+  @acme/theme@1.3.0`, then `FROM storefront-runtime:<version>`, `COPY --from=build /app/out /app`), its `_CONFIG` and
+  a build secret `.npmrc` for a private theme registry: `storefront build` installs the theme package's `src/` at
+  `/app/theme`, runs `next build` with `STOREFRONT_OUTPUT=standalone` (Next's standalone server, `next.config.ts`) and
+  puts the server, `.next/static`, `public/` and `_CONFIG` (read at run time: messages, brand files) in `/app/out`.
+  The shop's image holds its configuration and keys: it is never public. Going back is running the previous image.
+- `storefront-runtime` (`--target runtime`): `node:22-slim` and the `storefront` command; `storefront start` runs the
+  standalone server on :3000 (`/app/server.js`, or `/app/out/server.js` in a single-stage image).
 - `storefront-dev` (`--target dev`): the same core running `storefront dev`, `next dev` on :3100 with a theme mounted
   at `/app/theme` and a configuration at `/app/_CONFIG` (else `_CONFIG.example`).
 
@@ -251,7 +256,7 @@ footer); the root layout reads the slots' CMS pages and hands them over rendered
 search hook inline.
 
 `docker/verdaccio/compose.yaml` runs a local npm registry on :4873 to publish `@entirius/*` before anything is public.
-`docker/try-themes.sh` does all of it from a checkout: the registry, both images and the four packages at their
+`docker/try-themes.sh` does all of it from a checkout: the registry, the three images and the four packages at their
 version, then prints the theme author's commands.
 
 A theme author never clones this repository. `pnpm create @entirius/theme <name>` (`packages/create-theme`, `--example`
@@ -264,7 +269,7 @@ for a theme with a look of its own: `tokens.css` and a product card) writes a th
   first run writes `_CONFIG.dev` from the image's `_CONFIG.example` and asks for the backend URL, the channel and its
   checkout key (or takes `--backend`, `--channel`, `--key`), then starts.
 - `build [--tag] [--config]`: a production image of the shop with this theme and `_CONFIG.dev`, on the
-  `storefront-builder` of the same version (`storefront build` with the theme copied in); the registry and a shop's own
+  `storefront-builder` of the same version, run on its `storefront-runtime` (`storefront build` with the theme copied in); the registry and a shop's own
   `Dockerfile` stay the way for real shops.
 - `list [--all]` (script `pnpm overrides`, `pnpm list` is pnpm's own): what a theme can override, grouped by where it
   shows in the shop with one line each, ✓ at the theme's copies; smaller parts and the UI elements only with `--all`.

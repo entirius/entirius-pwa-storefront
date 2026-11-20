@@ -1,7 +1,7 @@
 # Building and running a shop
 
 A shop is **one version of the core, one version of a theme and one configuration**, built into one Docker image.
-Its manifest is its `Dockerfile`: three lines name all three. There is no other file to keep in step.
+Its manifest is its `Dockerfile`: a few lines name all three. There is no other file to keep in step.
 
 Before you start: a theme package in a registry ([the theme guide](guide.md)), Docker, and the shop's backend
 (an Entirius platform instance with the shop's channel).
@@ -35,14 +35,21 @@ is described in the core's configuration guide, written for its repository: the 
 
 ```dockerfile
 # My shop: the storefront core of one version, my theme of one version, my configuration.
-FROM ghcr.io/entirius/storefront-builder:0.1.0
+FROM ghcr.io/entirius/storefront-builder:0.1.0 AS build
 COPY _CONFIG /app/_CONFIG
-RUN storefront build @acme/theme@1.3.0
+RUN storefront build @acme/theme-my-theme@1.3.0
+
+FROM ghcr.io/entirius/storefront-runtime:0.1.0
+COPY --from=build /app/out /app
 ```
 
-- `FROM` names the core's version. Take the same version as the theme's `@entirius/*` packages.
-- `storefront build <package>@<version>` installs the theme from its registry and builds the shop (`next build`).
-  The build needs no backend.
+- The two `FROM` lines name the core's version, the same in both. Take the version of the theme's `@entirius/*`
+  packages.
+- `storefront build <package>@<version>` installs the theme from its registry and builds the shop. The build needs
+  no backend. The result, `/app/out`, is all the shop needs to run: the server, its static files and the
+  configuration.
+- The shop's image is the small `storefront-runtime` (Node and the `storefront` command) with that copied in: about
+  450 MB, without the build tools.
 - A theme in a **private registry** needs an `.npmrc` with that registry and its token during the build only. Keep
   one just for the build, `build.npmrc`, with the theme's scope alone, and out of version control (it holds the
   token):
@@ -56,7 +63,7 @@ RUN storefront build @acme/theme@1.3.0
   token line when it has no login). Pass the file as a build secret, so the token stays out of the image:
 
   ```dockerfile
-  RUN --mount=type=secret,id=npmrc,target=/root/.npmrc storefront build @acme/theme@1.3.0
+  RUN --mount=type=secret,id=npmrc,target=/root/.npmrc storefront build @acme/theme-my-theme@1.3.0
   ```
 
   ```bash
@@ -83,7 +90,7 @@ browser and the container: the image passes that port on to the host. On Linux a
 Every change (a new theme version, a new core version, a changed configuration) is a new image with a new tag:
 
 ```bash
-# Dockerfile: RUN ... storefront build @acme/theme@1.4.0
+# Dockerfile: RUN ... storefront build @acme/theme-my-theme@1.4.0
 docker build --secret id=npmrc,src=build.npmrc -t my-shop:2 .   # without --secret for a theme from npm
 docker stop my-shop && docker rm my-shop
 docker run -d --name my-shop -p 80:3000 my-shop:2

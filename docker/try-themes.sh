@@ -4,7 +4,7 @@
 #   docker/try-themes.sh
 #
 # 1. a local npm registry (Verdaccio, http://localhost:4873, docker/verdaccio/compose.yaml)
-# 2. the core's images storefront-dev and storefront-builder, tagged with the packages' version
+# 2. the core's images storefront-dev, storefront-builder and storefront-runtime, tagged with the packages' version
 # 3. the four @entirius packages published to that registry (installs the workspace first; a version already there
 #    is left as it is)
 #
@@ -23,9 +23,10 @@ docker compose -f docker/verdaccio/compose.yaml up -d
 for _ in $(seq 1 30); do curl -sf "$registry/-/ping" > /dev/null && break; sleep 1; done
 curl -sf "$registry/-/ping" > /dev/null || { echo "try-themes: the registry does not answer on $registry" >&2; exit 1; }
 
-echo "== 2/3 images ghcr.io/entirius/storefront-dev and -builder, $version"
+echo "== 2/3 images ghcr.io/entirius/storefront-dev, -builder and -runtime, $version"
 docker build -f docker/storefront.Dockerfile --target dev -t "ghcr.io/entirius/storefront-dev:$version" .
 docker build -f docker/storefront.Dockerfile --target builder -t "ghcr.io/entirius/storefront-builder:$version" .
+docker build -f docker/storefront.Dockerfile --target runtime -t "ghcr.io/entirius/storefront-runtime:$version" .
 
 echo "== 3/3 packages @entirius/* $version"
 # Publishing turns the default theme's workspace:* peer into the SDK's version: it needs the workspace installed.

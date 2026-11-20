@@ -1,7 +1,8 @@
 # Releasing the theme platform
 
 What goes out: the four `@entirius` packages on npm (`storefront-sdk`, `theme-default`, `create-theme`,
-`theme-cli`) and the core's two images on ghcr.io (`storefront-dev`, `storefront-builder`). All six share one
+`theme-cli`) and the core's three images on ghcr.io (`storefront-dev`, `storefront-builder`, `storefront-runtime`).
+All seven share one
 version, and the release's tag is `v<version>`. Theme authors and shop builders pick the version by it
 ([building a theme](themes/guide.md), [building a shop](themes/shop.md)).
 
@@ -30,7 +31,7 @@ a GitHub release); only what is published differs.
    - `npm`: packs the four packages with the repository's `LICENSE` (`release.mjs pack`, pnpm turns `workspace:*`
      into the version) and publishes them through npm's trusted publishing (no token anywhere; the packages carry
      provenance);
-   - `images`: both images for `linux/amd64` and `linux/arm64` to `ghcr.io/entirius/storefront-<target>:<version>`,
+   - `images`: the three images for `linux/amd64` and `linux/arm64` to `ghcr.io/entirius/storefront-<target>:<version>`,
      never `latest`.
 
 5. Afterwards, from a machine with nothing of the repository: `pnpm create @entirius/theme@<version> check-it`,
@@ -44,7 +45,7 @@ next version.
 Before a release, the same steps against a local registry (Verdaccio, `docker/verdaccio/compose.yaml`):
 
 ```bash
-docker/try-themes.sh                         # the registry, both images and the packages at their version
+docker/try-themes.sh                         # the registry, the three images and the packages at their version
 ```
 
 or, to try the workflow's own packing and publishing:
@@ -86,6 +87,6 @@ In the repository's settings an environment named `npm` (its protection rules, s
 guard every publication). Once the workflow has published, the packages' publishing access can require two-factor
 authentication and disallow tokens.
 
-ghcr.io: the first run of `images` creates both packages, private. An owner of the GitHub organisation (or an admin
+ghcr.io: the first run of `images` creates the three packages, private. An owner of the GitHub organisation (or an admin
 of the repository) makes each public once, in the package's settings; the organisation's settings must allow public
 packages. A public package cannot be made private again.

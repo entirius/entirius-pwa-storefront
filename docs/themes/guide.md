@@ -176,7 +176,7 @@ To see the theme as a production shop before that, `pnpm build` makes an image o
 
 ## 7. A new platform release
 
-The four `@entirius/*` packages and the two images always share one version. To move a theme to a new release, set
+The four `@entirius/*` packages and the three images always share one version. To move a theme to a new release, set
 the new version for all three packages in `package.json`, then:
 
 ```bash

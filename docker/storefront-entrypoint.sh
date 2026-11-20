@@ -5,8 +5,10 @@
 #                               /app/_CONFIG, both mounted (without a configuration the template's _CONFIG.example)
 #   storefront build [<theme>]  a shop's image: installs the theme package (npm spec, e.g. @acme/theme@1.3.0) at
 #                               /app/theme, then `next build` with /app/_CONFIG; no package: the theme already
-#                               copied to /app/theme, else the default one
-#   storefront start            `next start` on :3000 of that build
+#                               copied to /app/theme, else the default one. The built shop is /app/out: Next's
+#                               standalone server with its static files and the configuration, all it needs to run
+#                               (the shop's Dockerfile copies it onto storefront-runtime)
+#   storefront start            the shop on :3000: /app/server.js in storefront-runtime, else /app/out/server.js
 #
 # A backend on localhost (API_BASE_URL http://localhost:<port>) has to answer the browser and the server at one
 # address: in dev and start that port is forwarded to the host, as in zeno's storefront container.
@@ -58,11 +60,23 @@ case "${1:-dev}" in
     else
       echo "storefront: the default theme"
     fi
-    exec pnpm exec next build
+    STOREFRONT_OUTPUT=standalone pnpm exec next build
+    # The standalone server leaves the static files and public/ to the deployment; the configuration is read at run
+    # time too (messages, brand files).
+    # The standalone folder may hold some of these already (the brand files it traced): copy into, never nest.
+    rm -rf out
+    cp -r .next/standalone out
+    for dir in .next/static public _CONFIG; do
+      mkdir -p "out/$dir"
+      cp -r "$dir/." "out/$dir/"
+    done
+    echo "storefront: the shop is in /app/out"
     ;;
   start)
+    [ -f server.js ] || cd out
     forward_local_api
-    exec pnpm exec next start -H 0.0.0.0 -p 3000
+    export HOSTNAME=0.0.0.0 PORT=3000 NODE_ENV=production
+    exec node server.js
     ;;
   *)
     echo "storefront dev | build [<theme>] | start" >&2

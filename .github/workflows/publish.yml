@@ -61,7 +61,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        target: [dev, builder]
+        target: [dev, builder, runtime]
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-qemu-action@v3

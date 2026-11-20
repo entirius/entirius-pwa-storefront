@@ -17,7 +17,8 @@ describe("create-theme template", () => {
   });
 
   it.each(["@types/react", "@types/react-dom", "typescript"])("pins %s like the core", (name) => {
-    expect(template[name]).toBe(core.devDependencies[name]);
+    // The core needs them to build a shop, so they are its dependencies (devDependencies before 0.1.0-alpha.9).
+    expect(template[name]).toBe(core.dependencies[name] ?? core.devDependencies[name]);
   });
 
   it.each(["@entirius/storefront-sdk", "@entirius/theme-default", "@entirius/theme-cli"])(

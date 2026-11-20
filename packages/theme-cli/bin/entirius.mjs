@@ -27,6 +27,7 @@ const CATALOGUE = join(ROOT, "node_modules/@entirius/theme-default/overrides.jso
 const SDK_PACKAGE = join(ROOT, "node_modules/@entirius/storefront-sdk/package.json");
 const IMAGE = "ghcr.io/entirius/storefront-dev";
 const BUILDER = "ghcr.io/entirius/storefront-builder";
+const RUNTIME = "ghcr.io/entirius/storefront-runtime";
 const LOCAL_BACKEND = "http://localhost:8100";
 
 // Imports a theme may use: the SDK, the default theme, other theme files, React and Next, and the default theme's
@@ -140,6 +141,7 @@ async function dev(args) {
 // in the README; this is the short way to see the theme built.
 function build(args) {
   const image = option(args, "--builder") ?? `${BUILDER}:${installed_sdk()}`;
+  const runtime = option(args, "--runtime") ?? `${RUNTIME}:${installed_sdk()}`;
   const config = option(args, "--config") ?? CONFIG;
   const tag = option(args, "--tag") ?? `${basename(ROOT).toLowerCase().replace(/[^a-z0-9._-]+/g, "-")}:local`;
   if (!existsSync(join(config, "app.config.json"))) fail(`No configuration in ${config}: run entirius dev first, or pass --config <dir>.`);
@@ -150,7 +152,9 @@ function build(args) {
     cpSync(config, join(context, "_CONFIG"), { recursive: true });
     writeFileSync(
       join(context, "Dockerfile"),
-      `FROM ${image}\nCOPY _CONFIG /app/_CONFIG\nCOPY theme /app/theme\nRUN storefront build\n`,
+      // Built on the builder, run on the runtime image: only the built shop goes into the image.
+      `FROM ${image} AS build\nCOPY _CONFIG /app/_CONFIG\nCOPY theme /app/theme\nRUN storefront build\n` +
+        `FROM ${runtime}\nCOPY --from=build /app/out /app\n`,
     );
     const run = spawnSync("docker", ["build", "-t", tag, context], { stdio: "inherit" });
     if (run.status !== 0) return run.status ?? 1;

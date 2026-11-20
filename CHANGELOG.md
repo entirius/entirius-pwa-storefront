@@ -26,9 +26,15 @@ All notable changes to this project are documented here. The format follows
 - The cart page is a theme template: `@theme/cart/cart-page` arranges `cart-line`, `cart-summary` and `cart-bar`,
   reading the cart from `useCartPage()` (`CartPageRuntime` in the core). The page header, the order steps, the unit
   price and the summary card moved to `@theme/order/*` and serve checkout too; checkout works as before.
+- A shop's image is two-stage: built on `storefront-builder`, run on the new `storefront-runtime` image with Next's
+  standalone server (`storefront build` puts it in `/app/out`), about 450 MB instead of 1.5 GB. The builder and dev
+  images install production dependencies only (1.17 GB from 1.31 GB): what `next build` needs (Tailwind, TypeScript,
+  the type packages, shadcn's stylesheet) moved from `devDependencies` to `dependencies`. Upgrade: a shop's
+  `Dockerfile` gets the second stage (`FROM storefront-runtime:<version>`, `COPY --from=build /app/out /app`); a
+  single-stage one still runs, as large as before.
 - A release of the theme platform is a GitHub release of a `v<version>` tag: `.github/workflows/publish.yml` checks the
   tag against the four packages, publishes them to npm through trusted publishing (with the `LICENSE`, under `next`
-  for a prerelease) and pushes both images for `linux/amd64` and `linux/arm64` to ghcr.io ([releasing](docs/releasing.md)).
+  for a prerelease) and pushes the core images for `linux/amd64` and `linux/arm64` to ghcr.io ([releasing](docs/releasing.md)).
   `entirius check` on a theme that overrides nothing yet no longer fails on TypeScript finding no input.
 - Guides for a theme author and a shop builder outside the team: [building a theme](docs/themes/guide.md),
   [building a shop](docs/themes/shop.md) and [the theme contract](docs/themes/contract.md), linked from the READMEs
