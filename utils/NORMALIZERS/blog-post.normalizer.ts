@@ -6,9 +6,8 @@
 // the builder content with ids on its H2 headings, listed as the table of contents. An article written in AI Studio
 // is `section-text` sections (HTML with H2 headings) and a closing `section-faq`; older posts keep their text in tiles.
 
-import type { CmsImagesSet } from "@/app/[customer_country]/(builder)/[[...slug]]/_components/cms-image";
 import type { BlogAuthorBrief, BlogAuthorRaw, BlogPostRaw, BlogPostSibling } from "@/types/blog.types";
-import type { CmsDocumentContent, CmsSectionData } from "@/types/cms.types";
+import type { CmsDocumentContent, CmsImagesSet, CmsSectionData } from "@/types/cms.types";
 import { plain_text } from "@/lib/seo/transforms";
 
 export type BlogAuthor = { name: string; slug: string; role: string; bio: string; photo: string | null };

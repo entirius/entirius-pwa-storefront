@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { get_i18n } from "@/lib/i18n/i18n.server";
-import { render_cms_document } from "@/app/[customer_country]/(builder)/[[...slug]]/_components/cms-renderer";
+import { CmsDocument } from "@/app/[customer_country]/(builder)/[[...slug]]/_components/cms-document";
 import { load_layout_slot, type LayoutSlotName } from "./api.query";
 
 const slot_classes: Record<LayoutSlotName, string> = {
@@ -20,7 +20,7 @@ export async function LayoutSlot({ name }: { name: LayoutSlotName }) {
 
   return (
     <div data-layout-slot={name} className={slot_classes[name]}>
-      {render_cms_document(page.content)}
+      <CmsDocument content={page.content} />
     </div>
   );
 }

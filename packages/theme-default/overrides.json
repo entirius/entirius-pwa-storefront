@@ -75,6 +75,58 @@
       }
     },
     {
+      "title": "CMS pages",
+      "where": "home, CMS pages, the blog intro, post bodies, footer columns",
+      "items": {
+        "cms/section-hero-slider": "hero: slides in a carousel, or one slide",
+        "cms/tile-hero": "a hero slide: copy beside its picture",
+        "cms/section-banner": "promo strip: picture, copy, buttons",
+        "cms/section-text": "title, text and a grid of tiles",
+        "cms/section-image-text": "picture beside text",
+        "cms/section-icon-grid": "benefits row",
+        "cms/section-product-slider": "products: hand-picked or a category’s first",
+        "cms/section-accordion": "questions that fold open",
+        "cms/section-blog": "posts the editor picked",
+        "cms/buttons": "CMS buttons and links"
+      },
+      "more": {
+        "cms/section-shell": "a section’s heading row: title, text, buttons",
+        "cms/section-faq": "an article’s questions and answers",
+        "cms/section-type-a": "older content’s section; footer link columns",
+        "cms/tile-type-a": "older content’s tile",
+        "cms/tile-type-b": "older content’s product tile",
+        "cms/tile-txt-btn": "text tile: title, text, buttons",
+        "cms/tile-title-desc-img": "benefit tile: icon, title, text",
+        "cms/tile-image": "picture tile",
+        "cms/tile-accordion": "questions of an accordion section",
+        "cms/tile-product": "a product in a CMS product section",
+        "cms/product-rail": "product cards in a row or a grid",
+        "cms/hero-carousel": "the hero’s carousel",
+        "cms/picture": "a CMS picture in its ratio box"
+      }
+    },
+    {
+      "title": "Blog",
+      "where": "/blog, posts, authors; post tiles also on CMS pages",
+      "items": {
+        "blog/blog-page": "the list: intro, category tabs, posts, pages",
+        "blog/post-page": "a post: which parts, in what order",
+        "blog/author-page": "an author and their posts",
+        "blog/post-tile": "a post on a list: cover, title, summary, date",
+        "blog/post-header": "category, heading, authors, dates",
+        "blog/post-toc": "table of contents",
+        "blog/post-authors": "About the author",
+        "blog/post-neighbours": "older and newer post"
+      },
+      "more": {
+        "blog/post-grid": "a page of post tiles, or none",
+        "blog/category-tabs": "category tabs",
+        "blog/pending-label": "a tab’s text pulsing while it loads",
+        "blog/pagination": "page numbers",
+        "blog/author-photo": "author photo or initials"
+      }
+    },
+    {
       "title": "Header and footer",
       "where": "every page",
       "items": {

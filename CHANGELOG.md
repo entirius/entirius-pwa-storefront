@@ -26,6 +26,11 @@ All notable changes to this project are documented here. The format follows
 - The cart page is a theme template: `@theme/cart/cart-page` arranges `cart-line`, `cart-summary` and `cart-bar`,
   reading the cart from `useCartPage()` (`CartPageRuntime` in the core). The page header, the order steps, the unit
   price and the summary card moved to `@theme/order/*` and serve checkout too; checkout works as before.
+- CMS pages render on the server, and CMS blocks and the blog are theme parts rendered there: a block type of the
+  page editor is `@theme/cms/<type>` (sections and tiles), the blog's pages `@theme/blog/blog-page`, `post-page` and
+  `author-page` with their parts. The core reads what a document shows before it renders (button addresses,
+  products, posts) and hands it over in props typed in the SDK (`/cms`, `/blog`); carousels and product cards stay
+  browser parts inside. A CMS page loads about 28 KiB less JavaScript; the shop looks and works as before.
 - `THEME` in `_CONFIG/app.config.json` is now `COLOR_SCHEME` (`"light"` or `"dark"`), so that "theme" means only the
   installed theme. Breaking: rename the key in every `_CONFIG/app.config.json`; a config with `THEME` fails the build.
 - First step to themes installed on the core: a pnpm workspace with `packages/sdk` (`@entirius/storefront-sdk`:

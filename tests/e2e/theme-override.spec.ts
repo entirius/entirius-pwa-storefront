@@ -5,7 +5,8 @@
 import { test, expect } from "@playwright/test";
 
 // A theme overrides a component by a file at the same path: tests/theme-example ships its own
-// components/product-card.tsx and its colour in tokens.css. Runs only with that theme installed (`pnpm test:e2e:theme`).
+// components/product-card.tsx, a CMS section rendered on the server (cms/section-icon-grid.tsx) and its colour in
+// tokens.css. Runs only with that theme installed (`pnpm test:e2e:theme`).
 test.skip(process.env.E2E_THEME !== "example", "needs the test theme at theme/: pnpm test:e2e:theme");
 
 test("the theme's product card replaces the default one in the listing", async ({ page }) => {
@@ -33,4 +34,11 @@ test("the rest of the product page stays the default theme's", async ({ page }) 
   const related = page.locator("[data-related-products] [data-product-tile]");
   await expect(related.first()).toBeVisible();
   await expect(page.locator("[data-related-products] [data-theme-example-card]")).toHaveCount(await related.count());
+});
+
+test("a CMS section of the theme replaces the default one; its tiles stay the default theme's", async ({ page }) => {
+  await page.goto("/");
+  const benefits = page.locator("[data-theme-example-benefits]");
+  await expect(benefits.getByRole("heading", { level: 2, name: "Why shop with us" })).toBeVisible();
+  await expect(benefits.getByRole("heading", { level: 3 })).toHaveCount(3);
 });

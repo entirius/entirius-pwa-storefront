@@ -3,20 +3,14 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { cache } from "react";
-import { QueryClient } from "@tanstack/react-query";
 import { API_CMS_BLOG_POST_ROUTE, API_CMS_STATIC_PAGE_ROUTE, API_PRODUCTS_ROUTE } from "@/API/api.routes";
 import type { create_api } from "@/API/api.context";
 import type { CmsDocumentContent, CmsPage } from "@/types/cms.types";
 import type { BlogPostRaw, ContentDbPage } from "@/types/blog.types";
-import { NORM_PRODUCTS_DATA, type RawProduct } from "@/utils/NORMALIZERS/product.normalizer";
+import type { RawProduct } from "@/utils/NORMALIZERS/product.normalizer";
 import { NORM_BLOG_POST_CARD, type BlogPostCard } from "@/utils/NORMALIZERS/blog-post.normalizer";
 import { omnibus_prefetch, is_discounted } from "@/lib/omnibus/omnibus.query";
-import { link_keys, url_key_query } from "@/lib/url-keys";
-import {
-  aggregate_categories,
-  aggregate_skus,
-  aggregate_url_keys,
-} from "./_components/cms-product-aggregation.config";
+import { aggregate_categories, aggregate_skus } from "./_components/cms-product-aggregation.config";
 
 type Api = ReturnType<typeof create_api>;
 
@@ -45,90 +39,40 @@ export function pick_static_page(pages: CmsPage[] | undefined, language: string)
   return own ?? pages?.[0] ?? null;
 }
 
-export const static_page_query = (
-  api: Api,
-  options: { routes: string[]; language: string },
-) => ({
-  queryKey: ["cms-static-page", options.routes, options.language],
-  queryFn: async () => {
-    const [error, response] = await load_static_page(api, options);
-    if (error) throw new Error(error.message);
-    return response;
-  },
-});
-
 // ------------------------------------------------------------
-// CMS products batch — seeds ["product", url_key] shared with product PDP
+// What a CMS document's blocks show, read on the server before it renders (cms-data.ts). Each loader is cached per
+// request on primitive arguments (React.cache compares with Object.is), so the Omnibus prefetch below and the
+// document share one call.
 // ------------------------------------------------------------
-export const cms_products_query = (api: Api, url_keys: string[]) => ({
-  queryKey: ["cms-products", url_keys],
-  queryFn: async () => {
-    const [error, response] = await api.FETCH_METHOD<ProductsResponse>(API_PRODUCTS_ROUTE, {
-      querys: { url_key: url_keys, include: "full" },
-    });
-    if (error) throw new Error(error.message);
-    return response;
-  },
-  seed: (result: unknown, queryClient: QueryClient) => {
-    const products = NORM_PRODUCTS_DATA((result as ProductsResponse | undefined)?.results ?? []);
-    products.forEach((product) => {
-      queryClient.setQueryData(
-        ["product", product.url_key ?? "no-url-key-error"],
-        product,
-      );
-    });
-  },
-});
+// Products by url key (`tile-type-b.url_key`), one batch.
+const _load_products_by_url_key = cache(async (api: Api, url_keys_key: string) =>
+  api.FETCH_METHOD<ProductsResponse>(API_PRODUCTS_ROUTE, {
+    querys: { url_key: url_keys_key.split("\n"), include: "full" },
+  }),
+);
 
-// ------------------------------------------------------------
-// CMS products by SKU (`tile-product.sku`) — one batch request; seeds
-// ["cms-product-sku", sku] for each tile.
-// ------------------------------------------------------------
-export type CmsProduct = ReturnType<typeof NORM_PRODUCTS_DATA>[number];
+// Raw API rows: an editor may type the key of any language, so the caller matches every key a row has.
+export const load_products_by_url_key = async (api: Api, url_keys: string[]) => {
+  const [error, response] = await _load_products_by_url_key(api, url_keys.join("\n"));
+  if (error) throw new Error(error.message);
+  return response?.results ?? [];
+};
 
-const products_of = (response: ProductsResponse | undefined): CmsProduct[] =>
-  NORM_PRODUCTS_DATA(response?.results ?? []);
-
-export const cms_product_sku_key = (sku: string) => ["cms-product-sku", sku] as const;
-
-// Cached per request on a joined key (React.cache compares with Object.is), so
-// the page's Omnibus lookup and the prefetch share one call.
+// Products by SKU (`tile-product.sku`), one batch.
 const _load_products_by_sku = cache(async (api: Api, skus_key: string) =>
   api.FETCH_METHOD<ProductsResponse>(API_PRODUCTS_ROUTE, {
     querys: { sku: skus_key.split("\n"), include: "full" },
   }),
 );
 
+// Raw API rows (the Omnibus prefetch reads their prices).
 export const load_products_by_sku = async (api: Api, skus: string[]) => {
   const [error, response] = await _load_products_by_sku(api, skus.join("\n"));
   if (error) throw new Error(error.message);
-  return response;
+  return response?.results ?? [];
 };
 
-export const cms_products_by_sku_query = (api: Api, skus: string[]) => ({
-  queryKey: ["cms-products-sku", skus],
-  queryFn: () => load_products_by_sku(api, skus),
-  seed: (result: unknown, queryClient: QueryClient) => {
-    products_of(result as ProductsResponse | undefined).forEach((product) => {
-      queryClient.setQueryData(cms_product_sku_key(product.sku), product);
-    });
-  },
-});
-
-export const cms_product_by_sku_query = (api: Api, sku: string) => ({
-  queryKey: cms_product_sku_key(sku),
-  queryFn: async (): Promise<CmsProduct | null> => {
-    const [error, response] = await api.FETCH_METHOD<ProductsResponse>(API_PRODUCTS_ROUTE, {
-      querys: { sku, include: "full" },
-    });
-    if (error) throw new Error(error.message);
-    return products_of(response)[0] ?? null;
-  },
-});
-
-// ------------------------------------------------------------
-// CMS products of a category (`section-product-slider-category.custom_field`)
-// ------------------------------------------------------------
+// The first products of a category (`section-product-slider-category.custom_field`).
 export const CMS_CATEGORY_PRODUCTS_LIMIT = 8;
 
 const _load_category_products = cache(async (api: Api, category: string) =>
@@ -137,18 +81,12 @@ const _load_category_products = cache(async (api: Api, category: string) =>
   }),
 );
 
-// Raw API rows (the page reads their prices for Omnibus); the query normalizes.
+// Raw API rows, like load_products_by_sku.
 export const load_category_products = async (api: Api, category: string) => {
   const [error, response] = await _load_category_products(api, category);
   if (error) throw new Error(error.message);
   return response?.results ?? [];
 };
-
-export const cms_category_products_query = (api: Api, category: string) => ({
-  queryKey: ["cms-category-products", category],
-  queryFn: async (): Promise<CmsProduct[]> =>
-    NORM_PRODUCTS_DATA(await load_category_products(api, category)),
-});
 
 // ------------------------------------------------------------
 // CMS blog posts (`section-blog.blog_section`: up to three post routes the editor picked, `[{ label: route }]`)
@@ -162,58 +100,36 @@ export function blog_section_routes(blog_section: unknown): string[] {
 
 // One request per route (an unknown route fails the whole `routes=` filter): the post in the page language, else in
 // another one, in the editor's order; a missing post is left out.
-export const cms_blog_posts_query = (api: Api, routes: string[], language: string) => ({
-  queryKey: ["cms-blog-posts", routes, language],
-  queryFn: async (): Promise<BlogPostCard[]> => {
-    const versions = await Promise.all(
-      routes.map(async (route) => {
-        const [error, answer] = await api.FETCH_METHOD<ContentDbPage<BlogPostRaw>>(API_CMS_BLOG_POST_ROUTE, {
-          querys: { routes: route, limit: 50, page: 1 },
-        });
-        return error ? [] : (answer?.data ?? []);
-      }),
-    );
-    return versions.flatMap((rows) => {
-      const post = rows.find((row) => row.language?.toLowerCase() === language) ?? rows[0];
-      const card = post ? NORM_BLOG_POST_CARD(post) : null;
-      return card?.slug ? [card] : [];
-    });
-  },
-});
+export async function load_cms_blog_posts(api: Api, routes: string[], language: string): Promise<BlogPostCard[]> {
+  const versions = await Promise.all(
+    routes.map(async (route) => {
+      const [error, answer] = await api.FETCH_METHOD<ContentDbPage<BlogPostRaw>>(API_CMS_BLOG_POST_ROUTE, {
+        querys: { routes: route, limit: 50, page: 1 },
+      });
+      return error ? [] : (answer?.data ?? []);
+    }),
+  );
+  return versions.flatMap((rows) => {
+    const post = rows.find((row) => row.language?.toLowerCase() === language) ?? rows[0];
+    const card = post ? NORM_BLOG_POST_CARD(post) : null;
+    return card?.slug ? [card] : [];
+  });
+}
 
 // ------------------------------------------------------------
-// Everything a CMS document's sections read on the client, for the page's PrefetchBoundary: products by url key,
-// by SKU and of a category, button links in the active language's url keys, and the Omnibus lines of the reduced
-// prices, the posts of blog sections. The product requests are the cached ones the prefetches make; a failed one
-// leaves its section to the client.
+// What a CMS document's browser parts read, for the page's PrefetchBoundary: the Omnibus lines of the reduced prices
+// in its product cards, in the server HTML like the catalog's. A failed product request leaves them to the browser.
 // ------------------------------------------------------------
-export async function cms_content_prefetches(api: Api, content: CmsDocumentContent, language: string) {
-  const url_keys = aggregate_url_keys(content);
+export async function cms_content_prefetches(api: Api, content: CmsDocumentContent) {
   const skus = aggregate_skus(content);
   const categories = aggregate_categories(content);
-  const blog_sections = Object.values(content.sections ?? {})
-    .filter((section) => section.core_type === "section-blog")
-    .map((section) => blog_section_routes(section.blog_section))
-    .filter((routes) => routes.length);
-
-  // Omnibus lines for the reduced prices in CMS product sections, in the server HTML like the catalog's.
-  const cms_products = await Promise.all([
-    skus.length
-      ? load_products_by_sku(api, skus).then((r) => r?.results ?? []).catch(() => [])
-      : [],
+  const rows = await Promise.all([
+    skus.length ? load_products_by_sku(api, skus).catch(() => []) : [],
     ...categories.map((category) => load_category_products(api, category).catch(() => [])),
   ]);
-  const discounted_skus = cms_products
+  const discounted_skus = rows
     .flat()
     .filter((p) => is_discounted((p as { price?: unknown }).price))
     .map((p) => (p as { sku: string }).sku);
-
-  return [
-    ...(url_keys.length ? [cms_products_query(api, url_keys)] : []),
-    ...(skus.length ? [cms_products_by_sku_query(api, skus)] : []),
-    ...categories.map((category) => cms_category_products_query(api, category)),
-    ...link_keys(content).map(({ kind, key }) => url_key_query(api, language, kind, key)),
-    ...(discounted_skus.length ? [omnibus_prefetch(api, discounted_skus)] : []),
-    ...blog_sections.map((routes) => cms_blog_posts_query(api, routes, language)),
-  ];
+  return discounted_skus.length ? [omnibus_prefetch(api, discounted_skus)] : [];
 }

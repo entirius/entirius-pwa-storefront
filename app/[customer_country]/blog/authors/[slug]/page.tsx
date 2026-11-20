@@ -4,7 +4,6 @@
 
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Globe } from "lucide-react";
 import { decode_param } from "@/lib/route-params";
 import { get_server_api } from "@/lib/seo/server-api";
 import { get_i18n } from "@/lib/i18n/i18n.server";
@@ -15,10 +14,9 @@ import { profile_path } from "@/lib/profile-path";
 import { BLOG_PATH, blog_author_path, page_param } from "@/lib/blog-paths";
 import { PageBreadcrumbs } from "@theme/components/page-breadcrumbs";
 import { NORM_BLOG_AUTHOR } from "@/utils/NORMALIZERS/blog-post.normalizer";
+import { AuthorPage } from "@theme/blog/author-page";
+import { blog_author_model, blog_card_model, blog_pagination } from "@/lib/blog-models";
 import { languages_with_posts, load_blog_posts } from "../../api.query";
-import { AuthorPhoto } from "../../_components/author-photo";
-import { PostGrid } from "../../_components/post-grid";
-import { BlogPagination } from "../../_components/blog-pagination";
 import { load_blog_author } from "./api.query";
 
 // An author of the blog: photo, role, bio and links, then their posts in the page language, numbered pages (`?page=`).
@@ -38,7 +36,7 @@ async function load({ params, searchParams }: Props) {
     load_blog_author(api, slug),
     page ? load_blog_posts(api, { language, page, author: slug }) : null,
   ]);
-  return { customer_country, api, slug, page, posts, author: raw ? NORM_BLOG_AUTHOR(raw, language) : null };
+  return { customer_country, api, slug, page, posts, language, author: raw ? NORM_BLOG_AUTHOR(raw, language) : null };
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
@@ -61,7 +59,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 }
 
 export default async function BlogAuthorPage(props: Props) {
-  const { customer_country, slug, page, posts, author } = await load(props);
+  const { customer_country, slug, page, posts, author, language } = await load(props);
   if (!author || !page || (page > 1 && !posts?.cards.length)) notFound();
 
   const { t } = await get_i18n();
@@ -71,35 +69,14 @@ export default async function BlogAuthorPage(props: Props) {
     <>
       <JsonLd data={build_blog_author_jsonld(author, { country: customer_country }, crumbs)} />
       <PageBreadcrumbs trail={[...crumbs.map(({ name, path }) => ({ name, href: path })), { name: author.name }]} />
-      <header className="surface flex flex-col gap-6 sm:flex-row sm:items-center">
-        <AuthorPhoto author={author} size="lg" />
-        <div className="flex flex-col gap-2">
-          <h1 className="text-4xl leading-tight md:text-5xl">{author.name}</h1>
-          {author.role && <p className="text-muted-foreground">{author.role}</p>}
-          {author.bio && <p className="max-w-prose">{author.bio}</p>}
-          {author.links.length > 0 && (
-            <ul className="mt-1 flex flex-wrap gap-x-4 gap-y-2 text-sm">
-              {author.links.map((link) => (
-                <li key={link.url}>
-                  <a href={link.url} target="_blank" rel="noopener me" className="link inline-flex items-center gap-1.5">
-                    <Globe aria-hidden className="size-4" />
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </header>
-      <section className="flex flex-col gap-6 py-8">
-        <h2 className="text-2xl md:text-3xl">{t("blog.author_posts", { name: author.name })}</h2>
-        <PostGrid cards={posts?.cards ?? []} heading="h3" />
-        <BlogPagination
-          page={page}
-          pages={posts?.pages ?? 1}
-          href={(n) => profile_path(customer_country, n > 1 ? `${blog_author_path(slug)}?page=${n}` : blog_author_path(slug))}
-        />
-      </section>
+      <AuthorPage
+        t={t}
+        author={blog_author_model(author)}
+        posts={(posts?.cards ?? []).map((card) => blog_card_model(card, language))}
+        pagination={blog_pagination(page, posts?.pages ?? 1, (n) =>
+          profile_path(customer_country, n > 1 ? `${blog_author_path(slug)}?page=${n}` : blog_author_path(slug)),
+        )}
+      />
     </>
   );
 }

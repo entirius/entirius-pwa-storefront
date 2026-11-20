@@ -13,16 +13,15 @@ import { JsonLd } from "@/lib/seo/json-ld";
 import { profile_path } from "@/lib/profile-path";
 import { BLOG_PATH, blog_list_path, page_param } from "@/lib/blog-paths";
 import { PageBreadcrumbs } from "@theme/components/page-breadcrumbs";
-import { render_cms_document } from "@/app/[customer_country]/(builder)/[[...slug]]/_components/cms-renderer";
+import { BlogPage as BlogPageTemplate } from "@theme/blog/blog-page";
+import { CmsDocument } from "@/app/[customer_country]/(builder)/[[...slug]]/_components/cms-document";
 import {
   cms_content_prefetches,
   load_static_page,
   pick_static_page,
 } from "@/app/[customer_country]/(builder)/[[...slug]]/api.query";
+import { blog_card_model, blog_pagination } from "@/lib/blog-models";
 import { languages_with_posts, load_blog_categories, load_blog_posts } from "./api.query";
-import { CategoryTabs } from "./_components/category-tabs";
-import { PostGrid } from "./_components/post-grid";
-import { BlogPagination } from "./_components/blog-pagination";
 
 // The blog: posts written in the page language, newest first, a tab per category (`?category_url_key=`) and
 // numbered pages (`?page=`). The CMS page published under the route `blog` (what the catch-all served here before)
@@ -90,32 +89,33 @@ export default async function BlogPage(props: Props) {
   const { t } = await get_i18n();
   const cards = posts?.cards ?? [];
   const name = intro?.meta?.title || t("blog.title");
+  const tabs = categories.length
+    ? [{ name: t("blog.all_categories"), url_key: null }, ...categories].map((tab) => ({
+        name: tab.name,
+        href: blog_list_path({ category: tab.url_key }),
+        current: tab.url_key === (category?.url_key ?? null),
+      }))
+    : [];
 
   return (
     <>
       <JsonLd data={build_blog_list_jsonld(cards, { country: customer_country }, { name, category: category_key, page })} />
       <PageBreadcrumbs trail={[{ name: t("blog.title") }]} />
-      {intro ? (
-        <>
-          <h1 className="sr-only">{t("blog.title")}</h1>
-          <PrefetchBoundary prefetches={await cms_content_prefetches(api, intro.content, language)}>
-            {render_cms_document(intro.content)}
-          </PrefetchBoundary>
-        </>
-      ) : (
-        <header className="surface bg-gradient-backdrop">
-          <h1 className="text-4xl leading-tight md:text-5xl">{t("blog.title")}</h1>
-        </header>
-      )}
-      <div className="flex flex-col gap-6 py-8">
-        <CategoryTabs categories={categories} active={category?.url_key ?? null} />
-        <PostGrid cards={cards} />
-        <BlogPagination
-          page={page}
-          pages={posts?.pages ?? 1}
-          href={(n) => profile_path(customer_country, blog_list_path({ category: category_key, page: n }))}
-        />
-      </div>
+      <BlogPageTemplate
+        t={t}
+        intro={
+          intro && (
+            <PrefetchBoundary prefetches={await cms_content_prefetches(api, intro.content)}>
+              <CmsDocument content={intro.content} />
+            </PrefetchBoundary>
+          )
+        }
+        tabs={tabs}
+        posts={cards.map((card) => blog_card_model(card, language))}
+        pagination={blog_pagination(page, posts?.pages ?? 1, (n) =>
+          profile_path(customer_country, blog_list_path({ category: category_key, page: n })),
+        )}
+      />
     </>
   );
 }

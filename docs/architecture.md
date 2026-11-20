@@ -128,6 +128,7 @@ All pages live under `app/[customer_country]/`. The `ct` cookie (set by middlewa
 |------|----------|---------|
 | Theme | `packages/theme-default/src/ui/` | Base primitives (Button, Input, Sheet, Carousel), imported as `@theme/ui/<name>`. Added via shadcn, see [styling](styling.md) |
 | Theme components | `packages/theme-default/src/components/`, `src/product/` | Product card, price, badges, wishlist button; the product page and its parts. `@theme/components/<name>`, `@theme/product/<part>` |
+| CMS and blog | `packages/theme-default/src/cms/`, `src/blog/` (look), `(builder)/[[...slug]]/_components/` (renderer, data), `lib/cms/`, `lib/blog-models.ts` | Server parts: a block type of the CMS editor per file (`@theme/cms/<type>`), the blog's pages and parts (`@theme/blog/<part>`) |
 | Domain UI | `components/ui/` | `TokenLinks` (consent texts of the forms): moves with the forms |
 | Shared | `lib/` | Cross-page components (PrefetchBoundary, LinkDynamic); `lib/storefront/` fills the SDK's `Storefront` |
 | Layout | `packages/theme-default/src/layout/` (look), `lib/layout/` (data, menu queries, hooks) | Header, footer, menus, search, account, cart link, wishlist sheet, locale switch, notices: `@theme/layout/<part>` |
@@ -174,6 +175,28 @@ checkout reaches those through thin adapters in the core (`order_steps()`, `unit
 payment and the order button stay in the core (a theme must not be able to break an order). Gifts,
 the discount code, the cart's problems and the totals come whole in `blocks`. Files in `packages/` carry no
 `.client` suffix: the path is the contract.
+
+Those parts are browser parts: they read a context. CMS content and the blog are server parts instead: plain HTML
+with their data in props, as content needs no browser JS:
+
+- **A CMS block** (a section or a tile of the page editor) is `@theme/cms/<core_type>`: `section-text`,
+  `section-hero-slider`, `tile-hero`... (`section-product-slider` serves both product sections). `CmsDocument`
+  (`(builder)/[[...slug]]/_components/cms-document.tsx`) reads what the document's blocks show on the server first
+  (`load_cms_data`: button addresses in the active language's url keys, products by url key, by SKU and of a
+  category, the posts of blog sections, all batched and cached per request), then `cms_blocks` in `cms-renderer.tsx`
+  turns each block into its part's props, typed in the SDK (`/cms`): text fields, `links` (`CmsLink`: address,
+  external, look), `pictures` (`CmsPictures`), products (`ProductCardData`) and `t`. The same renderer draws CMS
+  pages, layout slots, the blog's intro and a post's body. The parts that need the browser are client components
+  inside: `hero-carousel`, `product-rail`, the product card, the accordion; a form the core owns (the enquiry form
+  inside `section-type-a`) comes in a prop. The JS of a CMS page is its route's whatever the content: the sections,
+  their queries and API calls are not in it.
+- **The blog** (`/blog`, a post, an author) is `@theme/blog/blog-page`, `post-page` and `author-page` with their
+  parts (`post-tile`, `post-grid`, `category-tabs`, `pagination`, `post-header`, `post-toc`, `post-authors`,
+  `post-neighbours`, `author-photo`). The core reads the posts and hands over view models (`/blog`, built in
+  `lib/blog-models.ts`): addresses, dates and author lists already in the page language; a post's body and the
+  list's intro come rendered.
+- A server part gets `t` as a prop; a function cannot reach the browser, so a client component inside one reads its
+  words with `useI18n()`. A theme must not make a server part a client component (`t` would fail to serialize).
 
 The core also ships as two images (`docker/storefront.Dockerfile`, no configuration or data inside; `.dockerignore`
 is an allowlist):
@@ -250,7 +273,7 @@ Priority order for React/Next.js code:
 ## Layout slots
 
 The root layout renders CMS content above the header (`announcement`) and above the footer (`before-footer`) with
-the builder's own renderer. A slot is an ordinary contentdb static page published under the reserved route
+the builder's own renderer (`CmsDocument`, on the server). A slot is an ordinary contentdb static page published under the reserved route
 `layout-<slot>`; without that route nothing renders. A route starting with `layout-` is not a page: the proxy answers 404.
 All slot pages come from one request per page render (`app/_components/layout-slots/api.query.ts`: the routes
 list, then `static-page?routes=…`, deduplicated with `React.cache()`); the draft in the active language wins.
@@ -278,13 +301,12 @@ addresses in `lib/blog-paths.ts`):
   search and share fields from `meta`, `og_image` else the cover; author roles and bios in the page language; an id
   on every H2 of the rich text for the table of contents, a one-word id with `-section`, as DOMPurify drops an id
   that names a `document` property), `NORM_BLOG_POST_CARD` (a tile), `NORM_BLOG_AUTHOR`.
-- The body goes through the builder's renderer with the same prefetches as a CMS page (`cms_content_prefetches`).
+- The body is a CMS document (`CmsDocument`), like a CMS page's.
   AI Studio writes `section-text` sections without tiles and a closing `section-faq` (questions and answers in the
   page, the table of contents' last entry, `FAQPage` in JSON-LD). `[data-article]` in `app/globals.css` gives CMS
   text the body colour and reading spacing.
 - `section-blog` on any CMS page: up to three posts the editor picked by route (`blog_section: [{ label }]`), as
-  the blog's tiles (`post-tile.client.tsx`, a client component like every CMS section); `cms_content_prefetches`
-  puts them in the server HTML, a missing post is left out.
+  the blog's tiles (`@theme/blog/post-tile`), read with the document's data; a missing post is left out.
 - SEO: a post is `og:type=article` with dates, authors and section, JSON-LD `BlogPosting` (authors linked to their
   pages), `FAQPage`, `BreadcrumbList`; the list a `Blog`; an author a `ProfilePage`. A category tab and a later page
   name themselves as canonical; an empty list is `noindex`. The sitemap lists `/blog`, posts and authors per profile
@@ -353,8 +375,8 @@ cart" read it.
   `product.single_piece` and `data-single-piece` (empty message = off, no request; `lib/stock-batch.ts` batches the
   tiles' stock lookups of one list into one `stock/` call).
 - CMS buttons of type `catalog` / `product` (and `internal` `/c/…` / `/p/…`) link with the url key of the active
-  language (`lib/url-keys.ts`, query `["url-key", language, kind, key]`, prefetched by the builder page); any failure
-  keeps the key the editor typed.
+  language (`lib/url-keys.ts`, `load_url_key`, read with the document's data before it renders); any failure keeps
+  the key the editor typed.
 
 ## Contact forms
 

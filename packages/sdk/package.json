@@ -26,6 +26,8 @@
     "./cart": "./src/cart/types.ts",
     "./cart/page": "./src/cart/page.tsx",
     "./catalog/listing": "./src/catalog/listing.tsx",
+    "./cms": "./src/cms/types.ts",
+    "./blog": "./src/blog/types.ts",
     "./layout": "./src/layout/types.ts",
     "./layout/context": "./src/layout/context.tsx",
     "./hooks": "./src/hooks.ts"
