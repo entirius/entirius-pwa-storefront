@@ -48,6 +48,12 @@ jobs:
         run: |
           # ./ first: npm reads a bare dist/<name>.tgz as a GitHub repository.
           for tarball in ./dist/*.tgz; do
+            package=$(tar -xzOf "$tarball" package/package.json | node -p 'const p = JSON.parse(require("fs").readFileSync(0, "utf8")); p.name + "@" + p.version')
+            # A package's first version goes out by hand (docs/releasing.md): its release still pushes the images.
+            if npm view "$package" version > /dev/null 2>&1; then
+              echo "$package is on npm already"
+              continue
+            fi
             npm publish "$tarball" --access public --tag "$DIST_TAG"
           done
 

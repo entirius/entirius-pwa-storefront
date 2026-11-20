@@ -30,7 +30,7 @@ a GitHub release); only what is published differs.
      goes out;
    - `npm`: packs the four packages with the repository's `LICENSE` (`release.mjs pack`, pnpm turns `workspace:*`
      into the version) and publishes them through npm's trusted publishing (no token anywhere; the packages carry
-     provenance);
+     provenance); a version that is on npm already is skipped;
    - `images`: the three images for `linux/amd64` and `linux/arm64` to `ghcr.io/entirius/storefront-<target>:<version>`,
      never `latest`.
 
@@ -64,10 +64,16 @@ Mind the `./`: npm reads a bare `dist/<name>.tgz` as a GitHub repository and tri
 
 ## Once: the first publication
 
+A repository without a release has only `develop`. Before the first release pull request a maintainer creates
+`master` from `develop` as it stands before the release's work (`git push origin <commit>:refs/heads/master`), so
+the pull request has the release to show.
+
 npm's trusted publishing is set on a package that exists, so each package's first version goes out by hand, from the
-account that owns the `entirius` organisation on npm (with its two-factor code):
+account that owns the `entirius` organisation on npm (with its two-factor code). That happens between the tag and the
+GitHub release (steps 3 and 4 above), from the tagged commit:
 
 ```bash
+git checkout v<version>
 node .github/scripts/release.mjs pack
 npm login
 for tarball in ./dist/*.tgz; do npm publish "$tarball" --access public --tag next --otp <code>; done
@@ -82,6 +88,8 @@ npmjs.com, Settings → Trusted publishing → GitHub Actions:
 | Repository | `entirius-pwa-storefront` |
 | Workflow filename | `publish.yml` |
 | Environment | `npm` |
+
+Then the GitHub release: `npm` skips a version that is on npm already, `images` pushes the images.
 
 In the repository's settings an environment named `npm` (its protection rules, such as a required reviewer, then
 guard every publication). Once the workflow has published, the packages' publishing access can require two-factor

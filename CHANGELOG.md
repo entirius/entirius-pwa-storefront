@@ -97,7 +97,8 @@ All notable changes to this project are documented here. The format follows
   and preloaded, so a client font no longer comes with the template's Inter and Lexend Deca (208 kB) and gets a
   preload and a metric-matched fallback face. Headings without a face of their own take the text face. Breaking:
   every `_CONFIG/` needs the file; `cp _CONFIG.example/fonts.ts _CONFIG/` keeps the default look.
-
+- A release skips a package version that is on npm already: the first version of each package goes out by hand
+  ([releasing](docs/releasing.md)), and its release still pushes the images.
 ### Added
 
 - `docker/try-themes.sh`: the theme flow before anything is public, from a checkout: a local registry, the core's
