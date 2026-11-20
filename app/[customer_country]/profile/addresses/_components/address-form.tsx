@@ -4,6 +4,8 @@
 
 "use client";
 
+import { AddressForm } from "@theme/forms/address-form";
+import type { AddressFormValues } from "@entirius/storefront-sdk/forms";
 import { useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,20 +16,6 @@ import {
   type CustomerAddressFormValues,
 } from "@/utils/validation/customer-address.schema";
 import { postcode_example } from "@/utils/validation/address-rules";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@theme/ui/sheet";
-import {
-  Form,
-  FormError,
-  PHONE_ROW,
-} from "@theme/ui/form";
-import { CheckboxField, SelectField, TextField } from "@theme/ui/form-fields";
-import { Button } from "@theme/ui/button";
-import { Spinner } from "@theme/ui/spinner";
 import { useCountryOptions } from "@/utils/checkout-countries";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
@@ -47,7 +35,7 @@ export function AddressFormSheet({
   const { t } = useI18n();
   const { options: countries, dialling } = useCountryOptions();
   const [pending, startTransition] = useTransition();
-  const form = useForm<CustomerAddressFormValues>({
+  const form = useForm<AddressFormValues>({
     resolver: zodResolver(customer_address_schema as never),
     mode: "onBlur",
     values: initial,
@@ -68,63 +56,21 @@ export function AddressFormSheet({
   });
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" aria-describedby={undefined} className="overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>{title}</SheetTitle>
-        </SheetHeader>
-        <Form {...form}>
-          <form onSubmit={submit} className="flex flex-col gap-4 p-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <TextField control={form.control} name="firstname" label={t("address.firstname")} autoComplete="given-name" />
-              <TextField control={form.control} name="lastname" label={t("address.lastname")} autoComplete="family-name" />
-            </div>
-            <TextField control={form.control} name="street" label={t("address.street")} autoComplete="street-address" />
-            <div className="grid gap-4 sm:grid-cols-2">
-              <TextField
-                control={form.control}
-                name="postcode"
-                label={t("address.postcode")}
-                hint={postcode_sample ? t("address.postcode_example", { example: postcode_sample }) : undefined}
-                autoComplete="postal-code"
-              />
-              <TextField control={form.control} name="city" label={t("address.city")} autoComplete="address-level2" />
-            </div>
-            <SelectField
-              control={form.control}
-              name="country_code"
-              label={t("address.country")}
-              options={countries.map((c) => ({ value: c.code, label: c.label }))}
-              onSelect={(code) => {
-                const opt = countries.find((c) => c.code === code);
-                if (opt) form.setValue("dialling_code", opt.dialling_code);
-              }}
-            />
-            <div className={PHONE_ROW}>
-              <SelectField
-                control={form.control}
-                name="dialling_code"
-                label={t("address.dialling_code")}
-                options={dialling.map((d) => ({ value: d, label: d }))}
-              />
-              <TextField control={form.control} name="telephone" label={t("address.phone")} type="tel" autoComplete="tel-national" />
-            </div>
-
-            <CheckboxField control={form.control} name="is_company" label={t("profile.company_address")} />
-            {is_company && (
-              <div className="grid gap-4 sm:grid-cols-2">
-                <TextField control={form.control} name="company" label={t("address.company")} autoComplete="organization" />
-                <TextField control={form.control} name="tax_id" label={t("address.tax_id")} />
-              </div>
-            )}
-
-            <FormError>{form.formState.errors.root?.message}</FormError>
-            <Button type="submit" disabled={pending}>
-              {pending ? <Spinner className="size-4" /> : t("profile.save_address")}
-            </Button>
-          </form>
-        </Form>
-      </SheetContent>
-    </Sheet>
+    <AddressForm
+      form={form}
+      submit={submit}
+      pending={pending}
+      open={open}
+      set_open={onOpenChange}
+      title={title}
+      countries={countries.map((c) => ({ value: c.code, label: c.label }))}
+      dialling={dialling.map((d) => ({ value: d, label: d }))}
+      select_country={(code) => {
+        const opt = countries.find((c) => c.code === code);
+        if (opt) form.setValue("dialling_code", opt.dialling_code);
+      }}
+      company={!!is_company}
+      postcode_hint={postcode_sample || null}
+    />
   );
 }

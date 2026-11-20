@@ -168,6 +168,27 @@
       }
     },
     {
+      "title": "Forms",
+      "where": "the fields and layout; checking and sending stay in the core",
+      "items": {
+        "forms/login-form": "signing in (account sheet)",
+        "forms/register-form": "a new account (account sheet)",
+        "forms/forgot-password-form": "asking for the reset mail",
+        "forms/reset-password-form": "the new password from the reset link",
+        "forms/profile-form": "the customer’s name (account)",
+        "forms/change-password-form": "changing the password (account)",
+        "forms/address-form": "the address book’s sheet",
+        "forms/newsletter-form": "newsletter sign-up (footer)",
+        "forms/enquiry-form": "a question to the shop (product, CMS)",
+        "forms/notify-similar-form": "notify me about a similar product",
+        "forms/stock-alert-form": "tell me when it is back",
+        "forms/discount-code": "discount code (cart, checkout)"
+      },
+      "more": {
+        "forms/consent-field": "a form’s consent box with its privacy link"
+      }
+    },
+    {
       "title": "Header and footer",
       "where": "every page",
       "items": {

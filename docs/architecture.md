@@ -28,7 +28,7 @@ entirius-pwa-storefront/
 │       ├── profile/              # Account: profile, addresses, orders
 │       ├── reset-password/       # Landing of the password reset mail (new password from ?key=)
 │       └── user-handler/         # Double-opt-in activation landing
-├── components/ui/                # Domain components not yet in the theme (media, rich text, wishlist button)
+├── components/                   # The forms' logic (login, register, contact forms, stock alert); their views are @theme/forms/*
 ├── packages/
 │   ├── sdk/                      # @entirius/storefront-sdk: messages (src/i18n/messages/en.ts, pl.ts), t(), price(), useI18n()
 │   └── theme-default/            # @entirius/theme-default: shadcn/ui primitives (src/ui/), imported as @theme/ui/<name>
@@ -130,7 +130,7 @@ All pages live under `app/[customer_country]/`. The `ct` cookie (set by middlewa
 | Theme components | `packages/theme-default/src/components/`, `src/product/` | Product card, price, badges, wishlist button; the product page and its parts. `@theme/components/<name>`, `@theme/product/<part>` |
 | Account | `packages/theme-default/src/account/` (look), `app/[customer_country]/profile/**/_components/*-runtime.client.tsx`, `lib/account-models.ts` | The account section's pages and parts: `@theme/account/<part>` |
 | CMS and blog | `packages/theme-default/src/cms/`, `src/blog/` (look), `(builder)/[[...slug]]/_components/` (renderer, data), `lib/cms/`, `lib/blog-models.ts` | Server parts: a block type of the CMS editor per file (`@theme/cms/<type>`), the blog's pages and parts (`@theme/blog/<part>`) |
-| Domain UI | `components/ui/` | `TokenLinks` (consent texts of the forms): moves with the forms |
+| Forms | `components/*-form.client.tsx` and the forms next to their pages (logic), `packages/theme-default/src/forms/` (views) | Validation, sending and state in the core; fields and layout in `@theme/forms/<name>` |
 | Shared | `lib/` | Cross-page components (PrefetchBoundary, LinkDynamic); `lib/storefront/` fills the SDK's `Storefront` |
 | Layout | `packages/theme-default/src/layout/` (look), `lib/layout/` (data, menu queries, hooks) | Header, footer, menus, search, account, cart link, wishlist sheet, locale switch, notices: `@theme/layout/<part>` |
 | Page feature | `app/[customer_country]/.../_components/` | Co-located with owning page (filters, product tile, listing) |
@@ -178,7 +178,14 @@ keeps its steps, forms, delivery, payment and the order button in the core, none
 not be able to break an order); a theme draws the page header, the steps, the summary beside them
 (`@theme/checkout/checkout-summary` with `summary-line`, its model built by `useCheckoutSummary()`) and the page
 after the order (`@theme/checkout/success-page` with `order-receipt`, keeping `data-order-receipt` and
-`data-print-hide` for the print styles), and the form primitives (`@theme/ui/*`) the core's forms use. The account (`/account/page`): the
+`data-print-hide` for the print styles), and the form primitives (`@theme/ui/*`) the core's forms use. The shop's
+other forms (signing in, a new account, the reset mail and the new password, the profile, the password, the address
+sheet, the newsletter, an enquiry, notify about a similar product, back in stock, the discount code) keep their
+validation, sending and state in the core and draw a view of the theme, `@theme/forms/<name>`, from a model in
+props (`/forms`): a react-hook-form form hands the view `form`, `submit` and `pending`, so its fields bind to
+`form.control` through `TextField` / `SelectField` / `CheckboxField`; a contact form hands its state, `submit` (the
+core reads the fields by `name`) and the consent (`TokenLinks` from the SDK draws its privacy link). The forms keep
+their names and props in the core, so `Storefront.forms` still loads the account ones on first use. The account (`/account/page`): the
 section's frame `@theme/account/account-layout` with `account-menu` (`useAccountMenu()`, set in the profile layout,
 which also guards the section), `overview-page`, `orders-page`, `order-page` and `addresses-page`, each with its
 runtime in the core (`OverviewRuntime`, `OrdersRuntime`, `OrderRuntime`, `AddressesRuntime`) and the models of

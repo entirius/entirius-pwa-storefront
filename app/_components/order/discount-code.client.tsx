@@ -4,14 +4,11 @@
 
 "use client";
 
-import { useId, useState, useTransition } from "react";
-import { X } from "lucide-react";
+import { useState, useTransition } from "react";
+import { DiscountCode as DiscountCodeView } from "@theme/forms/discount-code";
 import type { Cart } from "@/utils/NORMALIZERS/cart.normalizer";
 import { kept_discounts } from "@/utils/cart-discounts";
 import { useDiscountsPatch } from "@/app/_components/order/use-cart-gifts";
-import { Field, FormError } from "@theme/ui/form";
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@theme/ui/input-group";
-import { Spinner } from "@theme/ui/spinner";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // Manual discount codes on the backend cart. PATCH replaces the whole set of
@@ -19,10 +16,10 @@ import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 // one. An unusable code is not an HTTP error: the cart comes back without it and
 // with a generic `_errors` entry, so the form compares what it sent with what
 // stuck. Codes survive item changes; automatic rules are the backend's business.
-// A picked gift is a code too (with its SKU): it is sent along and not listed here.
+// A picked gift is a code too (with its SKU): it is sent along and not listed here. The look is the theme's
+// (@theme/forms/discount-code).
 export function DiscountCode({ backend }: { backend: Cart | null | undefined }) {
   const { t } = useI18n();
-  const input_id = useId();
   const patch = useDiscountsPatch();
   const [pending, startTransition] = useTransition();
   const [value, setValue] = useState("");
@@ -66,51 +63,14 @@ export function DiscountCode({ backend }: { backend: Cart | null | undefined }) 
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      <form onSubmit={apply}>
-        <Field id={input_id} label={t("cart.discount_code")}>
-          <InputGroup>
-            <InputGroupInput
-              id={input_id}
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              autoComplete="off"
-            />
-            <InputGroupAddon align="inline-end">
-              <InputGroupButton
-                type="submit"
-                size="sm"
-                className="font-medium"
-                disabled={pending || !value.trim() || !backend?.cart_id}
-              >
-                {pending ? <Spinner className="size-4" /> : t("cart.discount_apply")}
-              </InputGroupButton>
-            </InputGroupAddon>
-          </InputGroup>
-        </Field>
-      </form>
-      <FormError>{message}</FormError>
-      {applied.length > 0 && (
-        <ul className="flex flex-wrap gap-1.5" aria-label={t("cart.discount_applied")}>
-          {applied.map((code) => (
-            <li
-              key={code}
-              className="flex items-center gap-1 rounded-md bg-positive-surface py-0.5 pr-0.5 pl-2 text-xs text-positive"
-            >
-              {code}
-              <button
-                type="button"
-                onClick={() => save(applied.filter((c) => c !== code))}
-                disabled={pending}
-                aria-label={t("cart.discount_remove", { code })}
-                className="rounded p-0.5 hover:bg-positive/20"
-              >
-                <X className="size-3" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    <DiscountCodeView
+      value={value}
+      set_value={setValue}
+      apply={apply}
+      can_apply={!!value.trim() && !!backend?.cart_id}
+      pending={pending}
+      message={message}
+      applied={applied.map((code) => ({ code, remove: () => save(applied.filter((c) => c !== code)) }))}
+    />
   );
 }

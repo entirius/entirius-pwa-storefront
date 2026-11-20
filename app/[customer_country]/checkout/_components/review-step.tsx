@@ -18,7 +18,7 @@ import { Button } from "@theme/ui/button";
 import { Checkbox } from "@theme/ui/checkbox";
 import { Spinner } from "@theme/ui/spinner";
 import { RichText } from "@entirius/storefront-sdk/components/rich-text";
-import { TokenLinks } from "@/components/ui/token-links";
+import { TokenLinks } from "@entirius/storefront-sdk/components/token-links";
 import { record_order_agreements, useAgreementDefinitions, useLegalRoutes } from "@/lib/agreements";
 import { subscribe_newsletter, useNewsletterAvailable } from "@/lib/newsletter";
 import {

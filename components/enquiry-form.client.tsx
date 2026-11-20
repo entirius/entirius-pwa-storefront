@@ -7,17 +7,11 @@
 import { useMemo, useState } from "react";
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
-import { Button } from "@theme/ui/button";
-import { Checkbox } from "@theme/ui/checkbox";
-import { HONEYPOT_NAME, HoneypotField } from "@theme/ui/honeypot-field";
-import { Input } from "@theme/ui/input";
-import { CheckLabel, Field, FormError, FormHeading } from "@theme/ui/form";
-import { Spinner } from "@theme/ui/spinner";
-import { Textarea } from "@theme/ui/textarea";
-import { TokenLinks } from "@/components/ui/token-links";
+import { HONEYPOT_NAME } from "@theme/ui/honeypot-field";
+import { EnquiryForm as EnquiryFormView } from "@theme/forms/enquiry-form";
+import type { SendState } from "@entirius/storefront-sdk/forms";
 import { useLegalRoutes } from "@/lib/agreements";
 import { is_email, send_contact_form, useContactFormAvailable } from "@/lib/contact-forms";
-import { cn } from "@/lib/utils";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // The form type of the product page; the CMS block names its own (default: general).
@@ -35,7 +29,7 @@ type Props = {
   collapsed_primary?: boolean;
 };
 
-type State = "idle" | "sending" | "sent" | "failed" | "invalid";
+type State = SendState;
 
 export function EnquiryForm({ form_type, slug, context, className, collapsed_label, collapsed_primary }: Props) {
   const { t, language } = useI18n();
@@ -68,61 +62,22 @@ export function EnquiryForm({ form_type, slug, context, className, collapsed_lab
     setState(sent ? "sent" : "failed");
   };
 
-  if (!open) {
-    return (
-      <Button
-        type="button"
-        size="lg"
-        variant={collapsed_primary ? "default" : "outline"}
-        className={cn("w-full", className)}
-        data-enquiry-trigger
-        onClick={() => setOpen(true)}
-      >
-        {collapsed_label}
-      </Button>
-    );
-  }
-
-  if (state === "sent") {
-    return (
-      <p role="status" data-enquiry-sent className={cn("rounded-2xl border p-4 text-sm", className)}>
-        {t("enquiry.sent")}
-      </p>
-    );
-  }
-
   return (
-    <form
-      onSubmit={submit}
-      noValidate
-      data-enquiry-form
-      className={cn("relative flex flex-col gap-3 rounded-2xl border p-4", className)}
-    >
-      <FormHeading description={t("enquiry.intro")}>{collapsed_label ?? t("enquiry.title")}</FormHeading>
-      <Field id={`enq-name-${slug}`} label={t("enquiry.name")}>
-        <Input id={`enq-name-${slug}`} name="name" autoComplete="name" required />
-      </Field>
-      <Field id={`enq-email-${slug}`} label={t("enquiry.email")}>
-        <Input id={`enq-email-${slug}`} name="email" type="email" autoComplete="email" required />
-      </Field>
-      <Field id={`enq-message-${slug}`} label={t("enquiry.message")}>
-        <Textarea id={`enq-message-${slug}`} name="message" rows={4} required />
-      </Field>
-      <HoneypotField />
-      <CheckLabel data-enquiry-consent>
-        <Checkbox checked={consent} onCheckedChange={(v) => setConsent(v === true)} aria-required />
-        <span>
-          <TokenLinks
-            text={t("enquiry.consent", { privacy: "{privacy}" })}
-            links={{ privacy: { route: legal.privacy, label: t("checkout.privacy_link") } }}
-          />
-        </span>
-      </CheckLabel>
-      {state === "invalid" && <FormError>{t("enquiry.invalid")}</FormError>}
-      {state === "failed" && <FormError>{t("enquiry.failed")}</FormError>}
-      <Button type="submit" disabled={state === "sending"}>
-        {state === "sending" ? <Spinner className="size-4" /> : t("enquiry.send")}
-      </Button>
-    </form>
+    <EnquiryFormView
+      state={state}
+      submit={submit}
+      className={className}
+      id={slug}
+      title={collapsed_label ?? t("enquiry.title")}
+      open={open}
+      open_form={() => setOpen(true)}
+      trigger={collapsed_label ? { label: collapsed_label, primary: !!collapsed_primary } : null}
+      consent={{
+        checked: consent,
+        set: setConsent,
+        text: t("enquiry.consent", { privacy: "{privacy}" }),
+        links: { privacy: { route: legal.privacy, label: t("checkout.privacy_link") } },
+      }}
+    />
   );
 }

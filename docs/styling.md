@@ -11,7 +11,7 @@ Tailwind CSS v4 with shadcn/ui ("new-york" style). Config in `packages/theme-def
 
 ## Forms
 
-Every field goes through a shared component — never `FormField` / `<label>` with local classes.
+A form's view is the theme's (`@theme/forms/<name>`, its logic stays in the core: [architecture](architecture.md#themes)). Every field goes through a shared component — never `FormField` / `<label>` with local classes.
 
 | Need | Use |
 |---|---|

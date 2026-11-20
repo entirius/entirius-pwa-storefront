@@ -7,17 +7,11 @@
 import { useMemo, useState } from "react";
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
-import { Button } from "@theme/ui/button";
-import { Checkbox } from "@theme/ui/checkbox";
-import { HONEYPOT_NAME, HoneypotField } from "@theme/ui/honeypot-field";
-import { Input } from "@theme/ui/input";
-import { CheckLabel, Field, FormError, FormHeading } from "@theme/ui/form";
-import { Spinner } from "@theme/ui/spinner";
-import { Textarea } from "@theme/ui/textarea";
-import { TokenLinks } from "@/components/ui/token-links";
+import { HONEYPOT_NAME } from "@theme/ui/honeypot-field";
+import { NotifySimilarForm } from "@theme/forms/notify-similar-form";
+import type { SendState } from "@entirius/storefront-sdk/forms";
 import { useLegalRoutes } from "@/lib/agreements";
 import { is_email, send_contact_form, useContactFormAvailable } from "@/lib/contact-forms";
-import { cn } from "@/lib/utils";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import type { MessageKey } from "@entirius/storefront-sdk/i18n";
 
@@ -36,7 +30,7 @@ type Props = {
   onOpenChange?: (open: boolean) => void;
 };
 
-type State = "idle" | "sending" | "sent" | "failed" | "invalid";
+type State = SendState;
 
 // Whether the channel offers the request (a contact-forms key AND the `notify-similar` type).
 export const useNotifySimilarAvailable = () => useContactFormAvailable(NOTIFY_SIMILAR_TYPE);
@@ -83,57 +77,21 @@ export function NotifySimilar({
     setState(sent ? "sent" : "failed");
   };
 
-  if (!open) {
-    return (
-      <Button
-        type="button"
-        size="lg"
-        className={cn("w-full", className)}
-        data-notify-trigger
-        onClick={() => setOpen(true)}
-      >
-        {trigger_label}
-      </Button>
-    );
-  }
-
-  if (state === "sent") {
-    return (
-      <p role="status" data-notify-sent className={cn("rounded-2xl border p-4 text-sm", className)}>
-        {t("notify.sent")}
-      </p>
-    );
-  }
-
   return (
-    <form
-      onSubmit={submit}
-      noValidate
-      data-notify-form
-      className={cn("relative flex flex-col gap-3 rounded-2xl border p-4 text-left", className)}
-    >
-      <FormHeading>{t(title_key)}</FormHeading>
-      <Field id="notify-email" label={t("notify.email")}>
-        <Input id="notify-email" name="email" type="email" autoComplete="email" required />
-      </Field>
-      <Field id="notify-note" label={t("notify.note")} hint={t("notify.note_hint")}>
-        <Textarea id="notify-note" name="note" rows={3} aria-describedby="notify-note-hint" />
-      </Field>
-      <HoneypotField />
-      <CheckLabel data-notify-consent>
-        <Checkbox checked={consent} onCheckedChange={(v) => setConsent(v === true)} aria-required />
-        <span>
-          <TokenLinks
-            text={t("notify.consent", { privacy: "{privacy}" })}
-            links={{ privacy: { route: legal.privacy, label: t("checkout.privacy_link") } }}
-          />
-        </span>
-      </CheckLabel>
-      {state === "invalid" && <FormError>{t("notify.invalid")}</FormError>}
-      {state === "failed" && <FormError>{t("notify.failed")}</FormError>}
-      <Button type="submit" disabled={state === "sending"}>
-        {state === "sending" ? <Spinner className="size-4" /> : t("notify.send")}
-      </Button>
-    </form>
+    <NotifySimilarForm
+      state={state}
+      submit={submit}
+      className={className}
+      title={t(title_key)}
+      open={open}
+      open_form={() => setOpen(true)}
+      trigger_label={trigger_label}
+      consent={{
+        checked: consent,
+        set: setConsent,
+        text: t("notify.consent", { privacy: "{privacy}" }),
+        links: { privacy: { route: legal.privacy, label: t("checkout.privacy_link") } },
+      }}
+    />
   );
 }

@@ -80,7 +80,7 @@ app/
     ├── (product)/      Product detail page
     ├── checkout/       Address → shipping → payment → review stepper
     └── profile/        Account: profile, addresses, orders
-components/ui/          Domain components not yet in the theme (media, rich text, wishlist button)
+components/             The forms' logic; their views are the theme's (@theme/forms/*)
 packages/
 ├── sdk/                @entirius/storefront-sdk: contract between core and theme (i18n)
 └── theme-default/      Default theme: shadcn/ui primitives, imported as @theme/ui/<name>

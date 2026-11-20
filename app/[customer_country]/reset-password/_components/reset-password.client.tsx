@@ -9,17 +9,12 @@ import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import {
-  reset_password_schema,
-  type ResetPasswordFormValues,
-} from "@/utils/validation/auth.schema";
+import { reset_password_schema } from "@/utils/validation/auth.schema";
+import type { ResetPasswordFormValues } from "@entirius/storefront-sdk/forms";
 import { client_reset_password } from "@/lib/auth-client";
-import { Form, FormError } from "@theme/ui/form";
-import { TextField } from "@theme/ui/form-fields";
-import { Button } from "@theme/ui/button";
-import { Spinner } from "@theme/ui/spinner";
 import { MessagePage } from "@theme/components/message-page";
 import { ResetPasswordPage } from "@theme/account/reset-password-page";
+import { ResetPasswordForm } from "@theme/forms/reset-password-form";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // Receiver of the reset mail: /reset-password?key=. The key is checked only when the form is sent, so a
@@ -66,20 +61,5 @@ export function ResetPasswordClient() {
     );
   }
 
-  return (
-    <ResetPasswordPage
-      form={
-        <Form {...form}>
-          <form onSubmit={submit} className="flex flex-col gap-4">
-            <TextField control={form.control} name="password" label={t("auth.new_password")} hint={t("auth.password_hint")} type="password" autoComplete="new-password" />
-            <TextField control={form.control} name="confirm_password" label={t("auth.confirm_new_password")} type="password" autoComplete="new-password" />
-            <FormError>{form.formState.errors.root?.message}</FormError>
-            <Button type="submit" disabled={pending}>
-              {pending ? <Spinner className="size-4" /> : t("auth.set_password")}
-            </Button>
-          </form>
-        </Form>
-      }
-    />
-  );
+  return <ResetPasswordPage form={<ResetPasswordForm form={form} submit={submit} pending={pending} />} />;
 }

@@ -4,19 +4,14 @@
 
 "use client";
 
+import { ForgotPasswordForm as ForgotPasswordFormView } from "@theme/forms/forgot-password-form";
+import type { ForgotPasswordFormValues } from "@entirius/storefront-sdk/forms";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import {
-  forgot_password_schema,
-  type ForgotPasswordFormValues,
-} from "@/utils/validation/auth.schema";
+import { forgot_password_schema } from "@/utils/validation/auth.schema";
 import { client_request_password_reset } from "@/lib/auth-client";
-import { Form, FormError } from "@theme/ui/form";
-import { TextField } from "@theme/ui/form-fields";
-import { Button } from "@theme/ui/button";
-import { Spinner } from "@theme/ui/spinner";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // Asks for the reset mail; the link in it opens /reset-password. The sheet goes back to the login view
@@ -48,22 +43,5 @@ export function ForgotPasswordForm({
     });
   });
 
-  return (
-    <Form {...form}>
-      <form onSubmit={submit} className="flex flex-col gap-4 p-4">
-        <TextField control={form.control} name="email" label={t("auth.email")} type="email" autoComplete="email" />
-        <FormError>{form.formState.errors.root?.message}</FormError>
-        <Button type="submit" disabled={pending}>
-          {pending ? <Spinner className="size-4" /> : t("auth.send_reset_link")}
-        </Button>
-        <button
-          type="button"
-          onClick={onBack}
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          {t("auth.back_to_sign_in")}
-        </button>
-      </form>
-    </Form>
-  );
+  return <ForgotPasswordFormView form={form} submit={submit} pending={pending} back={onBack} />;
 }

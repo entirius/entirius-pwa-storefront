@@ -26,6 +26,7 @@
     "./cart": "./src/cart/types.ts",
     "./cart/page": "./src/cart/page.tsx",
     "./checkout": "./src/checkout/types.ts",
+    "./forms": "./src/forms/types.ts",
     "./account": "./src/account/types.ts",
     "./account/page": "./src/account/page.tsx",
     "./catalog/listing": "./src/catalog/listing.tsx",
@@ -40,6 +41,7 @@
   },
   "peerDependencies": {
     "next": ">=16.0.0",
-    "react": "^19.0.0"
+    "react": "^19.0.0",
+    "react-hook-form": "^7.0.0"
   }
 }

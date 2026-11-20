@@ -26,6 +26,11 @@ All notable changes to this project are documented here. The format follows
 - The cart page is a theme template: `@theme/cart/cart-page` arranges `cart-line`, `cart-summary` and `cart-bar`,
   reading the cart from `useCartPage()` (`CartPageRuntime` in the core). The page header, the order steps, the unit
   price and the summary card moved to `@theme/order/*` and serve checkout too; checkout works as before.
+- The forms are theme views with their logic in the core: `@theme/forms/<name>` (login, register, forgot and reset
+  password, profile, change password, address sheet, newsletter, enquiry, notify about a similar product, back in
+  stock, discount code) draws the fields and the layout from a model in props typed in the SDK (`/forms`); the core
+  validates, sends and keeps the state. `TokenLinks` moved into the SDK (`/components/token-links`); the SDK now
+  peers on `react-hook-form` for the form types. The shop looks and works as before.
 - Checkout's summary and the page after the order are theme parts (`@theme/checkout/checkout-summary`,
   `summary-line`, `success-page`, `order-receipt`), and the order totals (`@theme/order/order-totals`) serve the cart
   and checkout from a model (`order_totals()`); the steps, forms, delivery, payment and the order button stay in the
