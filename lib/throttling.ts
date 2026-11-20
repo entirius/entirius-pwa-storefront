@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import type { Translate } from "@/lib/i18n/translate";
+import type { Translate } from "@entirius/storefront-sdk/i18n";
 
 // The accounts limits (login, signup, password reset mail) answer 429 with `Retry-After` in seconds. Only a call of
 // the storefront server can read it: the API sends no Access-Control-Expose-Headers, so a browser call sees the

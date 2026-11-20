@@ -5,7 +5,7 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { buy_block } from "@/lib/buy-rules";
 import type { Price } from "@/utils/NORMALIZERS/price.normalizer";
 import type { Variant, VariantsData } from "@/utils/NORMALIZERS/variant.normalizer";

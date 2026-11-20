@@ -8,10 +8,8 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { client_activate } from "@/lib/auth-client";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
-import { LinkDynamic } from "@/lib/link-dynamic";
-import { useI18n } from "@/providers/i18n.provider";
+import { MessagePage } from "@theme/components/message-page";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // Email double-opt-in receiver. The confirmation link is /user-handler?key=&uid=;
 // we POST it to the activation endpoint and report the result. Activation returns
@@ -36,38 +34,14 @@ export function UserHandlerClient() {
     );
   }, [key, uid]);
 
+  const ok = status === "success";
   return (
-    <div className="mx-auto max-w-3xl px-4 py-16 text-center">
-      {status === "pending" && (
-        <div className="flex flex-col items-center gap-3">
-          <Spinner className="size-6" />
-          <p className="text-muted-foreground">{t("auth.verifying")}</p>
-        </div>
-      )}
-
-      {status === "success" && (
-        <>
-          <h1 className="mb-3 text-2xl">{t("auth.verified_title")}</h1>
-          <p className="text-muted-foreground mb-6">
-            {t("auth.verified_text")}
-          </p>
-          <Button asChild variant="outline">
-            <LinkDynamic href="/">{t("auth.sign_in")}</LinkDynamic>
-          </Button>
-        </>
-      )}
-
-      {status === "error" && (
-        <>
-          <h1 className="mb-3 text-2xl">{t("auth.verify_failed_title")}</h1>
-          <p className="text-muted-foreground mb-6">
-            {t("auth.verify_failed_text")}
-          </p>
-          <Button asChild variant="outline">
-            <LinkDynamic href="/">{t("common.back_to_store")}</LinkDynamic>
-          </Button>
-        </>
-      )}
-    </div>
+    <MessagePage
+      pending={status === "pending"}
+      pending_text={t("auth.verifying")}
+      title={ok ? t("auth.verified_title") : t("auth.verify_failed_title")}
+      text={ok ? t("auth.verified_text") : t("auth.verify_failed_text")}
+      action={{ label: ok ? t("auth.sign_in") : t("common.back_to_store"), href: "/" }}
+    />
   );
 }

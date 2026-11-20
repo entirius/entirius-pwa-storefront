@@ -2,8 +2,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import type { OrderTone } from "@entirius/storefront-sdk/account";
 import { resolve_media_url } from "@/utils/media-url";
-import { msg, type MessageKey } from "@/lib/i18n/translate";
+import { msg, type MessageKey } from "@entirius/storefront-sdk/i18n";
 import { NORM_CART_POINT, type CartDeliveryPoint } from "./delivery-point.normalizer";
 
 // Normalizes checkout v2 order responses:
@@ -303,31 +304,23 @@ function NORM_ORDER(resp: unknown): Order {
   return norm_order({ ...(raw?.order_body ?? {}), ...raw });
 }
 
-// Status pills on the dark brand theme: status-coloured text on a 15 % tint of
-// the same token (WCAG AA 5.4–7.2:1). Classes must stay literal for Tailwind.
-const NOTICE = { bg: "bg-notice-surface", text: "text-notice" };
-const POSITIVE = { bg: "bg-positive-surface", text: "text-positive" };
-const NEGATIVE = { bg: "bg-destructive-surface", text: "text-destructive" };
-const INFORMATIVE = { bg: "bg-informative-surface", text: "text-informative" };
-
-export const status_colors: Record<string, { bg: string; text: string }> = {
+// What a status means for the customer: the theme gives each tone its colour.
+export const status_tones: Record<string, OrderTone> = {
   // Statuses this backend actually returns.
-  unpaid: NOTICE,
-  confirmed: POSITIVE,
-  complete: POSITIVE,
-  canceled: NEGATIVE,
-  returned: NOTICE,
+  unpaid: "notice",
+  confirmed: "positive",
+  complete: "positive",
+  canceled: "negative",
+  returned: "notice",
   // Carried over from the legacy client; not emitted by this backend.
-  pending: NOTICE,
-  processing: INFORMATIVE,
-  shipped: INFORMATIVE,
-  delivered: POSITIVE,
-  cancelled: NEGATIVE,
+  pending: "notice",
+  processing: "informative",
+  shipped: "informative",
+  delivered: "positive",
+  cancelled: "negative",
 };
 
-export function status_style(status: string): { bg: string; text: string } {
-  return status_colors[status] ?? { bg: "bg-muted", text: "text-foreground" };
-}
+export const status_tone = (status: string): OrderTone => status_tones[status] ?? "neutral";
 
 // v2 sends ISO with a zone ("2026-10-07T11:12:00Z" / "+00:00"). Parse defensively
 // and fall back to the raw string if the engine can't read it.

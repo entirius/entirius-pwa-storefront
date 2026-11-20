@@ -5,7 +5,7 @@
 import { expect, test } from "@playwright/test";
 
 // The storefront wears @entirius/brand-tokens through the semantic layer in
-// app/globals.css: the light set by default (THEME in _CONFIG/app.config.json picks
+// app/globals.css: the light set by default (COLOR_SCHEME in _CONFIG/app.config.json picks
 // the dark one), no theme toggle. Expected values are the brand tokens of the
 // pinned package version (light.neutral-100 #F4F5F7, accent-fill #0E7C86).
 

@@ -6,17 +6,17 @@
 
 import { useState } from "react";
 import { BookUser, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Button } from "@theme/ui/button";
+import { RadioGroup, RadioGroupItem } from "@theme/ui/radio-group";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
+} from "@theme/ui/sheet";
 import { cn } from "@/lib/utils";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import type { CustomerAddress } from "@/app/[customer_country]/profile/addresses/api.query";
 
 // Value of the "new address" row; address ids come from the backend and never take it.

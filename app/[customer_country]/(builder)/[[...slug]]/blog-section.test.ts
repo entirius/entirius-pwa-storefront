@@ -4,7 +4,7 @@
 
 import { describe, expect, it, vi } from "vitest";
 import type { create_api } from "@/API/api.context";
-import { blog_section_routes, cms_blog_posts_query } from "./api.query";
+import { blog_section_routes, load_cms_blog_posts } from "./api.query";
 
 type Api = ReturnType<typeof create_api>;
 
@@ -17,7 +17,7 @@ describe("blog_section_routes", () => {
   });
 });
 
-describe("cms_blog_posts_query", () => {
+describe("load_cms_blog_posts", () => {
   const post = (route: string, language: string, title: string) => ({
     uid: `${route}-${language}`,
     language,
@@ -34,9 +34,8 @@ describe("cms_blog_posts_query", () => {
       second: [null, { data: [post("second", "EN", "Second")] }],
     };
     const FETCH_METHOD = vi.fn(async (_route: string, init: { querys: { routes: string } }) => answers[init.querys.routes]);
-    const query = cms_blog_posts_query({ FETCH_METHOD } as unknown as Api, ["first", "gone", "second"], "pl");
-    expect(query.queryKey).toEqual(["cms-blog-posts", ["first", "gone", "second"], "pl"]);
-    expect((await query.queryFn()).map((card) => card.title)).toEqual(["Pierwszy", "Second"]);
+    const cards = await load_cms_blog_posts({ FETCH_METHOD } as unknown as Api, ["first", "gone", "second"], "pl");
+    expect(cards.map((card) => card.title)).toEqual(["Pierwszy", "Second"]);
     expect(FETCH_METHOD).toHaveBeenCalledTimes(3);
   });
 });

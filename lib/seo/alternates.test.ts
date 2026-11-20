@@ -56,7 +56,16 @@ describe("catalog_alternates", () => {
         Response.json({ results: [{ url_key: "x", url_keys: { [first.language]: "chairs" } }] }),
       ),
     );
-    expect(await catalog_alternates("catalog", "chairs", first.language)).toBeUndefined();
+    // The profiles that share that language have the page; the others are left out. One profile alone: nothing.
+    const sharing = PROFILE_VIEWS.filter((view) => view.language === first.language);
+    const found_one = await catalog_alternates("catalog", "chairs", first.language);
+    if (sharing.length < 2) expect(found_one).toBeUndefined();
+    else {
+      for (const view of sharing) expect(found_one?.[hreflang(view)]).toBe(profile_path(view.profile, "/catalog/chairs"));
+      for (const view of PROFILE_VIEWS.filter((v) => v.language !== first.language)) {
+        expect(found_one?.[hreflang(view)]).toBeUndefined();
+      }
+    }
     if (!second) return;
     vi.stubGlobal(
       "fetch",

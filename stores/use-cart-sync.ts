@@ -12,7 +12,7 @@ import { useCartStore } from "@/stores/cart.store";
 import { cart_query } from "@/stores/cart.query";
 import { stocks_query } from "@/app/[customer_country]/(product)/product/[product_url_key]/stock.query";
 import { useAuth } from "@/providers/auth.provider";
-import { useHydrated } from "@/lib/use-hydrated";
+import { useHydrated } from "@entirius/storefront-sdk/hooks";
 
 // Shared create-or-patch sync for the cart. The cart page and the checkout page
 // run this — the queryKey is derived from the local items, so TanStack dedupes to

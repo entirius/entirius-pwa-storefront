@@ -17,7 +17,6 @@ entirius-pwa-storefront/
 │       └── api.static-access.ts  # static values for ISR/build-time fetches
 ├── app/
 │   ├── layout.tsx                # Root layout (providers, language, layout slots, cookie banner)
-│   ├── _components/layout/       # Header, footer, navigation, search, cart link, wishlist/account sheets
 │   ├── _components/layout-slots/ # CMS content on every page (announcement, before-footer)
 │   ├── _components/cookie-consent/ # Cookie banner on django-agreements
 │   └── [customer_country]/       # All routed pages live under the country segment
@@ -29,9 +28,12 @@ entirius-pwa-storefront/
 │       ├── profile/              # Account: profile, addresses, orders
 │       ├── reset-password/       # Landing of the password reset mail (new password from ?key=)
 │       └── user-handler/         # Double-opt-in activation landing
-├── components/ui/                # shadcn/ui components
+├── components/                   # The forms' logic (login, register, contact forms, stock alert); their views are @theme/forms/*
+├── packages/
+│   ├── sdk/                      # @entirius/storefront-sdk: messages (src/i18n/messages/en.ts, pl.ts), t(), price(), useI18n()
+│   └── theme-default/            # @entirius/theme-default: shadcn/ui primitives (src/ui/), imported as @theme/ui/<name>
 ├── lib/
-│   ├── i18n/                     # Messages (messages/en.ts, pl.ts), t(), price(), server loader
+│   ├── i18n/                     # Language resolution, _CONFIG overrides, server loader, price_lines()
 │   ├── auth-client.ts            # Login/signup/activate/password/logout against Accounts
 │   ├── prefetch_boundary.tsx     # Server-side TanStack Query prefetch + hydration
 │   ├── link-dynamic.tsx          # Dynamic import wrapper
@@ -39,7 +41,6 @@ entirius-pwa-storefront/
 │   └── utils.ts                  # cn() utility
 ├── providers/
 │   ├── auth.provider.tsx         # Per-request logged-in flag (seeded server-side)
-│   ├── i18n.provider.tsx         # useI18n() for client components (seeded by the root layout)
 │   └── Tanstack-query.provider.tsx
 ├── stores/                       # Zustand cart + wishlist, cart query & sync hook, wishlist account sync
 ├── utils/
@@ -49,7 +50,7 @@ entirius-pwa-storefront/
 ├── types/                        # Shared TypeScript types
 ├── proxy.ts                      # Next.js middleware — geo routing + cookie injection
 └── _CONFIG.example/              # Committed config templates (copy to _CONFIG/)
-    ├── app.config.json           # API_BASE_URL, DEBUG_MODE, THEME, SITE_NAME, BRAND
+    ├── app.config.json           # API_BASE_URL, DEBUG_MODE, COLOR_SCHEME, SITE_NAME, BRAND
     ├── channels.config.json      # Channel labels + checkout keys
     ├── countries.config.json     # Country → language/currency/channel mapping
     ├── theme.css                 # Client theme (empty = default look)
@@ -125,12 +126,166 @@ All pages live under `app/[customer_country]/`. The `ct` cookie (set by middlewa
 
 | Tier | Location | Purpose |
 |------|----------|---------|
-| shadcn/ui | `components/ui/` | Base primitives (Button, Input, Sheet, Carousel). Added via `pnpm dlx shadcn add <name>` |
-| Shared | `lib/` | Cross-page components (PrefetchBoundary, LinkDynamic) |
-| Layout | `app/_components/layout/` | Header, navigation, search, cart/wishlist/account sheets |
+| Theme | `packages/theme-default/src/ui/` | Base primitives (Button, Input, Sheet, Carousel), imported as `@theme/ui/<name>`. Added via shadcn, see [styling](styling.md) |
+| Theme components | `packages/theme-default/src/components/`, `src/product/` | Product card, price, badges, wishlist button; the product page and its parts. `@theme/components/<name>`, `@theme/product/<part>` |
+| Account | `packages/theme-default/src/account/` (look), `app/[customer_country]/profile/**/_components/*-runtime.client.tsx`, `lib/account-models.ts` | The account section's pages and parts: `@theme/account/<part>` |
+| CMS and blog | `packages/theme-default/src/cms/`, `src/blog/` (look), `(builder)/[[...slug]]/_components/` (renderer, data), `lib/cms/`, `lib/blog-models.ts` | Server parts: a block type of the CMS editor per file (`@theme/cms/<type>`), the blog's pages and parts (`@theme/blog/<part>`) |
+| Forms | `components/*-form.client.tsx` and the forms next to their pages (logic), `packages/theme-default/src/forms/` (views) | Validation, sending and state in the core; fields and layout in `@theme/forms/<name>` |
+| Shared | `lib/` | Cross-page components (PrefetchBoundary, LinkDynamic); `lib/storefront/` fills the SDK's `Storefront` |
+| Layout | `packages/theme-default/src/layout/` (look), `lib/layout/` (data, menu queries, hooks) | Header, footer, menus, search, account, cart link, wishlist sheet, locale switch, notices: `@theme/layout/<part>` |
 | Page feature | `app/[customer_country]/.../_components/` | Co-located with owning page (filters, product tile, listing) |
 
 Client components use `.client.tsx` suffix. Server components have no suffix.
+
+### Themes
+
+For a theme author and a shop builder: [building a theme](themes/guide.md), [building a shop](themes/shop.md), [the
+contract](themes/contract.md). This section is the core's side.
+
+`@theme/<path>` resolves through `tsconfig.json` paths: `theme/src/<path>` when an installed theme has that file,
+else `packages/theme-default/src/<path>`. A theme overrides a component by shipping a file at the same path with the
+same exports; everything else comes from the default theme. Components inside the default theme import each other
+through `@theme/*` too, so an override reaches them (a theme's `Button` is the one in the default `QuantityStepper`).
+`theme/` is gitignored: a shop build or the theme's dev server puts it there. `app/globals.css` has `@source "../theme"`
+for its classes.
+
+A theme's colours and shapes are `@theme/tokens.css`: the root layout loads `app/globals.css`, then this file, then the
+shop's `_CONFIG/theme.css`, so a theme overrides the default look and a shop overrides the theme. It sets the semantic
+variables of `app/globals.css` (`--primary`, `--surface-radius`, `--product-image-ratio`, `--catalog-columns`...); the
+default theme's file is empty. Typefaces stay in `_CONFIG/fonts.ts` (`next/font`).
+
+A theme never imports the core. What it needs from it comes through `@entirius/storefront-sdk`:
+
+- **Types** of what it renders (`/product`, `/product/card`): the shapes the normalizers produce, not raw API data.
+- **`Storefront`** (`/storefront`): hooks and settings the core lends at run time (`useWishlist`, `useProductCard`,
+  `useQuickAdd`, `useOmnibus`, the picture origin, the localized link). `lib/storefront/storefront.client.tsx` fills
+  it once in the root layout; SDK components use it (`Media`, `Link`; `RichText` sanitizes on its own).
+- **A page model** per page (`/product/page`): the core works out the page (data, real-time stock, buy rules,
+  actions) in `ProductPageRuntime`, and every part of the template reads it with `useProductPage()`. The listing
+  (`/catalog/listing`, a category or a search) the same way: `ListingPageRuntime`, `useListingPage()`; the filter
+  panel's hooks (`useListingFilters`, `useFilterOption`, `useSortCriterion`, `useRangeFilter`, `useAppliedFilters`)
+  come with it, each following only its own piece of the panel's state, so a click re-renders one checkbox. The
+  cart (`/cart/page`): `CartPageRuntime`, `useCartPage()`.
+
+A page template is an arrangement of named parts: `@theme/product/product-page` puts `gallery`, `header`, `price`,
+`stock-status`, `variant-picker`, `buy-box`, `description`, `specs`, `stories`, `related` and `sticky-buy-bar` in
+place. Since a part reads the model itself, a theme replaces one part, the arrangement, or both. Forms with logic of
+their own (enquiry, back-in-stock, notify about a similar product) come from the core whole, in `blocks`. The
+listing's template `@theme/catalog/listing-page` arranges `listing-header`, `filters` (with `sort-options`,
+`filter-range`, `filter-options`), `filters-sheet`, `pagination`, `product-grid` and `listing-empty`, for the category
+and the search page alike. The cart's `@theme/cart/cart-page` arranges `cart-line`, `cart-summary` and `cart-bar` with
+the order parts it shares with checkout (`@theme/order/page-header`, `order-steps`, `unit-price`, `summary-card`,
+`order-totals`); the core hands them models through thin adapters (`order_steps()`, `unit_price()`,
+`order_totals()`), and so do the cart's problems (`@theme/order/cart-alerts`, `cart_alerts()`) and its gifts
+(`@theme/cart/gift-line`, `gift-picker`, `@theme/checkout/summary-gift-line`: `gift_line()` and `gift_picker()` in
+`app/_components/order/cart-gifts.ts`, the rules and the gift setter stay in the core). The discount code comes whole
+in `blocks`. Checkout (`/checkout`)
+keeps its steps, forms, delivery, payment and the order button in the core, none of them overridable (a theme must
+not be able to break an order); a theme draws the page header, the steps, the summary beside them
+(`@theme/checkout/checkout-summary` with `summary-line`, its model built by `useCheckoutSummary()`) and the page
+after the order (`@theme/checkout/success-page` with `order-receipt`, keeping `data-order-receipt` and
+`data-print-hide` for the print styles), and the form primitives (`@theme/ui/*`) the core's forms use. The shop's
+other forms (signing in, a new account, the reset mail and the new password, the profile, the password, the address
+sheet, the newsletter, an enquiry, notify about a similar product, back in stock, the discount code) keep their
+validation, sending and state in the core and draw a view of the theme, `@theme/forms/<name>`, from a model in
+props (`/forms`): a react-hook-form form hands the view `form`, `submit` and `pending`, so its fields bind to
+`form.control` through `TextField` / `SelectField` / `CheckboxField`; a contact form hands its state, `submit` (the
+core reads the fields by `name`) and the consent (`TokenLinks` from the SDK draws its privacy link). The forms keep
+their names and props in the core, so `Storefront.forms` still loads the account ones on first use. The account (`/account/page`): the
+section's frame `@theme/account/account-layout` with `account-menu` (`useAccountMenu()`, set in the profile layout,
+which also guards the section), `overview-page`, `orders-page`, `order-page` and `addresses-page`, each with its
+runtime in the core (`OverviewRuntime`, `OrdersRuntime`, `OrderRuntime`, `AddressesRuntime`) and the models of
+`lib/account-models.ts`: prices, dates and an order's status as a label and a tone (`notice`, `positive`,
+`negative`, `informative`, `neutral`) the theme colours. The forms (profile, password, address sheet, the new
+password) come whole from the core. The pages answering an e-mail link (activation, password reset, newsletter,
+back in stock) draw `@theme/components/message-page` in props, the reset form `@theme/account/reset-password-page`.
+Files in `packages/` carry no `.client` suffix: the path is the contract.
+
+Those parts are browser parts: they read a context. CMS content and the blog are server parts instead: plain HTML
+with their data in props, as content needs no browser JS:
+
+- **A CMS block** (a section or a tile of the page editor) is `@theme/cms/<core_type>`: `section-text`,
+  `section-hero-slider`, `tile-hero`... (`section-product-slider` serves both product sections). `CmsDocument`
+  (`(builder)/[[...slug]]/_components/cms-document.tsx`) reads what the document's blocks show on the server first
+  (`load_cms_data`: button addresses in the active language's url keys, products by url key, by SKU and of a
+  category, the posts of blog sections, all batched and cached per request), then `cms_blocks` in `cms-renderer.tsx`
+  turns each block into its part's props, typed in the SDK (`/cms`): text fields, `links` (`CmsLink`: address,
+  external, look), `pictures` (`CmsPictures`), products (`ProductCardData`) and `t`. The same renderer draws CMS
+  pages, layout slots, the blog's intro and a post's body. The parts that need the browser are client components
+  inside: `hero-carousel`, `product-rail`, the product card, the accordion; a form the core owns (the enquiry form
+  inside `section-type-a`) comes in a prop. The JS of a CMS page is its route's whatever the content: the sections,
+  their queries and API calls are not in it.
+- **The blog** (`/blog`, a post, an author) is `@theme/blog/blog-page`, `post-page` and `author-page` with their
+  parts (`post-tile`, `post-grid`, `category-tabs`, `pagination`, `post-header`, `post-toc`, `post-authors`,
+  `post-neighbours`, `author-photo`). The core reads the posts and hands over view models (`/blog`, built in
+  `lib/blog-models.ts`): addresses, dates and author lists already in the page language; a post's body and the
+  list's intro come rendered.
+- A server part gets `t` as a prop; a function cannot reach the browser, so a client component inside one reads its
+  words with `useI18n()`. A theme must not make a server part a client component (`t` would fail to serialize).
+
+The core also ships as three images (`docker/storefront.Dockerfile`, no configuration or data inside; `.dockerignore`
+is an allowlist):
+
+- `storefront-builder` (`--target builder`): the source with its production dependencies (what `next build` needs,
+  `pnpm install --prod`: the test and lint tools stay out) and the `storefront` command
+  (`docker/storefront-entrypoint.sh`), where a shop is built. A shop is a folder with a two-stage `Dockerfile`
+  (`FROM storefront-builder:<version> AS build`, `COPY _CONFIG /app/_CONFIG`, `RUN storefront build
+  @acme/theme@1.3.0`, then `FROM storefront-runtime:<version>`, `COPY --from=build /app/out /app`), its `_CONFIG` and
+  a build secret `.npmrc` for a private theme registry: `storefront build` installs the theme package's `src/` at
+  `/app/theme`, runs `next build` with `STOREFRONT_OUTPUT=standalone` (Next's standalone server, `next.config.ts`) and
+  puts the server, `.next/static`, `public/` and `_CONFIG` (read at run time: messages, brand files) in `/app/out`.
+  The shop's image holds its configuration and keys: it is never public. Going back is running the previous image.
+- `storefront-runtime` (`--target runtime`): `node:24-slim` and the `storefront` command; `storefront start` runs the
+  standalone server on :3000 (`/app/server.js`, or `/app/out/server.js` in a single-stage image).
+- `storefront-dev` (`--target dev`): the same core running `storefront dev`, `next dev` on :3100 with a theme mounted
+  at `/app/theme` and a configuration at `/app/_CONFIG` (else `_CONFIG.example`).
+
+In `dev` and `start` an `API_BASE_URL` on `http://localhost:<port>` is forwarded to the host, so the browser and the
+server use one address. `next build` asks the API for nothing (the static routes are the manifest, the share image
+and `robots.txt`), so a shop's image builds without its backend.
+
+The page shell works the same way. `LayoutRuntime` (`lib/layout/`, in the root layout) works out on the server what
+the header and footer need (logo, menu types and whether the megamenu fits the logo's row, the visitor's languages and
+currencies, the CMS footer), prefetches the menu's top level and hands it over as `useLayout()`. The theme's
+`@theme/layout/header` and `footer` and their parts read it, and take the rest from `Storefront` hooks (menu branches,
+header search, account, cart count, wishlist sheet, notices, locale switch). Account forms load on first use through
+`Storefront.forms`; signing in to the account's wishlist runs in the core (`WishlistAccountSync`), whatever the theme
+shows. `@theme/layout/page-shell` arranges the frame around every page (the layout slots, the header, `main`, the
+footer); the root layout reads the slots' CMS pages and hands them over rendered, or null. The 404 page is
+`@theme/layout/not-found-page` (the menu's top categories from the core) with `not-found-search`, the header's
+search hook inline.
+
+`docker/verdaccio/compose.yaml` runs a local npm registry on :4873 to publish `@entirius/*` before anything is public.
+`docker/try-themes.sh` does all of it from a checkout: the registry, the three images and the four packages at their
+version, then prints the theme author's commands.
+
+A theme author never clones this repository. `pnpm create @entirius/theme <name>` (`packages/create-theme`, `--example`
+for a theme with a look of its own: `tokens.css` and a product card) writes a theme folder: `package.json` with the SDK, the default theme and `@entirius/theme-cli`, a `tsconfig.json` that resolves
+`@theme/*` like the core (`src/` first, then the default theme), `theme.json`, an empty `src/`. The `entirius` command
+(`packages/theme-cli`) then runs in it:
+
+- `dev`: the `storefront-dev` image of the installed SDK's version with `src/` mounted at `/app/theme/src` (only
+  `src/`: the theme's `node_modules` would bring a second React and SDK) and `_CONFIG.dev` at `/app/_CONFIG`. The
+  first run writes `_CONFIG.dev` from the image's `_CONFIG.example` and asks for the backend URL, the channel and its
+  checkout key (or takes `--backend`, `--channel`, `--key`), then starts.
+- `build [--tag] [--config]`: a production image of the shop with this theme and `_CONFIG.dev`, on the
+  `storefront-builder` of the same version, run on its `storefront-runtime` (`storefront build` with the theme copied in); the registry and a shop's own
+  `Dockerfile` stay the way for real shops.
+- `list [--all]` (script `pnpm overrides`, `pnpm list` is pnpm's own): what a theme can override, grouped by where it
+  shows in the shop with one line each, ✓ at the theme's copies; smaller parts and the UI elements only with `--all`.
+  The groups and lines are `packages/theme-default/overrides.json`: a new file of the default theme needs its line
+  there (`overrides.test.ts`). `eject <path>`: a copy of one file into `src/`.
+- `check`: `tsc` over the theme with the SDK and the default theme, imports only from the contract (SDK, `@theme/*`,
+  React, Next, the default theme's dependencies), an override keeps the exports of the file it replaces, and the
+  theme renders: every page template and every part the core draws with props (`@theme/lib/check`, on the SDK's
+  mocks, `/mocks`) is rendered with the theme's files in place, outside Next (`bin/check/`: Node hooks resolve
+  `@theme/*` like the core, transpile TSX with the theme's TypeScript and stand in for `next/link`, `next/image`,
+  `next/dynamic` and `next/navigation`). A part that throws is named with the template that reached it and its own
+  file and line; a part inside a sheet (the address form) renders nothing on the server, so only that it loads is
+  checked. `packages/theme-default/check.test.ts` renders the same checks on the default theme.
+
+The four packages release together (one version); `packages/create-theme/template.test.ts` keeps the template's
+React, Next and TypeScript at the core's versions.
 
 ## State Management
 
@@ -157,13 +312,13 @@ Priority order for React/Next.js code:
 ## Layout slots
 
 The root layout renders CMS content above the header (`announcement`) and above the footer (`before-footer`) with
-the builder's own renderer. A slot is an ordinary contentdb static page published under the reserved route
+the builder's own renderer (`CmsDocument`, on the server). A slot is an ordinary contentdb static page published under the reserved route
 `layout-<slot>`; without that route nothing renders. A route starting with `layout-` is not a page: the proxy answers 404.
 All slot pages come from one request per page render (`app/_components/layout-slots/api.query.ts`: the routes
 list, then `static-page?routes=…`, deduplicated with `React.cache()`); the draft in the active language wins.
 
 The footer is not a slot: it is the CMS footer extender (`layout-extender-published/footer/`, edited in the CMS
-navigation editor), rendered by `app/_components/layout/footer-component.tsx`.
+navigation editor), read by `lib/layout/layout-data.ts` and drawn by the theme's `@theme/layout/footer`.
 
 ## Blog
 
@@ -185,13 +340,12 @@ addresses in `lib/blog-paths.ts`):
   search and share fields from `meta`, `og_image` else the cover; author roles and bios in the page language; an id
   on every H2 of the rich text for the table of contents, a one-word id with `-section`, as DOMPurify drops an id
   that names a `document` property), `NORM_BLOG_POST_CARD` (a tile), `NORM_BLOG_AUTHOR`.
-- The body goes through the builder's renderer with the same prefetches as a CMS page (`cms_content_prefetches`).
+- The body is a CMS document (`CmsDocument`), like a CMS page's.
   AI Studio writes `section-text` sections without tiles and a closing `section-faq` (questions and answers in the
   page, the table of contents' last entry, `FAQPage` in JSON-LD). `[data-article]` in `app/globals.css` gives CMS
   text the body colour and reading spacing.
 - `section-blog` on any CMS page: up to three posts the editor picked by route (`blog_section: [{ label }]`), as
-  the blog's tiles (`post-tile.client.tsx`, a client component like every CMS section); `cms_content_prefetches`
-  puts them in the server HTML, a missing post is left out.
+  the blog's tiles (`@theme/blog/post-tile`), read with the document's data; a missing post is left out.
 - SEO: a post is `og:type=article` with dates, authors and section, JSON-LD `BlogPosting` (authors linked to their
   pages), `FAQPage`, `BreadcrumbList`; the list a `Blog`; an author a `ProfilePage`. A category tab and a later page
   name themselves as canonical; an empty list is `noindex`. The sitemap lists `/blog`, posts and authors per profile
@@ -240,7 +394,8 @@ cart" read it.
   arrows and a thumbnail strip from `md`, keyboard arrows; a click opens a full-screen viewer (swipe, double-tap and
   pinch zoom, Escape, focus returns to the opener). The first picture is `loading="eager"`, the rest lazy. Hooks:
   `data-gallery`, `data-gallery-thumb`, `data-gallery-counter`, `data-gallery-viewer`.
-- Similar products (`related.ts`, `related-products.tsx`): server-rendered tiles (crawlable links) from the rules of
+- Similar products (`related.ts`, `related-products.tsx`; the section is the theme's server part
+  `@theme/product/related-products`): server-rendered tiles (crawlable links) from the rules of
   `PRODUCT.RELATED`. Each rule asks `products/` with `q_<idx>=<value>` / `category=` and `on_stock=true`, and every
   candidate is checked again (the API ignores a filter that is not defined in the channel). Never the product itself,
   never a sold-out one; hidden when nothing matches. The server passes the section to `ProductClient`, which places
@@ -260,8 +415,8 @@ cart" read it.
   `product.single_piece` and `data-single-piece` (empty message = off, no request; `lib/stock-batch.ts` batches the
   tiles' stock lookups of one list into one `stock/` call).
 - CMS buttons of type `catalog` / `product` (and `internal` `/c/…` / `/p/…`) link with the url key of the active
-  language (`lib/url-keys.ts`, query `["url-key", language, kind, key]`, prefetched by the builder page); any failure
-  keeps the key the editor typed.
+  language (`lib/url-keys.ts`, `load_url_key`, read with the document's data before it renders); any failure keeps
+  the key the editor typed.
 
 ## Contact forms
 
@@ -374,7 +529,9 @@ deployment that sets a key checks it. If the API fails to load, the map hides it
 `GET /api/agreements/v2/__CHANNEL__/cookie-banner/` (django-agreements >= 2.2.0) through the API layer.
 
 - No banner on the backend (404, module absent): nothing is loaded, and the answer is cached for the session.
-- With a banner, `consent-banner.ts` loads `vanilla-cookieconsent` and `cookie-consent.css` as a separate chunk.
+- With a banner, `consent-banner.ts` loads `vanilla-cookieconsent` as a separate chunk with its stylesheet
+  (`cookie-consent.css`, the library's in a cascade layer) and the banner's look, the theme's
+  `@theme/cookie-consent.css` in the same layer; a shop's `_CONFIG/theme.css` overrides either.
   Every text comes from the backend; never put banner copy in the storefront.
 - Decisions go to `POST .../cookie-consents/`; a 409 means a newer banner was published: refetch and ask again.
 - Any link whose `href` ends with `#cookie-consents` reopens the preferences; `app/globals.css` hides such links

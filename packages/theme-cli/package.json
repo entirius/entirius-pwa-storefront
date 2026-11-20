@@ -1,0 +1,18 @@
+{
+  "name": "@entirius/theme-cli",
+  "version": "0.1.0-alpha.9",
+  "description": "The `entirius` command for Entirius storefront themes: dev, list, eject, check",
+  "license": "MPL-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/entirius/entirius-pwa-storefront.git",
+    "directory": "packages/theme-cli"
+  },
+  "type": "module",
+  "bin": {
+    "entirius": "bin/entirius.mjs"
+  },
+  "files": [
+    "bin"
+  ]
+}

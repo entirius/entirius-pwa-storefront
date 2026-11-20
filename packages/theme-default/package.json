@@ -1,0 +1,40 @@
+{
+  "name": "@entirius/theme-default",
+  "version": "0.1.0-alpha.9",
+  "description": "Default theme of the Entirius storefront: the components every other theme starts from",
+  "license": "MPL-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/entirius/entirius-pwa-storefront.git",
+    "directory": "packages/theme-default"
+  },
+  "sideEffects": false,
+  "files": [
+    "src",
+    "components.json",
+    "overrides.json"
+  ],
+  "exports": {
+    "./ui/*": "./src/ui/*.tsx",
+    "./lib/*": "./src/lib/*.ts",
+    "./components/*": "./src/components/*.tsx",
+    "./product/*": "./src/product/*.tsx",
+    "./tokens.css": "./src/tokens.css",
+    "./cookie-consent.css": "./src/cookie-consent.css"
+  },
+  "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "embla-carousel-react": "^8.6.0",
+    "lucide-react": "^1.76.0",
+    "radix-ui": "^1.8.1",
+    "tailwind-merge": "^3.7.0"
+  },
+  "peerDependencies": {
+    "@entirius/storefront-sdk": "workspace:*",
+    "next": ">=16.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.0.0"
+  }
+}

@@ -10,18 +10,8 @@ import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
 import { useCartStore } from "@/stores/cart.store";
 import { notify } from "@/stores/notices.store";
-import type { Price } from "@/utils/NORMALIZERS/price.normalizer";
+import type { QuickAddItem, QuickAddState } from "@entirius/storefront-sdk/product/card";
 import { stock_query } from "@/app/[customer_country]/(product)/product/[product_url_key]/stock.query";
-
-export type QuickAddItem = {
-  sku: string;
-  name: string;
-  url_key: string;
-  price: Price;
-  media: { uri: string; width: number; height: number }[][];
-};
-
-export type QuickAddState = "idle" | "busy" | "added" | "none";
 
 // One unit into the cart from a card (the "+" on a product tile, "Move to cart" in the wishlist). Stock is asked
 // for on click (list responses carry no quantity), so a full listing costs no stock requests. `onAdded` runs once

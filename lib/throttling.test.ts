@@ -3,9 +3,9 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { describe, expect, it } from "vitest";
-import { create_i18n } from "./i18n/translate";
-import { en } from "./i18n/messages/en";
-import { pl } from "./i18n/messages/pl";
+import { create_i18n } from "@entirius/storefront-sdk/i18n";
+import { en } from "@entirius/storefront-sdk/i18n/messages/en";
+import { pl } from "@entirius/storefront-sdk/i18n/messages/pl";
 import { retry_after_seconds, throttled_message } from "./throttling";
 
 describe("retry_after_seconds", () => {

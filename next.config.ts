@@ -9,6 +9,9 @@ import { api_remote_pattern, is_loopback_api } from "./utils/image-host";
 // Backend media (`/media/...`, CMS uploads) is served from the API host — see
 // resolve_media_url() in utils/media-url.ts.
 const nextConfig: NextConfig = {
+  // A shop's image (`storefront build`) runs the standalone server: only the files the server needs, no build tools.
+  // A plain `pnpm build` / `pnpm start` stays as it was.
+  ...(process.env.STOREFRONT_OUTPUT === "standalone" && { output: "standalone" as const }),
   images: {
     // Next 16 refuses to optimize images from local IPs (SSRF guard). A backend on
     // localhost is a dev stack; remotePatterns still pins it to that one host:port.

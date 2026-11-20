@@ -2,16 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-// Amounts stay raw strings; the text is made at render time by price_lines() (lib/i18n/price-lines.ts),
-// so the active language decides the separators, the currency symbol and the "From" / "Price on request" words.
-type Price = {
-  gross: string;
-  currency: string;
-  // Only present when a special price applies.
-  final_gross?: string;
-  // CONFIGURABLE: `gross` is the lowest price of its variants ("From X").
-  from?: true;
-};
+import type { Price } from "@entirius/storefront-sdk/product";
 
 // `null` — no list price (CUSTOM: priced per offer) or no amount: "Price on request".
 // `is_range` — CONFIGURABLE: `gross` is null, the span of its variants sits in

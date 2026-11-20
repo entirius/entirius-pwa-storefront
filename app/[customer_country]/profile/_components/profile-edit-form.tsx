@@ -4,27 +4,21 @@
 
 "use client";
 
+import { ProfileForm } from "@theme/forms/profile-form";
+import type { ProfileFormValues } from "@entirius/storefront-sdk/forms";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 import { client_update_profile, type Profile } from "@/lib/auth-client";
-import {
-  Form,
-  FormError,
-} from "@/components/ui/form";
-import { TextField } from "@/components/ui/form-fields";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
-import { msg } from "@/lib/i18n/translate";
-import { useI18n } from "@/providers/i18n.provider";
+import { msg } from "@entirius/storefront-sdk/i18n";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 const profile_schema = z.object({
   firstname: z.string().trim().min(1, msg("validation.firstname_required")),
   lastname: z.string().trim().min(1, msg("validation.lastname_required")),
 });
-type ProfileFormValues = z.infer<typeof profile_schema>;
 
 export function ProfileEditForm({
   profile,
@@ -38,8 +32,7 @@ export function ProfileEditForm({
   const { t } = useI18n();
   const [pending, startTransition] = useTransition();
   const form = useForm<ProfileFormValues>({
-    // Same nominal zod type-brand cast used across the auth forms.
-    resolver: zodResolver(profile_schema as never),
+    resolver: zodResolver(profile_schema),
     mode: "onBlur",
     defaultValues: { firstname: profile.firstname, lastname: profile.lastname },
   });
@@ -57,21 +50,5 @@ export function ProfileEditForm({
     });
   });
 
-  return (
-    <Form {...form}>
-      <form onSubmit={submit} className="flex flex-col gap-4">
-        <TextField control={form.control} name="firstname" label={t("address.firstname")} autoComplete="given-name" />
-        <TextField control={form.control} name="lastname" label={t("address.lastname")} autoComplete="family-name" />
-        <FormError>{form.formState.errors.root?.message}</FormError>
-        <div className="flex gap-2">
-          <Button type="submit" disabled={pending}>
-            {pending ? <Spinner className="size-4" /> : t("common.save")}
-          </Button>
-          <Button type="button" variant="ghost" onClick={onCancel}>
-            {t("common.cancel")}
-          </Button>
-        </div>
-      </form>
-    </Form>
-  );
+  return <ProfileForm form={form} submit={submit} pending={pending} cancel={onCancel} />;
 }

@@ -11,15 +11,10 @@ import { get_server_api } from "@/lib/seo/server-api";
 import { build_catalog_metadata, build_catalog_jsonld } from "@/lib/seo/build";
 import { catalog_alternates } from "@/lib/seo/alternates";
 import { JsonLd } from "@/lib/seo/json-ld";
-import { SanitizeHTML } from "@/components/ui/sanitize-html";
-import { ExpandableText } from "@/components/ui/expandable-text.client";
 import { get_i18n } from "@/lib/i18n/i18n.server";
-import { ListingClient } from "./_components/listing.client";
-import { LinkDynamic } from "@/lib/link-dynamic";
-import {
-  PageBreadcrumbs,
-  category_trail,
-} from "@/app/_components/layout/page-breadcrumbs";
+import { ListingPage } from "@theme/catalog/listing-page";
+import { ListingPageRuntime } from "./_components/listing-runtime.client";
+import { category_trail } from "@/lib/breadcrumbs";
 
 interface Props {
   params: Promise<{
@@ -55,7 +50,6 @@ export default async function CatalogPage({ params, searchParams }: Props) {
   const { customer_country, ...route } = await params;
   const catalog_url_key = decode_param(route.catalog_url_key);
   const { page = "1", limit = "16", ...search_params } = await searchParams;
-  const { t } = await get_i18n();
 
   // Same instance generateMetadata used; load_category keys its React cache on
   // the url_key string, so the two calls collapse to one fetch.
@@ -88,7 +82,16 @@ export default async function CatalogPage({ params, searchParams }: Props) {
 
   // Direct children with a name and url_key, for the pills under the title.
   const subcategories = ((category?.children ?? []) as { name?: string; url_key?: string }[])
-    .filter((c): c is { name: string; url_key: string } => Boolean(c.name && c.url_key));
+    .filter((c): c is { name: string; url_key: string } => Boolean(c.name && c.url_key))
+    .map((c) => ({ name: c.name, href: `/catalog/${c.url_key}` }));
+
+  const header = category ? {
+    title: category.name ?? "",
+    trail: category_trail(category.breadcrumbs),
+    description_html: category.description || null,
+    description_long: (category.description ?? "").replace(/<[^>]*>/g, "").length > LONG_DESCRIPTION,
+    subcategories,
+  } : null;
 
   return (
     <PrefetchBoundary
@@ -100,39 +103,9 @@ export default async function CatalogPage({ params, searchParams }: Props) {
       ]}
     >
       {jsonLd && <JsonLd data={jsonLd} />}
-      {category && (
-        <header data-catalog-header className="mb-6 flex flex-col gap-4">
-          <PageBreadcrumbs trail={category_trail(category.breadcrumbs)} />
-          <div className="surface flex flex-wrap items-end justify-between gap-4 bg-gradient-backdrop">
-            <div>
-              <h1 className="text-4xl leading-tight md:text-5xl">{category.name}</h1>
-              {category.description && (
-                // Size and colour sit on the wrapper (the h1's next sibling, a theme hook); the text inherits them.
-                <ExpandableText
-                  className="mt-1 text-muted-foreground md:text-lg"
-                  likely_long={category.description.replace(/<[^>]*>/g, "").length > LONG_DESCRIPTION}
-                >
-                  <SanitizeHTML html={category.description} />
-                </ExpandableText>
-              )}
-            </div>
-            {subcategories.length > 0 && (
-              <nav aria-label={t("catalog.subcategories")} className="flex flex-wrap gap-2">
-                {subcategories.map((sub) => (
-                  <LinkDynamic
-                    key={sub.url_key}
-                    href={`/catalog/${sub.url_key}`}
-                    className="rounded-chip border border-border bg-card px-4 py-2 text-sm font-medium text-heading transition-colors hover:bg-accent hover:text-accent-foreground"
-                  >
-                    {sub.name}
-                  </LinkDynamic>
-                ))}
-              </nav>
-            )}
-          </div>
-        </header>
-      )}
-      <ListingClient options={options} category_name={category?.name} />
+      <ListingPageRuntime kind="category" options={options} header={header} category_name={category?.name}>
+        <ListingPage />
+      </ListingPageRuntime>
     </PrefetchBoundary>
   );
 }

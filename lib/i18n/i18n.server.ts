@@ -7,7 +7,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { make_server_access } from "@/API/access/api.server-access";
 import { resolve_language, resolve_messages, type Overrides } from "./catalogues";
-import { create_i18n } from "./translate";
+import { create_i18n } from "@entirius/storefront-sdk/i18n";
 
 const OVERRIDES_FILE = path.join(process.cwd(), "_CONFIG", "messages.config.json");
 

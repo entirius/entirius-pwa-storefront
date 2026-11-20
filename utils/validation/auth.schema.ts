@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { z } from "zod";
-import { msg } from "@/lib/i18n/translate";
+import { msg } from "@entirius/storefront-sdk/i18n";
 
 // Messages are catalogue keys (msg()); <FormMessage> turns them into text in the active language.
 // Reusable field primitives. Later auth forms (signup/profile/address) extend these.

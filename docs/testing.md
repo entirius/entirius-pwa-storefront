@@ -28,6 +28,13 @@ pnpm test:e2e --ui         # Playwright UI mode
 - Failure screenshots and traces land in `test-results/` (gitignored); open a trace with `pnpm exec playwright show-trace <path>`.
 - `visual.spec.ts` compares home, catalog, PDP and cart with baselines in `tests/e2e/visual.spec.ts-snapshots/` (per OS, product photos masked). After an intended visual change: `pnpm test:e2e visual --update-snapshots=all`, then review the new PNGs in the diff. `contrast.spec.ts` checks WCAG AA of the semantic color pairs.
 
+## Theme override
+
+`tests/theme-example/` is a theme with one file, its own `src/components/product-card.tsx`. `pnpm test:e2e:theme`
+links it at `theme/`, clears the dev cache, runs `tests/e2e/theme-override.spec.ts` against a dev server of its own and
+removes the link again: the listing and similar products show the theme's card, the rest of the product page stays the
+default theme's. A server already on :3100 stops it; the default run skips the spec.
+
 ## JS budget
 
 The `build` job fails when the JS a page loads first (gzip) goes over the limits, shared (root layout) or per route. Locally: `pnpm build`, then `node .github/scripts/js-budget.mjs`. The limits are constants at the top of the script.

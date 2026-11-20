@@ -18,11 +18,11 @@ import {
   type Cart,
 } from "@/utils/NORMALIZERS/cart.normalizer";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { PageLoading, Spinner } from "@/components/ui/spinner";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { FormError, FormHeading } from "@/components/ui/form";
-import { useI18n } from "@/providers/i18n.provider";
+import { Button } from "@theme/ui/button";
+import { PageLoading, Spinner } from "@theme/ui/spinner";
+import { RadioGroup, RadioGroupItem } from "@theme/ui/radio-group";
+import { FormError, FormHeading } from "@theme/ui/form";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { payment_patch_body } from "./payment-return";
 // Payment methods offered for the cart; the review step reads the same entry for the method text.
 export function usePaymentMethods(cart_id: string | undefined) {

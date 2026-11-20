@@ -32,6 +32,20 @@ export interface CmsDocumentContent {
   document_configs?: Record<string, unknown>;
 }
 
+// A picture block as the CMS editor saves it (`images_set`): a desktop and a mobile upload, each a backend
+// `/media/...` path with its size (often null) and alt text.
+export interface CmsImageSetVariant {
+  image: string;
+  width: number | null;
+  height: number | null;
+  meta?: { alt: string | null; fileName: string };
+}
+
+export interface CmsImagesSet {
+  mobile?: CmsImageSetVariant;
+  desktop?: CmsImageSetVariant;
+}
+
 // A published contentdb page, as the static-page endpoint returns it.
 export interface CmsPage {
   name?: string;

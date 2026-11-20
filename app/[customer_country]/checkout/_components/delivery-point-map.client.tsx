@@ -8,11 +8,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@theme/ui/button";
 import { cn } from "@/lib/utils";
 import { load_google_maps } from "@/lib/delivery-points/google-maps";
 import type { DeliveryPoint } from "@/utils/NORMALIZERS/delivery-point.normalizer";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 type LatLng = { lat: number; lng: number };
 

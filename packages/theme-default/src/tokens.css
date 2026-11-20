@@ -1,0 +1,17 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+/* A theme's colours and shapes. The core loads this file after its own stylesheet and before the shop's
+   _CONFIG/theme.css: a theme overrides the default look here, a shop overrides the theme. The variables are the
+   core's semantic ones (the theme contract lists them), for example:
+
+   :root {
+     --primary: #1d4ed8;
+     --radius: 0.25rem;
+     --product-image-ratio: 1 / 1;
+   }
+
+   The default theme sets nothing: the core's defaults apply (the theme contract lists the variables). */

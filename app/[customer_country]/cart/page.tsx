@@ -4,7 +4,8 @@
 
 import type { Metadata } from "next";
 import { get_i18n } from "@/lib/i18n/i18n.server";
-import { CartPageClient } from "./_components/cart-page.client";
+import { CartPage } from "@theme/cart/cart-page";
+import { CartPageRuntime } from "./_components/cart-runtime.client";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await get_i18n();
@@ -14,6 +15,10 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function CartPage() {
-  return <CartPageClient />;
+export default function CartRoute() {
+  return (
+    <CartPageRuntime>
+      <CartPage />
+    </CartPageRuntime>
+  );
 }

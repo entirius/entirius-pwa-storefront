@@ -4,7 +4,8 @@
 
 import type { Metadata } from "next";
 import { get_i18n } from "@/lib/i18n/i18n.server";
-import { ProfileClient } from "./_components/profile.client";
+import { OverviewPage } from "@theme/account/overview-page";
+import { OverviewRuntime } from "./_components/overview-runtime.client";
 
 // Not for search engines; the title names the page in the browser tab ("… | site").
 export async function generateMetadata(): Promise<Metadata> {
@@ -16,5 +17,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function ProfilePage() {
-  return <ProfileClient />;
+  return (
+    <OverviewRuntime>
+      <OverviewPage />
+    </OverviewRuntime>
+  );
 }

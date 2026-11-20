@@ -12,11 +12,11 @@ import { LocateFixed, Search } from "lucide-react";
 import { make_client_access } from "@/API/access/api.client-access";
 import { create_api } from "@/API/api.context";
 import { API_DELIVERY_POINTS_NEARBY_ROUTE, API_DELIVERY_POINTS_ROUTE } from "@/API/api.routes";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Field, FormError, FormHeading } from "@/components/ui/form";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { PageLoading, Spinner } from "@/components/ui/spinner";
+import { Button } from "@theme/ui/button";
+import { Input } from "@theme/ui/input";
+import { Field, FormError, FormHeading } from "@theme/ui/form";
+import { RadioGroup, RadioGroupItem } from "@theme/ui/radio-group";
+import { PageLoading, Spinner } from "@theme/ui/spinner";
 import { cn } from "@/lib/utils";
 import { GOOGLE_MAPS } from "@/lib/delivery-points/config";
 import { fits, type_query } from "@/lib/delivery-points/point-types";
@@ -27,7 +27,7 @@ import {
   type CartDeliveryPoint,
   type DeliveryPoint,
 } from "@/utils/NORMALIZERS/delivery-point.normalizer";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 const DeliveryPointMap = dynamic(() => import("./delivery-point-map.client"), { ssr: false });
 

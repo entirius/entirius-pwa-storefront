@@ -9,7 +9,7 @@
   },
   "uk": {
     "languages": ["en"],
-    "default_language": "uk",
+    "default_language": "en",
     "currencies": ["uah"],
     "default_currency": "uah",
     "channels": ["default-local"],

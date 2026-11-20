@@ -7,6 +7,10 @@ Components; catalog, search, cart, checkout and customer account run against the
 Multi-country by design: every route lives under a country segment (`/{country}/...`) and the middleware
 resolves country, language, currency and sales channel into cookies before the page renders.
 
+The look is a theme: the default one is `packages/theme-default/`, and a shop's own theme is a package outside this
+repository. To make one, or to build a shop: [building a theme](docs/themes/guide.md) · [building a shop](docs/themes/shop.md)
+· [the theme contract](docs/themes/contract.md).
+
 ## Stack
 
 | Layer | Choice |
@@ -20,8 +24,8 @@ resolves country, language, currency and sales channel into cookies before the p
 
 ## Prerequisites
 
-- Node.js 20+
-- pnpm 10+ (`corepack enable` or `npm i -g pnpm`)
+- Node.js 24+
+- pnpm: the version in `package.json` → `packageManager`; a recent pnpm (`npm i -g pnpm`) switches to it by itself
 - A running Volkanos backend reachable over HTTP. The template points at `http://localhost:8000`; the
   zeno local stack publishes the API on `http://localhost:8100` — set `API_BASE_URL` to match
 
@@ -73,7 +77,6 @@ The cookie banner needs no config: when the backend has a published banner for t
 API/                    Fetch engine: route constants, policies, cookie access adapters
 app/
 ├── layout.tsx          Root layout (providers)
-├── _components/layout/ Header, navigation, search, cart / wishlist / account sheets
 └── [customer_country]/ All routed pages
     ├── (builder)/      CMS pages (catch-all slug)
     ├── blog/           Blog from the CMS: list, posts, authors
@@ -81,7 +84,10 @@ app/
     ├── (product)/      Product detail page
     ├── checkout/       Address → shipping → payment → review stepper
     └── profile/        Account: profile, addresses, orders
-components/ui/          shadcn/ui primitives
+components/             The forms' logic; their views are the theme's (@theme/forms/*)
+packages/
+├── sdk/                @entirius/storefront-sdk: contract between core and theme (i18n)
+└── theme-default/      Default theme: shadcn/ui primitives, imported as @theme/ui/<name>
 lib/                    Auth client and session, CSP, prefetch boundary, logger, cn()
 stores/                 Zustand stores (cart, wishlist) + cart and wishlist sync
 utils/                  NORMALIZERS (API → view shapes), Zod schemas, cookie helper

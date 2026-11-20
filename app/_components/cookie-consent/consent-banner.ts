@@ -3,6 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import "./cookie-consent.css";
+import "@theme/cookie-consent.css";
 
 import * as CookieConsent from "vanilla-cookieconsent";
 

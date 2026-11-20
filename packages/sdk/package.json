@@ -1,0 +1,48 @@
+{
+  "name": "@entirius/storefront-sdk",
+  "version": "0.1.0-alpha.9",
+  "description": "Contract between the Entirius storefront core and its themes: types, hooks and headless building blocks",
+  "license": "MPL-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/entirius/entirius-pwa-storefront.git",
+    "directory": "packages/sdk"
+  },
+  "sideEffects": false,
+  "files": [
+    "src",
+    "!src/**/*.test.ts"
+  ],
+  "exports": {
+    "./i18n": "./src/i18n/translate.ts",
+    "./i18n/client": "./src/i18n/client.tsx",
+    "./i18n/price-lines": "./src/i18n/price-lines.ts",
+    "./i18n/messages/*": "./src/i18n/messages/*.ts",
+    "./storefront": "./src/storefront.tsx",
+    "./components/*": "./src/components/*.tsx",
+    "./product": "./src/product/types.ts",
+    "./product/card": "./src/product/card.ts",
+    "./product/page": "./src/product/page.tsx",
+    "./cart": "./src/cart/types.ts",
+    "./cart/page": "./src/cart/page.tsx",
+    "./checkout": "./src/checkout/types.ts",
+    "./forms": "./src/forms/types.ts",
+    "./mocks": "./src/mocks/index.tsx",
+    "./account": "./src/account/types.ts",
+    "./account/page": "./src/account/page.tsx",
+    "./catalog/listing": "./src/catalog/listing.tsx",
+    "./cms": "./src/cms/types.ts",
+    "./blog": "./src/blog/types.ts",
+    "./layout": "./src/layout/types.ts",
+    "./layout/context": "./src/layout/context.tsx",
+    "./hooks": "./src/hooks.ts"
+  },
+  "dependencies": {
+    "isomorphic-dompurify": "^4.8.0"
+  },
+  "peerDependencies": {
+    "next": ">=16.0.0",
+    "react": "^19.0.0",
+    "react-hook-form": "^7.0.0"
+  }
+}

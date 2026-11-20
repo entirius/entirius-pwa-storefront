@@ -4,7 +4,8 @@
 
 import type { Metadata } from "next";
 import { get_i18n } from "@/lib/i18n/i18n.server";
-import { OrdersList } from "./_components/orders-list.client";
+import { OrdersPage } from "@theme/account/orders-page";
+import { OrdersRuntime } from "./_components/orders-runtime.client";
 
 // Not for search engines; the title names the page in the browser tab ("… | site").
 export async function generateMetadata(): Promise<Metadata> {
@@ -15,6 +16,10 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function OrdersPage() {
-  return <OrdersList />;
+export default function OrdersRoute() {
+  return (
+    <OrdersRuntime>
+      <OrdersPage />
+    </OrdersRuntime>
+  );
 }

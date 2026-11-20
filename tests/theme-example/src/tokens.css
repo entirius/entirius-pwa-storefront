@@ -1,0 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+/* The test theme's colour: tests/e2e/theme-override.spec.ts reads it on the add-to-cart button. */
+:root {
+  --primary: #7a1f5c;
+}

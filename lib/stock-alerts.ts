@@ -7,7 +7,7 @@
 import type { create_api } from "@/API/api.context";
 import { API_STOCK_ALERTS_CANCEL_ROUTE, API_STOCK_ALERTS_SUBSCRIBE_ROUTE } from "@/API/api.routes";
 import { DEFAULT_PROFILE } from "@/lib/profile-path";
-import { useHydrated } from "@/lib/use-hydrated";
+import { useHydrated } from "@entirius/storefront-sdk/hooks";
 
 type Api = ReturnType<typeof create_api>;
 

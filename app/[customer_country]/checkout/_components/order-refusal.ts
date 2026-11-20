@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import type { MessageKey } from "@/lib/i18n/translate";
+import type { MessageKey } from "@entirius/storefront-sdk/i18n";
 import type { CheckoutStep } from "./checkout-stepper";
 
 // `POST orders/` answers 409 when the cart cannot become an order (checkout 10.1): `{ error, message }`, where

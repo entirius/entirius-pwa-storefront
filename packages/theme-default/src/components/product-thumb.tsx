@@ -1,0 +1,26 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+import { Media } from "@entirius/storefront-sdk/components/media";
+import { cn } from "@theme/lib/utils";
+
+// A product picture in a line (cart, checkout summary, search row): the product ratio, one
+// radius, the placeholder without a picture. The width comes in className (w-16, w-20 md:w-24…), `sizes` must match.
+export function ProductThumb({
+  src,
+  alt,
+  sizes,
+  className,
+}: {
+  src: string | null | undefined;
+  alt: string;
+  sizes: string;
+  className?: string;
+}) {
+  return (
+    <div className={cn("relative aspect-product shrink-0 self-start overflow-hidden rounded-md bg-muted", className)}>
+      <Media src={src} alt={alt} fill sizes={sizes} className="object-cover" />
+    </div>
+  );
+}

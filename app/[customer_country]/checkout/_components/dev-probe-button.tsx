@@ -7,8 +7,8 @@
 import { useMemo, useState } from "react";
 import { make_client_access } from "@/API/access/api.client-access";
 import { create_api } from "@/API/api.context";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@theme/ui/button";
+import { Spinner } from "@theme/ui/spinner";
 
 // DEBUG-only: fires a raw request through the client fetch engine (resolves
 // __CHANNEL__/__CART_ID__ + x-api-key from cookies, same as the real calls) so the

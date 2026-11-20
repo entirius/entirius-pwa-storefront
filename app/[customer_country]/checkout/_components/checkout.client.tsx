@@ -7,16 +7,18 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import { PageLoading } from "@/components/ui/spinner";
+import { PageLoading } from "@theme/ui/spinner";
 import { NORM_CART } from "@/utils/NORMALIZERS/cart.normalizer";
 import type { PlacedOrder } from "@/utils/NORMALIZERS/order.normalizer";
 import { cart_to_address_form } from "@/utils/validation/address.schema";
 import { useCartSync } from "@/stores/use-cart-sync";
-import { useI18n } from "@/providers/i18n.provider";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { CheckoutStepper, type CheckoutStep } from "./checkout-stepper";
-import { CheckoutSummary } from "./checkout-summary";
-import { CartAlerts } from "@/app/_components/order/cart-alerts";
-import { EmptyCart, OrderPageHeader } from "@/app/_components/order/page-header";
+import { CheckoutSummary } from "@theme/checkout/checkout-summary";
+import { useCheckoutSummary } from "./checkout-summary";
+import { CartAlerts } from "@theme/order/cart-alerts";
+import { cart_alerts } from "@/app/_components/order/cart-alerts";
+import { EmptyCart, OrderPageHeader } from "@theme/order/page-header";
 import { AddressStep } from "./address-step";
 import { ShippingStep } from "./shipping-step";
 import { PaymentStep } from "./payment-step";
@@ -37,6 +39,7 @@ export function CheckoutClient() {
   const [step, setStep] = useState<CheckoutStep>("address");
   const [completed, setCompleted] = useState<Set<CheckoutStep>>(new Set());
   const cart = backend ?? null;
+  const summary = useCheckoutSummary(cart, items, currency);
   // An address/shipping/payment save answers with the whole cart: it goes into every
   // cart query, as a discount code does, instead of a refetch (another items PATCH).
   const save_cart = (resp: unknown) => query_client.setQueriesData({ queryKey: ["cart"] }, NORM_CART(resp));
@@ -106,12 +109,7 @@ export function CheckoutClient() {
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="min-w-0">
-          <CartAlerts
-            className="mb-4"
-            backend={backend}
-            sync_failed={!!error}
-            sync_message={t("checkout.sync_error")}
-          />
+          <CartAlerts className="mb-4" alerts={cart_alerts(backend, error ? t("checkout.sync_error") : null, t)} />
 
           {step === "address" ? (
             <AddressStep
@@ -146,7 +144,7 @@ export function CheckoutClient() {
         </div>
 
         <div className="h-fit lg:sticky lg:top-6">
-          <CheckoutSummary backend={cart} items={items} currency={currency} />
+          <CheckoutSummary summary={summary} />
         </div>
       </div>
     </div>

@@ -1,26 +1,13 @@
 packages:
   - '.'
+  - 'packages/*'
 
 allowBuilds:
   msw: true
   sharp: true
   unrs-resolver: true
-ignoredBuiltDependencies:
-  - sharp
-  - unrs-resolver
-minimumReleaseAgeExclude:
-  - '@next/env@16.3.8'
-  - '@next/swc-darwin-arm64@16.3.8'
-  - '@next/swc-darwin-x64@16.3.8'
-  - '@next/swc-linux-arm64-gnu@16.3.8'
-  - '@next/swc-linux-arm64-musl@16.3.8'
-  - '@next/swc-linux-x64-gnu@16.3.8'
-  - '@next/swc-linux-x64-musl@16.3.8'
-  - '@next/swc-win32-arm64-msvc@16.3.8'
-  - '@next/swc-win32-x64-msvc@16.3.8'
-  - next@16.3.8
-  - '@next/eslint-plugin-next@16.3.8'
-  - eslint-config-next@16.3.8
 overrides:
   "@types/react": "19.3.0"
   "@types/react-dom": "19.3.0"
+  # GHSA-g3hv-75wg-m249 (ReDoS in minimatch < 11.0.1), through shadcn > ts-morph; drop once ts-morph moves on.
+  "minimatch@>=7.0.0 <11.0.1": "^11.0.1"

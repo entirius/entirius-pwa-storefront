@@ -1,0 +1,101 @@
+name: publish
+
+# A release of the theme platform (docs/releasing.md): a GitHub release published from a v<version> tag puts the four
+# @entirius packages on npm and the three core images on ghcr.io, all at that version. A release (1.2.3) is tagged on
+# master; a pre-release (1.2.3-beta.1), a build to try, on develop or master.
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      dist_tag: ${{ steps.release.outputs.dist_tag }}
+    steps:
+      # The whole history: which branches hold the tagged commit.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      # A release: v<version> of every package, on master. A pre-release: on develop or master, at the tag's version.
+      # The GitHub release's pre-release mark must match the tag. Otherwise nothing goes out.
+      - id: release
+        env:
+          PRERELEASE: ${{ github.event.release.prerelease }}
+        run: node .github/scripts/release.mjs version "$GITHUB_REF_NAME" --prerelease "$PRERELEASE" >> "$GITHUB_OUTPUT"
+
+  npm:
+    needs: version
+    runs-on: ubuntu-latest
+    # npm's trusted publisher names this repository, the workflow file publish.yml and the environment npm: no token
+    # is stored anywhere, the job gets a short-lived one through OIDC and the packages carry provenance.
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      # Trusted publishing needs npm 11.5.1 or newer.
+      - run: npm install --global npm@11
+      - run: pnpm install --frozen-lockfile
+      # At the release's version: a pre-release's packages are not bumped in a commit.
+      - run: node .github/scripts/release.mjs pack "$VERSION"
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+      - name: publish
+        env:
+          DIST_TAG: ${{ needs.version.outputs.dist_tag }}
+        run: |
+          # ./ first: npm reads a bare dist/<name>.tgz as a GitHub repository.
+          for tarball in ./dist/*.tgz; do
+            package=$(tar -xzOf "$tarball" package/package.json | node -p 'const p = JSON.parse(require("fs").readFileSync(0, "utf8")); p.name + "@" + p.version')
+            # A package's first version goes out by hand (docs/releasing.md): its release still pushes the images.
+            if npm view "$package" version > /dev/null 2>&1; then
+              echo "$package is on npm already"
+              continue
+            fi
+            npm publish "$tarball" --access public --tag "$DIST_TAG"
+          done
+
+  images:
+    needs: version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        target: [dev, builder, runtime]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # Both architectures: theme authors work on Apple silicon as often as on x86. No `latest`: a shop names its
+      # version in its Dockerfile.
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: docker/storefront.Dockerfile
+          target: ${{ matrix.target }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ghcr.io/entirius/storefront-${{ matrix.target }}:${{ needs.version.outputs.version }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.version=${{ needs.version.outputs.version }}
+            org.opencontainers.image.licenses=MPL-2.0

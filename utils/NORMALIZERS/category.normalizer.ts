@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import type { CATEGORY } from "@/app/_components/layout/menu-config";
+import type { CATEGORY } from "@/lib/layout/menu-config";
 
 // A category row of matrix `categories/`: the fields read here.
 type RawCategory = {

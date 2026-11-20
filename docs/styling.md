@@ -1,22 +1,24 @@
 # Styling
 
-Tailwind CSS v4 with shadcn/ui ("new-york" style). Config in `components.json`.
+Tailwind CSS v4 with shadcn/ui ("new-york" style). Config in `packages/theme-default/components.json`. The look of the
+shop is the theme's (`packages/theme-default/src/`, `@theme/*`); a theme's colours and shapes are its `tokens.css`, a
+shop's own on top of them `_CONFIG/theme.css` ([building a theme](themes/guide.md)).
 
 - Colors, radii and fonts come from `@entirius/brand-tokens`. `app/globals.css` is the only file that maps `--brand-*` to semantic names (`background`, `card`, `primary`, `muted-foreground`, `positive`, `highlight`…).
 - Components use semantic classes only. `pnpm lint` rejects hex, `rgb()`/`hsl()`/`oklch()` and Tailwind palette classes (`bg-red-500`, `text-white`) in `.ts`/`.tsx`.
-- Light theme by default (the package's `light.*` tokens); `THEME: "dark"` in `_CONFIG/app.config.json` puts `class="dark"` on `<html>` for the brand's dark set. No theme toggle. Status text sits on `bg-<status>-surface` (light tints), never on a translucent `bg-<status>/N`.
+- Light colour scheme by default (the package's `light.*` tokens); `COLOR_SCHEME: "dark"` in `_CONFIG/app.config.json` puts `class="dark"` on `<html>` for the brand's dark set. No theme toggle. Status text sits on `bg-<status>-surface` (light tints), never on a translucent `bg-<status>/N`.
 - Icons: `lucide-react`
-- Utility: `cn()` from `lib/utils.ts` (clsx + tailwind-merge)
-- Add shadcn components: `pnpm dlx shadcn add <component-name>`
+- Utility: `cn()` from `lib/utils.ts` in the core, `@theme/lib/utils` in the theme (clsx + tailwind-merge)
+- Add shadcn components from `packages/theme-default/`: `pnpm dlx shadcn add <component-name>`, then switch the new file's imports of other theme files to `@theme/...`
 
 ## Forms
 
-Every field goes through a shared component — never `FormField` / `<label>` with local classes.
+A form's view is the theme's (`@theme/forms/<name>`, its logic stays in the core: [architecture](architecture.md#themes)). Every field goes through a shared component — never `FormField` / `<label>` with local classes.
 
 | Need | Use |
 |---|---|
-| Text, select, checkbox field (react-hook-form) | `TextField`, `SelectField`, `CheckboxField` — `components/ui/form-fields.tsx` |
-| Field outside react-hook-form (contact forms) | `Field` (label + hint around your control), `CheckLabel` for a checkbox with a sentence — `components/ui/form.tsx` |
+| Text, select, checkbox field (react-hook-form) | `TextField`, `SelectField`, `CheckboxField` — `@theme/ui/form-fields` |
+| Field outside react-hook-form (contact forms) | `Field` (label + hint around your control), `CheckLabel` for a checkbox with a sentence — `@theme/ui/form` |
 | Form or step title, group of fields | `FormHeading`, `FormSection` (fieldset with the heading as legend) |
 | Form-level error (root error, failed save) | `FormError` |
 
@@ -29,7 +31,7 @@ Every field goes through a shared component — never `FormField` / `<label>` wi
 - Section containers: `surface` (`surface-sm` for a menu strip, `surface-divided` for one that follows another, `surface-outline` for a bordered card; a bordered list whose rows carry their own padding takes `rounded-lg border`), never local `bg-card rounded-* p-*`; a theme flattens them through the `--surface-*` variables.
 - Not surfaces: product tiles and CMS tiles (content cards with their own gradient and hover) and layers above the page (the notices under the header). Selectable option rows (shipping and payment methods, filter options) are `<label>` rows with their own classes on purpose: the whole row is the hit area and shows the selected state, which `CheckLabel` does not.
 - Corners: controls of one height share `rounded-control` (`--control-radius`); outlined round icon buttons and text chips take `rounded-chip` (`--chip-radius`); a plain `rounded-full` only for ghost icons, counters, statuses, the checkout stepper, the slider and radios, never for a text button.
-- Phone: dialling code and number sit in one `PHONE_ROW` (`components/ui/form.tsx`, `6rem` + the rest) at every width, never stacked; checkout and profile addresses share it.
+- Phone: dialling code and number sit in one `PHONE_ROW` (`@theme/ui/form`, `6rem` + the rest) at every width, never stacked; checkout and profile addresses share it.
 - Address rules per country (`utils/validation/address-rules.ts`, both address schemas): the postal code matches the country's pattern, whose example is the field's hint ("For example 00-001"); the phone has a possible length for its dialling code (`libphonenumber-js`, `min` metadata). A country without a pattern only needs a non-empty code.
 - A list to choose from that can grow (the address book in the checkout) is one line in the form that opens the list in a sheet, never rows inline above the fields.
 - Height: `h-9` for input, select and input group, `text-base` on phones and `text-sm` from `md` (16px stops iOS zooming into a field). No local height overrides.

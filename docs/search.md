@@ -49,14 +49,15 @@ categories and phrases stay as the API sends them.
 | File | Role |
 |---|---|
 | `API/api.routes.ts` | `API_SEARCH_ROUTE` + policy (`default_querys: ["language","currency","country"]`) |
-| `app/_components/layout/search.query.ts` | `search_query(api, {q, scope})` → `SearchResponse` (`NORM_SEARCH_DATA`) |
-| `app/_components/layout/header-search.client.tsx` | shared by both: `useHeaderSearch` (debounce + `useQuery`), the field, the states |
-| `app/_components/layout/search-sheet.tsx` | phone: trigger + top `Sheet` |
-| `app/_components/layout/search-bar.client.tsx` | desktop: magnifier + spreading field + results under the top row |
-| `app/_components/layout/search-results.tsx` | phrases / categories / products sections |
-| `app/_components/layout/search-product-row.tsx` | compact product row over the catalog's `Product`, `ProductPrice` and `ProductThumb` |
-| `app/_components/layout/header-component.tsx` | mounts both in the action row (each shows at its width) and anchors the desktop results |
-| `app/_components/not-found-search.client.tsx` | the same search inline on the 404 page |
+| `lib/search/search.query.ts` | `search_query(api, {q, scope})` → `SearchResponse` (`NORM_SEARCH_DATA`, each product with its `href`) |
+| `lib/layout/use-header-search.ts` | `useHeaderSearch` (debounce + `useQuery`), lent to the theme through `Storefront` |
+| `@theme/layout/search-field` | shared by both: the field and the states |
+| `@theme/layout/search-sheet` | phone: trigger + top `Sheet` |
+| `@theme/layout/search-bar` | desktop: magnifier + spreading field + results under the top row |
+| `@theme/layout/search-results` | phrases / categories / products sections |
+| `@theme/layout/search-product-row` | compact product row with `ProductPrice` and `ProductThumb` |
+| `@theme/layout/header` | mounts both in the action row (each shows at its width) and anchors the desktop results |
+| `@theme/layout/not-found-search` | the same search inline on the 404 page (`useHeaderSearch()` from the SDK) |
 | `app/[customer_country]/search/page.tsx` | results page: the catalog listing over `products/?search=` |
 
 ## Behavior
@@ -70,11 +71,12 @@ categories and phrases stay as the API sends them.
 
 ## Results page
 
-`app/[customer_country]/search/page.tsx` renders the catalog's `ListingClient` (tiles, filter panel, sorting,
-pagination, Omnibus lines) with `{ search: q, page, page_size, ...q_/s_/r_ }` instead of `{ category }`.
+`app/[customer_country]/search/page.tsx` renders the catalog's listing (`ListingPageRuntime` with the theme's
+`@theme/catalog/listing-page`: tiles, filter panel, sorting, pagination, Omnibus lines) with
+`{ search: q, page, page_size, ...q_/s_/r_ }` instead of `{ category }`.
 
 - **Source: `products/?search=`, not `search/`.** Same matches in the same order (relevance) as the sheet, but in
-  the catalog shape, so `catalog_query` / `NORM_PRODUCTS_DATA` / `ProductTile` work unchanged; `q_`/`r_`/`s_` and
+  the catalog shape, so `catalog_query` / `NORM_PRODUCTS_DATA` / `ProductCard` work unchanged; `q_`/`r_`/`s_` and
   `page`/`page_size` combine with it. It carries no `total`, so the heading names the phrase, not a count.
 - **Filter counts:** `options/` takes no `search`, so its counts are the whole channel's. On the search page
   (`filters_query` with `options.search`) only the zeros are kept (no result can have that value); positive counts

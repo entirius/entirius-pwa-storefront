@@ -2,6 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import { cache } from "react";
 import type { create_api } from "@/API/api.context";
 import { API_CATEGORIES_ROUTE, API_PRODUCTS_ROUTE } from "@/API/api.routes";
 import { LANGUAGES } from "@/lib/languages";
@@ -37,13 +38,10 @@ async function product_key(api: Api, key: string, language: string): Promise<str
   return error ? null : ((response as Rows)?.results?.[0]?.url_keys?.[language] ?? null);
 }
 
-export const url_key_query = (api: Api, language: string, kind: KeyKind, key: string) => ({
-  queryKey: ["url-key", language, kind, key],
-  staleTime: 10 * 60_000,
-  queryFn: async (): Promise<string> => {
-    const found = await (kind === "catalog" ? category_key(api, key, language) : product_key(api, key, language));
-    return found ?? key;
-  },
+// The active language's url key, once per request (React.cache compares the arguments with Object.is: strings).
+export const load_url_key = cache(async (api: Api, language: string, kind: KeyKind, key: string): Promise<string> => {
+  const found = await (kind === "catalog" ? category_key(api, key, language) : product_key(api, key, language));
+  return found ?? key;
 });
 
 // Every catalog / product button of a CMS document, so the page can resolve them on the server.

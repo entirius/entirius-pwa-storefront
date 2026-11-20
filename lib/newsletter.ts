@@ -10,7 +10,7 @@ import {
   API_NEWSLETTER_SUBSCRIBE_ROUTE,
   API_NEWSLETTER_UNSUBSCRIBE_ROUTE,
 } from "@/API/api.routes";
-import { useHydrated } from "@/lib/use-hydrated";
+import { useHydrated } from "@entirius/storefront-sdk/hooks";
 
 type Api = ReturnType<typeof create_api>;
 

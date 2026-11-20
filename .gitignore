@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/packages/*/node_modules
 /.pnp
 .pnp.*
 .pnpm-store/
@@ -72,3 +73,9 @@ __FEATURES_IMPLEMENTATIONS/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# installed theme (a shop build or `entirius dev` puts it here; @theme/* resolves to it first)
+/theme/
+
+# Packed @entirius packages (scripts/release.mjs pack)
+/dist

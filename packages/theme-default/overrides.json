@@ -1,0 +1,271 @@
+{
+  "$comment": "What a theme can override, for `entirius list` (pnpm overrides): grouped by where it shows in the shop, one line each. `more`: smaller parts, shown with --all; `compact`: the group is one line without --all. Every file in src/ (but lib/) has an entry: overrides.test.ts checks it.",
+  "groups": [
+    {
+      "title": "Colours and shapes",
+      "where": "the whole shop",
+      "items": {
+        "tokens.css": "palette, corners, picture ratio, catalogue columns"
+      }
+    },
+    {
+      "title": "Product card",
+      "where": "catalogue, search, similar products, CMS tiles",
+      "items": {
+        "components/product-card": "the card: picture, labels, name, price, the + button",
+        "components/product-price": "price, struck old price, lowest 30-day price",
+        "components/product-badges": "labels on the picture: discount, New, …",
+        "components/quick-add": "the card's + button: one unit into the cart",
+        "components/wishlist-button": "the heart on cards and on the product page"
+      },
+      "more": {
+        "components/product-thumb": "small picture in cart, checkout and search rows"
+      }
+    },
+    {
+      "title": "Product page",
+      "where": "/product/…",
+      "items": {
+        "product/product-page": "which parts the page has, in what order",
+        "product/gallery": "pictures and thumbnails",
+        "product/gallery-viewer": "full-screen picture viewer",
+        "product/header": "brands, labels, name, key facts, SKU",
+        "product/price": "price: from-price, lowest 30-day price, VAT",
+        "product/variant-picker": "options such as size or series",
+        "product/stock-status": "in stock or not",
+        "product/buy-box": "quantity, Add to cart, wishlist, back-in-stock form",
+        "product/sticky-buy-bar": "buy bar on phones once the buy box scrolls away",
+        "product/description": "description",
+        "product/specs": "specification table",
+        "product/stories": "long-text sections after the specification",
+        "product/related": "similar products"
+      },
+      "more": {
+        "product/gallery-utils": "gallery helpers: picture sizes and positions",
+        "product/related-products": "the similar products section"
+      }
+    },
+    {
+      "title": "Catalogue and search",
+      "where": "/catalog/…, /search",
+      "items": {
+        "catalog/listing-page": "which parts the list has, in what order",
+        "catalog/listing-header": "title, breadcrumbs, description, subcategories",
+        "catalog/product-grid": "the grid of product cards",
+        "catalog/filters": "filter panel: sorting, ranges, values, Apply",
+        "catalog/filters-sheet": "filters on phones: a button and a side panel",
+        "catalog/filter-options": "a filter by values: checkboxes with counts",
+        "catalog/filter-range": "a filter by range: slider and bounds",
+        "catalog/sort-options": "sorting: ascending and descending buttons",
+        "catalog/pagination": "previous and next page",
+        "catalog/listing-empty": "nothing found; a notify-me form in a category"
+      }
+    },
+    {
+      "title": "Cart",
+      "where": "/cart; the order parts also in checkout",
+      "items": {
+        "cart/cart-page": "which parts the cart has, in what order",
+        "cart/cart-line": "a line: picture, name, prices, quantity, remove",
+        "cart/cart-summary": "summary column: code, totals, to checkout",
+        "cart/cart-bar": "total and to checkout, fixed on phones",
+        "order/page-header": "title row; the empty cart (also checkout)",
+        "order/order-steps": "cart → checkout steps (also checkout)",
+        "order/unit-price": "unit price, struck regular price, −N% (also checkout)",
+        "order/summary-card": "the summary's frame (also checkout)",
+        "order/order-totals": "totals: subtotal, savings, delivery, total (also checkout)",
+        "order/cart-alerts": "the cart’s problems (also checkout)",
+        "cart/gift-picker": "gifts to pick, and how much is missing"
+      },
+      "more": {
+        "cart/gift-line": "a gift line in the cart",
+        "order/gift-badge": "the Gift mark (also checkout)"
+      }
+    },
+    {
+      "title": "CMS pages",
+      "where": "home, CMS pages, the blog intro, post bodies, footer columns",
+      "items": {
+        "cms/section-hero-slider": "hero: slides in a carousel, or one slide",
+        "cms/tile-hero": "a hero slide: copy beside its picture",
+        "cms/section-banner": "promo strip: picture, copy, buttons",
+        "cms/section-text": "title, text and a grid of tiles",
+        "cms/section-image-text": "picture beside text",
+        "cms/section-icon-grid": "benefits row",
+        "cms/section-product-slider": "products: hand-picked or a category’s first",
+        "cms/section-accordion": "questions that fold open",
+        "cms/section-blog": "posts the editor picked",
+        "cms/buttons": "CMS buttons and links"
+      },
+      "more": {
+        "cms/section-shell": "a section’s heading row: title, text, buttons",
+        "cms/section-faq": "an article’s questions and answers",
+        "cms/section-type-a": "older content’s section; footer link columns",
+        "cms/tile-type-a": "older content’s tile",
+        "cms/tile-type-b": "older content’s product tile",
+        "cms/tile-txt-btn": "text tile: title, text, buttons",
+        "cms/tile-title-desc-img": "benefit tile: icon, title, text",
+        "cms/tile-image": "picture tile",
+        "cms/tile-accordion": "questions of an accordion section",
+        "cms/tile-product": "a product in a CMS product section",
+        "cms/product-rail": "product cards in a row or a grid",
+        "cms/hero-carousel": "the hero’s carousel",
+        "cms/picture": "a CMS picture in its ratio box",
+        "cms/cms-page": "a CMS page’s frame and its hidden heading"
+      }
+    },
+    {
+      "title": "Blog",
+      "where": "/blog, posts, authors; post tiles also on CMS pages",
+      "items": {
+        "blog/blog-page": "the list: intro, category tabs, posts, pages",
+        "blog/post-page": "a post: which parts, in what order",
+        "blog/author-page": "an author and their posts",
+        "blog/post-tile": "a post on a list: cover, title, summary, date",
+        "blog/post-header": "category, heading, authors, dates",
+        "blog/post-toc": "table of contents",
+        "blog/post-authors": "About the author",
+        "blog/post-neighbours": "older and newer post"
+      },
+      "more": {
+        "blog/post-grid": "a page of post tiles, or none",
+        "blog/category-tabs": "category tabs",
+        "blog/pending-label": "a tab’s text pulsing while it loads",
+        "blog/pagination": "page numbers",
+        "blog/author-photo": "author photo or initials"
+      }
+    },
+    {
+      "title": "Checkout",
+      "where": "/checkout; its forms, delivery and payment stay in the core",
+      "items": {
+        "checkout/checkout-summary": "summary beside the steps: lines, code, totals",
+        "checkout/summary-line": "a line of the summary",
+        "checkout/success-page": "the page after the order",
+        "checkout/order-receipt": "the receipt: numbers, amount, payment, delivery",
+        "checkout/summary-gift-line": "a gift line of the summary"
+      }
+    },
+    {
+      "title": "Account",
+      "where": "/profile…; the e-mail link pages",
+      "items": {
+        "account/account-layout": "the account’s frame: menu beside the page",
+        "account/account-menu": "account menu and logging out",
+        "account/overview-page": "the overview: which parts, in what order",
+        "account/orders-page": "the orders list",
+        "account/order-card": "an order on the list",
+        "account/order-page": "one order: which parts, in what order",
+        "account/addresses-page": "the address book",
+        "account/address-card": "a saved address with its actions",
+        "components/message-page": "e-mail link results: activation, reset, newsletter"
+      },
+      "more": {
+        "account/latest-order": "the overview’s latest order",
+        "account/account-details": "name and e-mail, Edit",
+        "account/default-address": "the default address",
+        "account/password-card": "the password, Change",
+        "account/page-heading": "a sub-page’s back link and title",
+        "account/order-status": "an order’s status pill",
+        "account/order-section": "an order section’s icon and heading",
+        "account/order-lines": "an order’s products",
+        "account/order-delivery": "an order’s address and delivery",
+        "account/order-payment": "an order’s payment",
+        "account/order-summary": "an order’s totals",
+        "account/address-lines": "an address as lines",
+        "account/reset-password-page": "the new password page"
+      }
+    },
+    {
+      "title": "Forms",
+      "where": "the fields and layout; checking and sending stay in the core",
+      "items": {
+        "forms/login-form": "signing in (account sheet)",
+        "forms/register-form": "a new account (account sheet)",
+        "forms/forgot-password-form": "asking for the reset mail",
+        "forms/reset-password-form": "the new password from the reset link",
+        "forms/profile-form": "the customer’s name (account)",
+        "forms/change-password-form": "changing the password (account)",
+        "forms/address-form": "the address book’s sheet",
+        "forms/newsletter-form": "newsletter sign-up (footer)",
+        "forms/enquiry-form": "a question to the shop (product, CMS)",
+        "forms/notify-similar-form": "notify me about a similar product",
+        "forms/stock-alert-form": "tell me when it is back",
+        "forms/discount-code": "discount code (cart, checkout)"
+      },
+      "more": {
+        "forms/consent-field": "a form’s consent box with its privacy link"
+      }
+    },
+    {
+      "title": "Header and footer",
+      "where": "every page",
+      "items": {
+        "layout/page-shell": "the frame of every page: slots, header, page, footer",
+        "layout/header": "the whole header, the order of its parts",
+        "layout/brand-mark": "the logo",
+        "layout/megamenu": "category menu on desktop",
+        "layout/menu": "which menu shows on phones and on desktop",
+        "layout/hamburger-menu": "category list in a side panel",
+        "layout/search-bar": "search on desktop: a field in the header",
+        "layout/search-sheet": "search on phones: a panel from the top",
+        "layout/search-results": "search suggestions: products, categories",
+        "layout/account-nav": "account icon: profile link or sign-in panel",
+        "layout/account-sheet": "sign-in and registration panel",
+        "layout/cart-link": "cart icon",
+        "layout/wishlist-sheet": "wishlist panel",
+        "layout/locale-switch": "language and currency",
+        "layout/notices": "short notices: added to cart, errors",
+        "layout/footer": "footer: logo, newsletter, link columns"
+      },
+      "more": {
+        "layout/count-badge": "number on the cart and wishlist icons",
+        "layout/header-icon": "shared look of the header icons",
+        "layout/search-field": "search box shared by desktop and phones",
+        "layout/search-product-row": "a product row in search suggestions",
+        "layout/wishlist-items": "the list inside the wishlist panel",
+        "layout/not-found-page": "the 404 page: search, categories, way back",
+        "layout/not-found-search": "the 404 page’s search",
+        "cookie-consent.css": "the cookie banner’s look"
+      }
+    },
+    {
+      "title": "Across pages",
+      "where": "product, catalogue, search, blog",
+      "items": {
+        "components/page-breadcrumbs": "breadcrumbs above the title"
+      }
+    },
+    {
+      "title": "UI elements",
+      "where": "every page and form, the checkout's too",
+      "compact": true,
+      "items": {
+        "ui/button": "buttons",
+        "ui/input": "text fields",
+        "ui/select": "drop-down lists",
+        "ui/sheet": "side and top panels",
+        "ui/checkbox": "checkboxes",
+        "ui/radio-group": "radio buttons",
+        "ui/textarea": "multi-line fields",
+        "ui/label": "field labels",
+        "ui/form-fields": "a field with its label and error (TextField, …)",
+        "ui/form": "form wiring for react-hook-form",
+        "ui/input-group": "a field with an icon or a button inside",
+        "ui/honeypot-field": "hidden anti-spam field",
+        "ui/quantity-stepper": "quantity: − 1 +",
+        "ui/slider": "range slider (price filter)",
+        "ui/pagination": "page numbers",
+        "ui/accordion": "collapsible sections",
+        "ui/expandable-text": "text with Show more",
+        "ui/carousel": "slider of pictures or cards",
+        "ui/tooltip": "tooltips",
+        "ui/alert": "message boxes",
+        "ui/spinner": "loading indicator",
+        "ui/aspect-ratio": "box with a fixed ratio",
+        "ui/breadcrumb": "breadcrumb pieces",
+        "ui/navigation-menu": "menu pieces of the megamenu"
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "@entirius/create-theme",
+  "version": "0.1.0-alpha.9",
+  "description": "Starts a theme for the Entirius storefront: pnpm create @entirius/theme <name> [--example]",
+  "license": "MPL-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/entirius/entirius-pwa-storefront.git",
+    "directory": "packages/create-theme"
+  },
+  "type": "module",
+  "bin": {
+    "create-theme": "index.mjs"
+  },
+  "files": [
+    "index.mjs",
+    "template",
+    "example"
+  ]
+}

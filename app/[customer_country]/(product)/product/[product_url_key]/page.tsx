@@ -17,12 +17,11 @@ import {
 import { JsonLd } from "@/lib/seo/json-ld";
 import { PROFILE_VIEWS, catalog_alternates } from "@/lib/seo/alternates";
 import { get_i18n } from "@/lib/i18n/i18n.server";
-import { ProductClient } from "./_components/product.client";
+import { ProductPage } from "@theme/product/product-page";
+import { ProductPageRuntime } from "./_components/product-page.client";
 import { RelatedSection } from "./related-products";
-import {
-  PageBreadcrumbs,
-  category_trail,
-} from "@/app/_components/layout/page-breadcrumbs";
+import { PageBreadcrumbs } from "@theme/components/page-breadcrumbs";
+import { category_trail } from "@/lib/breadcrumbs";
 
 interface Props {
   params: Promise<{ customer_country: string; product_url_key: string }>;
@@ -47,7 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 }
 
-export default async function ProductPage({ params }: Props) {
+export default async function ProductRoute({ params }: Props) {
   const { customer_country, ...route } = await params;
   const product_url_key = decode_param(route.product_url_key);
   const api = await get_server_api();
@@ -85,14 +84,16 @@ export default async function ProductPage({ params }: Props) {
           trail={[...category_trail(category_path), { name: raw.name }]}
         />
       )}
-      <ProductClient
+      <ProductPageRuntime
         product_url_key={product_url_key}
         related={
           <Suspense fallback={null}>
             <RelatedSection product_url_key={product_url_key} />
           </Suspense>
         }
-      />
+      >
+        <ProductPage />
+      </ProductPageRuntime>
     </PrefetchBoundary>
   );
 }
