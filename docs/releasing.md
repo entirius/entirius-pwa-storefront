@@ -13,8 +13,7 @@ Two kinds:
 - **A pre-release** (`1.2.3-beta.1`, `1.2.3-rc.1`) is a build to try: for a tester, or for a theme author who needs a
   change of the core and tries it on a client's staging before the release. It is a tag on `develop`, with no
   release commit and no pull request to `master`. On npm it is `next`: no `^` range of a theme picks it up, only its
-  exact version. (The Handbook puts every tag on `master` today; until it allows pre-release tags on `develop`, tag
-  a pre-release on `master` too.)
+  exact version. The Handbook's versioning page allows pre-release tags on `develop`.
 
 ## A release
 
