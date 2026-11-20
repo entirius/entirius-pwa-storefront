@@ -44,7 +44,10 @@ case "${1:-dev}" in
     if [ -n "$2" ]; then
       # The theme's package from its registry (the user's .npmrc); only its src/ and theme.json go into the core.
       tmp=$(mktemp -d)
-      (cd "$tmp" && npm pack --silent "$2" > /dev/null && tar -xzf ./*.tgz)
+      if ! (cd "$tmp" && npm pack --silent "$2" > /dev/null && tar -xzf ./*.tgz); then
+        echo "storefront: cannot fetch $2. A theme in a private registry needs its .npmrc (registry and token) at /root/.npmrc during the build: a build secret." >&2
+        exit 1
+      fi
       rm -rf theme && mkdir -p theme
       cp -r "$tmp/package/src" theme/src
       [ -f "$tmp/package/theme.json" ] && cp "$tmp/package/theme.json" theme/

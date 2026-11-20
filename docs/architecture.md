@@ -139,6 +139,9 @@ Client components use `.client.tsx` suffix. Server components have no suffix.
 
 ### Themes
 
+For a theme author and a shop builder: [building a theme](themes/guide.md), [building a shop](themes/shop.md), [the
+contract](themes/contract.md). This section is the core's side.
+
 `@theme/<path>` resolves through `tsconfig.json` paths: `theme/src/<path>` when an installed theme has that file,
 else `packages/theme-default/src/<path>`. A theme overrides a component by shipping a file at the same path with the
 same exports; everything else comes from the default theme. Components inside the default theme import each other

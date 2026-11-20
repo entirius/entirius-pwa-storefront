@@ -5,7 +5,7 @@
 // Node module hooks for rendering a theme outside the shop: `@theme/<path>` resolves like the core's tsconfig (the
 // theme's src/ first, then the default theme), TypeScript and TSX are transpiled with the theme's own TypeScript,
 // stylesheets are empty, and the Next modules a theme may use are small stand-ins (no router, no image server).
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -60,7 +60,8 @@ export async function resolve(specifier, context, next) {
     const path = specifier.slice("@theme/".length);
     const file = find(join(ROOT, "src", path)) ?? find(join(ROOT, "node_modules/@entirius/theme-default/src", path));
     if (!file) throw new Error(`${specifier}: no such file in the theme or the default theme`);
-    return { url: pathToFileURL(file).href, shortCircuit: true };
+    // The real path: pnpm links the default theme in, and its libraries sit next to the real folder, not the link.
+    return { url: pathToFileURL(realpathSync(file)).href, shortCircuit: true };
   }
   // TypeScript sources import each other without the extension.
   if (/^\.\.?\//.test(specifier) && /\.tsx?$/.test(context.parentURL ?? "")) {

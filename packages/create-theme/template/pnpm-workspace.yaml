@@ -1,3 +1,14 @@
 # pnpm 11+ skips packages younger than a day; the platform's releases are installed as soon as they are out.
 minimumReleaseAgeExclude:
   - "@entirius/*"
+
+# The libraries a theme may import besides React and Next: the default theme's own. pnpm keeps them out of reach of
+# the theme's files unless they are hoisted (the editor, `entirius check` and its types need them).
+publicHoistPattern:
+  - lucide-react
+  - radix-ui
+  - "@radix-ui/*"
+  - class-variance-authority
+  - clsx
+  - tailwind-merge
+  - embla-carousel-react

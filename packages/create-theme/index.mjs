@@ -19,7 +19,8 @@ const args = process.argv.slice(2);
 const registry_at = args.indexOf("--registry");
 const registry = registry_at >= 0 ? args[registry_at + 1] : null;
 const example = args.includes("--example");
-const folder = args.find((arg, i) => !arg.startsWith("--") && i !== registry_at + 1);
+// The folder: the first argument that is neither a flag nor the registry's value (a lone `--` is a flag too).
+const folder = args.find((arg, i) => !arg.startsWith("--") && !(registry_at >= 0 && i === registry_at + 1));
 
 if (!folder || (registry_at >= 0 && !registry)) {
   console.error("Usage: pnpm create @entirius/theme <name> [--example] [--registry <url>]");

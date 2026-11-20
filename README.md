@@ -7,6 +7,10 @@ Components; catalog, search, cart, checkout and customer account run against the
 Multi-country by design: every route lives under a country segment (`/{country}/...`) and the middleware
 resolves country, language, currency and sales channel into cookies before the page renders.
 
+The look is a theme: the default one is `packages/theme-default/`, and a shop's own theme is a package outside this
+repository. To make one, or to build a shop: [building a theme](docs/themes/guide.md) · [building a shop](docs/themes/shop.md)
+· [the theme contract](docs/themes/contract.md).
+
 ## Stack
 
 | Layer | Choice |

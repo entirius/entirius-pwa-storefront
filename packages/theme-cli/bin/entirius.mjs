@@ -70,6 +70,14 @@ const write_json = (path, data) => writeFileSync(path, `${JSON.stringify(data, n
 
 // The shop configuration for theme work: the core's template from the image, then this backend, channel and key.
 async function configure(image, args, user) {
+  let backend = option(args, "--backend");
+  let channel = option(args, "--channel");
+  let key = option(args, "--key");
+  // Without a terminal nobody answers the questions: nothing is written, the flags are the way.
+  if (!backend && !process.stdin.isTTY) {
+    console.error(`No terminal to ask in: run entirius dev --backend <url> --channel <code> --key <checkout key>.`);
+    return false;
+  }
   const copy = spawnSync(
     "docker",
     ["run", "--rm", ...user, "--entrypoint", "sh", "-v", `${ROOT}:/out`, image, "-c", "cp -r /app/_CONFIG.example /out/_CONFIG.dev"],
@@ -77,20 +85,9 @@ async function configure(image, args, user) {
   );
   if (copy.status !== 0) fail(`Could not read the configuration template from ${image}.`);
 
-  let backend = option(args, "--backend");
-  let channel = option(args, "--channel");
-  let key = option(args, "--key");
-  if (!backend && !process.stdin.isTTY) {
-    console.log(`_CONFIG.dev written from the core's template. Point it at your backend:
-  app.config.json        API_BASE_URL (a backend on this machine: http://localhost:<port>)
-  channels.config.json   your channel and its API_CHECKOUT_KEY
-  countries.config.json  the countries and the channel they use
-or run entirius dev --backend <url> --channel <code> --key <checkout key>.`);
-    return false;
-  }
   if (!backend) {
     const ask = createInterface({ input: process.stdin, output: process.stdout });
-    console.log("The shop needs a backend: your staging, your own installation or a local zeno.");
+    console.log("The shop needs a backend: your staging, your own installation or a local platform.");
     backend = (await ask.question(`Backend URL [${LOCAL_BACKEND}]: `)).trim() || LOCAL_BACKEND;
     channel = (await ask.question("Channel [default-europe]: ")).trim() || "default-europe";
     key = (await ask.question("Checkout API key of that channel (empty: browsing works, checkout does not): ")).trim();
@@ -118,7 +115,7 @@ async function dev(args) {
   const port = option(args, "--port") ?? "3100";
   // Files the container writes into this folder stay yours (Linux; Docker Desktop maps them anyway).
   const user = process.getuid ? ["--user", `${process.getuid()}:${process.getgid()}`] : [];
-  if (!existsSync(CONFIG) && !(await configure(image, args, user))) return 0;
+  if (!existsSync(CONFIG) && !(await configure(image, args, user))) return 1;
   mkdirSync(SRC, { recursive: true });
   console.log(`The shop with this theme: http://localhost:${port}`);
   // Only src/ goes in: the theme's node_modules would bring a second React and SDK next to the core's.

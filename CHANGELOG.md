@@ -26,6 +26,12 @@ All notable changes to this project are documented here. The format follows
 - The cart page is a theme template: `@theme/cart/cart-page` arranges `cart-line`, `cart-summary` and `cart-bar`,
   reading the cart from `useCartPage()` (`CartPageRuntime` in the core). The page header, the order steps, the unit
   price and the summary card moved to `@theme/order/*` and serve checkout too; checkout works as before.
+- Guides for a theme author and a shop builder outside the team: [building a theme](docs/themes/guide.md),
+  [building a shop](docs/themes/shop.md) and [the theme contract](docs/themes/contract.md), linked from the READMEs
+  of the four packages. Fixed on the way: `pnpm create @entirius/theme <name>` without `--registry` lost the folder
+  name; `entirius check` could not reach the default theme's libraries under pnpm's strict layout (a new theme also
+  hoists them, `publicHoistPattern`); `entirius dev` without a terminal and without its flags now writes nothing and
+  names the flags; `storefront build` says when it cannot fetch the theme (its registry's `.npmrc`, a build secret).
 - The last views of the core are the theme's: the similar products on the product page
   (`@theme/product/related-products`, a server part), the cookie banner's look (`@theme/cookie-consent.css`) and the
   gifts in the cart and checkout (`@theme/cart/gift-line`, `gift-picker`, `@theme/checkout/summary-gift-line`, from

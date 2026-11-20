@@ -56,7 +56,7 @@ Same rule applies to PR descriptions: no `Generated with [Claude Code]` footer.
 - `_CONFIG/` (gitignored, from `_CONFIG.example/`) — backend URL, channels, countries, brand assets, client `theme.css`, typefaces (`fonts.ts`).
 - `tests/e2e/` — Playwright specs.
 
-Read the guide for the area before changing it: [architecture](docs/architecture.md) · [configuration](docs/configuration.md) · [patterns and gotchas](docs/patterns.md) · [search](docs/search.md) · [testing](docs/testing.md) · [styling](docs/styling.md).
+Read the guide for the area before changing it: [architecture](docs/architecture.md) · [configuration](docs/configuration.md) · [patterns and gotchas](docs/patterns.md) · [search](docs/search.md) · [testing](docs/testing.md) · [styling](docs/styling.md). Themes, for authors outside the team: [building a theme](docs/themes/guide.md) · [building a shop](docs/themes/shop.md) · [the contract](docs/themes/contract.md) — keep them in step with any change to the contract.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

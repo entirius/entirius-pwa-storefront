@@ -13,7 +13,7 @@ cp -r _CONFIG.example _CONFIG
 # channels.config.json  → CHANNEL_LABEL and API_CHECKOUT_KEY per channel (optional API_CONTACT_FORMS_KEY, API_NEWSLETTER_KEY, API_AGREEMENTS_KEY, API_STOCK_ALERTS_KEY)
 # countries.config.json → country → languages/currencies/channels mapping
 # brand/                → identity assets (favicon, optional logo), named in app.config.json BRAND
-# theme.css             → client theme: values of the theme variables of app/globals.css (empty = default look)
+# theme.css             → the shop's values of the theme variables of app/globals.css, after the theme's tokens.css (empty = the theme's look)
 # fonts.ts              → typefaces of the shop, loaded through next/font (template: Inter and Lexend Deca)
 # messages.config.json  → optional: overrides of single interface messages per language
 ```

@@ -4,9 +4,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-/* A theme's colours and shapes. The core loads this file after app/globals.css and before the shop's
+/* A theme's colours and shapes. The core loads this file after its own stylesheet and before the shop's
    _CONFIG/theme.css: a theme overrides the default look here, a shop overrides the theme. The variables are the
-   semantic ones of app/globals.css, for example:
+   core's semantic ones (the theme contract lists them), for example:
 
    :root {
      --primary: #1d4ed8;

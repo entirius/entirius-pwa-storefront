@@ -21,3 +21,7 @@ Data and actions come from `@entirius/storefront-sdk` (a page's model, `useProdu
 To build a shop with this theme, publish it to your registry: give it your scope (`@acme/theme-{{name}}`), drop
 `"private": true`, `pnpm publish`. A shop's image installs it by version (`storefront build @acme/theme-{{name}}@1.0.0`);
 only `src/` and `theme.json` go into the package.
+
+The whole way, step by step: [building a theme](https://github.com/entirius/entirius-pwa-storefront/blob/develop/docs/themes/guide.md),
+[building a shop](https://github.com/entirius/entirius-pwa-storefront/blob/develop/docs/themes/shop.md),
+[what each part receives](https://github.com/entirius/entirius-pwa-storefront/blob/develop/docs/themes/contract.md).

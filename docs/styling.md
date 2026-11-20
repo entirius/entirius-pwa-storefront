@@ -1,6 +1,8 @@
 # Styling
 
-Tailwind CSS v4 with shadcn/ui ("new-york" style). Config in `packages/theme-default/components.json`.
+Tailwind CSS v4 with shadcn/ui ("new-york" style). Config in `packages/theme-default/components.json`. The look of the
+shop is the theme's (`packages/theme-default/src/`, `@theme/*`); a theme's colours and shapes are its `tokens.css`, a
+shop's own on top of them `_CONFIG/theme.css` ([building a theme](themes/guide.md)).
 
 - Colors, radii and fonts come from `@entirius/brand-tokens`. `app/globals.css` is the only file that maps `--brand-*` to semantic names (`background`, `card`, `primary`, `muted-foreground`, `positive`, `highlight`…).
 - Components use semantic classes only. `pnpm lint` rejects hex, `rgb()`/`hsl()`/`oklch()` and Tailwind palette classes (`bg-red-500`, `text-white`) in `.ts`/`.tsx`.
