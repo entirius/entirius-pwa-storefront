@@ -69,12 +69,15 @@ pnpm dev
 
 The first run asks for the backend's address, the channel and its checkout key, writes them to `_CONFIG.dev` and
 starts the shop on http://localhost:3100. The core runs in the `storefront-dev` container of your SDK's version; your
-`src/` is mounted into it, so saving a file shows on the next page load, no restart. `pnpm dev` stays in the
-foreground: Ctrl+C stops the shop and removes the container.
+`src/` is mounted into it, so saving a file shows on the next page load, no restart. The first run downloads that
+image (about 220 MB), so it takes a while before anything shows. `pnpm dev` stays in the foreground: Ctrl+C stops
+the shop and removes the container. From a script, send the same signal (SIGINT) or run
+`docker stop entirius-dev-<the theme folder's name>`.
 
 Without a terminal (a script, a CI job, an editor's task) nobody can answer the questions: pass
-`--backend <url> --channel <code> --key <key>`. A key passed that way stays in your shell's history and shows in the
-process list while the shop runs; the questions keep it out of both. The answers are written once: `_CONFIG.dev` exists from then on and `pnpm dev` starts straight
+`--backend <url> --channel <code> --key <key>`. A key passed that way stays in your shell's history, shows in the
+process list while the shop runs and in the command line pnpm prints (a CI job's log); the questions keep it out of
+all three. The answers are written once: `_CONFIG.dev` exists from then on and `pnpm dev` starts straight
 away, so to point the theme at another backend edit `_CONFIG.dev` (or delete it and answer again). `_CONFIG.dev` is a whole shop configuration: change it any time (languages,
 countries, brand, see [configuration](../configuration.md)).
 
@@ -173,9 +176,11 @@ A shop then names `@acme/theme-my-theme@1.3.0` in its build ([the shop guide](sh
 a published version is never changed.
 
 To see the theme as a production shop before that, `pnpm build` makes an image of the shop with this theme, tagged
-`<the theme folder's name>:local` (`--tag <image>` for another), and prints how to run it. It takes `_CONFIG.dev`, a
-configuration for development (developer tools on, links to `localhost:3100`): `--config <folder>` builds with a
-shop's configuration instead.
+`<the theme folder's name>:local` (`--tag <image>` for another; name it when two themes share a folder name), and
+prints how to run it. It takes `_CONFIG.dev`, a configuration for development (developer tools on, links to
+`localhost:3100`): `--config <folder>` builds with a shop's configuration instead, the folder that holds its
+`app.config.json` (for example `--config ../my-shop/_CONFIG`). That is also the way to a shop's image while the theme
+is in no registry yet.
 
 ## 7. A new platform release
 
@@ -202,4 +207,5 @@ A pre-release (`0.2.0-beta.1`, `0.2.0-rc.1`: a build of the core to try before i
 | Your file has no effect | A path or an export that differs from the default file's: `pnpm overrides` shows ✓ next to the files the theme replaces, `pnpm check` names a missing export. |
 | Types of `@theme/...` or the SDK do not resolve in the editor | `pnpm install` in the theme's folder; the editor uses the theme's `tsconfig.json`. |
 | `Cannot find package 'clsx'` (or `lucide-react`...) in your files or in `pnpm check` | A theme created before `0.1.0-alpha.8` lacks the `publicHoistPattern` of the template's `pnpm-workspace.yaml`: copy it from a new theme, then `pnpm install`. |
+| `pnpm build --help` starts a build | Before `0.1.0-alpha.10` the commands have no `--help`: their flags are in this guide (`pnpm dev` in step 2, `pnpm build` in step 6). |
 | `pnpm create` prints `Usage:` | A generator before `0.1.0-alpha.8` lost the folder name: name the version, or put `--` before the name. |

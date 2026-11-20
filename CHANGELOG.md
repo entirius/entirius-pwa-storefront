@@ -104,6 +104,10 @@ All notable changes to this project are documented here. The format follows
   under npm's `next` and the images under that version ([releasing](docs/releasing.md)). A release (`1.2.3`) still
   needs the packages' version and a tag on `master`; the workflow refuses a release off `master`, a pre-release off
   `develop` and `master`, and a GitHub release marked the other way than its tag.
+- `entirius <command> --help` (and `pnpm build --help` in a theme) prints the usage instead of running the command:
+  `build --help` started a build. The theme and shop guides cover the way to a shop's image without a registry
+  (`pnpm build --config <the shop's _CONFIG>`), stopping `pnpm dev` from a script, the first run's image download and
+  a `--key` showing in a CI log, from a walkthrough on the public `0.1.0-alpha.9`.
 - From a walkthrough of the theme and shop guides on `0.1.0-alpha.9`: the menu settings `MENU_CINFGURATION.TYPES` and
   `MENU_CINFGURATION.CONFIG_QUERY` are documented, the template's example country `uk` defaults to one of its
   languages (`en`), and the shop guide shows the whole `Dockerfile` for a private registry, the version without `^`

@@ -4,7 +4,9 @@ A shop is **one version of the core, one version of a theme and one configuratio
 Its manifest is its `Dockerfile`: a few lines name all three. There is no other file to keep in step.
 
 Before you start: a theme package in a registry ([the theme guide](guide.md)), Docker, and the shop's backend
-(an Entirius platform instance with the shop's channel).
+(an Entirius platform instance with the shop's channel). To try a shop before the theme is in a registry, build it
+from the theme's folder instead: `pnpm build --config <the shop's _CONFIG> --tag my-shop:1`
+([the theme guide](guide.md#6-release-the-theme)).
 
 ## 1. The configuration
 
@@ -90,7 +92,7 @@ balancer) in front of it, at the address of `SITE_URL`.
 
 A backend on `localhost` (trying a shop next to a local platform) is reached through the same address from the
 browser and the container: the image passes that port on to the host. On Linux add
-`--add-host host.docker.internal:host-gateway`.
+`--add-host host.docker.internal:host-gateway` (elsewhere it does no harm: `pnpm build` prints it for every system).
 
 ## 4. A new version, and back
 

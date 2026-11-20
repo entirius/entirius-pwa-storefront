@@ -39,6 +39,9 @@ Two kinds:
    - `images`: the three images for `linux/amd64` and `linux/arm64` to `ghcr.io/entirius/storefront-<target>:<version>`,
      never `latest`.
 
+   The `npm` job waits for a reviewer of the repository's `npm` environment: on GitHub, Actions → the `publish` run →
+   Review deployments → `npm` → Approve deployment.
+
 5. Afterwards, from a machine with nothing of the repository: `pnpm create @entirius/theme@<version> check-it`,
    `pnpm install`, `pnpm check`, and `docker pull ghcr.io/entirius/storefront-dev:<version>` without a login.
 
@@ -114,7 +117,8 @@ npmjs.com, Settings → Trusted publishing → GitHub Actions:
 | Workflow filename | `publish.yml` |
 | Environment | `npm` |
 
-Then the GitHub release: `npm` skips a version that is on npm already, `images` pushes the images.
+Then the GitHub release: `npm` skips a version that is on npm already, `images` pushes the images. That release does
+not need the trusted publisher yet; the next version the workflow publishes does.
 
 In the repository's settings an environment named `npm` (its protection rules, such as a required reviewer, then
 guard every publication). Once the workflow has published, the packages' publishing access can require two-factor
