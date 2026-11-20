@@ -6,9 +6,6 @@ allowBuilds:
   msw: true
   sharp: true
   unrs-resolver: true
-ignoredBuiltDependencies:
-  - sharp
-  - unrs-resolver
 overrides:
   "@types/react": "19.3.0"
   "@types/react-dom": "19.3.0"

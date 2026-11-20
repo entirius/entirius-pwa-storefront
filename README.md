@@ -24,8 +24,8 @@ repository. To make one, or to build a shop: [building a theme](docs/themes/guid
 
 ## Prerequisites
 
-- Node.js 20+
-- pnpm 10+ (`corepack enable` or `npm i -g pnpm`)
+- Node.js 24+
+- pnpm: the version in `package.json` → `packageManager`; a recent pnpm (`npm i -g pnpm`) switches to it by itself
 - A running Volkanos backend reachable over HTTP. The template points at `http://localhost:8000`; the
   zeno local stack publishes the API on `http://localhost:8100` — set `API_BASE_URL` to match
 

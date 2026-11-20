@@ -19,14 +19,16 @@
 FROM node:24-slim AS core
 ENV NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app
-RUN npm install --global pnpm@10
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# The pnpm named in package.json's packageManager: the one CI and the core's developers run.
+RUN npm install --global "$(node -p "require('./package.json').packageManager")" && npm cache clean --force
 COPY packages/sdk/package.json packages/sdk/
 COPY packages/theme-default/package.json packages/theme-default/
 COPY packages/create-theme/package.json packages/create-theme/
 COPY packages/theme-cli/package.json packages/theme-cli/
 # Production dependencies only: building a shop needs Next, Tailwind and TypeScript, not the test and lint tools.
-RUN pnpm install --frozen-lockfile --prod
+# pnpm's registry metadata cache (~250 MB) is of no use in the image: nothing installs there afterwards.
+RUN pnpm install --frozen-lockfile --prod && rm -rf /root/.cache/pnpm
 COPY . .
 
 FROM core AS builder

@@ -38,6 +38,8 @@ All notable changes to this project are documented here. The format follows
   `minimatch` is held at a patched version (GHSA-g3hv-75wg-m249, through `shadcn`). The images and CI run Node 24
   (the core's `engines`: `>=24`); the workflow actions are at their current major versions. TypeScript stays at 6:
   `typescript-eslint` does not support 7 yet.
+- One pnpm for the core: `packageManager` in `package.json` (pnpm 12.21, also pinned in the lockfile) is the version CI,
+  the images and the core's developers run; CI and the images ran pnpm 10 before. Theme authors keep any pnpm from 10.
 - A release of the theme platform is a GitHub release of a `v<version>` tag: `.github/workflows/publish.yml` checks the
   tag against the four packages, publishes them to npm through trusted publishing (with the `LICENSE`, under `next`
   for a prerelease) and pushes the core images for `linux/amd64` and `linux/arm64` to ghcr.io ([releasing](docs/releasing.md)).
