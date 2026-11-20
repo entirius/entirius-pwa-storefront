@@ -76,3 +76,6 @@ __FEATURES_IMPLEMENTATIONS/
 
 # installed theme (a shop build or `entirius dev` puts it here; @theme/* resolves to it first)
 /theme/
+
+# Packed @entirius packages (scripts/release.mjs pack)
+/dist

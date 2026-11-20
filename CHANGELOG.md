@@ -26,6 +26,10 @@ All notable changes to this project are documented here. The format follows
 - The cart page is a theme template: `@theme/cart/cart-page` arranges `cart-line`, `cart-summary` and `cart-bar`,
   reading the cart from `useCartPage()` (`CartPageRuntime` in the core). The page header, the order steps, the unit
   price and the summary card moved to `@theme/order/*` and serve checkout too; checkout works as before.
+- A release of the theme platform is a GitHub release of a `v<version>` tag: `.github/workflows/publish.yml` checks the
+  tag against the four packages, publishes them to npm through trusted publishing (with the `LICENSE`, under `next`
+  for a prerelease) and pushes both images for `linux/amd64` and `linux/arm64` to ghcr.io ([releasing](docs/releasing.md)).
+  `entirius check` on a theme that overrides nothing yet no longer fails on TypeScript finding no input.
 - Guides for a theme author and a shop builder outside the team: [building a theme](docs/themes/guide.md),
   [building a shop](docs/themes/shop.md) and [the theme contract](docs/themes/contract.md), linked from the READMEs
   of the four packages. Fixed on the way: `pnpm create @entirius/theme <name>` without `--registry` lost the folder

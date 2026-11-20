@@ -261,7 +261,9 @@ function check() {
   }
 
   const tsc = join(ROOT, "node_modules/.bin/tsc");
-  const types = existsSync(tsc) ? spawnSync(tsc, ["--noEmit", "-p", ROOT], { stdio: "inherit" }) : null;
+  // A theme that overrides nothing yet has no TypeScript of its own: tsc would find no input and fail.
+  const typed = own.some((file) => /\.tsx?$/.test(file));
+  const types = !typed ? { status: 0 } : existsSync(tsc) ? spawnSync(tsc, ["--noEmit", "-p", ROOT], { stdio: "inherit" }) : null;
   if (!types) problems.push("TypeScript is not installed: pnpm install");
   else if (types.status !== 0) problems.push("types: see the TypeScript errors above");
 
