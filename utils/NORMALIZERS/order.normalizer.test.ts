@@ -7,7 +7,7 @@ import {
   NORM_ORDER_SUMMARIES,
   NORM_PLACED_ORDER,
   status_label_for,
-  status_style,
+  status_tone,
 } from "./order.normalizer";
 
 describe("NORM_ORDER_SUMMARIES", () => {
@@ -102,10 +102,10 @@ describe("status_label_for", () => {
   });
 });
 
-describe("status_style", () => {
-  it("maps known statuses to brand status tokens and falls back to neutral", () => {
-    expect(status_style("unpaid").text).toBe("text-notice");
-    expect(status_style("confirmed").text).toBe("text-positive");
-    expect(status_style("whatever")).toEqual({ bg: "bg-muted", text: "text-foreground" });
+describe("status_tone", () => {
+  it("gives known statuses their tone and the rest a neutral one", () => {
+    expect(status_tone("unpaid")).toBe("notice");
+    expect(status_tone("confirmed")).toBe("positive");
+    expect(status_tone("whatever")).toBe("neutral");
   });
 });

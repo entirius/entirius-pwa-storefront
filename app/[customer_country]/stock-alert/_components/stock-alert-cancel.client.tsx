@@ -8,9 +8,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
-import { Button } from "@theme/ui/button";
-import { Spinner } from "@theme/ui/spinner";
-import { LinkDynamic } from "@/lib/link-dynamic";
+import { MessagePage } from "@theme/components/message-page";
 import { cancel_stock_alert } from "@/lib/stock-alerts";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
@@ -31,23 +29,15 @@ export function StockAlertCancelClient() {
     cancel_stock_alert(api, token).then(setStatus);
   }, [api, token]);
 
+  // The data attribute names the result for tests and a theme's rules, whatever the theme's page draws.
   return (
-    <div data-stock-alert-cancel={status} className="mx-auto max-w-3xl px-4 py-16 text-center">
-      {status === "pending" ? (
-        <div className="flex flex-col items-center gap-3">
-          <Spinner className="size-6" />
-          <p className="text-muted-foreground">{t("stockAlert.cancel_pending")}</p>
-        </div>
-      ) : (
-        <>
-          <h1 className="mb-6 text-2xl">
-            {status === "cancelled" ? t("stockAlert.cancel_done") : t("stockAlert.cancel_failed")}
-          </h1>
-          <Button asChild variant="outline">
-            <LinkDynamic href="/">{t("stockAlert.cancel_back")}</LinkDynamic>
-          </Button>
-        </>
-      )}
+    <div data-stock-alert-cancel={status}>
+      <MessagePage
+        pending={status === "pending"}
+        pending_text={t("stockAlert.cancel_pending")}
+        title={status === "cancelled" ? t("stockAlert.cancel_done") : t("stockAlert.cancel_failed")}
+        action={{ label: t("stockAlert.cancel_back"), href: "/" }}
+      />
     </div>
   );
 }

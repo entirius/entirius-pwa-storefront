@@ -127,6 +127,36 @@
       }
     },
     {
+      "title": "Account",
+      "where": "/profile…; the e-mail link pages",
+      "items": {
+        "account/account-layout": "the account’s frame: menu beside the page",
+        "account/account-menu": "account menu and logging out",
+        "account/overview-page": "the overview: which parts, in what order",
+        "account/orders-page": "the orders list",
+        "account/order-card": "an order on the list",
+        "account/order-page": "one order: which parts, in what order",
+        "account/addresses-page": "the address book",
+        "account/address-card": "a saved address with its actions",
+        "components/message-page": "e-mail link results: activation, reset, newsletter"
+      },
+      "more": {
+        "account/latest-order": "the overview’s latest order",
+        "account/account-details": "name and e-mail, Edit",
+        "account/default-address": "the default address",
+        "account/password-card": "the password, Change",
+        "account/page-heading": "a sub-page’s back link and title",
+        "account/order-status": "an order’s status pill",
+        "account/order-section": "an order section’s icon and heading",
+        "account/order-lines": "an order’s products",
+        "account/order-delivery": "an order’s address and delivery",
+        "account/order-payment": "an order’s payment",
+        "account/order-summary": "an order’s totals",
+        "account/address-lines": "an address as lines",
+        "account/reset-password-page": "the new password page"
+      }
+    },
+    {
       "title": "Header and footer",
       "where": "every page",
       "items": {

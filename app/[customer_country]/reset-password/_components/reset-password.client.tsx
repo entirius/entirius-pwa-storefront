@@ -18,7 +18,8 @@ import { Form, FormError } from "@theme/ui/form";
 import { TextField } from "@theme/ui/form-fields";
 import { Button } from "@theme/ui/button";
 import { Spinner } from "@theme/ui/spinner";
-import { LinkDynamic } from "@/lib/link-dynamic";
+import { MessagePage } from "@theme/components/message-page";
+import { ResetPasswordPage } from "@theme/account/reset-password-page";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 // Receiver of the reset mail: /reset-password?key=. The key is checked only when the form is sent, so a
@@ -56,32 +57,29 @@ export function ResetPasswordClient() {
   if (status !== "form") {
     const done = status === "done";
     return (
-      <div className="mx-auto max-w-3xl px-4 py-16 text-center">
-        <h1 className="mb-3 text-2xl">{t(done ? "auth.reset_done_title" : "auth.reset_invalid_title")}</h1>
-        <p className="mb-6 text-muted-foreground">
-          {t(done ? "auth.reset_done_text" : "auth.reset_invalid_text")}
-        </p>
-        <Button asChild variant="outline">
-          <LinkDynamic href="/">{t("common.back_to_store")}</LinkDynamic>
-        </Button>
-      </div>
+      <MessagePage
+        pending={false}
+        title={t(done ? "auth.reset_done_title" : "auth.reset_invalid_title")}
+        text={t(done ? "auth.reset_done_text" : "auth.reset_invalid_text")}
+        action={{ label: t("common.back_to_store"), href: "/" }}
+      />
     );
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 py-16">
-      <h1 className="mb-3 text-2xl">{t("auth.reset_title")}</h1>
-      <p className="mb-6 text-muted-foreground">{t("auth.reset_intro")}</p>
-      <Form {...form}>
-        <form onSubmit={submit} className="flex flex-col gap-4">
-          <TextField control={form.control} name="password" label={t("auth.new_password")} hint={t("auth.password_hint")} type="password" autoComplete="new-password" />
-          <TextField control={form.control} name="confirm_password" label={t("auth.confirm_new_password")} type="password" autoComplete="new-password" />
-          <FormError>{form.formState.errors.root?.message}</FormError>
-          <Button type="submit" disabled={pending}>
-            {pending ? <Spinner className="size-4" /> : t("auth.set_password")}
-          </Button>
-        </form>
-      </Form>
-    </div>
+    <ResetPasswordPage
+      form={
+        <Form {...form}>
+          <form onSubmit={submit} className="flex flex-col gap-4">
+            <TextField control={form.control} name="password" label={t("auth.new_password")} hint={t("auth.password_hint")} type="password" autoComplete="new-password" />
+            <TextField control={form.control} name="confirm_password" label={t("auth.confirm_new_password")} type="password" autoComplete="new-password" />
+            <FormError>{form.formState.errors.root?.message}</FormError>
+            <Button type="submit" disabled={pending}>
+              {pending ? <Spinner className="size-4" /> : t("auth.set_password")}
+            </Button>
+          </form>
+        </Form>
+      }
+    />
   );
 }

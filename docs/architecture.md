@@ -128,6 +128,7 @@ All pages live under `app/[customer_country]/`. The `ct` cookie (set by middlewa
 |------|----------|---------|
 | Theme | `packages/theme-default/src/ui/` | Base primitives (Button, Input, Sheet, Carousel), imported as `@theme/ui/<name>`. Added via shadcn, see [styling](styling.md) |
 | Theme components | `packages/theme-default/src/components/`, `src/product/` | Product card, price, badges, wishlist button; the product page and its parts. `@theme/components/<name>`, `@theme/product/<part>` |
+| Account | `packages/theme-default/src/account/` (look), `app/[customer_country]/profile/**/_components/*-runtime.client.tsx`, `lib/account-models.ts` | The account section's pages and parts: `@theme/account/<part>` |
 | CMS and blog | `packages/theme-default/src/cms/`, `src/blog/` (look), `(builder)/[[...slug]]/_components/` (renderer, data), `lib/cms/`, `lib/blog-models.ts` | Server parts: a block type of the CMS editor per file (`@theme/cms/<type>`), the blog's pages and parts (`@theme/blog/<part>`) |
 | Domain UI | `components/ui/` | `TokenLinks` (consent texts of the forms): moves with the forms |
 | Shared | `lib/` | Cross-page components (PrefetchBoundary, LinkDynamic); `lib/storefront/` fills the SDK's `Storefront` |
@@ -173,8 +174,15 @@ and the search page alike. The cart's `@theme/cart/cart-page` arranges `cart-lin
 the order parts it shares with checkout (`@theme/order/page-header`, `order-steps`, `unit-price`, `summary-card`);
 checkout reaches those through thin adapters in the core (`order_steps()`, `unit_price()`), and its forms, delivery,
 payment and the order button stay in the core (a theme must not be able to break an order). Gifts,
-the discount code, the cart's problems and the totals come whole in `blocks`. Files in `packages/` carry no
-`.client` suffix: the path is the contract.
+the discount code, the cart's problems and the totals come whole in `blocks`. The account (`/account/page`): the
+section's frame `@theme/account/account-layout` with `account-menu` (`useAccountMenu()`, set in the profile layout,
+which also guards the section), `overview-page`, `orders-page`, `order-page` and `addresses-page`, each with its
+runtime in the core (`OverviewRuntime`, `OrdersRuntime`, `OrderRuntime`, `AddressesRuntime`) and the models of
+`lib/account-models.ts`: prices, dates and an order's status as a label and a tone (`notice`, `positive`,
+`negative`, `informative`, `neutral`) the theme colours. The forms (profile, password, address sheet, the new
+password) come whole from the core. The pages answering an e-mail link (activation, password reset, newsletter,
+back in stock) draw `@theme/components/message-page` in props, the reset form `@theme/account/reset-password-page`.
+Files in `packages/` carry no `.client` suffix: the path is the contract.
 
 Those parts are browser parts: they read a context. CMS content and the blog are server parts instead: plain HTML
 with their data in props, as content needs no browser JS:

@@ -26,6 +26,11 @@ All notable changes to this project are documented here. The format follows
 - The cart page is a theme template: `@theme/cart/cart-page` arranges `cart-line`, `cart-summary` and `cart-bar`,
   reading the cart from `useCartPage()` (`CartPageRuntime` in the core). The page header, the order steps, the unit
   price and the summary card moved to `@theme/order/*` and serve checkout too; checkout works as before.
+- The account is a theme template: `@theme/account/account-layout` and `account-menu`, `overview-page`, `orders-page`,
+  `order-page` and `addresses-page` with their parts, each reading its page from a hook of the SDK (`/account/page`)
+  that a runtime in the core fills; an order's status comes as a tone the theme colours. The forms stay in the core.
+  The pages of e-mail links (activation, password reset, newsletter, back in stock) draw
+  `@theme/components/message-page`. The shop looks and works as before.
 - CMS pages render on the server, and CMS blocks and the blog are theme parts rendered there: a block type of the
   page editor is `@theme/cms/<type>` (sections and tiles), the blog's pages `@theme/blog/blog-page`, `post-page` and
   `author-page` with their parts. The core reads what a document shows before it renders (button addresses,

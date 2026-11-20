@@ -4,7 +4,8 @@
 
 import type { Metadata } from "next";
 import { get_i18n } from "@/lib/i18n/i18n.server";
-import { OrderDetail } from "./_components/order-detail.client";
+import { OrderPage } from "@theme/account/order-page";
+import { OrderRuntime } from "./_components/order-runtime.client";
 
 interface Props {
   params: Promise<{ order_id: string }>;
@@ -19,7 +20,11 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function OrderPage({ params }: Props) {
+export default async function OrderRoute({ params }: Props) {
   const { order_id } = await params;
-  return <OrderDetail order_id={order_id} />;
+  return (
+    <OrderRuntime order_id={order_id}>
+      <OrderPage />
+    </OrderRuntime>
+  );
 }

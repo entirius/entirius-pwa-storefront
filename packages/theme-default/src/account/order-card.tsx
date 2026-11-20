@@ -5,32 +5,20 @@
 "use client";
 
 import { Calendar, Eye, Package, Receipt } from "lucide-react";
-
-import { cn } from "@/lib/utils";
-import { LinkDynamic } from "@/lib/link-dynamic";
-import {
-  format_order_date,
-  status_style,
-  type OrderSummary,
-} from "@/utils/NORMALIZERS/order.normalizer";
+import type { OrderSummaryModel } from "@entirius/storefront-sdk/account";
+import { Link } from "@entirius/storefront-sdk/components/link";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
+import { OrderStatus } from "@theme/account/order-status";
 
-export function OrderCard({ order }: { order: OrderSummary }) {
-  const i18n = useI18n();
-  const { t } = i18n;
-  const style = status_style(order.status);
-
-  const formatted_date = format_order_date(order.created, i18n.language);
-
-  const items_text = t("orders.items", { count: order.item_count });
-
+// An order on the list: number, status, date, pieces, total; the whole card links to the order.
+export function OrderCard({ order }: { order: OrderSummaryModel }) {
+  const { t } = useI18n();
   return (
-    <LinkDynamic
-      href={`/profile/orders/${order.id}`}
+    <Link
+      href={order.href}
       className="block w-full overflow-hidden rounded-lg border border-border bg-card text-left transition-colors hover:border-primary"
     >
       <div className="px-5 py-3">
-        {/* Top row: ID and status */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="flex size-8 items-center justify-center rounded-lg bg-muted">
@@ -38,38 +26,26 @@ export function OrderCard({ order }: { order: OrderSummary }) {
             </div>
             <span className="text-sm font-semibold">#{order.id}</span>
           </div>
-          <div className={cn("rounded-full px-3 py-1", style.bg)}>
-            <span className={cn("text-xs font-bold", style.text)}>
-              {i18n.text(order.status_label)}
-            </span>
-          </div>
+          <OrderStatus status={order.status} />
         </div>
-
-        {/* Info row */}
         <div className="mt-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1">
               <Calendar className="size-3 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">
-                {formatted_date}
-              </span>
+              <span className="text-xs text-muted-foreground">{order.date}</span>
             </div>
             <div className="flex items-center gap-1">
               <Package className="size-3 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">{items_text}</span>
+              <span className="text-xs text-muted-foreground">{t("orders.items", { count: order.items })}</span>
             </div>
           </div>
-          <span className="text-base font-bold">
-            {i18n.price(order.total, order.currency_code)}
-          </span>
+          <span className="text-base font-bold">{order.total}</span>
         </div>
-
-        {/* View details */}
         <div className="mt-3 flex items-center justify-center gap-2 rounded-lg bg-muted py-2">
           <Eye className="size-3.5 text-foreground" />
           <span className="text-sm font-bold">{t("orders.view")}</span>
         </div>
       </div>
-    </LinkDynamic>
+    </Link>
   );
 }

@@ -4,7 +4,8 @@
 
 import type { Metadata } from "next";
 import { get_i18n } from "@/lib/i18n/i18n.server";
-import { AddressList } from "./_components/address-list.client";
+import { AddressesPage } from "@theme/account/addresses-page";
+import { AddressesRuntime } from "./_components/addresses-runtime.client";
 
 // Not for search engines; the title names the page in the browser tab ("… | site").
 export async function generateMetadata(): Promise<Metadata> {
@@ -15,6 +16,10 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function AddressesPage() {
-  return <AddressList />;
+export default function AddressesRoute() {
+  return (
+    <AddressesRuntime>
+      <AddressesPage />
+    </AddressesRuntime>
+  );
 }

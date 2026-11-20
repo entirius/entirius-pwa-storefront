@@ -4,22 +4,32 @@
 
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-
+import { useEffect, type ReactNode } from "react";
+import { useParams, usePathname, useRouter } from "next/navigation";
+import { AccountMenuProvider, type AccountMenuModel } from "@entirius/storefront-sdk/account/page";
+import { useI18n } from "@entirius/storefront-sdk/i18n/client";
+import { AccountLayout } from "@theme/account/account-layout";
 import { useAuth } from "@/providers/auth.provider";
-import { AccountMenu } from "./_components/account-menu.client";
+import { client_logout } from "@/lib/auth-client";
+import { clear_cart_on_logout } from "@/stores/cart-login";
+import { clear_wishlist_on_logout } from "@/stores/wishlist-sync";
 
-// Auth guard for the whole /profile section. Auth state is seeded server-side
-// (AuthProvider), so a logged-in hard load passes without a flash; a logged-out
-// visitor (or a logout) is bounced home.
-export default function ProfileLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const { isLoggedIn } = useAuth();
+const PAGES = [
+  { id: "overview", href: "/profile", label: "profile.overview", exact: true },
+  { id: "orders", href: "/profile/orders", label: "profile.orders", exact: false },
+  { id: "addresses", href: "/profile/addresses", label: "profile.addresses", exact: false },
+] as const;
+
+// Auth guard for the whole /profile section. Auth state is seeded server-side (AuthProvider), so a logged-in hard
+// load passes without a flash; a logged-out visitor (or a logout) is bounced home. The frame and the menu are the
+// theme's (@theme/account/account-layout).
+export default function ProfileLayout({ children }: { children: ReactNode }) {
+  const { isLoggedIn, setLoggedIn } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
+  const params = useParams();
+  // Paths may carry the country prefix (/pl/profile/orders).
+  const path = (usePathname() ?? "").replace(/^\/[a-z]{2}(?=\/profile)/, "");
 
   useEffect(() => {
     if (!isLoggedIn) router.replace("/");
@@ -27,12 +37,26 @@ export default function ProfileLayout({
 
   if (!isLoggedIn) return null;
 
+  const menu: AccountMenuModel = {
+    items: PAGES.map(({ id, href, label, exact }) => ({
+      id,
+      href,
+      label: t(label),
+      current: exact ? path === href : path.startsWith(href),
+    })),
+    log_out: async () => {
+      await client_logout();
+      clear_cart_on_logout();
+      clear_wishlist_on_logout();
+      setLoggedIn(false);
+      const country = params?.customer_country as string | undefined;
+      router.push(!country || country === "default" ? "/" : `/${country}`);
+    },
+  };
+
   return (
-    <div className="grid w-full gap-6 py-4 md:grid-cols-[15rem_minmax(0,1fr)] md:items-start">
-      <div className="md:sticky md:top-24">
-        <AccountMenu />
-      </div>
-      <div className="min-w-0">{children}</div>
-    </div>
+    <AccountMenuProvider value={menu}>
+      <AccountLayout>{children}</AccountLayout>
+    </AccountMenuProvider>
   );
 }
