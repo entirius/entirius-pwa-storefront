@@ -13,12 +13,14 @@ import { CartLine } from "@theme/cart/cart-line";
 import { CartSummary } from "@theme/cart/cart-summary";
 import { CartBar } from "@theme/cart/cart-bar";
 import { CartAlerts } from "@theme/order/cart-alerts";
+import { GiftLine } from "@theme/cart/gift-line";
+import { GiftPicker } from "@theme/cart/gift-picker";
 
 // The cart page: the default arrangement of its parts, in the same frame as checkout (title, steps, then a list
 // column and a 20rem summary column). Every part reads the cart from useCartPage().
 export function CartPage() {
   const { t } = useI18n();
-  const { ready, lines, pieces, logged_in, steps, alerts, blocks } = useCartPage();
+  const { ready, lines, pieces, logged_in, steps, alerts, gift_lines, gift_picker } = useCartPage();
   const has_lines = ready && lines.length > 0;
 
   return (
@@ -44,9 +46,11 @@ export function CartPage() {
                 {lines.map((line) => (
                   <CartLine key={line.sku} line={line} />
                 ))}
-                {blocks.gift_lines}
+                {gift_lines.map((line) => (
+                  <GiftLine key={`gift-${line.sku}`} line={line} />
+                ))}
               </ul>
-              {blocks.gift_picker}
+              {gift_picker && <GiftPicker picker={gift_picker} />}
               <Link href="/" className="link self-start text-sm font-semibold">
                 {t("common.continue_shopping")}
               </Link>

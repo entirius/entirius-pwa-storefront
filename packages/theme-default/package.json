@@ -19,7 +19,8 @@
     "./lib/*": "./src/lib/*.ts",
     "./components/*": "./src/components/*.tsx",
     "./product/*": "./src/product/*.tsx",
-    "./tokens.css": "./src/tokens.css"
+    "./tokens.css": "./src/tokens.css",
+    "./cookie-consent.css": "./src/cookie-consent.css"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

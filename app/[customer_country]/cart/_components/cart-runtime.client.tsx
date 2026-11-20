@@ -14,7 +14,7 @@ import { useCartSync } from "@/stores/use-cart-sync";
 import { unit_price } from "@/app/_components/order/cart-price";
 import { DiscountCode } from "@/app/_components/order/discount-code.client";
 import { cart_alerts } from "@/app/_components/order/cart-alerts";
-import { GiftCard, GiftLine, gift_rule } from "@/app/_components/order/cart-gifts.client";
+import { gift_line, gift_picker } from "@/app/_components/order/cart-gifts";
 import { useCartGifts, useGiftSetter } from "@/app/_components/order/use-cart-gifts";
 import { order_steps } from "@/app/[customer_country]/checkout/_components/checkout-stepper";
 import { order_totals } from "@/app/_components/order/order-totals";
@@ -71,22 +71,11 @@ export function CartPageRuntime({ children }: { children: ReactNode }) {
     alerts: cart_alerts(backend, error ? t("cart.sync_error") : null, t),
     totals: order_totals(backend, currency, i18n, { fetching: isFetching, delivery_at_checkout: true }),
     steps: order_steps(t, "cart", NO_STEPS_DONE),
+    gift_lines: (backend?.gifts ?? []).map((line) =>
+      gift_line(i18n, line, products[line.sku], currency, { backend, rules, gifts }),
+    ),
+    gift_picker: gift_picker(i18n, backend, rules, products, gifts),
     blocks: {
-      gift_lines: (backend?.gifts ?? []).map((line) => {
-        const { code, rule } = gift_rule(backend, rules, line.sku);
-        return (
-          <GiftLine
-            key={`gift-${line.sku}`}
-            line={line}
-            product={products[line.sku]}
-            code={code}
-            max={rule?.max_quantity ?? line.quantity}
-            currency={currency}
-            gifts={gifts}
-          />
-        );
-      }),
-      gift_picker: <GiftCard backend={backend} rules={rules} products={products} gifts={gifts} />,
       discount_code: <DiscountCode backend={backend} />,
     },
   };

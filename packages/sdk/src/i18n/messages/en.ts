@@ -360,7 +360,6 @@ export const en = {
   "checkout.copied": "Copied",
   "checkout.steps": "Order steps",
   "checkout.step_of": "Step {current} of {total} · {label}",
-  "checkout.step_unavailable": "This step isn’t available yet — the shipping & payment service is temporarily unavailable. Your address has been saved.",
   "checkout.success_split": {
     one: "Thank you! Your order was split into {count} order: {refs}.",
     other: "Thank you! Your order was split into {count} orders: {refs}.",

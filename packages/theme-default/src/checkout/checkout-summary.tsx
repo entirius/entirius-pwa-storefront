@@ -8,6 +8,7 @@ import type { CheckoutSummaryModel } from "@entirius/storefront-sdk/checkout";
 import { OrderSummaryCard } from "@theme/order/summary-card";
 import { OrderTotals } from "@theme/order/order-totals";
 import { SummaryLine } from "@theme/checkout/summary-line";
+import { SummaryGiftLine } from "@theme/checkout/summary-gift-line";
 
 // Checkout's summary beside the steps: the lines and gifts, the discount code, the totals.
 export function CheckoutSummary({ summary }: { summary: CheckoutSummaryModel }) {
@@ -17,7 +18,9 @@ export function CheckoutSummary({ summary }: { summary: CheckoutSummaryModel }) 
         {summary.lines.map((line) => (
           <SummaryLine key={line.sku} line={line} />
         ))}
-        {summary.blocks.gift_lines}
+        {summary.gift_lines.map((line) => (
+          <SummaryGiftLine key={`gift-${line.sku}`} line={line} />
+        ))}
       </div>
       <div className="border-t pt-4">{summary.blocks.discount_code}</div>
       <div className="border-t pt-4">

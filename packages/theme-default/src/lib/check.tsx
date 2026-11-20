@@ -44,6 +44,7 @@ import {
   useMockForm,
 } from "@entirius/storefront-sdk/mocks";
 import { ProductPage } from "@theme/product/product-page";
+import { RelatedProducts } from "@theme/product/related-products";
 import { ListingPage } from "@theme/catalog/listing-page";
 import { CartPage } from "@theme/cart/cart-page";
 import { PageShell } from "@theme/layout/page-shell";
@@ -138,6 +139,14 @@ export const CHECKS: { part: string; render: () => ReactElement }[] = [
     ),
   },
   {
+    part: "product/related-products",
+    render: () => (
+      <div data-stock="in" className="group/related">
+        <RelatedProducts t={t} products={[mock_product, { ...mock_product, sku: "MOCK-3", url_key: "mock-stool" }]} />
+      </div>
+    ),
+  },
+  {
     part: "catalog/listing-page",
     render: () => (
       <ListingPageProvider value={mock_listing_page} hooks={mock_listing_hooks}>
@@ -146,7 +155,7 @@ export const CHECKS: { part: string; render: () => ReactElement }[] = [
     ),
   },
   {
-    part: "cart/cart-page",
+    part: "cart/cart-page (gift-line, gift-picker)",
     render: () => (
       <CartPageProvider value={mock_cart_page}>
         <CartPage />
@@ -155,7 +164,7 @@ export const CHECKS: { part: string; render: () => ReactElement }[] = [
   },
   { part: "order/order-totals", render: () => <OrderTotals totals={{ ...mock_totals, delivery: null, delivery_at_checkout: true }} /> },
   { part: "order/cart-alerts", render: () => <CartAlerts alerts={{ ...mock_alerts, sync: "The cart did not sync." }} /> },
-  { part: "checkout/checkout-summary", render: () => <CheckoutSummary summary={mock_checkout_summary} /> },
+  { part: "checkout/checkout-summary (summary-gift-line)", render: () => <CheckoutSummary summary={mock_checkout_summary} /> },
   { part: "checkout/success-page", render: () => <SuccessPage success={mock_checkout_success} /> },
   {
     part: "account/account-layout, overview-page",

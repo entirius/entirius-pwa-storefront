@@ -41,7 +41,8 @@
         "product/related": "similar products"
       },
       "more": {
-        "product/gallery-utils": "gallery helpers: picture sizes and positions"
+        "product/gallery-utils": "gallery helpers: picture sizes and positions",
+        "product/related-products": "the similar products section"
       }
     },
     {
@@ -73,7 +74,12 @@
         "order/unit-price": "unit price, struck regular price, −N% (also checkout)",
         "order/summary-card": "the summary's frame (also checkout)",
         "order/order-totals": "totals: subtotal, savings, delivery, total (also checkout)",
-        "order/cart-alerts": "the cart’s problems (also checkout)"
+        "order/cart-alerts": "the cart’s problems (also checkout)",
+        "cart/gift-picker": "gifts to pick, and how much is missing"
+      },
+      "more": {
+        "cart/gift-line": "a gift line in the cart",
+        "order/gift-badge": "the Gift mark (also checkout)"
       }
     },
     {
@@ -136,7 +142,8 @@
         "checkout/checkout-summary": "summary beside the steps: lines, code, totals",
         "checkout/summary-line": "a line of the summary",
         "checkout/success-page": "the page after the order",
-        "checkout/order-receipt": "the receipt: numbers, amount, payment, delivery"
+        "checkout/order-receipt": "the receipt: numbers, amount, payment, delivery",
+        "checkout/summary-gift-line": "a gift line of the summary"
       }
     },
     {
@@ -218,7 +225,8 @@
         "layout/search-product-row": "a product row in search suggestions",
         "layout/wishlist-items": "the list inside the wishlist panel",
         "layout/not-found-page": "the 404 page: search, categories, way back",
-        "layout/not-found-search": "the 404 page’s search"
+        "layout/not-found-search": "the 404 page’s search",
+        "cookie-consent.css": "the cookie banner’s look"
       }
     },
     {

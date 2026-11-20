@@ -5,7 +5,7 @@
 "use client";
 
 import { createContext, useContext, type ReactNode } from "react";
-import type { CartAlertsModel, OrderStep, OrderTotalsModel, UnitPriceData } from "./types";
+import type { CartAlertsModel, GiftLineModel, GiftPickerModel, OrderStep, OrderTotalsModel, UnitPriceData } from "./types";
 
 // One line of the cart: the product, its quantity within the stock, the backend's prices once synced.
 export type CartLineModel = {
@@ -40,10 +40,11 @@ export type CartPageModel = {
   steps: OrderStep[];
   totals: OrderTotalsModel;
   alerts: CartAlertsModel;
-  // Parts the core renders whole for now: the theme places them. `gift_lines` are <li>s for the lines' list.
+  // The gifts picked: lines under the products; the card to pick them, null when no rule is in reach.
+  gift_lines: GiftLineModel[];
+  gift_picker: GiftPickerModel | null;
+  // Parts the core renders whole: the theme places them.
   blocks: {
-    gift_lines: ReactNode;
-    gift_picker: ReactNode;
     discount_code: ReactNode;
   };
 };

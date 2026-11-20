@@ -26,6 +26,11 @@ All notable changes to this project are documented here. The format follows
 - The cart page is a theme template: `@theme/cart/cart-page` arranges `cart-line`, `cart-summary` and `cart-bar`,
   reading the cart from `useCartPage()` (`CartPageRuntime` in the core). The page header, the order steps, the unit
   price and the summary card moved to `@theme/order/*` and serve checkout too; checkout works as before.
+- The last views of the core are the theme's: the similar products on the product page
+  (`@theme/product/related-products`, a server part), the cookie banner's look (`@theme/cookie-consent.css`) and the
+  gifts in the cart and checkout (`@theme/cart/gift-line`, `gift-picker`, `@theme/checkout/summary-gift-line`, from
+  models; the cart's `blocks.gift_lines` / `blocks.gift_picker` are now `gift_lines` / `gift_picker`, checkout's
+  `blocks.gift_lines` is `gift_lines`). The shop looks and works as before.
 - `entirius check` renders the theme: every page template and every part the core draws with props, on the SDK's
   mocks (`@entirius/storefront-sdk/mocks`, the list in `@theme/lib/check`), with the theme's files in place and
   outside Next; a failing part is named with its file and line. The page shell (`@theme/layout/page-shell`, with the

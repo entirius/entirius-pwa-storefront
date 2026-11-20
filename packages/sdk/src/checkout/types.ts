@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import type { ReactNode } from "react";
-import type { OrderTotalsModel, UnitPriceData } from "../cart/types";
+import type { GiftLineModel, OrderTotalsModel, UnitPriceData } from "../cart/types";
 
 // Checkout is the core's: its steps, forms, delivery, payment and the order button cannot be overridden (a theme
 // must not be able to break an order). A theme draws the summary beside the steps and the page after the order.
@@ -20,12 +20,13 @@ export type CheckoutSummaryLine = {
   problem: "out_of_stock" | "limited" | null;
 };
 
-// `@theme/checkout/checkout-summary`: the lines, the totals, and what the core renders whole: the gifts' lines and
-// the discount code.
+// `@theme/checkout/checkout-summary`: the lines and gifts (read-only), the totals, and the discount code the core
+// renders whole.
 export type CheckoutSummaryModel = {
   lines: CheckoutSummaryLine[];
+  gift_lines: GiftLineModel[];
   totals: OrderTotalsModel;
-  blocks: { gift_lines: ReactNode; discount_code: ReactNode };
+  blocks: { discount_code: ReactNode };
 };
 
 // What the customer keeps after the order (the guest cannot read the order back): the shop, the numbers, the date,

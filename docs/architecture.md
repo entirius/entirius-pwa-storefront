@@ -173,7 +173,10 @@ listing's template `@theme/catalog/listing-page` arranges `listing-header`, `fil
 and the search page alike. The cart's `@theme/cart/cart-page` arranges `cart-line`, `cart-summary` and `cart-bar` with
 the order parts it shares with checkout (`@theme/order/page-header`, `order-steps`, `unit-price`, `summary-card`,
 `order-totals`); the core hands them models through thin adapters (`order_steps()`, `unit_price()`,
-`order_totals()`). Gifts, the discount code and the cart's problems come whole in `blocks`. Checkout (`/checkout`)
+`order_totals()`), and so do the cart's problems (`@theme/order/cart-alerts`, `cart_alerts()`) and its gifts
+(`@theme/cart/gift-line`, `gift-picker`, `@theme/checkout/summary-gift-line`: `gift_line()` and `gift_picker()` in
+`app/_components/order/cart-gifts.ts`, the rules and the gift setter stay in the core). The discount code comes whole
+in `blocks`. Checkout (`/checkout`)
 keeps its steps, forms, delivery, payment and the order button in the core, none of them overridable (a theme must
 not be able to break an order); a theme draws the page header, the steps, the summary beside them
 (`@theme/checkout/checkout-summary` with `summary-line`, its model built by `useCheckoutSummary()`) and the page
@@ -383,7 +386,8 @@ cart" read it.
   arrows and a thumbnail strip from `md`, keyboard arrows; a click opens a full-screen viewer (swipe, double-tap and
   pinch zoom, Escape, focus returns to the opener). The first picture is `loading="eager"`, the rest lazy. Hooks:
   `data-gallery`, `data-gallery-thumb`, `data-gallery-counter`, `data-gallery-viewer`.
-- Similar products (`related.ts`, `related-products.tsx`): server-rendered tiles (crawlable links) from the rules of
+- Similar products (`related.ts`, `related-products.tsx`; the section is the theme's server part
+  `@theme/product/related-products`): server-rendered tiles (crawlable links) from the rules of
   `PRODUCT.RELATED`. Each rule asks `products/` with `q_<idx>=<value>` / `category=` and `on_stock=true`, and every
   candidate is checked again (the API ignores a filter that is not defined in the channel). Never the product itself,
   never a sold-out one; hidden when nothing matches. The server passes the section to `ProductClient`, which places
@@ -517,7 +521,9 @@ deployment that sets a key checks it. If the API fails to load, the map hides it
 `GET /api/agreements/v2/__CHANNEL__/cookie-banner/` (django-agreements >= 2.2.0) through the API layer.
 
 - No banner on the backend (404, module absent): nothing is loaded, and the answer is cached for the session.
-- With a banner, `consent-banner.ts` loads `vanilla-cookieconsent` and `cookie-consent.css` as a separate chunk.
+- With a banner, `consent-banner.ts` loads `vanilla-cookieconsent` as a separate chunk with its stylesheet
+  (`cookie-consent.css`, the library's in a cascade layer) and the banner's look, the theme's
+  `@theme/cookie-consent.css` in the same layer; a shop's `_CONFIG/theme.css` overrides either.
   Every text comes from the backend; never put banner copy in the storefront.
 - Decisions go to `POST .../cookie-consents/`; a 409 means a newer banner was published: refetch and ask again.
 - Any link whose `href` ends with `#cookie-consents` reopens the preferences; `app/globals.css` hides such links

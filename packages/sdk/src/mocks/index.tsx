@@ -16,7 +16,7 @@ import type { ProductCardData } from "../product/card";
 import type { ProductPageModel } from "../product/page";
 import type { ListingHooks, ListingPageModel } from "../catalog/listing";
 import type { CartPageModel } from "../cart/page";
-import type { CartAlertsModel, OrderTotalsModel } from "../cart/types";
+import type { CartAlertsModel, GiftLineModel, GiftPickerModel, OrderTotalsModel } from "../cart/types";
 import type {
   AccountMenuModel,
   AccountOverviewModel,
@@ -230,6 +230,35 @@ export const mock_totals: OrderTotalsModel = {
 
 export const mock_alerts: CartAlertsModel = { sync: null, problems: ["Mock sofa: only 1 left."] };
 
+export const mock_gift_line: GiftLineModel = {
+  sku: "GIFT-1",
+  name: "Mock cushion",
+  href: "/product/mock-cushion",
+  picture: "/placeholder.svg",
+  regular: "€19.00",
+  unit: "Free",
+  total: "Free",
+  quantity: 1,
+  edit: { max: 2, set_quantity: noop, remove: noop, pending: false },
+};
+
+export const mock_gift_picker: GiftPickerModel = {
+  away: "€20.00 more for a gift",
+  progress: 60,
+  removed: false,
+  failed: false,
+  offers: [
+    {
+      code: "GIFT",
+      max: 1,
+      picked: "GIFT-1",
+      pending: false,
+      choose: noop,
+      items: [{ sku: "GIFT-1", name: "Mock cushion", picture: "/placeholder.svg", regular: "€19.00", price: "Free" }],
+    },
+  ],
+};
+
 const order_steps: CartPageModel["steps"] = [
   { key: "cart", label: "Cart", state: "current" },
   { key: "address", label: "Address", state: "next" },
@@ -258,7 +287,9 @@ export const mock_cart_page: CartPageModel = {
   steps: order_steps,
   totals: mock_totals,
   alerts: mock_alerts,
-  blocks: { gift_lines: null, gift_picker: null, discount_code: null },
+  gift_lines: [mock_gift_line],
+  gift_picker: mock_gift_picker,
+  blocks: { discount_code: null },
 };
 
 const address: AddressLinesModel = {
@@ -345,8 +376,9 @@ export const mock_checkout_summary: CheckoutSummaryModel = {
       problem: "limited",
     },
   ],
+  gift_lines: [{ ...mock_gift_line, edit: null }],
   totals: mock_totals,
-  blocks: { gift_lines: null, discount_code: null },
+  blocks: { discount_code: null },
 };
 
 export const mock_checkout_success: CheckoutSuccessModel = {

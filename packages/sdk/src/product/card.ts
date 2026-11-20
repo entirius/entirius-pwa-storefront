@@ -2,6 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import type { Translate } from "../i18n/translate";
 import type { Price, ProductBadge, ProductMedia, WishlistItem } from "./types";
 
 // What a product card shows: a listing, similar products, a CMS rail or the wishlist hand it over.
@@ -40,3 +41,7 @@ export type ProductCardState = {
   quick_add: QuickAddItem | null;
   wishlist_item: WishlistItem;
 };
+
+// `@theme/product/related-products`: the similar products the core picked (in stock, by the shop's rules), a
+// server part. The wrapper `@theme/product/related` places it and says whether the product is sold out.
+export type RelatedProductsProps = { t: Translate; products: ProductCardData[] };

@@ -13,7 +13,7 @@ import { DiscountCode } from "@/app/_components/order/discount-code.client";
 import type { Cart } from "@/utils/NORMALIZERS/cart.normalizer";
 import type { CartItem } from "@/stores/cart.store";
 import { order_totals } from "@/app/_components/order/order-totals";
-import { GiftSummaryLine } from "@/app/_components/order/cart-gifts.client";
+import { gift_line } from "@/app/_components/order/cart-gifts";
 import { useGiftProducts } from "@/app/_components/order/use-cart-gifts";
 
 // Checkout's read-only summary for the theme's @theme/checkout/checkout-summary: the synced backend cart's lines
@@ -43,10 +43,8 @@ export function useCheckoutSummary(
       };
     }),
     totals: order_totals(backend, currency, i18n),
+    gift_lines: gifts.map((line) => gift_line(i18n, line, gift_products[line.sku], currency_label)),
     blocks: {
-      gift_lines: gifts.map((line) => (
-        <GiftSummaryLine key={`gift-${line.sku}`} line={line} product={gift_products[line.sku]} currency={currency_label} />
-      )),
       discount_code: <DiscountCode backend={backend} />,
     },
   };
