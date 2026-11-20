@@ -87,7 +87,7 @@ All notable changes to this project are documented here. The format follows
 - A theme sets its colours and shapes in `tokens.css` (`@theme/tokens.css`, between `app/globals.css` and the shop's
   `_CONFIG/theme.css`). `pnpm create @entirius/theme <name> --example` starts from a theme with a look of its own; the
   first `entirius dev` asks for the backend, channel and checkout key; `entirius build` makes a production image of
-  the shop from the theme's folder. The `@entirius` packages are `0.1.0-alpha.6`.
+  the shop from the theme's folder. The `@entirius` packages are `0.1.0-alpha.8`.
 - A shop is a `Dockerfile` on `storefront-builder` with its `_CONFIG` and theme: `storefront build <theme package>`
   installs the theme and builds, `storefront start` serves it; the previous image is the way back. New themes publish
   only `src/` and `theme.json` and take `@entirius/*` releases at once under pnpm 11+.
