@@ -99,6 +99,11 @@ All notable changes to this project are documented here. The format follows
   every `_CONFIG/` needs the file; `cp _CONFIG.example/fonts.ts _CONFIG/` keeps the default look.
 - A release skips a package version that is on npm already: the first version of each package goes out by hand
   ([releasing](docs/releasing.md)), and its release still pushes the images.
+- Pre-releases are builds to try, for a tester or a client's staging: a GitHub pre-release from a tag
+  `v<version>-beta.N` (or `-rc.N`) on `develop`, with no release commit, publishes the packages at the tag's version
+  under npm's `next` and the images under that version ([releasing](docs/releasing.md)). A release (`1.2.3`) still
+  needs the packages' version and a tag on `master`; the workflow refuses a release off `master`, a pre-release off
+  `develop` and `master`, and a GitHub release marked the other way than its tag.
 - From a walkthrough of the theme and shop guides on `0.1.0-alpha.9`: the menu settings `MENU_CINFGURATION.TYPES` and
   `MENU_CINFGURATION.CONFIG_QUERY` are documented, the template's example country `uk` defaults to one of its
   languages (`en`), and the shop guide shows the whole `Dockerfile` for a private registry, the version without `^`

@@ -1,7 +1,8 @@
 name: publish
 
-# A release of the theme platform (docs/releasing.md): a GitHub release published from a v<version> tag on master puts
-# the four @entirius packages on npm and the three core images on ghcr.io, all at that version.
+# A release of the theme platform (docs/releasing.md): a GitHub release published from a v<version> tag puts the four
+# @entirius packages on npm and the three core images on ghcr.io, all at that version. A release (1.2.3) is tagged on
+# master; a pre-release (1.2.3-beta.1), a build to try, on develop or master.
 
 on:
   release:
@@ -17,10 +18,16 @@ jobs:
       version: ${{ steps.release.outputs.version }}
       dist_tag: ${{ steps.release.outputs.dist_tag }}
     steps:
+      # The whole history: which branches hold the tagged commit.
       - uses: actions/checkout@v7
-      # The tag is v<version> of every package, or nothing goes out.
+        with:
+          fetch-depth: 0
+      # A release: v<version> of every package, on master. A pre-release: on develop or master, at the tag's version.
+      # The GitHub release's pre-release mark must match the tag. Otherwise nothing goes out.
       - id: release
-        run: node .github/scripts/release.mjs version "$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+        env:
+          PRERELEASE: ${{ github.event.release.prerelease }}
+        run: node .github/scripts/release.mjs version "$GITHUB_REF_NAME" --prerelease "$PRERELEASE" >> "$GITHUB_OUTPUT"
 
   npm:
     needs: version
@@ -41,7 +48,10 @@ jobs:
       # Trusted publishing needs npm 11.5.1 or newer.
       - run: npm install --global npm@11
       - run: pnpm install --frozen-lockfile
-      - run: node .github/scripts/release.mjs pack
+      # At the release's version: a pre-release's packages are not bumped in a commit.
+      - run: node .github/scripts/release.mjs pack "$VERSION"
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
       - name: publish
         env:
           DIST_TAG: ${{ needs.version.outputs.dist_tag }}

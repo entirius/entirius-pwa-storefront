@@ -189,6 +189,9 @@ pnpm check
 pnpm dev           # the dev image of the new version
 ```
 
+A pre-release (`0.2.0-beta.1`, `0.2.0-rc.1`: a build of the core to try before its release, published as npm's
+`next`) is set the same way, by its exact version without `^`: no range picks it up by itself.
+
 ## When something does not work
 
 | What you see | Why, and what to do |
