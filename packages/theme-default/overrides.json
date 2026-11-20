@@ -71,7 +71,8 @@
         "order/page-header": "title row; the empty cart (also checkout)",
         "order/order-steps": "cart → checkout steps (also checkout)",
         "order/unit-price": "unit price, struck regular price, −N% (also checkout)",
-        "order/summary-card": "the summary's frame (also checkout)"
+        "order/summary-card": "the summary's frame (also checkout)",
+        "order/order-totals": "totals: subtotal, savings, delivery, total (also checkout)"
       }
     },
     {
@@ -124,6 +125,16 @@
         "blog/pending-label": "a tab’s text pulsing while it loads",
         "blog/pagination": "page numbers",
         "blog/author-photo": "author photo or initials"
+      }
+    },
+    {
+      "title": "Checkout",
+      "where": "/checkout; its forms, delivery and payment stay in the core",
+      "items": {
+        "checkout/checkout-summary": "summary beside the steps: lines, code, totals",
+        "checkout/summary-line": "a line of the summary",
+        "checkout/success-page": "the page after the order",
+        "checkout/order-receipt": "the receipt: numbers, amount, payment, delivery"
       }
     },
     {

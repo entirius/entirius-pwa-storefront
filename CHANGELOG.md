@@ -26,6 +26,11 @@ All notable changes to this project are documented here. The format follows
 - The cart page is a theme template: `@theme/cart/cart-page` arranges `cart-line`, `cart-summary` and `cart-bar`,
   reading the cart from `useCartPage()` (`CartPageRuntime` in the core). The page header, the order steps, the unit
   price and the summary card moved to `@theme/order/*` and serve checkout too; checkout works as before.
+- Checkout's summary and the page after the order are theme parts (`@theme/checkout/checkout-summary`,
+  `summary-line`, `success-page`, `order-receipt`), and the order totals (`@theme/order/order-totals`) serve the cart
+  and checkout from a model (`order_totals()`); the steps, forms, delivery, payment and the order button stay in the
+  core. Breaking for themes: the cart's `blocks.totals` is now `totals` (`OrderTotalsModel`). The shop looks and
+  works as before.
 - The account is a theme template: `@theme/account/account-layout` and `account-menu`, `overview-page`, `orders-page`,
   `order-page` and `addresses-page` with their parts, each reading its page from a hook of the SDK (`/account/page`)
   that a runtime in the core fills; an order's status comes as a tone the theme colours. The forms stay in the core.

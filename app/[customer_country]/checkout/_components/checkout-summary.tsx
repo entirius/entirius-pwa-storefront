@@ -4,89 +4,50 @@
 
 "use client";
 
-import { ProductThumb } from "@theme/components/product-thumb";
+import type { CheckoutSummaryModel } from "@entirius/storefront-sdk/checkout";
 import { price_lines } from "@entirius/storefront-sdk/i18n/price-lines";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { image_placeholder } from "@/utils/NORMALIZERS/media.normalizer";
-import { UnitPrice } from "@/app/_components/order/cart-price";
+import { unit_price } from "@/app/_components/order/cart-price";
 import { DiscountCode } from "@/app/_components/order/discount-code.client";
 import type { Cart } from "@/utils/NORMALIZERS/cart.normalizer";
 import type { CartItem } from "@/stores/cart.store";
-import { OrderTotals } from "@/app/_components/order/order-totals";
-import { OrderSummaryCard } from "@theme/order/summary-card";
+import { order_totals } from "@/app/_components/order/order-totals";
 import { GiftSummaryLine } from "@/app/_components/order/cart-gifts.client";
 import { useGiftProducts } from "@/app/_components/order/use-cart-gifts";
 
-// Read-only order summary (authoritative totals from the synced backend cart, local
-// line-price fallback). Rendered in the sticky right column of the checkout stepper.
-export function CheckoutSummary({
-  backend,
-  items,
-  currency,
-}: {
-  backend: Cart | null | undefined;
-  items: Record<string, CartItem>;
-  currency: string;
-}) {
-  const entries = Object.entries(items);
-  const currency_label = backend?.currency || currency;
+// Checkout's read-only summary for the theme's @theme/checkout/checkout-summary: the synced backend cart's lines
+// and totals (the local line price until the first sync), the gifts' lines and the discount code whole.
+export function useCheckoutSummary(
+  backend: Cart | null | undefined,
+  items: Record<string, CartItem>,
+  currency: string,
+): CheckoutSummaryModel {
   const i18n = useI18n();
-  const { t } = i18n;
-  const fmt = (v: string | null | undefined) => i18n.price(v, currency_label);
+  const currency_label = backend?.currency || currency;
   const gifts = backend?.gifts ?? [];
   const gift_products = useGiftProducts(gifts.map((g) => g.sku));
-  return (
-    <OrderSummaryCard>
-      <div className="-mt-1 flex flex-col divide-y">
-        {entries.map(([sku, item]) => {
-          const uri = item.media?.[0]?.[0]?.uri ?? image_placeholder;
-          const line = backend?.lines[sku];
-          const flagged = line?.is_limited || backend?.error_skus.has(sku);
-          const line_total = line
-            ? fmt(line.final_total_gross)
-            : price_lines(i18n, item.price).at(-1);
-          return (
-            <div key={sku} className="flex gap-3 py-3">
-              <ProductThumb src={uri} alt={item.name} sizes="64px" className="w-16" />
-              <div className="flex min-w-0 flex-1 flex-col gap-1">
-                <p className="truncate text-sm font-medium">{item.name}</p>
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
-                  <span>{t("checkout.quantity", { count: item.quantity })}</span>
-                  {line ? (
-                    <UnitPrice line={line} currency={currency_label} />
-                  ) : null}
-                </div>
-                {flagged && (
-                  <p className="text-xs text-destructive">
-                    {line?.status === "out_of_stock"
-                      ? t("product.out_of_stock")
-                      : t("cart.limited")}
-                  </p>
-                )}
-              </div>
-              <span className="text-sm font-medium tabular-nums">
-                {line_total}
-              </span>
-            </div>
-          );
-        })}
-        {gifts.map((line) => (
-          <GiftSummaryLine
-            key={`gift-${line.sku}`}
-            line={line}
-            product={gift_products[line.sku]}
-            currency={currency_label}
-          />
-        ))}
-      </div>
 
-      <div className="border-t pt-4">
-        <DiscountCode backend={backend} />
-      </div>
-
-      <div className="border-t pt-4">
-        <OrderTotals backend={backend} currency={currency} />
-      </div>
-    </OrderSummaryCard>
-  );
+  return {
+    lines: Object.entries(items).map(([sku, item]) => {
+      const line = backend?.lines[sku];
+      const flagged = line?.is_limited || backend?.error_skus.has(sku);
+      return {
+        sku,
+        name: item.name,
+        picture: item.media?.[0]?.[0]?.uri ?? image_placeholder,
+        quantity: item.quantity,
+        unit: unit_price(line, currency_label),
+        total: line ? i18n.price(line.final_total_gross, currency_label) : price_lines(i18n, item.price).at(-1),
+        problem: flagged ? (line?.status === "out_of_stock" ? "out_of_stock" : "limited") : null,
+      };
+    }),
+    totals: order_totals(backend, currency, i18n),
+    blocks: {
+      gift_lines: gifts.map((line) => (
+        <GiftSummaryLine key={`gift-${line.sku}`} line={line} product={gift_products[line.sku]} currency={currency_label} />
+      )),
+      discount_code: <DiscountCode backend={backend} />,
+    },
+  };
 }

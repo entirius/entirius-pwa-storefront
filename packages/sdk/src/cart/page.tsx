@@ -5,7 +5,7 @@
 "use client";
 
 import { createContext, useContext, type ReactNode } from "react";
-import type { OrderStep, UnitPriceData } from "./types";
+import type { OrderStep, OrderTotalsModel, UnitPriceData } from "./types";
 
 // One line of the cart: the product, its quantity within the stock, the backend's prices once synced.
 export type CartLineModel = {
@@ -38,13 +38,13 @@ export type CartPageModel = {
   total: string | null;
   // The order path with the cart as the current step.
   steps: OrderStep[];
+  totals: OrderTotalsModel;
   // Parts the core renders whole for now: the theme places them. `gift_lines` are <li>s for the lines' list.
   blocks: {
     alerts: ReactNode;
     gift_lines: ReactNode;
     gift_picker: ReactNode;
     discount_code: ReactNode;
-    totals: ReactNode;
   };
 };
 

@@ -171,10 +171,14 @@ their own (enquiry, back-in-stock, notify about a similar product) come from the
 listing's template `@theme/catalog/listing-page` arranges `listing-header`, `filters` (with `sort-options`,
 `filter-range`, `filter-options`), `filters-sheet`, `pagination`, `product-grid` and `listing-empty`, for the category
 and the search page alike. The cart's `@theme/cart/cart-page` arranges `cart-line`, `cart-summary` and `cart-bar` with
-the order parts it shares with checkout (`@theme/order/page-header`, `order-steps`, `unit-price`, `summary-card`);
-checkout reaches those through thin adapters in the core (`order_steps()`, `unit_price()`), and its forms, delivery,
-payment and the order button stay in the core (a theme must not be able to break an order). Gifts,
-the discount code, the cart's problems and the totals come whole in `blocks`. The account (`/account/page`): the
+the order parts it shares with checkout (`@theme/order/page-header`, `order-steps`, `unit-price`, `summary-card`,
+`order-totals`); the core hands them models through thin adapters (`order_steps()`, `unit_price()`,
+`order_totals()`). Gifts, the discount code and the cart's problems come whole in `blocks`. Checkout (`/checkout`)
+keeps its steps, forms, delivery, payment and the order button in the core, none of them overridable (a theme must
+not be able to break an order); a theme draws the page header, the steps, the summary beside them
+(`@theme/checkout/checkout-summary` with `summary-line`, its model built by `useCheckoutSummary()`) and the page
+after the order (`@theme/checkout/success-page` with `order-receipt`, keeping `data-order-receipt` and
+`data-print-hide` for the print styles), and the form primitives (`@theme/ui/*`) the core's forms use. The account (`/account/page`): the
 section's frame `@theme/account/account-layout` with `account-menu` (`useAccountMenu()`, set in the profile layout,
 which also guards the section), `overview-page`, `orders-page`, `order-page` and `addresses-page`, each with its
 runtime in the core (`OverviewRuntime`, `OrdersRuntime`, `OrderRuntime`, `AddressesRuntime`) and the models of

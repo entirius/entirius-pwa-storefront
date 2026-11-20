@@ -17,7 +17,7 @@ import { CartAlerts } from "@/app/_components/order/cart-alerts";
 import { GiftCard, GiftLine, gift_rule } from "@/app/_components/order/cart-gifts.client";
 import { useCartGifts, useGiftSetter } from "@/app/_components/order/use-cart-gifts";
 import { order_steps } from "@/app/[customer_country]/checkout/_components/checkout-stepper";
-import { OrderTotals } from "@/app/_components/order/order-totals";
+import { order_totals } from "@/app/_components/order/order-totals";
 
 const SOFT_MAX = 99;
 // The stepper stops at the real-time stock. A sold-out line stays in the cart, flagged, and can only shrink;
@@ -68,6 +68,7 @@ export function CartPageRuntime({ children }: { children: ReactNode }) {
     pieces: lines.reduce((n, line) => n + line.quantity, 0),
     logged_in: isLoggedIn,
     total: i18n.price(backend?.total_gross, currency),
+    totals: order_totals(backend, currency, i18n, { fetching: isFetching, delivery_at_checkout: true }),
     steps: order_steps(t, "cart", NO_STEPS_DONE),
     blocks: {
       alerts: <CartAlerts backend={backend} sync_failed={!!error} sync_message={t("cart.sync_error")} />,
@@ -87,7 +88,6 @@ export function CartPageRuntime({ children }: { children: ReactNode }) {
       }),
       gift_picker: <GiftCard backend={backend} rules={rules} products={products} gifts={gifts} />,
       discount_code: <DiscountCode backend={backend} />,
-      totals: <OrderTotals backend={backend} currency={currency} fetching={isFetching} shipping_pending />,
     },
   };
 

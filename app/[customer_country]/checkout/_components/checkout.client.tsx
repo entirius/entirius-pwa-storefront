@@ -14,7 +14,8 @@ import { cart_to_address_form } from "@/utils/validation/address.schema";
 import { useCartSync } from "@/stores/use-cart-sync";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 import { CheckoutStepper, type CheckoutStep } from "./checkout-stepper";
-import { CheckoutSummary } from "./checkout-summary";
+import { CheckoutSummary } from "@theme/checkout/checkout-summary";
+import { useCheckoutSummary } from "./checkout-summary";
 import { CartAlerts } from "@/app/_components/order/cart-alerts";
 import { EmptyCart, OrderPageHeader } from "@theme/order/page-header";
 import { AddressStep } from "./address-step";
@@ -37,6 +38,7 @@ export function CheckoutClient() {
   const [step, setStep] = useState<CheckoutStep>("address");
   const [completed, setCompleted] = useState<Set<CheckoutStep>>(new Set());
   const cart = backend ?? null;
+  const summary = useCheckoutSummary(cart, items, currency);
   // An address/shipping/payment save answers with the whole cart: it goes into every
   // cart query, as a discount code does, instead of a refetch (another items PATCH).
   const save_cart = (resp: unknown) => query_client.setQueriesData({ queryKey: ["cart"] }, NORM_CART(resp));
@@ -146,7 +148,7 @@ export function CheckoutClient() {
         </div>
 
         <div className="h-fit lg:sticky lg:top-6">
-          <CheckoutSummary backend={cart} items={items} currency={currency} />
+          <CheckoutSummary summary={summary} />
         </div>
       </div>
     </div>

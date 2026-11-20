@@ -22,3 +22,23 @@ export type UnitPriceData = {
   percent_off: number | null;
   currency: string;
 };
+
+// The order's totals as the cart and checkout show them, formatted by the core. A row that does not apply is null;
+// the theme prints savings and a discount as minus amounts.
+export type OrderTotalsModel = {
+  // The backend is recounting the cart.
+  fetching: boolean;
+  subtotal: string;
+  savings: string | null;
+  gifts: { price: string; free: boolean } | null;
+  // `label` names the codes when there are any.
+  discount: { label: string; amount: string } | null;
+  delivery: { price: string; free: boolean } | null;
+  // The cart page, where delivery is chosen later, says so instead of a delivery row.
+  delivery_at_checkout: boolean;
+  fee: string | null;
+  // What is still missing for free delivery.
+  free_shipping_away: string | null;
+  total: string;
+  vat: string | null;
+};
