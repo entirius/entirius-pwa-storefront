@@ -1,6 +1,6 @@
 {
   "name": "@entirius/storefront-sdk",
-  "version": "0.1.0-alpha.8",
+  "version": "0.1.0-alpha.9",
   "description": "Contract between the Entirius storefront core and its themes: types, hooks and headless building blocks",
   "license": "MPL-2.0",
   "repository": {
