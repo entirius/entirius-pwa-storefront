@@ -20,5 +20,6 @@
 !postcss.config.mjs
 !proxy.ts
 !tsconfig.json
+!tsconfig.build.json
 **/node_modules
 **/*.test.ts

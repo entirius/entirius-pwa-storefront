@@ -115,6 +115,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- A shop builds and runs without Docker: `STOREFRONT_DIR` points `storefront build` and `storefront start`
+  (`docker/storefront-entrypoint.sh`) at a checkout of the core's `v<version>` tag, installed with
+  `pnpm install --frozen-lockfile --prod`. Its type check (`tsconfig.build.json`) leaves out the tests and the tools'
+  configs, which such a checkout cannot resolve.
 - `docker/try-themes.sh`: the theme flow before anything is public, from a checkout: a local registry, the core's
   images and the four `@entirius` packages in one command.
 - A theme sets its colours and shapes in `tokens.css` (`@theme/tokens.css`, between `app/globals.css` and the shop's

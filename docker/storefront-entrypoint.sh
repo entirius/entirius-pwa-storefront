@@ -10,10 +10,13 @@
 #                               (the shop's Dockerfile copies it onto storefront-runtime)
 #   storefront start            the shop on :3000: /app/server.js in storefront-runtime, else /app/out/server.js
 #
+# STOREFRONT_DIR (default /app) is the core's directory: a checkout of the core's v<version> tag outside the images
+# builds and starts a shop the same way, on Node 24 with the core's pnpm (`pnpm install --frozen-lockfile --prod`).
+#
 # A backend on localhost (API_BASE_URL http://localhost:<port>) has to answer the browser and the server at one
 # address: in dev and start that port is forwarded to the host, as in zeno's storefront container.
 set -e
-cd /app
+cd "${STOREFRONT_DIR:-/app}"
 
 forward_local_api() {
   api=$(node -p "require('./_CONFIG/app.config.json').API_BASE_URL")
@@ -56,7 +59,7 @@ case "${1:-dev}" in
       rm -rf "$tmp"
       echo "storefront: theme $2"
     elif [ -d theme/src ]; then
-      echo "storefront: the theme in /app/theme"
+      echo "storefront: the theme in $PWD/theme"
     else
       echo "storefront: the default theme"
     fi
@@ -70,7 +73,7 @@ case "${1:-dev}" in
       mkdir -p "out/$dir"
       cp -r "$dir/." "out/$dir/"
     done
-    echo "storefront: the shop is in /app/out"
+    echo "storefront: the shop is in $PWD/out"
     ;;
   start)
     [ -f server.js ] || cd out

@@ -151,6 +151,22 @@ deploy:
     - docker run -d --name my-shop --restart unless-stopped -p 3000:3000 my-shop:$CI_COMMIT_TAG
 ```
 
+**Without Docker** (a server that runs Node but no containers): the same command on a checkout of the core's
+`v<version>` tag, with Node 24 and the core's pnpm (`packageManager` in its `package.json`). The theme's source goes
+into the checkout's `theme/` (its `src/` and `theme.json`), the configuration into `_CONFIG/`:
+
+```bash
+git clone --depth 1 -b v0.1.0 https://github.com/entirius/entirius-pwa-storefront.git core
+cd core && pnpm install --frozen-lockfile --prod && cd ..
+mkdir -p core/theme && cp -r my-theme/src my-theme/theme.json core/theme/   # or a theme package: storefront build @acme/theme-my-theme@1.3.0
+cp -r _CONFIG core/_CONFIG
+STOREFRONT_DIR=$PWD/core sh core/docker/storefront-entrypoint.sh build
+cd core/out && HOSTNAME=0.0.0.0 PORT=3000 NODE_ENV=production node server.js
+```
+
+`core/out` is the whole shop: copy it to the server and start it there with `node server.js`, behind the reverse
+proxy.
+
 ## When something does not work
 
 | What you see | Why, and what to do |
