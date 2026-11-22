@@ -10,8 +10,12 @@ import { api_remote_pattern, is_loopback_api } from "./utils/image-host";
 // resolve_media_url() in utils/media-url.ts.
 const nextConfig: NextConfig = {
   // A shop's image (`storefront build`) runs the standalone server: only the files the server needs, no build tools.
-  // A plain `pnpm build` / `pnpm start` stays as it was.
-  ...(process.env.STOREFRONT_OUTPUT === "standalone" && { output: "standalone" as const }),
+  // A plain `pnpm build` / `pnpm start` stays as it was. Its type check leaves out the tests and the tools' configs
+  // (tsconfig.build.json): a checkout installed with --prod has no test tools.
+  ...(process.env.STOREFRONT_OUTPUT === "standalone" && {
+    output: "standalone" as const,
+    typescript: { tsconfigPath: "tsconfig.build.json" },
+  }),
   images: {
     // Next 16 refuses to optimize images from local IPs (SSRF guard). A backend on
     // localhost is a dev stack; remotePatterns still pins it to that one host:port.
