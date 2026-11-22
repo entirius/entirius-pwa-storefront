@@ -11,10 +11,14 @@ import { api_remote_pattern, is_loopback_api } from "./utils/image-host";
 const nextConfig: NextConfig = {
   // A shop's image (`storefront build`) runs the standalone server: only the files the server needs, no build tools.
   // A plain `pnpm build` / `pnpm start` stays as it was. Its type check leaves out the tests and the tools' configs
-  // (tsconfig.build.json): a checkout installed with --prod has no test tools.
+  // (tsconfig.build.json): a checkout installed with --prod has no test tools. The core's directory is the root (the
+  // build runs in it): a checkout inside a shop's repository would otherwise take that repository's lockfile for the
+  // workspace root and put the server under out/<core>/.
   ...(process.env.STOREFRONT_OUTPUT === "standalone" && {
     output: "standalone" as const,
     typescript: { tsconfigPath: "tsconfig.build.json" },
+    outputFileTracingRoot: process.cwd(),
+    turbopack: { root: process.cwd() },
   }),
   images: {
     // Next 16 refuses to optimize images from local IPs (SSRF guard). A backend on
