@@ -40,6 +40,7 @@ export function build_csp({
     "style-src": ["'self'", "'unsafe-inline'"],
     "img-src": ["'self'", "data:", "blob:", ...(api ? [api] : [])],
     "media-src": ["'self'", ...(api ? [api] : [])],
+    "frame-src": ["'self'", "https://www.youtube-nocookie.com"],
     "font-src": ["'self'", "data:"],
     "connect-src": ["'self'", ...(api ? [api] : [])],
     "object-src": ["'none'"],

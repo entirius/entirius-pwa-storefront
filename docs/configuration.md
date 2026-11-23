@@ -38,7 +38,7 @@ The template ships the two channels of the reference dataset (`default-europe`, 
 | `app.config.json` | `BRAND.ICON_192` / `BRAND.ICON_512` / `BRAND.ICON_MASKABLE` | Optional PNG app icons in `_CONFIG/brand/`. Any of them switches on `/manifest.webmanifest` (linked from every page); `ICON_192` is also the Apple touch icon (and the page icon when `FAVICON` is unset). `null` = no manifest |
 | `app.config.json` | `BRAND.OG_IMAGE` | Optional file in `_CONFIG/brand/`: default Open Graph / Twitter image of pages without a picture of their own (product, category, CMS). `null` = the image generated from `SITE_NAME` (`/og-image.png`); `BRAND.LOGO` also goes into the home page's JSON-LD `Organization` |
 | `app.config.json` | `BRAND.THEME_COLOR` / `BRAND.BACKGROUND_COLOR` / `BRAND.SHORT_NAME` | Optional: browser `theme-color` and manifest `theme_color`; manifest `background_color` (default: omitted); manifest `short_name` (default `SITE_NAME`) |
-| `app.config.json` | `CSP` | Optional extra sources of the Content-Security-Policy per directive, e.g. `{ "script-src": ["https://www.googletagmanager.com"], "connect-src": ["https://www.google-analytics.com"], "frame-src": ["https://secure.payu.com"] }`: a deployment's analytics, payment widget or CDN. The shop's own sources (self, the API origin, the nonce) are always there (`lib/csp.ts`) |
+| `app.config.json` | `CSP` | Optional extra sources of the Content-Security-Policy per directive, e.g. `{ "script-src": ["https://www.googletagmanager.com"], "connect-src": ["https://www.google-analytics.com"], "frame-src": ["https://secure.payu.com"] }`: a deployment's analytics, payment widget or CDN. The shop's own sources (self, the API origin, the nonce, and for the video section `https://www.youtube-nocookie.com` in `frame-src`) are always there (`lib/csp.ts`) |
 | `app.config.json` | `DELIVERY_POINTS` | The pickup point picker of the shipping step, for a method of type `inpost` or `pickup_point`. `GOOGLE_MAPS_API_KEY` (a browser key of the Maps JavaScript API with Geocoding, restricted to the shop's domains) and `GOOGLE_MAPS_MAP_ID` (Advanced Markers need one) add a map beside the list; with either empty the picker works without a map, and the CSP gets Google's sources only when both are set. `TYPES_BY_METHOD` names the point types of a method by its code (`{ "pickup-point": ["showroom", "retail_store"] }`); unnamed, `inpost` takes InPost lockers and `pickup_point` every type (`lib/delivery-points/point-types.ts`). The map has not been run against the live API yet: check it when you first set a key |
 | `app.config.json` | `CHECKOUT.TERMS_ROUTE` / `CHECKOUT.PRIVACY_ROUTE` | Optional CMS routes (e.g. `"terms"`) of the terms and privacy pages, used only when the agreement definitions of `django_agreements` name none: their `content_route` is the route of every legal link (see [architecture](architecture.md#agreements-at-checkout)). `null` = the page name without a link |
 | `app.config.json` | `CONTACT_FORMS.NOTIFY_ATTRIBUTES` | Optional list of attribute idxs (e.g. `["brand", "series"]`). Their values on a sold-out product go into its "tell me when a similar product arrives" request, keyed by idx. Empty (default) = the request carries SKU, name and category only |
@@ -170,6 +170,13 @@ types; `section-type-a` (variants 1-4) and `tile-type-a` (1-3), which the editor
 :root { --page-max-width: 90rem; }
 @media (min-width: 64rem) { :root { --catalog-columns: 4; } }
 ```
+
+`section-video` reads the editor's `video_field`, the raw YouTube link (`watch?v=`, `youtu.be/`, `/embed/`,
+`/shorts/`, `/live/`, `m.youtube.com`, with or without `https://`; other parameters such as `t` are ignored; playlists
+are not supported). The shop takes the 11-character ID from it; a link that is not YouTube, or an empty field, renders
+nothing. The section shows a neutral placeholder with a play button and loads nothing from YouTube or Google before
+the click; the `youtube-nocookie.com` iframe loads only after the click, Enter or Space. The default CSP allows that
+host (`frame-src`). Texts: `cms.video_play`, `cms.video_title`.
 
 ## Message overrides (`messages.config.json`)
 
