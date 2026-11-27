@@ -145,6 +145,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- The review step offers only the agreements the CMS meant for the checkout (`display_contexts` of the definition):
+  one with `checkout` unticked disappears from it. Without definitions the shop's own consent line stands in, as before.
 - Legal pages: the `legal-page` route is in the shared cache like the static page (every view and every 404 lookup
   asked the API). A CMS page's hidden H1 is the document's `meta.title` (its `name` is the editors' label, "Terms
   (EN)"), and a text whose HTML opens its own H1 is the page's heading: no second hidden H1, no tile title printed

@@ -19,7 +19,7 @@ import { Checkbox } from "@theme/ui/checkbox";
 import { Spinner } from "@theme/ui/spinner";
 import { RichText } from "@entirius/storefront-sdk/components/rich-text";
 import { TokenLinks } from "@entirius/storefront-sdk/components/token-links";
-import { record_order_agreements, useAgreementDefinitions, useLegalRoutes } from "@/lib/agreements";
+import { record_order_agreements, useContextDefinitions, useLegalRoutes } from "@/lib/agreements";
 import { subscribe_newsletter, useNewsletterAvailable } from "@/lib/newsletter";
 import {
   checkout_agreements,
@@ -57,9 +57,10 @@ export function ReviewStep({
   const [failure, setFailure] = useState<{ text: string; fix: RefusalFix | null } | null>(null);
   const fix = failure?.fix ?? null;
 
-  // The agreements come from the backend (its wording is what it keeps with the order). Without an answer or
-  // without mandatory definitions the shop's own consent line stands in, and nothing is recorded.
-  const { data: definitions, isPending: definitions_pending } = useAgreementDefinitions(i18n.language);
+  // The agreements come from the backend (its wording is what it keeps with the order), the ones the CMS meant for
+  // the checkout. Without an answer or without mandatory definitions the shop's own consent line stands in, and
+  // nothing is recorded.
+  const { data: definitions, isPending: definitions_pending } = useContextDefinitions(i18n.language, "checkout");
   const newsletter_available = useNewsletterAvailable();
   const legal = useLegalRoutes();
   const { mandatory, marketing_email } = checkout_agreements(definitions ?? []);

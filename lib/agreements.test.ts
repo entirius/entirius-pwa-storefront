@@ -5,6 +5,7 @@
 import { describe, expect, it, vi } from "vitest";
 import type { create_api } from "@/API/api.context";
 import { record_order_agreements } from "./agreements";
+import { agreement_context_query } from "./agreements.query";
 
 type Api = ReturnType<typeof create_api>;
 type Answer = Awaited<ReturnType<Api["FETCH_METHOD"]>>;
@@ -48,5 +49,21 @@ describe("record_order_agreements", () => {
     expect(await record_order_agreements(api, { ...order, email: "" })).toBe(false);
     expect(await record_order_agreements(api, { ...order, slugs: [] })).toBe(false);
     expect(FETCH_METHOD).not.toHaveBeenCalled();
+  });
+});
+
+describe("agreement_context_query", () => {
+  it("asks for the definitions of one context and normalizes the answer", async () => {
+    const results = [{ slug: "terms-of-service", category: "mandatory", summary: "Terms", sort_order: 1 }];
+    const { api, FETCH_METHOD } = api_answering([undefined, { count: 1, results }, { status: 200, headers: new Headers() }]);
+    const query = agreement_context_query(api, "en", "checkout");
+    expect(query.queryKey).toEqual(["agreement-definitions", "en", "checkout"]);
+    expect((await query.queryFn()).map((d) => d.slug)).toEqual(["terms-of-service"]);
+    expect(FETCH_METHOD.mock.calls[0][1]).toEqual({ querys: { context: "checkout" } });
+  });
+
+  it("fails on an error, so the form falls back to the shop's own wording", async () => {
+    const { api } = api_answering(failed(404));
+    await expect(agreement_context_query(api, "en", "registration").queryFn()).rejects.toThrow();
   });
 });

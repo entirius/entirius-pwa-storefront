@@ -111,6 +111,13 @@ export const API_NEWSLETTER_UNSUBSCRIBE_ROUTE = "/api/agreements/v2/__CHANNEL__/
 // The channel's agreement definitions: `mandatory` (terms, privacy) and `marketing` ones, each with an HTML summary in
 // the request's language and `content_route`, the CMS page of the full text (the order record keeps that text).
 export const API_AGREEMENT_DEFINITIONS_ROUTE = "/api/agreements/v2/__CHANNEL__/definitions/";
+// The definitions meant for one display context (`context`: checkout | registration | newsletter, the CMS's
+// "show in" setting of each definition). The plain list above does not carry `display_contexts`. Called as a guest:
+// the backend then applies no per-customer filtering, so the answer is the same for everyone (shared cache).
+export const API_AGREEMENT_CONTEXT_DEFINITIONS_ROUTE = "/api/agreements/v2/__CHANNEL__/definitions/for-user/";
+// POST { email, agreements: [{ slug, granted }], source } with the channel's agreements key. Without a JWT the email
+// is the one claimed in the body and marketing definitions are refused (400): they go through the newsletter.
+export const API_CONSENTS_ROUTE = "/api/agreements/v2/__CHANNEL__/consents/";
 // POST the agreements accepted for a placed order: `suffix: [order_id, "agreements"]`, body { email, slugs, language }.
 // The order must exist with that email (404 otherwise); a repeat records nothing new. Needs the channel's agreements
 // key or the customer's JWT (django-agreements >= 3.0.1).
@@ -367,6 +374,10 @@ export const API_ROUTES_POLICY = {
   },
   // Public wording of the agreements, asked by the root layout on every SSR.
   [API_AGREEMENT_DEFINITIONS_ROUTE]: { default_querys: ["language"], shared_cache: true },
+  [API_AGREEMENT_CONTEXT_DEFINITIONS_ROUTE]: { default_querys: ["language"], shared_cache: true },
+  [API_CONSENTS_ROUTE]: {
+    default_headers: [["X-API-KEY", "agreements_key"], { "Content-Type": "application/json" }],
+  },
   [API_ORDER_AGREEMENTS_ROUTE]: {
     refresh_on: [401],
     optional_refresh: true,

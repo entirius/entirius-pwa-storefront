@@ -479,8 +479,9 @@ client (`useStockAlertsAvailable`), never in the server render of a product page
 ## Agreements at checkout
 
 The review step (`app/[customer_country]/checkout/_components/review-step.tsx`, `lib/agreements.ts`) shows the
-channel's agreement definitions of `django_agreements` (`GET definitions/`): every `mandatory` one is a required
-checkbox, and the `marketing` one of the `email` channel an optional one when the newsletter is offered. The text is
+channel's agreement definitions of `django_agreements` meant for the `checkout` context (`GET definitions/for-user/
+?context=checkout`, the CMS's "show in" setting of each definition: a definition with `checkout` unticked is not
+offered, no code change): every `mandatory` one is a required checkbox, and the `marketing` one of the `email` channel an optional one when the newsletter is offered. The text is
 the definition's HTML summary as the backend sends it, since the backend keeps that wording with the order; its
 links open in a new tab.
 
@@ -497,8 +498,10 @@ links open in a new tab.
   the newsletter, enquiry and notify forms, the shop's own consent line), so a deployment sets it in one place, the
   agreement in the CMS; `CHECKOUT.TERMS_ROUTE` / `PRIVACY_ROUTE` stand in only without it. The links inside a
   summary are written by hand in the definition, so they must name the same route.
-- The root layout prefetches the definitions (`lib/agreements.query.ts`, shared cache): the forms of every page
-  read them from the hydrated cache, not with a request of their own.
+- The root layout prefetches the full list (`definitions/`, `lib/agreements.query.ts`, shared cache): the legal links
+  of every form read the routes from it. The plain list carries no `display_contexts`, which is why the review step
+  asks the `for-user` endpoint (as a guest, so the answer is the same for everyone and shared). A signed-in customer
+  sees the same list: the backend would hide an already given consent for a JWT, the storefront does not ask that.
 
 ## A refused order
 

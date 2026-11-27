@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { make_client_access } from "@/API/access/api.client-access";
 import { create_api } from "@/API/api.context";
 import { API_ORDER_AGREEMENTS_ROUTE } from "@/API/api.routes";
-import { agreement_definitions_query } from "@/lib/agreements.query";
+import { agreement_context_query, agreement_definitions_query, type AgreementContext } from "@/lib/agreements.query";
 import { PRIVACY_ROUTE, TERMS_ROUTE } from "@/lib/checkout-config";
 import { _LOGGER } from "@/lib/logger";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
@@ -21,6 +21,13 @@ type Api = ReturnType<typeof create_api>;
 export function useAgreementDefinitions(language: string) {
   const api = useMemo(() => create_api(make_client_access()), []);
   return useQuery({ ...agreement_definitions_query(api, language), staleTime: 5 * 60_000, retry: 1 });
+}
+
+// The definitions the CMS meant for a context (checkout, registration), prefetched by the root layout or asked for
+// once on the client. An error leaves `data` undefined: the form falls back to the shop's own wording.
+export function useContextDefinitions(language: string, context: AgreementContext) {
+  const api = useMemo(() => create_api(make_client_access()), []);
+  return useQuery({ ...agreement_context_query(api, language, context), staleTime: 5 * 60_000, retry: 1 });
 }
 
 // The CMS routes of the terms and the privacy policy for the legal links of the forms: the agreement definitions
