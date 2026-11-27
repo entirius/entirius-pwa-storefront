@@ -3,6 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { expect, test, type Page } from "@playwright/test";
+import { PRIVACY_CONSENT } from "./support/account";
 
 // The accounts limits (accounts 6.0.2: login, signup and the password reset mail per address and per e-mail) answer
 // 429. The answers are stubbed: a real one would lock the whole suite out, as every call of it comes from one
@@ -41,11 +42,10 @@ test("a throttled signup asks to wait instead of a generic failure", async ({ pa
   const sheet = await open_sheet(page);
   await sheet.getByRole("button", { name: "Register" }).click();
   await expect(sheet.getByRole("heading", { name: "Create account" })).toBeVisible();
-  await sheet.getByLabel("Email").fill("someone@example.com");
+  await sheet.getByLabel("Email", { exact: true }).fill("someone@example.com");
   await sheet.getByLabel("Password", { exact: true }).fill("E2e-Throttle-2026!");
   await sheet.getByLabel("Confirm password").fill("E2e-Throttle-2026!");
-  await sheet.getByLabel("I accept the terms of service and privacy policy.").check();
-  await sheet.getByLabel("I consent to the processing of my personal data.").check();
+  await sheet.getByLabel(PRIVACY_CONSENT).check();
   await sheet.getByRole("button", { name: "Create account" }).click();
   await expect(sheet.getByText(LATER)).toBeVisible();
   await expect(sheet.getByText("Could not create the account. Please try again.")).toHaveCount(0);

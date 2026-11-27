@@ -24,6 +24,9 @@ import { link_path, mail, mail_count } from "./mail";
 
 export const ACCOUNTS = `${app_config.API_BASE_URL}/api/accounts/v1/default-europe/customer`;
 export const WISHLIST = ACCOUNTS.replace(/\/customer$/, "/wishlist/");
+// The register form's boxes are the backend's agreements for registration (their wording as the backend sends it).
+export const PRIVACY_CONSENT = /I have read and accept the Privacy Policy/;
+export const MARKETING_CONSENT = /I consent to receiving commercial information by email/;
 export const PASSWORD = "E2e-Account-2026!";
 export const DEMO_EMAIL = dummy_login_defaults.email;
 

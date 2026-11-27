@@ -3,6 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { expect, test } from "@playwright/test";
+import { PRIVACY_CONSENT } from "./support/account";
 import { link_path, mail } from "./support/mail";
 
 // Registration with the e-mail confirmation, as a customer goes through it: the
@@ -19,11 +20,10 @@ test("a new customer registers, confirms the e-mail and signs in", async ({ page
   const sheet = page.getByRole("dialog");
   await sheet.getByRole("button", { name: "Register" }).click();
   await expect(sheet.getByRole("heading", { name: "Create account" })).toBeVisible();
-  await sheet.getByLabel("Email").fill(email);
+  await sheet.getByLabel("Email", { exact: true }).fill(email);
   await sheet.getByLabel("Password", { exact: true }).fill(PASSWORD);
   await sheet.getByLabel("Confirm password").fill(PASSWORD);
-  await sheet.getByLabel("I accept the terms of service and privacy policy.").check();
-  await sheet.getByLabel("I consent to the processing of my personal data.").check();
+  await sheet.getByLabel(PRIVACY_CONSENT).check();
   await sheet.getByRole("button", { name: "Create account" }).click();
   await expect(sheet.getByText("Account created — check your email to confirm, then sign in.")).toBeVisible();
 
@@ -33,7 +33,7 @@ test("a new customer registers, confirms the e-mail and signs in", async ({ page
   await expect(page.getByRole("heading", { name: "Verification complete" })).toBeVisible();
 
   await page.locator("header").getByRole("button", { name: "Sign in" }).click();
-  await sheet.getByLabel("Email").fill(email);
+  await sheet.getByLabel("Email", { exact: true }).fill(email);
   await sheet.getByLabel("Password").fill(PASSWORD);
   await sheet.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page).toHaveURL(/\/profile$/);
