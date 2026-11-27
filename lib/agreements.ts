@@ -8,7 +8,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { make_client_access } from "@/API/access/api.client-access";
 import { create_api } from "@/API/api.context";
-import { API_ORDER_AGREEMENTS_ROUTE } from "@/API/api.routes";
+import { API_CONSENTS_ROUTE, API_ORDER_AGREEMENTS_ROUTE } from "@/API/api.routes";
 import { agreement_context_query, agreement_definitions_query, type AgreementContext } from "@/lib/agreements.query";
 import { PRIVACY_ROUTE, TERMS_ROUTE } from "@/lib/checkout-config";
 import { _LOGGER } from "@/lib/logger";
@@ -66,6 +66,25 @@ export async function record_order_agreements(
     } catch (e) {
       if (attempt === 1) _LOGGER({ type: "warning", message: "[agreements] not recorded with the order", print: e });
     }
+  }
+  return false;
+}
+
+// Records the mandatory agreements a new customer ticked at registration (source `registration`). The signup
+// returns no token, so the call goes with the channel's agreements key and the claimed email; with a key alone the
+// backend refuses marketing, which is why the newsletter box goes through its own double opt-in. Not recorded =
+// logged: the account exists and the customer did accept.
+export async function record_registration_agreements(api: Api, email: string, slugs: string[]): Promise<boolean> {
+  if (!email || slugs.length === 0) return false;
+  try {
+    const [error] = await api.FETCH_METHOD(API_CONSENTS_ROUTE, {
+      method: "POST",
+      body: JSON.stringify({ email, source: "registration", agreements: slugs.map((slug) => ({ slug, granted: true })) }),
+    });
+    if (!error) return true;
+    _LOGGER({ type: "warning", message: "[agreements] registration not recorded", print: { error } });
+  } catch (e) {
+    _LOGGER({ type: "warning", message: "[agreements] registration not recorded", print: e });
   }
   return false;
 }

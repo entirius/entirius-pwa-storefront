@@ -30,7 +30,7 @@ import { DEFAULT_OG_IMAGES, MANIFEST_PATH, THEME_COLOR, brand_url, has_manifest 
 import { PageLoading } from "@theme/ui/spinner";
 import { PrefetchBoundary } from "@/lib/prefetch_boundary";
 import { get_server_api } from "@/lib/seo/server-api";
-import { agreement_definitions_query } from "@/lib/agreements.query";
+import { agreement_context_query, agreement_definitions_query } from "@/lib/agreements.query";
 
 const base_metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -104,7 +104,8 @@ export default async function RootLayout({
 // Seeds the client AuthProvider from the readable `at` cookie (SSR-correct, no
 // hydration flash), and wraps the theme's page shell (header, the page, the layout slots, footer) so all share context.
 // The agreement definitions are prefetched here (shared cache): their routes are the legal links of the forms on
-// every page, and the review step shows them, so the client asks for them only when the prefetch failed.
+// every page, and the review step shows them, so the client asks for them only when the prefetch failed. The
+// definitions meant for registration come with them: the account sheet is on every page.
 async function AuthGate({ children }: { children: React.ReactNode }) {
   const isLoggedIn = Boolean((await cookies()).get("at")?.value);
   const { language } = await get_i18n();
@@ -116,7 +117,7 @@ async function AuthGate({ children }: { children: React.ReactNode }) {
   ]);
   return (
     <AuthProvider initial={isLoggedIn}>
-      <PrefetchBoundary prefetches={[agreement_definitions_query(api, language)]}>
+      <PrefetchBoundary prefetches={[agreement_definitions_query(api, language), agreement_context_query(api, language, "registration")]}>
         <LayoutRuntime>
           <WishlistAccountSync />
           <PageShell

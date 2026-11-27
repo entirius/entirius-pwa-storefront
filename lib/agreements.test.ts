@@ -4,7 +4,7 @@
 
 import { describe, expect, it, vi } from "vitest";
 import type { create_api } from "@/API/api.context";
-import { record_order_agreements } from "./agreements";
+import { record_order_agreements, record_registration_agreements } from "./agreements";
 import { agreement_context_query } from "./agreements.query";
 
 type Api = ReturnType<typeof create_api>;
@@ -65,5 +65,28 @@ describe("agreement_context_query", () => {
   it("fails on an error, so the form falls back to the shop's own wording", async () => {
     const { api } = api_answering(failed(404));
     await expect(agreement_context_query(api, "en", "registration").queryFn()).rejects.toThrow();
+  });
+});
+
+describe("record_registration_agreements", () => {
+  it("posts the ticked agreements as granted, with the registration source", async () => {
+    const { api, FETCH_METHOD } = api_answering(ok);
+    expect(await record_registration_agreements(api, "a@example.com", ["terms-of-service", "privacy-policy"])).toBe(true);
+    expect(JSON.parse(FETCH_METHOD.mock.calls[0][1].body)).toEqual({
+      email: "a@example.com",
+      source: "registration",
+      agreements: [
+        { slug: "terms-of-service", granted: true },
+        { slug: "privacy-policy", granted: true },
+      ],
+    });
+  });
+
+  it("sends nothing without an email or a slug, and reports a refusal without throwing", async () => {
+    const { api, FETCH_METHOD } = api_answering(failed(401));
+    expect(await record_registration_agreements(api, "", ["x"])).toBe(false);
+    expect(await record_registration_agreements(api, "a@example.com", [])).toBe(false);
+    expect(FETCH_METHOD).not.toHaveBeenCalled();
+    expect(await record_registration_agreements(api, "a@example.com", ["x"])).toBe(false);
   });
 });

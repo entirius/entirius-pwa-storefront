@@ -3,7 +3,16 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { describe, expect, it } from "vitest";
-import { NORM_AGREEMENT_DEFINITIONS, checkout_agreements, consent_source, legal_routes } from "./agreement.normalizer";
+import {
+  NORM_AGREEMENT_DEFINITIONS,
+  checkout_agreements,
+  consent_source,
+  legal_routes,
+  registration_agreements,
+  registration_choice,
+  signup_agreement_flags,
+} from "./agreement.normalizer";
+import { register_schema_for } from "../validation/auth.schema";
 
 // The shape answered by django-agreements 3.0 for the seeded channel (summaries shortened).
 const answer = {
@@ -78,5 +87,79 @@ describe("legal_routes", () => {
   it("drops a leading slash of a route", () => {
     const slashed = NORM_AGREEMENT_DEFINITIONS({ results: [{ slug: "terms-of-service", summary: "x", content_route: "/terms" }] });
     expect(legal_routes(slashed, config).terms).toBe("terms");
+  });
+});
+
+describe("registration_agreements", () => {
+  const definitions = NORM_AGREEMENT_DEFINITIONS(answer);
+
+  it("offers the mandatory agreements as required boxes and the email marketing one as an optional box", () => {
+    expect(registration_agreements(definitions, true)?.map((a) => [a.slug, a.required])).toEqual([
+      ["terms-of-service", true],
+      ["privacy-policy", true],
+      ["marketing-email", false],
+    ]);
+    expect(registration_agreements(definitions, true)?.[0].html).toBe('The <a href="/terms">Terms</a>');
+  });
+
+  it("leaves the marketing box out without a newsletter", () => {
+    expect(registration_agreements(definitions, false)?.map((a) => a.slug)).toEqual(["terms-of-service", "privacy-policy"]);
+  });
+
+  it("is null without a mandatory agreement, so the shop's own boxes stay", () => {
+    expect(registration_agreements([], true)).toBeNull();
+    expect(registration_agreements(undefined, true)).toBeNull();
+    expect(registration_agreements(definitions.filter((d) => d.category === "marketing"), true)).toBeNull();
+  });
+});
+
+describe("registration choice", () => {
+  const agreements = registration_agreements(NORM_AGREEMENT_DEFINITIONS(answer), true) ?? [];
+
+  it("splits what was ticked into the consents to record and the newsletter", () => {
+    expect(registration_choice(agreements, { "terms-of-service": true, "privacy-policy": true, "marketing-email": true })).toEqual({
+      consents: ["terms-of-service", "privacy-policy"],
+      newsletter: true,
+    });
+    expect(registration_choice(agreements, { "privacy-policy": true, "marketing-email": false })).toEqual({
+      consents: ["privacy-policy"],
+      newsletter: false,
+    });
+    expect(registration_choice(agreements, undefined)).toEqual({ consents: [], newsletter: false });
+  });
+
+  it("keeps the legacy signup flags: the shop's own pair, or the backend's agreements", () => {
+    expect(signup_agreement_flags({ consent_terms: true, consent_data: true }, null)).toEqual({
+      email: true,
+      condition: true,
+      newsletter: false,
+    });
+    expect(signup_agreement_flags({ accepted: { "marketing-email": true } }, agreements)).toEqual({
+      email: true,
+      condition: true,
+      newsletter: false,
+    });
+    expect(signup_agreement_flags({ accepted: {} }, agreements).email).toBe(false);
+  });
+});
+
+describe("register_schema_for", () => {
+  const agreements = registration_agreements(NORM_AGREEMENT_DEFINITIONS(answer), true) ?? [];
+  const base = { email: "a@example.com", password: "Passw0rd!!9", confirm_password: "Passw0rd!!9", consent_terms: false, consent_data: false };
+
+  it("asks for every required agreement and names the box of the missing one", () => {
+    const missing = register_schema_for(agreements).safeParse({ ...base, accepted: { "terms-of-service": true } });
+    expect(missing.success).toBe(false);
+    expect(missing.error?.issues.map((i) => i.path.join("."))).toEqual(["accepted.privacy-policy"]);
+    // A box never touched is undefined in the form's state: still the required-box message, not a type error.
+    const untouched = register_schema_for(agreements).safeParse({ ...base, accepted: { "terms-of-service": true, "privacy-policy": undefined, "marketing-email": undefined } });
+    expect(untouched.error?.issues.map((i) => i.path.join("."))).toEqual(["accepted.privacy-policy"]);
+    const ok = register_schema_for(agreements).safeParse({ ...base, accepted: { "terms-of-service": true, "privacy-policy": true } });
+    expect(ok.success).toBe(true);
+  });
+
+  it("keeps the shop's own pair required without agreements", () => {
+    expect(register_schema_for(null).safeParse(base).success).toBe(false);
+    expect(register_schema_for(null).safeParse({ ...base, consent_terms: true, consent_data: true }).success).toBe(true);
   });
 });

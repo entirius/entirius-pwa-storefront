@@ -503,6 +503,25 @@ links open in a new tab.
   asks the `for-user` endpoint (as a guest, so the answer is the same for everyone and shared). A signed-in customer
   sees the same list: the backend would hide an already given consent for a JWT, the storefront does not ask that.
 
+### Agreements at registration
+
+The register form (`components/register-form.client.tsx`, view `@theme/forms/register-form`) offers the definitions
+meant for the `registration` context (`definitions/for-user/?context=registration`, prefetched by the root layout):
+the `mandatory` ones as required boxes, the email `marketing` one as an optional box when the channel has a
+newsletter key; the text is the definition's HTML summary. The view gets them as `agreements` (SDK
+`RegisterFormModel`); a theme's register form must draw one box per entry, named `accepted.<slug>`. Without a
+mandatory definition (or an answer) `agreements` is null and the shop's own pair of boxes (`auth.accept_terms`,
+`auth.consent_data`) and the newsletter box stay.
+
+- After a successful signup the ticked mandatory slugs are recorded with `POST consents/` (source `registration`,
+  the channel's agreements key, the email of the form), the newsletter box starts the double opt-in as before.
+  A marketing consent cannot be recorded this way: the signup returns no token, and with a key alone the backend
+  refuses marketing definitions. Not recorded (no key, refusal) = logged, the account stands.
+- The accounts signup keeps its legacy `agreements` flags (`condition` = the mandatory ones accepted, `email` = the
+  marketing box, `newsletter` false). The accounts module ignores them today; nothing but django-agreements keeps
+  the record.
+- Only the email marketing definition is offered: SMS and push consents have no way in for a guest.
+
 ## A refused order
 
 `POST orders/` answers 409 when the cart cannot become an order (checkout 10.1): `{ error, message }`, nothing

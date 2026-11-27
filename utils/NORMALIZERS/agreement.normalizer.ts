@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import type { RegisterAgreement } from "@entirius/storefront-sdk/forms";
+
 // GET agreements/v2/{channel}/definitions/ → the agreements a checkout can offer. The summary is the text the
 // customer accepts (HTML, in the request's language); it is the definition's own wording, which the backend also
 // keeps with the order, so the storefront shows it as it comes instead of a text of its own.
@@ -54,6 +56,41 @@ function checkout_agreements(definitions: AgreementDefinition[]) {
   };
 }
 
+// What the register form offers: the mandatory agreements as required boxes and the email marketing one as an
+// optional box when the channel has a newsletter (a marketing consent without a signed-in customer goes through the
+// newsletter's double opt-in). Null without a mandatory agreement: the form keeps the shop's own pair of boxes.
+function registration_agreements(
+  definitions: AgreementDefinition[] | undefined,
+  newsletter: boolean,
+): RegisterAgreement[] | null {
+  const { mandatory, marketing_email } = checkout_agreements(definitions ?? []);
+  if (mandatory.length === 0) return null;
+  const offered = [...mandatory, ...(newsletter && marketing_email ? [marketing_email] : [])];
+  return offered.map((d) => ({ slug: d.slug, html: d.summary, required: d.category === "mandatory" }));
+}
+
+// What the customer ticked: the required slugs to record with django-agreements, and whether the optional box
+// (the newsletter) is on.
+function registration_choice(agreements: RegisterAgreement[], accepted: Record<string, boolean | undefined> | undefined) {
+  const ticked = (a: RegisterAgreement) => accepted?.[a.slug] === true;
+  return {
+    consents: agreements.filter((a) => a.required && ticked(a)).map((a) => a.slug),
+    newsletter: agreements.some((a) => !a.required && ticked(a)),
+  };
+}
+
+// The `agreements` flags of the accounts signup (the legacy contract, kept for compatibility): `condition` = the
+// terms and privacy were accepted, `email` = the data consent of the shop's own pair, or the email marketing box of
+// the backend's agreements; `newsletter` is always false, it has its own double opt-in.
+function signup_agreement_flags(
+  values: { consent_terms?: boolean; consent_data?: boolean; accepted?: Record<string, boolean | undefined> },
+  agreements: RegisterAgreement[] | null,
+) {
+  if (!agreements) return { email: !!values.consent_data, condition: !!values.consent_terms, newsletter: false };
+  const { newsletter } = registration_choice(agreements, values.accepted);
+  return { email: newsletter, condition: true, newsletter: false };
+}
+
 // What the review step shows: nothing yet while the definitions are asked for, the backend's agreements when it has
 // mandatory ones, else the shop's own consent line (nothing is recorded then).
 function consent_source(
@@ -78,5 +115,13 @@ function legal_routes(
   return { terms: route(TERMS_SLUG) ?? fallback.terms, privacy: route(PRIVACY_SLUG) ?? fallback.privacy };
 }
 
-export { NORM_AGREEMENT_DEFINITIONS, checkout_agreements, consent_source, legal_routes };
+export {
+  NORM_AGREEMENT_DEFINITIONS,
+  checkout_agreements,
+  consent_source,
+  legal_routes,
+  registration_agreements,
+  registration_choice,
+  signup_agreement_flags,
+};
 export type { AgreementDefinition };

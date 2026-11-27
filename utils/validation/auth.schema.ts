@@ -3,6 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { z } from "zod";
+import type { RegisterAgreement } from "@entirius/storefront-sdk/forms";
 import { msg } from "@entirius/storefront-sdk/i18n";
 
 // Messages are catalogue keys (msg()); <FormMessage> turns them into text in the active language.
@@ -45,22 +46,51 @@ export const register_password_field = z
     msg("validation.password_special"),
   );
 
+const passwords_match = {
+  path: ["confirm_password"],
+  message: msg("validation.passwords_mismatch"),
+};
+
+const register_fields = {
+  email: email_field,
+  password: register_password_field,
+  confirm_password: z.string().min(1, msg("validation.confirm_required")),
+  // Optional newsletter sign-up, offered only with the channel's newsletter key.
+  newsletter: z.boolean().optional(),
+  // The ticked backend agreements by slug; empty while the form shows the shop's own pair of boxes.
+  accepted: z.record(z.string(), z.boolean().optional()).optional(),
+};
+
+// The shop's own pair of boxes, for a backend without agreement definitions for registration.
 export const register_schema = z
   .object({
-    email: email_field,
-    password: register_password_field,
-    confirm_password: z.string().min(1, msg("validation.confirm_required")),
+    ...register_fields,
     consent_terms: z.boolean().refine((v) => v === true, msg("validation.terms_required")),
     consent_data: z
       .boolean()
       .refine((v) => v === true, msg("validation.data_consent_required")),
-    // Optional newsletter sign-up, offered only with the channel's newsletter key.
-    newsletter: z.boolean().optional(),
   })
-  .refine((v) => v.password === v.confirm_password, {
-    path: ["confirm_password"],
-    message: msg("validation.passwords_mismatch"),
-  });
+  .refine((v) => v.password === v.confirm_password, passwords_match);
+
+// The backend's agreements: every required one ticked, the error on its own box (`accepted.<slug>`).
+function register_agreements_schema(agreements: RegisterAgreement[]) {
+  return z
+    .object({
+      ...register_fields,
+      consent_terms: z.boolean(),
+      consent_data: z.boolean(),
+    })
+    .refine((v) => v.password === v.confirm_password, passwords_match)
+    .superRefine((v, ctx) => {
+      for (const a of agreements.filter((d) => d.required && v.accepted?.[d.slug] !== true)) {
+        ctx.addIssue({ code: "custom", path: ["accepted", a.slug], message: msg("validation.terms_required") });
+      }
+    });
+}
+
+export function register_schema_for(agreements: RegisterAgreement[] | null) {
+  return agreements ? register_agreements_schema(agreements) : register_schema;
+}
 
 export type RegisterFormValues = z.infer<typeof register_schema>;
 
