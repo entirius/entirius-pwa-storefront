@@ -3,6 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { expect, test } from "@playwright/test";
+import { without_cookie_banner } from "./support/consent";
 
 // Product page: swipe gallery with a full-screen viewer, related in-stock products, the sticky buy bar on
 // phones, no stepper for a single piece, specification values linking into the catalog.
@@ -109,10 +110,13 @@ test.describe("related products", () => {
 
 test.describe("sticky buy bar (phone)", () => {
   test.use({ viewport: PHONE });
+  test.beforeEach(({ page }) => without_cookie_banner(page));
 
   test("slides in with the price and Add to cart once the buy area is out of view", async ({ page }) => {
     await page.goto("/product/nebula-crimson-sofa");
     const bar = page.locator("[data-buy-bar]");
+    // The page is a loading spinner (footer hidden, a short document) until the product arrives: scroll after that.
+    await expect(page.locator("[data-buy-area]")).toBeVisible();
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
     await expect(bar).toHaveAttribute("data-shown", "");
     await expect(bar.getByRole("button", { name: "Add to cart" })).toBeEnabled();
@@ -124,6 +128,8 @@ test.describe("sticky buy bar (phone)", () => {
   test("sold out: offers the similar products instead", async ({ page }) => {
     await page.goto("/product/drone-dock-ottoman");
     const bar = page.locator("[data-buy-bar]");
+    // The page is a loading spinner (footer hidden, a short document) until the product arrives: scroll after that.
+    await expect(page.locator("[data-buy-area]")).toBeVisible();
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
     await expect(bar).toHaveAttribute("data-shown", "");
     await expect(bar.getByRole("button", { name: "Add to cart" })).toHaveCount(0);
