@@ -47,11 +47,22 @@ describe("build_csp", () => {
   it("adds a deployment's own sources per directive, a new directive included", () => {
     const policy = build_csp({
       ...base,
-      extra: { "script-src": ["https://www.googletagmanager.com"], "frame-src": ["https://secure.payu.com"], "img-src": [] },
+      extra: {
+        "script-src": ["https://www.googletagmanager.com"],
+        "frame-src": ["https://secure.payu.com"],
+        "worker-src": ["https://cdn.test"],
+        "img-src": [],
+      },
     });
     expect(directive(policy, "script-src")).toContain("https://www.googletagmanager.com");
     expect(directive(policy, "frame-src")).toBe("frame-src 'self' https://secure.payu.com");
+    expect(directive(policy, "worker-src")).toBe("worker-src 'self' https://cdn.test");
     expect(directive(policy, "img-src")).toBe("img-src 'self' data: blob: https://api.shop.test");
+  });
+
+  it("lets a shop with the video section allow the YouTube player frame", () => {
+    const policy = build_csp({ ...base, extra: { "frame-src": ["https://www.youtube-nocookie.com"] } });
+    expect(directive(policy, "frame-src")).toBe("frame-src 'self' https://www.youtube-nocookie.com");
   });
 
   it("leaves out an API base that is not a URL", () => {

@@ -508,6 +508,8 @@ export const pl: Record<MessageKey, Message> = {
   "notfound.browse": "Przeglądaj kategorie",
   "cms.missing_url_key": "Brak url_key",
   "cms.product_unavailable": "Produkt niedostępny",
+  "cms.video_play": "Odtwórz film",
+  "cms.video_title": "Odtwarzacz wideo",
 
   // layout
   "layout.description": "Zrób zakupy w {name}.",

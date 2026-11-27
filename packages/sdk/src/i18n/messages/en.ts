@@ -494,6 +494,8 @@ export const en = {
   "notfound.browse": "Browse categories",
   "cms.missing_url_key": "Missing url_key",
   "cms.product_unavailable": "Product unavailable",
+  "cms.video_play": "Play video",
+  "cms.video_title": "Video player",
 
   // layout
   "layout.description": "Shop at {name}.",
