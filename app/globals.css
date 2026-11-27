@@ -340,8 +340,20 @@ html.dark {
   * {
     @apply border-border outline-ring/50;
   }
+  /* The vertical scrollbar's room is always kept. A page that streams in is first no taller than the window (the
+     loading state, footer hidden), so its scrollbar came and went on every navigation and the centred header moved
+     by half the scrollbar's width on a wide screen. */
+  html {
+    scrollbar-gutter: stable;
+  }
   body {
     @apply bg-background font-sans text-foreground;
+  }
+  /* A sheet or dialog locks the scroll and pads the body by the scrollbar's width; the gutter above already holds
+     that room, so the padding would move the page instead. */
+  html body[data-scroll-locked] {
+    margin-right: 0 !important;
+    padding-right: 0 !important;
   }
   /* Lexend Deca: titles at 300, smaller headings at 400, never bold; -2 % tracking. */
   h1,

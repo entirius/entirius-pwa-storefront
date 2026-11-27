@@ -6,10 +6,12 @@ import { expect, test, type Page } from "@playwright/test";
 
 // Gifts on the cart page. Seeded: the gratis rule GRATIS_STEP (EUR) with the ottomans as its gift pool, at
 // 300 / 600 / 1000 EUR one / two / three pieces (seed step "6b Gratis Pool"); Cargo Pod Ottoman €2.69 and
-// Satellite Ottoman €3.19 as gifts; docking-bay-chair at €319.00; PERCENT10 is exclusive. No order is placed.
+// Satellite Ottoman €3.19 as gifts; engineer-filing-cabinet at €319.00; PERCENT10 is exclusive. No order is placed.
+// Not docking-bay-chair (also €319.00 in the price list): the backend's pricefighter BDD applies a competitor
+// price to it (€287.00), so its price depends on what ran before.
 
-async function chair_in_cart(page: Page) {
-  await page.goto("/product/docking-bay-chair");
+async function cabinet_in_cart(page: Page) {
+  await page.goto("/product/engineer-filing-cabinet");
   await page.getByRole("button", { name: "Add to cart" }).click();
   await page.locator("header").getByRole("link", { name: /^Cart, 1 item$/ }).click();
   const items = page.getByRole("region", { name: "Items in your cart" });
@@ -20,7 +22,7 @@ async function chair_in_cart(page: Page) {
 }
 
 test("a gift is picked over the threshold, follows the tiers and can be removed", async ({ page }) => {
-  const { items, gift, total } = await chair_in_cart(page);
+  const { items, gift, total } = await cabinet_in_cart(page);
 
   // 319 EUR: the first tier (one piece) is reached, the next one is 600.
   await expect(gift).toContainText("Add €281.00 more to get 2 gifts.");
@@ -34,8 +36,8 @@ test("a gift is picked over the threshold, follows the tiers and can be removed"
   await expect(gift.getByRole("radio", { name: /Cargo Pod Ottoman/ })).toBeChecked();
 
   // 638 EUR: two pieces allowed, the gift keeps its one piece until the customer adds the second.
-  const chair_line = items.getByRole("listitem").filter({ hasText: "Docking Bay Chair" });
-  await chair_line.getByRole("button", { name: /increase/i }).click();
+  const cabinet_line = items.getByRole("listitem").filter({ hasText: "Engineer Filing Cabinet" });
+  await cabinet_line.getByRole("button", { name: /increase/i }).click();
   await expect(gift).toContainText("Choose your gift, up to 2 pieces.");
   await expect(gift).toContainText("Add €362.00 more to get 3 gifts.");
   await expect(total).toContainText("€640.69");
@@ -43,7 +45,7 @@ test("a gift is picked over the threshold, follows the tiers and can be removed"
   await expect(total).toContainText("€643.38");
 
   // Back to 319 EUR: two pieces are over the tier, so the backend drops the gift and the card says so.
-  await chair_line.getByRole("button", { name: /decrease/i }).click();
+  await cabinet_line.getByRole("button", { name: /decrease/i }).click();
   await expect(total).toContainText("€319.00");
   await expect(gift_line).toHaveCount(0);
   await expect(gift).toContainText("Your gift was removed because the cart total changed. Choose it again.");
@@ -58,7 +60,7 @@ test("a gift is picked over the threshold, follows the tiers and can be removed"
 });
 
 test("a discount code keeps the gift, an exclusive one replaces it", async ({ page }) => {
-  const { items, gift, total } = await chair_in_cart(page);
+  const { items, gift, total } = await cabinet_in_cart(page);
   await gift.getByRole("radio", { name: /Cargo Pod Ottoman/ }).click();
   await expect(total).toContainText("€321.69");
 

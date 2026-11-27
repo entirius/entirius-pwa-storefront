@@ -5,10 +5,11 @@
 import { expect, test } from "@playwright/test";
 
 // Manual discount codes on the cart page. Seeded: PERCENT10 (10 %, any cart),
-// docking-bay-chair at €319.00. No order is placed, so no stock is used.
+// engineer-filing-cabinet at €319.00 (not docking-bay-chair: the backend's pricefighter BDD
+// reprices it). No order is placed, so no stock is used.
 
 test("a code lowers the total, a wrong code is reported, a code can be removed", async ({ page }) => {
-  await page.goto("/product/docking-bay-chair");
+  await page.goto("/product/engineer-filing-cabinet");
   await page.getByRole("button", { name: "Add to cart" }).click();
   await page.locator("header").getByRole("link", { name: /^Cart, 1 item$/ }).click();
   const summary = page.getByRole("complementary", { name: "Order summary" });
