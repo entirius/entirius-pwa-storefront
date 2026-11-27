@@ -142,3 +142,11 @@ All notable changes to this project are documented here. The format follows
   page offers "Tell me when it is back" (e-mail, consent, honeypot) for that SKU; a saved request stays shown as saved
   after a reload, "Notify me" in the phone buy bar scrolls to the form, and `/stock-alert/cancel?token=` cancels a
   request from the mail link. Without the key the product page is unchanged.
+
+### Fixed
+
+- The home page no longer scrolls sideways: a full-bleed CMS section is `100vw` wide, which counts the vertical
+  scrollbar, so the page was half a scrollbar (about 8 px) wider than the window and showed a horizontal scrollbar at
+  the bottom. The page frame (`@theme/layout/page-shell`) clips what sticks out sideways (`overflow-x: clip`, so the
+  header stays sticky). Opening a sheet no longer moves the page either: the horizontal scrollbar going away used to
+  shift it by that scrollbar's height (15 px at the bottom of a page) and reset a sideways offset.
