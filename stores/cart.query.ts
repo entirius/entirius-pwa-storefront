@@ -15,7 +15,8 @@ const to_items = (items: Record<string, CartItem>) =>
 
 // Client-driven sync: the backend cart is a projection of the local cart.
 // - no cid            -> POST /carts/            (create), store cart_id in cid
-// - cid + items       -> PATCH /carts/{cid}/items/ (full-replace)
+// - cid + items       -> PATCH /carts/{cid}/items/ (full-replace); on a 404 (e.g. the
+//                        cart was ordered) drop cid and create a new one
 // - cid + empty local -> DELETE /carts/{cid}/    (clear cid)
 // v2 carts are otherwise immutable; /items/ is the only update path.
 export const cart_query = (
@@ -48,8 +49,9 @@ export const cart_query = (
         method: "PATCH",
         body,
       });
-      if (error) throw new Error(error.message);
-      return NORM_CART(response);
+      if (!error) return NORM_CART(response);
+      if (error.status !== 404) throw new Error(error.message);
+      access.delete?.("cid");
     }
 
     const [error, response] = await api.FETCH_METHOD<RawCart>(API_CART_ROUTE, {

@@ -3,7 +3,12 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { cache } from "react";
-import { API_CMS_BLOG_POST_ROUTE, API_CMS_STATIC_PAGE_ROUTE, API_PRODUCTS_ROUTE } from "@/API/api.routes";
+import {
+  API_CMS_BLOG_POST_ROUTE,
+  API_CMS_LEGAL_PAGE_ROUTE,
+  API_CMS_STATIC_PAGE_ROUTE,
+  API_PRODUCTS_ROUTE,
+} from "@/API/api.routes";
 import type { create_api } from "@/API/api.context";
 import type { CmsDocumentContent, CmsPage } from "@/types/cms.types";
 import type { BlogPostRaw, ContentDbPage } from "@/types/blog.types";
@@ -24,10 +29,15 @@ export type ProductsResponse = { results?: RawProduct[] };
 // both the options object and the routes array inside it would be fresh
 // references at every call site and never hit.
 // The same route can hold one draft per language: fetch them all, the caller picks one.
+// A route without a static page may hold a legal page (`legal-page`, the terms and policies that
+// django-agreements links to): asked only when the static page answers no document.
 const _load_static_page = cache(async (api: Api, routes_key: string) => {
-  return api.FETCH_METHOD<{ data: CmsPage[] }>(API_CMS_STATIC_PAGE_ROUTE, {
-    querys: { routes: routes_key.split(","), limit: 50, page: 1 },
-  });
+  const querys = { routes: routes_key.split(","), limit: 50, page: 1 };
+  const answer = await api.FETCH_METHOD<{ data: CmsPage[] }>(API_CMS_STATIC_PAGE_ROUTE, { querys });
+  const [error, body] = answer;
+  if (error || (body?.data?.length ?? 0) > 0) return answer;
+  const legal = await api.FETCH_METHOD<{ data: CmsPage[] }>(API_CMS_LEGAL_PAGE_ROUTE, { querys });
+  return legal[0] || !(legal[1]?.data?.length ?? 0) ? answer : legal;
 });
 
 export const load_static_page = (api: Api, options: { routes: string[] }) =>

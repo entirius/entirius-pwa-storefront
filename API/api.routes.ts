@@ -79,6 +79,10 @@ export const API_WISHLIST_PRODUCT_ROUTE = "/api/accounts/v1/__CHANNEL__/wishlist
 // ----- CMS / CONTENT -----
 export const API_CMS_STATIC_PAGE_ROUTE =
   "/api/contentdb/v1/published/static-page/";
+// Legal pages (terms, privacy policy): contentdb `legal-page` documents, linked to django-agreements definitions by
+// route. Served at their route like a static page.
+export const API_CMS_LEGAL_PAGE_ROUTE =
+  "/api/contentdb/v1/published/legal-page/";
 export const API_CMS_ROUTES_ROUTE = "/api/contentdb/v1/routes/";
 // Published layout extender of type `footer` — link columns edited in the CMS
 // navigation editor.

@@ -115,6 +115,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Legal pages: a contentdb `legal-page` document (terms, privacy policy: the pages django-agreements links its
+  definitions to) is served at its route like a static page, when no static page holds that route; the 404 check and
+  the sitemap know it too.
 - A shop builds and runs without Docker: `STOREFRONT_DIR` points `storefront build` and `storefront start`
   (`docker/storefront-entrypoint.sh`) at a checkout of the core's `v<version>` tag, installed with
   `pnpm install --frozen-lockfile --prod`. Its type check (`tsconfig.build.json`) leaves out the tests and the tools'
