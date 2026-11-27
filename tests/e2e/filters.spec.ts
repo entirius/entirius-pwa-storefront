@@ -78,6 +78,7 @@ test("desktop: sort by price, highest first, and turn it off again", async ({ pa
 test("desktop: narrow by the price range, then reset it", async ({ page }) => {
   await page.goto("/catalog/chairs");
   const panel = page.getByRole("complementary", { name: "Filters" });
+  await expect(tiles(page)).toHaveCount(7);
   const lowest = Math.min(...(await tile_prices(page)));
   // The lower handle up by ten steps (PageUp) commits a new lower bound.
   await panel.getByRole("slider").first().press("PageUp");
