@@ -163,6 +163,16 @@ All notable changes to this project are documented here. The format follows
   asked the API). A CMS page's hidden H1 is the document's `meta.title` (its `name` is the editors' label, "Terms
   (EN)"), and a text whose HTML opens its own H1 is the page's heading: no second hidden H1, no tile title printed
   above it.
+- A search with no results, and an empty category, no longer show the filter panel (Sort, Price range, a disabled
+  "Apply (0)") or the phone's Filters button beside "No results found.": `@theme/catalog/listing-page` draws only the
+  empty message when there are no products and no filter is chosen. Under a chosen filter the panel stays, so it can be
+  cleared.
+- The footer no longer jumps down when a page arrives: category, search and CMS pages stream in after a loading
+  spinner, and the footer was painted under that spinner (layout shift 0.27 on a category page, 0.14 on `/privacy`).
+  `@theme/layout/page-shell` hides the footer and the slot above it while a whole-page `PageLoading` is shown
+  (`data-page-loading`; `<PageLoading section>` for a part of a page keeps it), and the listing's client-side loading
+  state is that same `PageLoading` instead of a small spinner. The cart holds the place of its item count and order
+  steps while it loads, so a cart with lines does not push its list down.
 - The filter panel's "Apply" button sits in a solid footer bar (panel colour, top border, full panel width) in the
   desktop column and the phone sheet, so filter rows no longer show through around it, and its disabled state is a flat
   muted colour instead of a see-through one.
