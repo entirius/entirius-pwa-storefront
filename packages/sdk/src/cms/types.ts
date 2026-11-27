@@ -97,6 +97,9 @@ export type CmsSectionProductSliderProps = Part & {
   children?: ReactNode;
 };
 
+// `section-video`: a YouTube video by its ID, played on click.
+export type CmsSectionVideoProps = Part & { id: string; width: CmsWidth };
+
 // `section-blog`: the posts the editor picked, in the blog's tiles.
 export type CmsSectionBlogProps = Part & {
   title?: string;

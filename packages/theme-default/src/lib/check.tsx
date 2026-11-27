@@ -77,6 +77,7 @@ import { SectionProductSlider } from "@theme/cms/section-product-slider";
 import { TileProduct } from "@theme/cms/tile-product";
 import { SectionFaq } from "@theme/cms/section-faq";
 import { SectionBlog } from "@theme/cms/section-blog";
+import { SectionVideo } from "@theme/cms/section-video";
 import { SectionTypeA } from "@theme/cms/section-type-a";
 import { TileTypeA } from "@theme/cms/tile-type-a";
 import { TileTypeB } from "@theme/cms/tile-type-b";
@@ -256,6 +257,7 @@ export const CHECKS: { part: string; render: () => ReactElement }[] = [
   },
   { part: "cms/section-faq", render: () => <SectionFaq t={t} title="FAQ" items={[{ question: "Why?", answer: "<p>Because.</p>" }]} anchor="faq" /> },
   { part: "cms/section-blog", render: () => <SectionBlog t={t} title="From the blog" links={mock_links} width="container" posts={[mock_post_card]} /> },
+  { part: "cms/section-video, youtube-player", render: () => <SectionVideo t={t} id="dQw4w9WgXcQ" width="container" /> },
   {
     part: "cms/section-type-a, tile-type-a, tile-type-b",
     render: () => (

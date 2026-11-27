@@ -16,6 +16,7 @@ import { SectionBanner } from "@theme/cms/section-banner";
 import { SectionProductSlider } from "@theme/cms/section-product-slider";
 import { SectionFaq } from "@theme/cms/section-faq";
 import { SectionBlog } from "@theme/cms/section-blog";
+import { SectionVideo } from "@theme/cms/section-video";
 import { TileHero } from "@theme/cms/tile-hero";
 import { TileTxtBtn } from "@theme/cms/tile-txt-btn";
 import { TileAccordion } from "@theme/cms/tile-accordion";
@@ -25,6 +26,7 @@ import { TileProduct } from "@theme/cms/tile-product";
 import { EnquiryForm } from "@/components/enquiry-form.client";
 import { split_enquiry_marker } from "@/lib/enquiry-marker";
 import { cms_links } from "@/lib/cms/links";
+import { youtube_id } from "@/lib/cms/video";
 import { cms_picture, cms_pictures, cms_width, option, spaced, text } from "@/lib/cms/blocks";
 import { FAQ_ANCHOR } from "@/utils/NORMALIZERS/blog-post.normalizer";
 import type { CmsDocumentContent, CmsSectionData } from "@/types/cms.types";
@@ -163,6 +165,11 @@ export const cms_blocks: Record<string, (block: Block) => ReactNode> = {
       return question?.trim() ? [{ question, answer: text(row.answer) ?? "" }] : [];
     });
     return <SectionFaq t={cms.t} title={text(data.title)} items={items} anchor={FAQ_ANCHOR} />;
+  },
+  // `video_field` holds the editor's YouTube link; nothing when it is not one.
+  "section-video": ({ data, cms, width }) => {
+    const id = youtube_id(text(data.video_field));
+    return id ? <SectionVideo t={cms.t} id={id} width={width} /> : null;
   },
   "section-blog": ({ data, cms, width }) => (
     <SectionBlog

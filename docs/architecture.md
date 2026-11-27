@@ -114,9 +114,10 @@ HydrationBoundary (client)
   route.
 - `proxy.ts` sends every page with an enforced Content-Security-Policy (`lib/csp.ts`): scripts need the request's nonce
   ('strict-dynamic' lets the framework's own scripts load their chunks), styles keep 'unsafe-inline' (Radix and `style`
-  attributes), and the API origin is allowed for data and media. Every HTML route renders per request, as a nonce
-  needs; in production the not-found page relays the policy of its own render. A deployment adds sources per
-  directive in `CSP` of `app.config.json` (analytics, a payment widget, a CDN).
+  attributes), and the API origin is allowed for data and media. Every HTML route renders per request, as a nonce needs;
+  in production the not-found page relays the policy of its own render. A deployment adds sources per directive in
+  `CSP` of `app.config.json` (analytics, a payment widget, a CDN, `https://www.youtube-nocookie.com` in `frame-src`
+  for the video section).
 
 ## Geo Routing
 
@@ -212,9 +213,9 @@ with their data in props, as content needs no browser JS:
   turns each block into its part's props, typed in the SDK (`/cms`): text fields, `links` (`CmsLink`: address,
   external, look), `pictures` (`CmsPictures`), products (`ProductCardData`) and `t`. The same renderer draws CMS
   pages, layout slots, the blog's intro and a post's body. The parts that need the browser are client components
-  inside: `hero-carousel`, `product-rail`, the product card, the accordion; a form the core owns (the enquiry form
-  inside `section-type-a`) comes in a prop. The JS of a CMS page is its route's whatever the content: the sections,
-  their queries and API calls are not in it.
+  inside: `hero-carousel`, `product-rail`, `youtube-player`, the product card, the accordion; a form the core owns
+  (the enquiry form inside `section-type-a`) comes in a prop. The JS of a CMS page is its route's whatever the
+  content: the sections, their queries and API calls are not in it.
 - **The blog** (`/blog`, a post, an author) is `@theme/blog/blog-page`, `post-page` and `author-page` with their
   parts (`post-tile`, `post-grid`, `category-tabs`, `pagination`, `post-header`, `post-toc`, `post-authors`,
   `post-neighbours`, `author-photo`). The core reads the posts and hands over view models (`/blog`, built in
@@ -298,7 +299,8 @@ Two patterns:
     Only a cart created (POST) with the customer's token belongs to the account. On login `merge_cart_on_login()`
     (`stores/cart-login.ts`) adds the account's saved cart (`carts/latest/`) to the local one (a shared SKU gets the
     sum), adopts its `cart_id` and closes the guest cart; on logout the cart leaves the device and comes back with
-    the next login.
+    the next login. On a 404 from the items PATCH (e.g. an order was placed from the cart and the customer
+    left the payment gateway without paying) the sync drops `cid` and POSTs a new cart from the local items.
   - `app/.../catalog/.../_components/filters.store.ts` — co-located with catalog page, initializes from `URLSearchParams`
 
 ## Coding Standards
