@@ -145,6 +145,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- An empty cart no longer shows the order path (Cart > Address > Shipping > Payment > Review) under its heading,
+  and the loading cart does not flash it: `@theme/cart/cart-page` draws the steps only for a cart with lines.
 - The home page no longer scrolls sideways: a full-bleed CMS section is `100vw` wide, which counts the vertical
   scrollbar, so the page was half a scrollbar (about 8 px) wider than the window and showed a horizontal scrollbar at
   the bottom. The page frame (`@theme/layout/page-shell`) clips what sticks out sideways (`overflow-x: clip`, so the

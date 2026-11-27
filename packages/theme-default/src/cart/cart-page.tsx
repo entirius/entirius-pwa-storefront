@@ -26,7 +26,8 @@ export function CartPage() {
   return (
     <div className="mx-auto max-w-5xl pt-4 pb-28 lg:pb-4">
       <OrderPageHeader title={t("cart.page_title")} meta={has_lines ? t("cart.items_count", { count: pieces }) : undefined} />
-      <OrderSteps steps={steps} />
+      {/* No order path before there is an order: not while the cart loads, not when it is empty. */}
+      {has_lines && <OrderSteps steps={steps} />}
 
       <div className="mt-8">
         {!ready ? (
