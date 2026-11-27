@@ -9,7 +9,7 @@ import { expect, test } from "@playwright/test";
 // and CMS links follow the editor's convention (/p/<key> → product page).
 
 const PAGES = [
-  { path: "/", heading: "Home", text: "Seats built for long shifts" },
+  { path: "/", heading: "Furniture for life in orbit", text: "Seats built for long shifts" },
   { path: "/about", heading: "About Us", text: "Our Mission" },
   { path: "/contact", heading: "Contact", text: "Contact Us" },
   { path: "/product-showcase", heading: "Product Showcase", text: "More Picks" },
