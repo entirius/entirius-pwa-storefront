@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { z } from "zod";
-import type { RegisterAgreement } from "@entirius/storefront-sdk/forms";
+import type { RegisterAgreement } from "@/utils/NORMALIZERS/agreement.normalizer";
 import { msg } from "@entirius/storefront-sdk/i18n";
 
 // Messages are catalogue keys (msg()); <FormMessage> turns them into text in the active language.

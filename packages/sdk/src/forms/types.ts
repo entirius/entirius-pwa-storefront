@@ -32,22 +32,16 @@ export type RegisterFormValues = {
   email: string;
   password: string;
   confirm_password: string;
-  // The shop's own pair of boxes, used only while `agreements` is null.
+  // The consent boxes are the core's (`consents`): these fields belong to them.
   consent_terms: boolean;
   consent_data: boolean;
   newsletter?: boolean;
-  // The ticked backend agreements by slug (the fields are named `accepted.<slug>`).
   accepted?: Record<string, boolean | undefined>;
 };
-// An agreement of the backend the form offers: `html` is its summary as the backend sends it (render it with
-// `RichText`), `required` ones must be ticked, the others are an optional box (the newsletter).
-export type RegisterAgreement = { slug: string; html: string; required: boolean };
-// `newsletter`: the channel has a newsletter, so the form offers the sign-up box. `agreements`: the definitions the
-// CMS meant for registration; one box each, named `accepted.<slug>`, instead of the pair `consent_terms` /
-// `consent_data` and the `newsletter` box. Null = the backend has none (or is not answering): draw the shop's own.
+// `consents`: the consent boxes with their errors, drawn by the core (the backend's agreements, else the shop's own);
+// the view places it inside `<Form {...form}>` where they go and knows nothing about them.
 export type RegisterFormModel = ValidatedForm<RegisterFormValues> & {
-  newsletter: boolean;
-  agreements: RegisterAgreement[] | null;
+  consents: ReactNode;
   login: () => void;
 };
 

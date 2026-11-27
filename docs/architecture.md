@@ -190,7 +190,7 @@ sheet, the newsletter, an enquiry, notify about a similar product, back in stock
 validation, sending and state in the core and draw a view of the theme, `@theme/forms/<name>`, from a model in
 props (`/forms`): a react-hook-form form hands the view `form`, `submit` and `pending`, so its fields bind to
 `form.control` through `TextField` / `SelectField` / `CheckboxField`; a contact form hands its state, `submit` (the
-core reads the fields by `name`) and the consent (`TokenLinks` from the SDK draws its privacy link). The forms keep
+core reads the fields by `name`) and the consent (`TokenLinks` from the SDK draws its privacy link); where the core draws a part of a form itself (the register form's consent boxes, `consents`, like the login form's `dev_tools`), the model carries it as a node. The forms keep
 their names and props in the core, so `Storefront.forms` still loads the account ones on first use. The account (`/account/page`): the
 section's frame `@theme/account/account-layout` with `account-menu` (`useAccountMenu()`, set in the profile layout,
 which also guards the section), `overview-page`, `orders-page`, `order-page` and `addresses-page`, each with its
@@ -511,10 +511,13 @@ links open in a new tab.
 The register form (`components/register-form.client.tsx`, view `@theme/forms/register-form`) offers the definitions
 meant for the `registration` context (`definitions/for-user/?context=registration`, prefetched by the root layout):
 the `mandatory` ones as required boxes, the email `marketing` one as an optional box when the channel has a
-newsletter key; the text is the definition's HTML summary. The view gets them as `agreements` (SDK
-`RegisterFormModel`); a theme's register form must draw one box per entry, named `accepted.<slug>`. Without a
-mandatory definition (or an answer) `agreements` is null and the shop's own pair of boxes (`auth.accept_terms`,
-`auth.consent_data`) and the newsletter box stay.
+newsletter key; the text is the definition's HTML summary. The core draws the boxes: `AgreementFields`
+(`components/agreement-fields.client.tsx`, theme primitives `CheckboxField`, `RichText` for the summary, links in a new
+tab) is handed to the view as `consents` in the `RegisterFormModel`, and the theme's register form places it with
+`{consents}`. It knows nothing of slugs, field names or required flags. Without a mandatory definition (or an answer)
+the same component draws the shop's own pair of boxes (`auth.accept_terms`, `auth.consent_data`) and the newsletter
+box. The review step shares only `AgreementSummary` (one agreement's wording) from that file: it keeps its choice in
+local state, not in a react-hook-form form, and its fallback is a single `TokenLinks` line.
 
 - After a successful signup the ticked mandatory slugs are recorded with `POST consents/` (source `registration`,
   the channel's agreements key, the email of the form), the newsletter box starts the double opt-in as before.

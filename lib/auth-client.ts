@@ -7,7 +7,7 @@ import { end_session } from "@/API/api.setup";
 import { SESSION_LOGIN_PATH, SESSION_LOGOUT_PATH } from "@/lib/session";
 import { make_client_access } from "@/API/access/api.client-access";
 import { msg } from "@entirius/storefront-sdk/i18n";
-import type { RegisterAgreement } from "@entirius/storefront-sdk/forms";
+import type { RegisterAgreement } from "@/utils/NORMALIZERS/agreement.normalizer";
 import { signup_agreement_flags } from "@/utils/NORMALIZERS/agreement.normalizer";
 import {
   API_USER_SIGNUP_ROUTE,

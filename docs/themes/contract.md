@@ -30,7 +30,7 @@ import the SDK, other theme files (`@theme/...`), React, Next, and the default t
 | `/account`, `/account/page` | The account pages' models (`useAccountMenu`, `useAccountOverview`, `useOrdersPage`, `useOrderPage`, `useAddressesPage`) and the shapes of orders and addresses. |
 | `/cms` | The props of every CMS block (`CmsLink`, `CmsPictures`, `CmsWidth`...). |
 | `/blog` | The blog's view models and its pages' props. |
-| `/forms` | The models of the forms' views (`ValidatedForm`, consent forms, the discount code). |
+| `/forms` | The models of the forms' views (`ValidatedForm`, consent forms, the discount code). The register form's consent boxes arrive drawn, as the `consents` node: place it with `{consents}` inside `<Form>`; which agreements, their field names, required flags and the fallback are the core's. |
 | `/mocks` | Sample data of every model and `MockShell` (the providers): what `pnpm check` renders with, for a theme's own tests too. |
 
 ## Three kinds of parts

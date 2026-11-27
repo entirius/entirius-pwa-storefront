@@ -2,8 +2,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import type { RegisterAgreement } from "@entirius/storefront-sdk/forms";
-
 // GET agreements/v2/{channel}/definitions/ → the agreements a checkout can offer. The summary is the text the
 // customer accepts (HTML, in the request's language); it is the definition's own wording, which the backend also
 // keeps with the order, so the storefront shows it as it comes instead of a text of its own.
@@ -55,6 +53,10 @@ function checkout_agreements(definitions: AgreementDefinition[]) {
     marketing_email: definitions.find((d) => d.category === "marketing" && d.consent_channel === "email") ?? null,
   };
 }
+
+// An agreement the register form offers as a box: `html` is the summary as the backend sends it, `required` ones
+// must be ticked, the others are an optional box (the newsletter).
+type RegisterAgreement = { slug: string; html: string; required: boolean };
 
 // What the register form offers: the mandatory agreements as required boxes and the email marketing one as an
 // optional box when the channel has a newsletter (a marketing consent without a signed-in customer goes through the
@@ -124,4 +126,4 @@ export {
   registration_choice,
   signup_agreement_flags,
 };
-export type { AgreementDefinition };
+export type { AgreementDefinition, RegisterAgreement };

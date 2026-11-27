@@ -151,8 +151,9 @@ All notable changes to this project are documented here. The format follows
 - The register form offers the agreement definitions the CMS meant for registration (their summaries; mandatory ones
   required, email marketing optional with the newsletter key) instead of the two hard-coded boxes, and records the
   mandatory ones with django-agreements after the signup (`consents/`, source `registration`, the agreements key).
-  The accounts `agreements` flags are still sent. Without definitions the shop's own boxes stay. A theme's
-  `@theme/forms/register-form` gets `agreements` in its model and draws one `accepted.<slug>` box each.
+  The accounts `agreements` flags are still sent. Without definitions the shop's own boxes stay. The core draws the
+  boxes (`AgreementFields`); a theme's `@theme/forms/register-form` places them with `{consents}` from its model and
+  knows nothing of agreements.
 - The review step offers only the agreements the CMS meant for the checkout (`display_contexts` of the definition):
   one with `checkout` unticked disappears from it. Without definitions the shop's own consent line stands in, as before.
 - Legal pages: the `legal-page` route is in the shared cache like the static page (every view and every 404 lookup

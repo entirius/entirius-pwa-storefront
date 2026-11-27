@@ -17,6 +17,7 @@ import { subscribe_newsletter, useNewsletterAvailable } from "@/lib/newsletter";
 import { create_api } from "@/API/api.context";
 import { make_client_access } from "@/API/access/api.client-access";
 import { registration_agreements, registration_choice } from "@/utils/NORMALIZERS/agreement.normalizer";
+import { AgreementFields } from "@/components/agreement-fields.client";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
 
 export function RegisterForm({
@@ -66,5 +67,5 @@ export function RegisterForm({
     });
   });
 
-  return <RegisterFormView form={form} submit={submit} pending={pending} newsletter={newsletter} agreements={agreements} login={onSwitchToLogin} />;
+  return <RegisterFormView form={form} submit={submit} pending={pending} consents={<AgreementFields agreements={agreements} newsletter={newsletter} />} login={onSwitchToLogin} />;
 }
