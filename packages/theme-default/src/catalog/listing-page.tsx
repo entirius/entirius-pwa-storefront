@@ -6,7 +6,7 @@
 
 import { useListingPage } from "@entirius/storefront-sdk/catalog/listing";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
-import { Spinner } from "@theme/ui/spinner";
+import { PageLoading } from "@theme/ui/spinner";
 import { ListingHeader } from "@theme/catalog/listing-header";
 import { ListingFilters } from "@theme/catalog/filters";
 import { FiltersSheet } from "@theme/catalog/filters-sheet";
@@ -29,7 +29,7 @@ export function ListingPage() {
           {hint}
         </p>
       ) : status === "loading" ? (
-        <Spinner className="mx-auto size-8" />
+        <PageLoading />
       ) : status === "error" ? (
         <div>{t("common.error", { message: error ?? "" })}</div>
       ) : (

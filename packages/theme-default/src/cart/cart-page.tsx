@@ -16,6 +16,9 @@ import { CartAlerts } from "@theme/order/cart-alerts";
 import { GiftLine } from "@theme/cart/gift-line";
 import { GiftPicker } from "@theme/cart/gift-picker";
 
+// The line under the title, held while the cart loads (a filled cart shows its item count there).
+const HELD_LINE = <span aria-hidden className="invisible">&nbsp;</span>;
+
 // The cart page: the default arrangement of its parts, in the same frame as checkout (title, steps, then a list
 // column and a 20rem summary column). Every part reads the cart from useCartPage().
 export function CartPage() {
@@ -25,9 +28,10 @@ export function CartPage() {
 
   return (
     <div className="mx-auto max-w-5xl pt-4 pb-28 lg:pb-4">
-      <OrderPageHeader title={t("cart.page_title")} meta={has_lines ? t("cart.items_count", { count: pieces }) : undefined} />
-      {/* No order path before there is an order: not while the cart loads, not when it is empty. */}
-      {has_lines && <OrderSteps steps={steps} />}
+      <OrderPageHeader title={t("cart.page_title")} meta={has_lines ? t("cart.items_count", { count: pieces }) : !ready ? HELD_LINE : undefined} />
+      {/* No order path before there is an order, none for an empty cart. While the cart loads its place is held
+          (same height as the steps) with the line under the title, so a filled cart does not push its list down. */}
+      {has_lines ? <OrderSteps steps={steps} /> : !ready && <div aria-hidden className="h-7.5 sm:h-5" />}
 
       <div className="mt-8">
         {!ready ? (

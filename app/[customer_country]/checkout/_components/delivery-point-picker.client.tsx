@@ -120,7 +120,7 @@ export function DeliveryPointPicker({
   } else if (isError) {
     results = <FormError>{t("checkout.point_failed")}</FormError>;
   } else if (!points && isFetching) {
-    results = <PageLoading className="min-h-32" />;
+    results = <PageLoading section className="min-h-32" />;
   } else if (list.length === 0) {
     results = <p className="text-sm text-muted-foreground">{t("checkout.point_none")}</p>;
   } else {

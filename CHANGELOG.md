@@ -145,6 +145,12 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- The footer no longer jumps down when a page arrives: category, search and CMS pages stream in after a loading
+  spinner, and the footer was painted under that spinner (layout shift 0.27 on a category page, 0.14 on `/privacy`).
+  `@theme/layout/page-shell` hides the footer and the slot above it while a whole-page `PageLoading` is shown
+  (`data-page-loading`; `<PageLoading section>` for a part of a page keeps it), and the listing's client-side loading
+  state is that same `PageLoading` instead of a small spinner. The cart holds the place of its item count and order
+  steps while it loads, so a cart with lines does not push its list down.
 - The filter panel's "Apply" button sits in a solid footer bar (panel colour, top border, full panel width) in the
   desktop column and the phone sheet, so filter rows no longer show through around it, and its disabled state is a flat
   muted colour instead of a see-through one.

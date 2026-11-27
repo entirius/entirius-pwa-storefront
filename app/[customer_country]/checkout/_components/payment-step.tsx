@@ -91,7 +91,7 @@ export function PaymentStep({
   let body: ReactNode;
   if (isLoading) {
     body = (
-      <PageLoading className="min-h-48" />
+      <PageLoading section className="min-h-48" />
     );
   } else if (isError || !methods || methods.length === 0) {
     // No methods, or the request failed. Degrade gracefully.
