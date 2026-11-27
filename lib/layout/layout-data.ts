@@ -24,10 +24,12 @@ type Profile = {
 };
 const PROFILES = countries as Record<string, Profile>;
 
-const load_footer = cache(async () => {
+// The footer drafts of every language (one URL, so one shared cache entry); the visitor's language wins, then the
+// shop's default language, then any.
+const load_footer = cache(async (language: string, fallback_language: string) => {
   const api = create_api(await make_server_access());
-  const [error, response] = await api.FETCH_METHOD(API_CMS_FOOTER_ROUTE, {});
-  return error ? [] : NORM_FOOTER(response);
+  const [error, response] = await api.FETCH_METHOD(API_CMS_FOOTER_ROUTE, { querys: { limit: 50, page: 1 } });
+  return error ? [] : NORM_FOOTER(response, language, fallback_language);
 });
 
 // The published legal pages of the active language, linked from the footer's bottom bar. None (or no answer) = no links.
@@ -82,7 +84,7 @@ export const load_layout_data = cache(async (): Promise<LayoutData> => {
   const [one_row, locale, footer, legal] = await Promise.all([
     menu_shares_top_row(),
     locale_choice(),
-    load_footer(),
+    load_footer(language, PROFILES.default.default_language),
     load_legal_links(language),
   ]);
   return {

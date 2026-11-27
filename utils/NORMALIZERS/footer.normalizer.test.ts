@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { describe, expect, it } from "vitest";
-import { NORM_FOOTER, resolve_footer_href } from "./footer.normalizer";
+import { NORM_FOOTER, pick_footer, resolve_footer_href } from "./footer.normalizer";
 
 describe("NORM_FOOTER", () => {
   it("turns link columns into footer columns, in sort order", () => {
@@ -85,5 +85,30 @@ describe("NORM_FOOTER", () => {
     expect(resolve_footer_href("page", "home")).toBe("/");
     expect(resolve_footer_href("product", "zero-g-recliner")).toBe("/product/zero-g-recliner");
     expect(resolve_footer_href("url", "")).toBe("/");
+  });
+
+  describe("one footer per language", () => {
+    const footer = (language: string, label: string) => ({
+      language,
+      content: { items: [{ label, display_as: "link", link_type: "url", link_value: "/x" }] },
+    });
+    const response = { data: [footer("PL", "Sklep"), footer("EN", "Shop"), footer("DE", "Laden")] };
+    const labels = (language: string, fallback: string) =>
+      NORM_FOOTER(response, language, fallback).map((c) => c.links[0].label);
+
+    it("renders the visitor's language, whatever the case of the code", () => {
+      expect(labels("pl", "en")).toEqual(["Sklep"]);
+      expect(labels("en", "pl")).toEqual(["Shop"]);
+    });
+
+    it("falls back to the shop's default language, then to the newest", () => {
+      expect(labels("fr", "en")).toEqual(["Shop"]);
+      expect(labels("fr", "it")).toEqual(["Sklep"]);
+      expect(labels("", "")).toEqual(["Sklep"]);
+    });
+
+    it("picks nothing from an empty answer", () => {
+      expect(pick_footer({ data: [] }, "pl", "en")).toBeUndefined();
+    });
   });
 });
