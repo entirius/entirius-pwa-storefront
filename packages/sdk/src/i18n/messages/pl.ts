@@ -516,6 +516,8 @@ export const pl: Record<MessageKey, Message> = {
   // footer
   "footer.prices_incl_vat": "Ceny zawierają VAT.",
   "footer.nav": "Stopka",
+  "footer.legal": "Informacje prawne",
+  "footer.cookie_settings": "Ustawienia cookies",
 
   // newsletter
   "newsletter.title": "Newsletter",

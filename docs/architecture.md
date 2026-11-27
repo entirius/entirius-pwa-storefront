@@ -318,7 +318,10 @@ All slot pages come from one request per page render (`app/_components/layout-sl
 list, then `static-page?routes=…`, deduplicated with `React.cache()`); the draft in the active language wins.
 
 The footer is not a slot: it is the CMS footer extender (`layout-extender-published/footer/`, edited in the CMS
-navigation editor), read by `lib/layout/layout-data.ts` and drawn by the theme's `@theme/layout/footer`.
+navigation editor), read by `lib/layout/layout-data.ts` and drawn by the theme's `@theme/layout/footer`. The bottom
+bar next to "© year name" links every published `legal-page` of the active language (`useLayout().legal`: label the
+page's `meta.title`, href its route; none published, no links) and "Cookie settings", an `href="#cookie-consents"`
+link that `app/globals.css` hides until a cookie banner runs (see Cookie consent). No flag, no config.
 
 ## Blog
 

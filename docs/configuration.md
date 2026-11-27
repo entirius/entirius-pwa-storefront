@@ -128,7 +128,7 @@ Besides the hooks above, theme rules can select these attributes (`[data-header-
 | `data-header-end` | Wishlist, account and cart buttons |
 | `data-locale-switch` | Language switch |
 | `data-footer-columns` | Footer grid: brand, newsletter, link columns |
-| `data-footer-bottom` | Footer bottom bar with the copyright line |
+| `data-footer-bottom` | Footer bottom bar: the copyright line, the legal page links, "Cookie settings" |
 | `data-cms-document` | Container of a CMS page's sections |
 | `data-section-header` | `<header>` of a CMS section: title, description, buttons |
 | `data-section-intro` | Title and description inside the section header |

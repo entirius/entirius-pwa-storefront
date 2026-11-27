@@ -502,6 +502,8 @@ export const en = {
   // footer
   "footer.prices_incl_vat": "Prices include VAT.",
   "footer.nav": "Footer",
+  "footer.legal": "Legal",
+  "footer.cookie_settings": "Cookie settings",
 
   // newsletter
   "newsletter.title": "Newsletter",

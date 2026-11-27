@@ -115,6 +115,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- The footer's bottom bar links every published legal page of the active language (label: the page's public title,
+  `useLayout().legal`) and a "Cookie settings" link that reopens the cookie preferences and stays hidden until a
+  cookie banner runs. No legal pages, no links; no configuration.
 - Legal pages: a contentdb `legal-page` document (terms, privacy policy: the pages django-agreements links its
   definitions to) is served at its route like a static page, when no static page holds that route; the 404 check and
   the sitemap know it too.

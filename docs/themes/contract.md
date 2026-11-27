@@ -21,7 +21,7 @@ import the SDK, other theme files (`@theme/...`), React, Next, and the default t
 | `@entirius/storefront-sdk/i18n` | The messages' types (`Translate`, `MessageKey`); `/i18n/client`: `useI18n()` in browser parts, with `t()`, `price()` and the page's `language`; `/i18n/price-lines`: a product's price as the lines it shows ("From", the struck price). Every interface text goes through `t()`, every price through `price()`. |
 | `/storefront` | `Storefront` hooks the core lends every page: `useWishlist`, `useProductCard`, `useQuickAdd`, `useOmnibus` (the lowest 30-day price), `useMenuBranch`, `useHeaderSearch`, `useAccount`, `useCartCount`, `useWishlistSheet`, `useMoveToCart`, `useNotices`, `useLocaleSwitch`. |
 | `/components/*` | `Media` (a backend picture through `next/image`, a placeholder when it fails), `RichText` (sanitized HTML from the backend), `Link` (a shop path with the country's prefix), `TokenLinks` (a sentence with `{privacy}`-style links). |
-| `/layout`, `/layout/context` | The layout's data (`useLayout()`): the shop's name and logo, menu types, languages and currencies, the footer's columns. |
+| `/layout`, `/layout/context` | The layout's data (`useLayout()`): the shop's name and logo, menu types, languages and currencies, the footer's columns, the published legal pages (`legal`). |
 | `/product`, `/product/card` | Product shapes (`Price`, `ProductMedia`, `ProductCardData`...) and the props of the similar products. |
 | `/product/page` | The product page's model, `useProductPage()`. |
 | `/catalog/listing` | The listing's model (a category or search), `useListingPage()`, and the filter panel's hooks. |
