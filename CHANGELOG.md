@@ -150,3 +150,5 @@ All notable changes to this project are documented here. The format follows
   the bottom. The page frame (`@theme/layout/page-shell`) clips what sticks out sideways (`overflow-x: clip`, so the
   header stays sticky). Opening a sheet no longer moves the page either: the horizontal scrollbar going away used to
   shift it by that scrollbar's height (15 px at the bottom of a page) and reset a sideways offset.
+- A product opened from the wishlist sheet closes the sheet. It used to stay open over the new page while the page
+  jumped to its top behind the overlay.
