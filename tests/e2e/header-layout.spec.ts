@@ -11,6 +11,11 @@ const header = (page: Page) => page.locator("header").first();
 const logo = (page: Page) => header(page).getByRole("link", { name: /home$/ });
 const button = (page: Page, name: string) => header(page).getByRole("button", { name, exact: true });
 
+// The page's centre: the window less the room kept for the vertical scrollbar (`scrollbar-gutter: stable`).
+async function page_center(page: Page) {
+  return (await page.evaluate(() => document.documentElement.getBoundingClientRect().width)) / 2;
+}
+
 async function x_center(page: Page) {
   const box = await logo(page).boundingBox();
   return box!.x + box!.width / 2;
@@ -23,7 +28,7 @@ test.describe("from 1280 px up, with a short list", () => {
     await page.goto("/");
     const height = (await header(page).boundingBox())!.height;
     expect(height).toBeLessThan(80);
-    expect(Math.abs((await x_center(page)) - 640)).toBeLessThanOrEqual(1);
+    expect(Math.abs((await x_center(page)) - (await page_center(page)))).toBeLessThanOrEqual(1);
 
     const sofas = (await button(page, "Sofas").boundingBox())!;
     const logo_box = (await logo(page).boundingBox())!;
@@ -61,7 +66,7 @@ test.describe("below 1280 px", () => {
     const height = (await header(page).boundingBox())!.height;
     expect(height).toBeGreaterThan(100);
     expect(height).toBeLessThan(115);
-    expect(Math.abs((await x_center(page)) - 550)).toBeLessThanOrEqual(1);
+    expect(Math.abs((await x_center(page)) - (await page_center(page)))).toBeLessThanOrEqual(1);
 
     const logo_box = (await logo(page).boundingBox())!;
     const sofas = (await button(page, "Sofas").boundingBox())!;
