@@ -13,6 +13,13 @@ import { expect, test, type Page } from "@playwright/test";
 // their own pace, while what this guards is the brand layer around them (layout,
 // tokens, typography). Prices and names come from the seeded reference dataset.
 
+// Baselines exist only for macOS (`*-chrome-darwin.png`); on any other platform there is nothing to compare with
+// and the first run would only write new files, so the specs are skipped there.
+test.skip(
+  process.platform !== "darwin",
+  "visual baselines exist only for macOS (*-chrome-darwin.png); rendering differs per platform",
+);
+
 const SHOT = {
   animations: "disabled",
   // Per-pixel color tolerance. The default (0.2) lets neighbouring brand shades
