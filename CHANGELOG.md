@@ -160,6 +160,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- The header no longer moves sideways between pages on a wide screen: a page that streams in is first no taller than
+  the window, so the vertical scrollbar went away and came back on every navigation and the centred header and menu
+  shifted by half its width (7.5 px at 2560 px). The scrollbar's room is now always kept (`scrollbar-gutter: stable`
+  on `html`), and a sheet's scroll lock no longer pads the body on top of it.
 - The footer follows the visitor's language: the storefront reads the `footer` layout extender drafts of every
   language and renders the one in the active language, else the one in the shop's default language, else the newest.
   A shop can keep a footer per language; before, the newest draft showed to everybody.
