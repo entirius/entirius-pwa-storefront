@@ -298,7 +298,8 @@ Two patterns:
     Only a cart created (POST) with the customer's token belongs to the account. On login `merge_cart_on_login()`
     (`stores/cart-login.ts`) adds the account's saved cart (`carts/latest/`) to the local one (a shared SKU gets the
     sum), adopts its `cart_id` and closes the guest cart; on logout the cart leaves the device and comes back with
-    the next login.
+    the next login. On a 404 from the items PATCH (e.g. an order was placed from the cart and the customer
+    left the payment gateway without paying) the sync drops `cid` and POSTs a new cart from the local items.
   - `app/.../catalog/.../_components/filters.store.ts` — co-located with catalog page, initializes from `URLSearchParams`
 
 ## Coding Standards
