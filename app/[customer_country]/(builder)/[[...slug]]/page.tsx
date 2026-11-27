@@ -10,6 +10,7 @@ import { get_server_api } from "@/lib/seo/server-api";
 import { load_static_page, pick_static_page, cms_content_prefetches } from "./api.query";
 import { CmsPage as CmsPageFrame } from "@theme/cms/cms-page";
 import { CmsDocument } from "./_components/cms-document";
+import { own_heading_content, page_title } from "./_components/page-heading";
 import { get_i18n } from "@/lib/i18n/i18n.server";
 import { LAYOUT_ROUTE_PREFIX } from "@/app/_components/layout-slots/api.query";
 import { page_alternates } from "@/lib/seo/alternates";
@@ -70,14 +71,15 @@ export default async function BuilderPage({ params }: Props) {
   const document = pick_static_page(cms_data?.data, language);
 
   if (!document) notFound();
+  const { has_h1, content } = own_heading_content(document.content);
 
   return (
     <>
       {/* The shop's Organization goes on the home page, where search engines look for it. */}
       {!slug?.length && <JsonLd data={build_organization_jsonld()} />}
-      <PrefetchBoundary prefetches={await cms_content_prefetches(api, document.content)}>
-        <CmsPageFrame name={document.name || null}>
-          <CmsDocument content={document.content} />
+      <PrefetchBoundary prefetches={await cms_content_prefetches(api, content)}>
+        <CmsPageFrame name={has_h1 ? null : page_title(document)}>
+          <CmsDocument content={content} />
         </CmsPageFrame>
       </PrefetchBoundary>
     </>

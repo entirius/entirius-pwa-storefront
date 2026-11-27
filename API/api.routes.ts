@@ -386,6 +386,7 @@ export const API_ROUTES_POLICY = {
     default_headers: [{ "Content-Type": "application/json" }],
   },
   [API_CMS_STATIC_PAGE_ROUTE]: { shared_cache: true },
+  [API_CMS_LEGAL_PAGE_ROUTE]: { shared_cache: true },
   [API_CMS_ROUTES_ROUTE]: { shared_cache: true },
   [API_CMS_FOOTER_ROUTE]: { shared_cache: true },
   // A post assigned to other channels is not this shop's (a post without channels is everyone's).

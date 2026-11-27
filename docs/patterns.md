@@ -19,7 +19,7 @@ Route placeholders `__CHANNEL__`, `__USER_ID__`, `__CART_ID__`, `__CHANNEL_CHECK
 
 A segment of one call (an order id, a slug, a form type) goes in `suffix`, after the route: `FETCH_METHOD(API_CART_ORDERS_ROUTE, { suffix: [order_id] })` asks `…/orders/<order_id>/`, `{ suffix: [url_key, "variants"] }` on `API_PRODUCTS_ROUTE` asks `…/products/<url_key>/variants/`. The policy is the route's (headers, default query, shared cache), each segment is encoded, and an empty one fails the call. Never concatenate a value onto a route constant: `${ROUTE}${id}/` matches no policy, so it goes out without the route's headers and token.
 
-Shared cache: server fetches of routes marked `shared_cache: true` in `API_ROUTES_POLICY` (categories, contentdb routes / static-page / footer / blog posts, categories and authors) are cached across requests for `SHARED_CACHE_SECONDS` (60 s), keyed on the URL, so channel and language must be in the path or query. Add a route there only when it is a public GET whose answer is the same for every visitor: never a cart, customer, checkout or stock route; a request with credentials is never cached anyway.
+Shared cache: server fetches of routes marked `shared_cache: true` in `API_ROUTES_POLICY` (categories, contentdb routes / static-page / legal-page / footer / blog posts, categories and authors) are cached across requests for `SHARED_CACHE_SECONDS` (60 s), keyed on the URL, so channel and language must be in the path or query. Add a route there only when it is a public GET whose answer is the same for every visitor: never a cart, customer, checkout or stock route; a request with credentials is never cached anyway.
 
 ## PrefetchBoundary
 

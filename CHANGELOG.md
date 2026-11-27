@@ -142,3 +142,10 @@ All notable changes to this project are documented here. The format follows
   page offers "Tell me when it is back" (e-mail, consent, honeypot) for that SKU; a saved request stays shown as saved
   after a reload, "Notify me" in the phone buy bar scrolls to the form, and `/stock-alert/cancel?token=` cancels a
   request from the mail link. Without the key the product page is unchanged.
+
+### Fixed
+
+- Legal pages: the `legal-page` route is in the shared cache like the static page (every view and every 404 lookup
+  asked the API). A CMS page's hidden H1 is the document's `meta.title` (its `name` is the editors' label, "Terms
+  (EN)"), and a text whose HTML opens its own H1 is the page's heading: no second hidden H1, no tile title printed
+  above it.
