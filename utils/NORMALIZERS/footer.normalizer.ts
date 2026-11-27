@@ -5,7 +5,8 @@
 // The published `footer` layout extender → link columns. The CMS navigation
 // editor stores items (`display_as: megamenu` with `columns[].links[]`, or a
 // single `link`); every links column becomes one footer column, a plain link
-// item goes into a column of its own.
+// item goes into a column of its own. The footer is one document per language: the visitor's, else the shop's
+// default language, else any (the newest).
 
 export type FooterLink = { label: string; href: string; external: boolean };
 export type FooterColumn = { heading: string; links: FooterLink[] };
@@ -40,10 +41,16 @@ function norm_link(raw: RawLink): FooterLink | null {
   return { label, href, external: /^https?:\/\//.test(href) };
 }
 
-export function NORM_FOOTER(response: unknown): FooterColumn[] {
-  const doc = list<{ content?: { items?: unknown } }>(
-    (response as { data?: unknown } | undefined)?.data,
-  )[0];
+type FooterDoc = { language?: unknown; content?: { items?: unknown } };
+
+export function pick_footer(response: unknown, language: string, fallback_language: string): FooterDoc | undefined {
+  const docs = list<FooterDoc>((response as { data?: unknown } | undefined)?.data);
+  const of = (code: string) => docs.find((d) => text(d.language).toLowerCase() === code.toLowerCase());
+  return of(language) ?? of(fallback_language) ?? docs[0];
+}
+
+export function NORM_FOOTER(response: unknown, language = "", fallback_language = ""): FooterColumn[] {
+  const doc = pick_footer(response, language, fallback_language);
   const items = list<RawItem>(doc?.content?.items).sort(by_order);
 
   return items.flatMap((item): FooterColumn[] => {
