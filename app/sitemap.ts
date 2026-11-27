@@ -7,6 +7,7 @@ import { connection } from "next/server";
 import {
   API_CATEGORIES_ROUTE,
   API_CMS_BLOG_POST_ROUTE,
+  API_CMS_LEGAL_PAGE_ROUTE,
   API_CMS_STATIC_PAGE_ROUTE,
   API_PRODUCTS_ROUTE,
 } from "@/API/api.routes";
@@ -57,12 +58,14 @@ async function product_rows(api: Api): Promise<Row[]> {
 // Routes of the published CMS pages with the languages each is written in; a route an app page took (`blog`) is
 // not a page address.
 async function page_languages(api: Api): Promise<Map<string, Set<string>>> {
-  const [error, response] = await api.FETCH_METHOD<{ data: { routes?: string[]; language?: string }[] }>(
-    API_CMS_STATIC_PAGE_ROUTE,
-    { querys: { limit: 50, page: 1 } },
+  // Static pages and legal pages (terms, privacy policy): both are served at their route.
+  const answers = await Promise.all(
+    [API_CMS_STATIC_PAGE_ROUTE, API_CMS_LEGAL_PAGE_ROUTE].map((route) =>
+      api.FETCH_METHOD<{ data: { routes?: string[]; language?: string }[] }>(route, { querys: { limit: 50, page: 1 } }),
+    ),
   );
   const out = new Map<string, Set<string>>();
-  for (const page of error || !response ? [] : response.data) {
+  for (const page of answers.flatMap(([error, response]) => (error || !response ? [] : response.data))) {
     const route = page.routes?.[0];
     if (!route || route.startsWith(LAYOUT_ROUTE_PREFIX) || is_app_route(route) || !page.language) continue;
     out.set(route, (out.get(route) ?? new Set()).add(page.language.toLowerCase()));
