@@ -7,6 +7,8 @@ import { end_session } from "@/API/api.setup";
 import { SESSION_LOGIN_PATH, SESSION_LOGOUT_PATH } from "@/lib/session";
 import { make_client_access } from "@/API/access/api.client-access";
 import { msg } from "@entirius/storefront-sdk/i18n";
+import type { RegisterAgreement } from "@/utils/NORMALIZERS/agreement.normalizer";
+import { signup_agreement_flags } from "@/utils/NORMALIZERS/agreement.normalizer";
 import {
   API_USER_SIGNUP_ROUTE,
   API_USER_PROFILE_ROUTE,
@@ -15,7 +17,7 @@ import {
 } from "@/API/api.routes";
 import {
   login_schema,
-  register_schema,
+  register_schema_for,
   forgot_password_schema,
   reset_password_schema,
   change_password_schema,
@@ -97,10 +99,12 @@ function map_signup_error(
   return { ok: false, field, message };
 }
 
+// `agreements`: the backend's agreements the form offered (null = the shop's own pair of boxes).
 export async function client_register(
   input: RegisterFormValues,
+  agreements: RegisterAgreement[] | null = null,
 ): Promise<RegisterResult> {
-  const parsed = register_schema.safeParse(input);
+  const parsed = register_schema_for(agreements).safeParse(input);
   if (!parsed.success) {
     return { ok: false, field: "root", message: msg("auth.check_form") };
   }
@@ -109,16 +113,16 @@ export async function client_register(
   const language = access.get("lg") ?? "en";
   const api = create_api(access);
 
-  const { email, password, consent_terms, consent_data } = parsed.data;
+  const { email, password } = parsed.data;
   const [error, data] = await api.FETCH_METHOD<ApiEnvelope>(API_USER_SIGNUP_ROUTE, {
     method: "POST",
     body: JSON.stringify({
       email,
       password,
-      // Accounts agreements contract: email = data/marketing consent,
-      // condition = terms+privacy acceptance, newsletter always false (the newsletter
-      // has its own double opt-in: lib/newsletter.ts, after the account is created).
-      agreements: { email: consent_data, condition: consent_terms, newsletter: false },
+      // Accounts agreements contract (kept for compatibility; the backend's own record is
+      // lib/agreements.ts, after the account is created): email = data/marketing consent,
+      // condition = terms+privacy acceptance, newsletter always false.
+      agreements: signup_agreement_flags(parsed.data, agreements),
       language,
     }),
   });

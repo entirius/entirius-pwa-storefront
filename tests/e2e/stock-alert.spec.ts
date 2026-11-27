@@ -19,6 +19,8 @@ const SOLD_OUT = "/product/promenade-bench";
 const SUBSCRIBE = /\/stock-alerts\/v2\/[^/]+\/subscriptions\/$/;
 const STOCK = /\/stock\/\?/;
 const EMAIL = "ann@example.com";
+const has_stock_alerts_key = !!(channels as Record<string, { API_STOCK_ALERTS_KEY?: string }>)["default-europe"]
+  ?.API_STOCK_ALERTS_KEY;
 
 async function with_key(page: Page) {
   const host = new URL(app_config.SITE_URL).hostname;
@@ -237,6 +239,8 @@ test.describe("answers", () => {
 });
 
 test("without the key a sold-out size stays disabled and no form shows", async ({ page }) => {
+  // The proxy sets the `sa_key` cookie from the channel's key on every visit: this case needs a channel without one.
+  test.skip(!!has_stock_alerts_key, "channel default-europe has an API_STOCK_ALERTS_KEY");
   await stock(page, () => [SOLD_OUT_SIZE, "ENT-X002"]);
   await page.goto(CONFIGURABLE);
   await expect(page.getByRole("radio", { name: /Orion Collection/ })).toBeEnabled();
@@ -248,8 +252,7 @@ test("without the key a sold-out size stays disabled and no form shows", async (
 
 // Live: the backend saves the request (plan 05 reads it back in the admin and the signup mail).
 test("the real backend saves a request", async ({ page }) => {
-  const key = (channels as Record<string, { API_STOCK_ALERTS_KEY?: string }>)["default-europe"]?.API_STOCK_ALERTS_KEY;
-  test.skip(!key, "channel default-europe has no API_STOCK_ALERTS_KEY");
+  test.skip(!has_stock_alerts_key, "channel default-europe has no API_STOCK_ALERTS_KEY");
   await page.goto(SOLD_OUT);
   await fill(page);
   const [response] = await Promise.all([page.waitForResponse(SUBSCRIBE), submit(page)]);

@@ -9,7 +9,11 @@ import { Footer } from "@theme/layout/footer";
 // The frame around every page: the announcement bar and the header above the page, the slot above the footer and
 // the footer below. `announcement` and `before_footer` are CMS content the core renders, null without a page under
 // their route; `data-layout-slot` names them for a client theme's rules. A server part: the header and footer are
-// browser parts inside.
+// browser parts inside. The frame clips what sticks out sideways: a full-bleed CMS section is `100vw` wide and a
+// viewport with a vertical scrollbar is that much wider than the page, so without the clip the page scrolls
+// sideways by the scrollbar's half width (`clip`, not `hidden`: no scroll container, the header stays sticky). While
+// a whole-page loading (`data-page-loading`, PageLoading) is on screen the slot above the footer and the footer are
+// hidden: they would be painted under the spinner and jump down when the page arrives.
 export function PageShell({
   announcement,
   before_footer,
@@ -20,7 +24,7 @@ export function PageShell({
   children: ReactNode;
 }) {
   return (
-    <>
+    <div className="group/shell overflow-x-clip">
       {announcement && (
         <div data-layout-slot="announcement" className="text-center text-sm">
           {announcement}
@@ -29,11 +33,16 @@ export function PageShell({
       <Header />
       <main className="mx-auto w-full max-w-(--page-max-width) p-4">{children}</main>
       {before_footer && (
-        <div data-layout-slot="before-footer" className="mx-auto w-full max-w-(--page-max-width) px-4">
+        <div
+          data-layout-slot="before-footer"
+          className="mx-auto w-full max-w-(--page-max-width) px-4 group-has-[[data-page-loading]]/shell:hidden"
+        >
           {before_footer}
         </div>
       )}
-      <Footer />
-    </>
+      <div className="group-has-[[data-page-loading]]/shell:hidden">
+        <Footer />
+      </div>
+    </div>
   );
 }

@@ -6,7 +6,7 @@
 
 import { useListingPage } from "@entirius/storefront-sdk/catalog/listing";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
-import { Spinner } from "@theme/ui/spinner";
+import { PageLoading } from "@theme/ui/spinner";
 import { ListingHeader } from "@theme/catalog/listing-header";
 import { ListingFilters } from "@theme/catalog/filters";
 import { FiltersSheet } from "@theme/catalog/filters-sheet";
@@ -19,7 +19,10 @@ import { ListingEmpty } from "@theme/catalog/listing-empty";
 // change only that part.
 export function ListingPage() {
   const { t } = useI18n();
-  const { hint, status, error, products, list_ref } = useListingPage();
+  const { hint, status, error, products, filtered, list_ref } = useListingPage();
+  // Nothing found and no filter chosen: filters and sorting have nothing to work on. Under a chosen filter they stay,
+  // so the visitor can clear it.
+  const nothing_to_filter = products.length === 0 && !filtered;
 
   return (
     <>
@@ -29,9 +32,13 @@ export function ListingPage() {
           {hint}
         </p>
       ) : status === "loading" ? (
-        <Spinner className="mx-auto size-8" />
+        <PageLoading />
       ) : status === "error" ? (
         <div>{t("common.error", { message: error ?? "" })}</div>
+      ) : nothing_to_filter ? (
+        <div data-catalog-list ref={list_ref}>
+          <ListingEmpty />
+        </div>
       ) : (
         <div className="grid gap-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:items-start">
           {/* Desktop: the filters stay beside the listing. Phones open them in a sheet. */}

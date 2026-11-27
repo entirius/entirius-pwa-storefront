@@ -11,14 +11,15 @@ import { useLayout } from "@entirius/storefront-sdk/layout/context";
 import { useStorefront } from "@entirius/storefront-sdk/storefront";
 import { BrandMark } from "@theme/layout/brand-mark";
 
+const LINK_CLASS = "text-sm text-muted-foreground transition-colors hover:text-foreground";
+
 function FooterLinkItem({ link }: { link: FooterLink }) {
-  const className = "text-sm text-muted-foreground transition-colors hover:text-foreground";
   return link.external ? (
-    <a href={link.href} target="_blank" rel="noopener noreferrer" className={className}>
+    <a href={link.href} target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>
       {link.label}
     </a>
   ) : (
-    <Link href={link.href} className={className}>
+    <Link href={link.href} className={LINK_CLASS}>
       {link.label}
     </Link>
   );
@@ -29,7 +30,7 @@ function FooterLinkItem({ link }: { link: FooterLink }) {
 // The footer: logo, the VAT note, the newsletter form and the link columns of the CMS footer.
 export function Footer() {
   const { t } = useI18n();
-  const { site, footer: columns } = useLayout();
+  const { site, footer: columns, legal } = useLayout();
   const { Newsletter } = useStorefront().forms;
   return (
     <footer className="mt-16 border-t border-border bg-card">
@@ -61,9 +62,20 @@ export function Footer() {
         )}
       </div>
       <div data-footer-bottom className="border-t border-border">
-        <p className="mx-auto w-full max-w-(--page-max-width) px-4 py-4 text-xs text-muted-foreground">
-          © {new Date().getFullYear()} {site.name}
-        </p>
+        <div className="mx-auto flex w-full max-w-(--page-max-width) flex-wrap items-center gap-x-6 gap-y-2 px-4 py-4">
+          <p className="text-xs text-muted-foreground">
+            © {new Date().getFullYear()} {site.name}
+          </p>
+          <nav aria-label={t("footer.legal")} className="flex flex-wrap gap-x-6 gap-y-2">
+            {legal.map((link) => (
+              <FooterLinkItem key={link.href} link={link} />
+            ))}
+            {/* Hidden by app/globals.css until a cookie banner runs; the core reopens the preferences on click. */}
+            <a href="#cookie-consents" className={LINK_CLASS}>
+              {t("footer.cookie_settings")}
+            </a>
+          </nav>
+        </div>
       </div>
     </footer>
   );

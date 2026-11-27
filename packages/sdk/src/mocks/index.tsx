@@ -111,6 +111,7 @@ export const mock_layout: LayoutData = {
   menu: { mobile: "hamburger", desktop: "megamenu", one_row: false },
   locale: { languages: ["en", "pl"], currencies: ["EUR", "PLN"], language: "en", currency: "EUR", pairs: { en: "EUR", pl: "PLN" } },
   footer: [{ heading: "Help", links: [{ label: "Contact", href: "/contact", external: false }] }],
+  legal: [{ label: "Terms", href: "/terms", external: false }],
 };
 
 // The providers every browser part reads: the messages, the core's hooks, the layout.

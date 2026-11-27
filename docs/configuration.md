@@ -55,7 +55,7 @@ The template ships the two channels of the reference dataset (`default-europe`, 
 | `channels.config.json` | `{channel}.API_CONTACT_FORMS_KEY` | Optional contact-forms API key per channel (`X-API-KEY`, scope `contact_form`). `proxy.ts` sends it as the `cf_key` cookie. Without it no contact form is offered |
 | `channels.config.json` | `{channel}.API_NEWSLETTER_KEY` | Optional newsletter key per channel (`X-API-KEY` of `agreements/v2/{channel}/newsletter/subscribe/`, a token with the scope `agreements.subscribe`). `proxy.ts` sends it as the `nl_key` cookie. Without it the footer has no newsletter form and the register form no opt-in |
 | `channels.config.json` | `{channel}.API_STOCK_ALERTS_KEY` | Optional back-in-stock alerts key per channel (`X-API-KEY` of `stock-alerts/v2/{channel}/subscriptions/`, a token with the scope `stock_alerts.subscribe`). `proxy.ts` sends it as the `sa_key` cookie. Without it a sold-out size stays disabled and the product page offers no "Tell me when it is back" form |
-| `channels.config.json` | `{channel}.API_AGREEMENTS_KEY` | Optional agreements key per channel (`X-API-KEY` of `agreements/v2/{channel}/orders/{order_id}/agreements/`, today a token with the same scope `agreements.subscribe`, set apart so a deployment can use its own). `proxy.ts` sends it as the `ag_key` cookie. Without it a guest order goes through but the agreements accepted at checkout are not recorded with it (a signed-in customer's JWT still records them) |
+| `channels.config.json` | `{channel}.API_AGREEMENTS_KEY` | Optional agreements key per channel (`X-API-KEY` of `agreements/v2/{channel}/orders/{order_id}/agreements/`, today a token with the same scope `agreements.subscribe`, set apart so a deployment can use its own). `proxy.ts` sends it as the `ag_key` cookie. Also the key of `agreements/v2/{channel}/consents/`, which records the agreements ticked at registration. Without it a guest order goes through but the agreements accepted at checkout are not recorded with it (a signed-in customer's JWT still records them), and a new account's agreements are not recorded either |
 | `countries.config.json` | `{country}.default_language` | Default language for country (the `lg` cookie: interface language and the API `language`) |
 | `countries.config.json` | `{country}.default_currency` | Default currency for country |
 | `countries.config.json` | `{country}.default_channel` | Default channel for country |
@@ -128,7 +128,7 @@ Besides the hooks above, theme rules can select these attributes (`[data-header-
 | `data-header-end` | Wishlist, account and cart buttons |
 | `data-locale-switch` | Language switch |
 | `data-footer-columns` | Footer grid: brand, newsletter, link columns |
-| `data-footer-bottom` | Footer bottom bar with the copyright line |
+| `data-footer-bottom` | Footer bottom bar: the copyright line, the legal page links, "Cookie settings" |
 | `data-cms-document` | Container of a CMS page's sections |
 | `data-section-header` | `<header>` of a CMS section: title, description, buttons |
 | `data-section-intro` | Title and description inside the section header |

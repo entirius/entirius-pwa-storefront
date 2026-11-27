@@ -49,11 +49,14 @@ for (const [kind, path, sku] of [
   });
 }
 
-// The stock answer, not the read model, says sold out: the variant's button names it.
+// The stock answer, not the read model, says sold out: the variant offers no Add to cart. The button names it
+// ("Out of stock", disabled); a channel with a stock-alerts key shows the "Tell me when it is back" form instead.
 test("a variant the stock reports sold out cannot be bought", async ({ page }) => {
   await page.route(/\/stock\/\?/, (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({}) }),
   );
   await page.goto("/product/captains-living-room-set?variant=ENT-C001");
-  await expect(page.locator("[data-buy-area]").getByRole("button", { name: "Out of stock" })).toBeDisabled();
+  const buy = page.locator("[data-buy-area]");
+  await expect(buy.getByRole("button", { name: "Add to cart" })).toHaveCount(0);
+  await expect(buy.getByRole("button", { name: "Out of stock" }).or(buy.locator("form[data-stock-alert]"))).toBeVisible();
 });

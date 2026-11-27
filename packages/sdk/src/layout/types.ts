@@ -45,6 +45,8 @@ export type LayoutData = {
   // null: one language and one currency, nothing to switch.
   locale: LocaleChoice | null;
   footer: FooterColumn[];
+  // The published legal pages of the active language (terms, privacy policy), for the footer's bottom bar.
+  legal: FooterLink[];
 };
 
 export type Crumb = { name: string; href?: string };

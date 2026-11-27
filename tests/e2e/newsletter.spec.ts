@@ -5,6 +5,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import app_config from "../../_CONFIG/app.config.json";
 import channels from "../../_CONFIG/channels.config.json";
+import { MARKETING_CONSENT, PRIVACY_CONSENT } from "./support/account";
 import { link_path, mail } from "./support/mail";
 
 // The newsletter needs the channel's newsletter key (cookie `nl_key`, from API_NEWSLETTER_KEY). The UI tests answer
@@ -97,12 +98,11 @@ test("a new customer can sign up for the newsletter when registering", async ({ 
   await page.locator("header").getByRole("button", { name: "Sign in" }).click();
   const sheet = page.getByRole("dialog");
   await sheet.getByRole("button", { name: "Register" }).click();
-  await sheet.getByLabel("Email").fill(email);
+  await sheet.getByLabel("Email", { exact: true }).fill(email);
   await sheet.getByLabel("Password", { exact: true }).fill(password);
   await sheet.getByLabel("Confirm password").fill(password);
-  await sheet.getByLabel("I accept the terms of service and privacy policy.").check();
-  await sheet.getByLabel("I consent to the processing of my personal data.").check();
-  await sheet.getByLabel("Send me the newsletter (we will ask you to confirm the address first).").check();
+  await sheet.getByLabel(PRIVACY_CONSENT).check();
+  await sheet.getByLabel(MARKETING_CONSENT).check();
   await sheet.getByRole("button", { name: "Create account" }).click();
   await expect(sheet.getByText("Account created — check your email to confirm, then sign in.")).toBeVisible();
 

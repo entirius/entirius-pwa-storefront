@@ -69,13 +69,13 @@ test("email and consent are required, the honeypot sends nothing", async ({ page
   await page.goto(SOLD_OUT);
   await page.locator("[data-notify-trigger]").click();
   await page.locator("[data-notify-form]").getByLabel("Email address").fill("ann@example.com");
-  await page.getByRole("button", { name: "Notify me" }).click();
+  await page.getByRole("button", { name: "Notify me", exact: true }).click();
   await expect(page.locator("[data-notify-form] [role=alert]")).toContainText("accept the data processing");
   expect(posts).toBe(0);
 
   await page.locator("[data-notify-consent] button").click();
   await page.locator('[data-notify-form] input[name="website"]').evaluate((el: HTMLInputElement) => (el.value = "http://spam"));
-  await page.getByRole("button", { name: "Notify me" }).click();
+  await page.getByRole("button", { name: "Notify me", exact: true }).click();
   await expect(page.locator("[data-notify-sent]")).toBeVisible();
   expect(posts).toBe(0);
 });
@@ -87,7 +87,7 @@ test("the request carries the product, the note, the consent and the page", asyn
   await request_form(page);
   const [request] = await Promise.all([
     page.waitForRequest(SUBMIT),
-    page.getByRole("button", { name: "Notify me" }).click(),
+    page.getByRole("button", { name: "Notify me", exact: true }).click(),
   ]);
   const payload = request.postDataJSON();
   expect(payload).toMatchObject({
@@ -116,7 +116,7 @@ test("the empty category request names the category", async ({ page }) => {
   await request_form(page);
   const [request] = await Promise.all([
     page.waitForRequest(SUBMIT),
-    page.getByRole("button", { name: "Notify me" }).click(),
+    page.getByRole("button", { name: "Notify me", exact: true }).click(),
   ]);
   expect(request.postDataJSON().body).toMatchObject({ category: "Nightstands" });
   expect(request.postDataJSON().code).toBeUndefined();
@@ -135,7 +135,7 @@ test("the real backend accepts a request", async ({ page, request }) => {
   await request_form(page);
   const [response] = await Promise.all([
     page.waitForResponse(SUBMIT),
-    page.getByRole("button", { name: "Notify me" }).click(),
+    page.getByRole("button", { name: "Notify me", exact: true }).click(),
   ]);
   expect(response.status()).toBe(201);
   await expect(page.locator("[data-notify-sent]")).toBeVisible();

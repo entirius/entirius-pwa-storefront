@@ -32,12 +32,18 @@ export type RegisterFormValues = {
   email: string;
   password: string;
   confirm_password: string;
+  // The consent boxes are the core's (`consents`): these fields belong to them.
   consent_terms: boolean;
   consent_data: boolean;
   newsletter?: boolean;
+  accepted?: Record<string, boolean | undefined>;
 };
-// `newsletter`: the channel has a newsletter, so the form offers the sign-up box.
-export type RegisterFormModel = ValidatedForm<RegisterFormValues> & { newsletter: boolean; login: () => void };
+// `consents`: the consent boxes with their errors, drawn by the core (the backend's agreements, else the shop's own);
+// the view places it inside `<Form {...form}>` where they go and knows nothing about them.
+export type RegisterFormModel = ValidatedForm<RegisterFormValues> & {
+  consents: ReactNode;
+  login: () => void;
+};
 
 export type ForgotPasswordFormValues = { email: string };
 export type ForgotPasswordFormModel = ValidatedForm<ForgotPasswordFormValues> & { back: () => void };

@@ -280,7 +280,7 @@ export const CHECKS: { part: string; render: () => ReactElement }[] = [
       <FormCheck
         view={RegisterForm}
         values={{ email: "", password: "", confirm_password: "", consent_terms: false, consent_data: false, newsletter: false }}
-        props={{ newsletter: true, login: noop }}
+        props={{ consents: <p className="text-sm">The consent boxes.</p>, login: noop }}
       />
     ),
   },

@@ -191,7 +191,7 @@ sheet, the newsletter, an enquiry, notify about a similar product, back in stock
 validation, sending and state in the core and draw a view of the theme, `@theme/forms/<name>`, from a model in
 props (`/forms`): a react-hook-form form hands the view `form`, `submit` and `pending`, so its fields bind to
 `form.control` through `TextField` / `SelectField` / `CheckboxField`; a contact form hands its state, `submit` (the
-core reads the fields by `name`) and the consent (`TokenLinks` from the SDK draws its privacy link). The forms keep
+core reads the fields by `name`) and the consent (`TokenLinks` from the SDK draws its privacy link); where the core draws a part of a form itself (the register form's consent boxes, `consents`, like the login form's `dev_tools`), the model carries it as a node. The forms keep
 their names and props in the core, so `Storefront.forms` still loads the account ones on first use. The account (`/account/page`): the
 section's frame `@theme/account/account-layout` with `account-menu` (`useAccountMenu()`, set in the profile layout,
 which also guards the section), `overview-page`, `orders-page`, `order-page` and `addresses-page`, each with its
@@ -320,7 +320,12 @@ All slot pages come from one request per page render (`app/_components/layout-sl
 list, then `static-page?routes=…`, deduplicated with `React.cache()`); the draft in the active language wins.
 
 The footer is not a slot: it is the CMS footer extender (`layout-extender-published/footer/`, edited in the CMS
-navigation editor), read by `lib/layout/layout-data.ts` and drawn by the theme's `@theme/layout/footer`.
+navigation editor), read by `lib/layout/layout-data.ts` and drawn by the theme's `@theme/layout/footer`. A draft has
+a language like a page: the footer is the draft of the visitor's language, else of the shop's default language
+(`default` in `countries.config.json`), else the newest (`pick_footer`). The bottom
+bar next to "© year name" links every published `legal-page` of the active language (`useLayout().legal`: label the
+page's `meta.title`, href its route; none published, no links) and "Cookie settings", an `href="#cookie-consents"`
+link that `app/globals.css` hides until a cookie banner runs (see Cookie consent). No flag, no config.
 
 ## Blog
 
@@ -481,8 +486,9 @@ client (`useStockAlertsAvailable`), never in the server render of a product page
 ## Agreements at checkout
 
 The review step (`app/[customer_country]/checkout/_components/review-step.tsx`, `lib/agreements.ts`) shows the
-channel's agreement definitions of `django_agreements` (`GET definitions/`): every `mandatory` one is a required
-checkbox, and the `marketing` one of the `email` channel an optional one when the newsletter is offered. The text is
+channel's agreement definitions of `django_agreements` meant for the `checkout` context (`GET definitions/for-user/
+?context=checkout`, the CMS's "show in" setting of each definition: a definition with `checkout` unticked is not
+offered, no code change): every `mandatory` one is a required checkbox, and the `marketing` one of the `email` channel an optional one when the newsletter is offered. The text is
 the definition's HTML summary as the backend sends it, since the backend keeps that wording with the order; its
 links open in a new tab.
 
@@ -499,8 +505,32 @@ links open in a new tab.
   the newsletter, enquiry and notify forms, the shop's own consent line), so a deployment sets it in one place, the
   agreement in the CMS; `CHECKOUT.TERMS_ROUTE` / `PRIVACY_ROUTE` stand in only without it. The links inside a
   summary are written by hand in the definition, so they must name the same route.
-- The root layout prefetches the definitions (`lib/agreements.query.ts`, shared cache): the forms of every page
-  read them from the hydrated cache, not with a request of their own.
+- The root layout prefetches the full list (`definitions/`, `lib/agreements.query.ts`, shared cache): the legal links
+  of every form read the routes from it. The plain list carries no `display_contexts`, which is why the review step
+  asks the `for-user` endpoint (as a guest, so the answer is the same for everyone and shared). A signed-in customer
+  sees the same list: the backend would hide an already given consent for a JWT, the storefront does not ask that.
+
+### Agreements at registration
+
+The register form (`components/register-form.client.tsx`, view `@theme/forms/register-form`) offers the definitions
+meant for the `registration` context (`definitions/for-user/?context=registration`, prefetched by the root layout):
+the `mandatory` ones as required boxes, the email `marketing` one as an optional box when the channel has a
+newsletter key; the text is the definition's HTML summary. The core draws the boxes: `AgreementFields`
+(`components/agreement-fields.client.tsx`, theme primitives `CheckboxField`, `RichText` for the summary, links in a new
+tab) is handed to the view as `consents` in the `RegisterFormModel`, and the theme's register form places it with
+`{consents}`. It knows nothing of slugs, field names or required flags. Without a mandatory definition (or an answer)
+the same component draws the shop's own pair of boxes (`auth.accept_terms`, `auth.consent_data`) and the newsletter
+box. The review step shares only `AgreementSummary` (one agreement's wording) from that file: it keeps its choice in
+local state, not in a react-hook-form form, and its fallback is a single `TokenLinks` line.
+
+- After a successful signup the ticked mandatory slugs are recorded with `POST consents/` (source `registration`,
+  the channel's agreements key, the email of the form), the newsletter box starts the double opt-in as before.
+  A marketing consent cannot be recorded this way: the signup returns no token, and with a key alone the backend
+  refuses marketing definitions. Not recorded (no key, refusal) = logged, the account stands.
+- The accounts signup keeps its legacy `agreements` flags (`condition` = the mandatory ones accepted, `email` = the
+  marketing box, `newsletter` false). The accounts module ignores them today; nothing but django-agreements keeps
+  the record.
+- Only the email marketing definition is offered: SMS and push consents have no way in for a guest.
 
 ## A refused order
 

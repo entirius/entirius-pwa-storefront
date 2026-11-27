@@ -115,6 +115,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- The footer's bottom bar links every published legal page of the active language (label: the page's public title,
+  `useLayout().legal`) and a "Cookie settings" link that reopens the cookie preferences and stays hidden until a
+  cookie banner runs. No legal pages, no links; no configuration.
 - Legal pages: a contentdb `legal-page` document (terms, privacy policy: the pages django-agreements links its
   definitions to) is served at its route like a static page, when no static page holds that route; the 404 check and
   the sitemap know it too.
@@ -148,3 +151,44 @@ All notable changes to this project are documented here. The format follows
   that uses the section adds `https://www.youtube-nocookie.com` to `CSP.frame-src` of `app.config.json`, or the browser
   blocks the player after the click. Theme parts `@theme/cms/section-video` and `youtube-player`; props
   `CmsSectionVideoProps` in the SDK (`/cms`).
+
+### Fixed
+
+- The footer follows the visitor's language: the storefront reads the `footer` layout extender drafts of every
+  language and renders the one in the active language, else the one in the shop's default language, else the newest.
+  A shop can keep a footer per language; before, the newest draft showed to everybody.
+- The register form offers the agreement definitions the CMS meant for registration (their summaries; mandatory ones
+  required, email marketing optional with the newsletter key) instead of the two hard-coded boxes, and records the
+  mandatory ones with django-agreements after the signup (`consents/`, source `registration`, the agreements key).
+  The accounts `agreements` flags are still sent. Without definitions the shop's own boxes stay. The core draws the
+  boxes (`AgreementFields`); a theme's `@theme/forms/register-form` places them with `{consents}` from its model and
+  knows nothing of agreements.
+- The review step offers only the agreements the CMS meant for the checkout (`display_contexts` of the definition):
+  one with `checkout` unticked disappears from it. Without definitions the shop's own consent line stands in, as before.
+- Legal pages: the `legal-page` route is in the shared cache like the static page (every view and every 404 lookup
+  asked the API). A CMS page's hidden H1 is the document's `meta.title` (its `name` is the editors' label, "Terms
+  (EN)"), and a text whose HTML opens its own H1 is the page's heading: no second hidden H1, no tile title printed
+  above it.
+- A search with no results, and an empty category, no longer show the filter panel (Sort, Price range, a disabled
+  "Apply (0)") or the phone's Filters button beside "No results found.": `@theme/catalog/listing-page` draws only the
+  empty message when there are no products and no filter is chosen. Under a chosen filter the panel stays, so it can be
+  cleared.
+- The footer no longer jumps down when a page arrives: category, search and CMS pages stream in after a loading
+  spinner, and the footer was painted under that spinner (layout shift 0.27 on a category page, 0.14 on `/privacy`).
+  `@theme/layout/page-shell` hides the footer and the slot above it while a whole-page `PageLoading` is shown
+  (`data-page-loading`; `<PageLoading section>` for a part of a page keeps it), and the listing's client-side loading
+  state is that same `PageLoading` instead of a small spinner. The cart holds the place of its item count and order
+  steps while it loads, so a cart with lines does not push its list down.
+- The filter panel's "Apply" button sits in a solid footer bar (panel colour, top border, full panel width) in the
+  desktop column and the phone sheet, so filter rows no longer show through around it, and its disabled state is a flat
+  muted colour instead of a see-through one.
+- An empty cart no longer shows the order path (Cart > Address > Shipping > Payment > Review) under its heading,
+  and the loading cart does not flash it: `@theme/cart/cart-page` draws the steps only for a cart with lines.
+- The home page no longer scrolls sideways: a full-bleed CMS section is `100vw` wide, which counts the vertical
+  scrollbar, so the page was half a scrollbar (about 8 px) wider than the window and showed a horizontal scrollbar at
+  the bottom. The page frame (`@theme/layout/page-shell`) clips what sticks out sideways (`overflow-x: clip`, so the
+  header stays sticky). Opening a sheet no longer moves the page either: the horizontal scrollbar going away used to
+  shift it by that scrollbar's height (15 px at the bottom of a page) and reset a sideways offset.
+- A product opened from the wishlist sheet closes the sheet. It used to stay open over the new page while the page
+  jumped to its top behind the overlay.
+

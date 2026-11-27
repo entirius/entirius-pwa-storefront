@@ -8,8 +8,8 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { make_client_access } from "@/API/access/api.client-access";
 import { create_api } from "@/API/api.context";
-import { API_ORDER_AGREEMENTS_ROUTE } from "@/API/api.routes";
-import { agreement_definitions_query } from "@/lib/agreements.query";
+import { API_CONSENTS_ROUTE, API_ORDER_AGREEMENTS_ROUTE } from "@/API/api.routes";
+import { agreement_context_query, agreement_definitions_query, type AgreementContext } from "@/lib/agreements.query";
 import { PRIVACY_ROUTE, TERMS_ROUTE } from "@/lib/checkout-config";
 import { _LOGGER } from "@/lib/logger";
 import { useI18n } from "@entirius/storefront-sdk/i18n/client";
@@ -21,6 +21,13 @@ type Api = ReturnType<typeof create_api>;
 export function useAgreementDefinitions(language: string) {
   const api = useMemo(() => create_api(make_client_access()), []);
   return useQuery({ ...agreement_definitions_query(api, language), staleTime: 5 * 60_000, retry: 1 });
+}
+
+// The definitions the CMS meant for a context (checkout, registration), prefetched by the root layout or asked for
+// once on the client. An error leaves `data` undefined: the form falls back to the shop's own wording.
+export function useContextDefinitions(language: string, context: AgreementContext) {
+  const api = useMemo(() => create_api(make_client_access()), []);
+  return useQuery({ ...agreement_context_query(api, language, context), staleTime: 5 * 60_000, retry: 1 });
 }
 
 // The CMS routes of the terms and the privacy policy for the legal links of the forms: the agreement definitions
@@ -59,6 +66,25 @@ export async function record_order_agreements(
     } catch (e) {
       if (attempt === 1) _LOGGER({ type: "warning", message: "[agreements] not recorded with the order", print: e });
     }
+  }
+  return false;
+}
+
+// Records the mandatory agreements a new customer ticked at registration (source `registration`). The signup
+// returns no token, so the call goes with the channel's agreements key and the claimed email; with a key alone the
+// backend refuses marketing, which is why the newsletter box goes through its own double opt-in. Not recorded =
+// logged: the account exists and the customer did accept.
+export async function record_registration_agreements(api: Api, email: string, slugs: string[]): Promise<boolean> {
+  if (!email || slugs.length === 0) return false;
+  try {
+    const [error] = await api.FETCH_METHOD(API_CONSENTS_ROUTE, {
+      method: "POST",
+      body: JSON.stringify({ email, source: "registration", agreements: slugs.map((slug) => ({ slug, granted: true })) }),
+    });
+    if (!error) return true;
+    _LOGGER({ type: "warning", message: "[agreements] registration not recorded", print: { error } });
+  } catch (e) {
+    _LOGGER({ type: "warning", message: "[agreements] registration not recorded", print: e });
   }
   return false;
 }

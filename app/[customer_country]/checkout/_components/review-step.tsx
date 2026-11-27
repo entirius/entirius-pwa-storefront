@@ -17,9 +17,9 @@ import {
 import { Button } from "@theme/ui/button";
 import { Checkbox } from "@theme/ui/checkbox";
 import { Spinner } from "@theme/ui/spinner";
-import { RichText } from "@entirius/storefront-sdk/components/rich-text";
+import { AgreementSummary } from "@/components/agreement-fields.client";
 import { TokenLinks } from "@entirius/storefront-sdk/components/token-links";
-import { record_order_agreements, useAgreementDefinitions, useLegalRoutes } from "@/lib/agreements";
+import { record_order_agreements, useContextDefinitions, useLegalRoutes } from "@/lib/agreements";
 import { subscribe_newsletter, useNewsletterAvailable } from "@/lib/newsletter";
 import {
   checkout_agreements,
@@ -57,9 +57,10 @@ export function ReviewStep({
   const [failure, setFailure] = useState<{ text: string; fix: RefusalFix | null } | null>(null);
   const fix = failure?.fix ?? null;
 
-  // The agreements come from the backend (its wording is what it keeps with the order). Without an answer or
-  // without mandatory definitions the shop's own consent line stands in, and nothing is recorded.
-  const { data: definitions, isPending: definitions_pending } = useAgreementDefinitions(i18n.language);
+  // The agreements come from the backend (its wording is what it keeps with the order), the ones the CMS meant for
+  // the checkout. Without an answer or without mandatory definitions the shop's own consent line stands in, and
+  // nothing is recorded.
+  const { data: definitions, isPending: definitions_pending } = useContextDefinitions(i18n.language, "checkout");
   const newsletter_available = useNewsletterAvailable();
   const legal = useLegalRoutes();
   const { mandatory, marketing_email } = checkout_agreements(definitions ?? []);
@@ -273,8 +274,8 @@ export function ReviewStep({
   );
 }
 
-// One agreement as a checkbox with the backend's summary. Its links (the terms, the privacy policy) open in a new
-// tab, so the checkout stays where it is.
+// One agreement as a checkbox with the backend's summary (`AgreementSummary`: its links open in a new tab). Not
+// `AgreementFields`: the review step keeps its choice in local state, not in a react-hook-form form.
 function AgreementCheck({
   definition,
   required = false,
@@ -289,7 +290,7 @@ function AgreementCheck({
   return (
     <CheckLabel data-agreement={definition.slug} data-agreement-required={required ? "" : undefined}>
       <Checkbox checked={checked} onCheckedChange={(v) => onChange(v === true)} aria-required={required || undefined} />
-      <RichText as="span" html={definition.summary} new_tab_links="all" className="[&_a]:underline" />
+      <AgreementSummary html={definition.summary} />
     </CheckLabel>
   );
 }
