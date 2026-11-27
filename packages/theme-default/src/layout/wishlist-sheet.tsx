@@ -4,6 +4,8 @@
 
 "use client";
 
+import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import {
   Sheet,
   SheetTrigger,
@@ -25,6 +27,16 @@ export function WishlistSheet() {
   // Controlled, so "View wishlist" in a notice opens it too.
   const { count, open, set_open } = useWishlistSheet();
   const mounted = useHydrated();
+
+  // A link in the list goes to another page: the sheet must not stay open over it, with the page scrolling to the
+  // top behind the overlay.
+  const pathname = usePathname();
+  const opened_on = useRef(pathname);
+  useEffect(() => {
+    if (pathname === opened_on.current) return;
+    opened_on.current = pathname;
+    set_open(false);
+  }, [pathname, set_open]);
 
   return (
     <Sheet open={open} onOpenChange={set_open}>

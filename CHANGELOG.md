@@ -160,3 +160,15 @@ All notable changes to this project are documented here. The format follows
   asked the API). A CMS page's hidden H1 is the document's `meta.title` (its `name` is the editors' label, "Terms
   (EN)"), and a text whose HTML opens its own H1 is the page's heading: no second hidden H1, no tile title printed
   above it.
+- The filter panel's "Apply" button sits in a solid footer bar (panel colour, top border, full panel width) in the
+  desktop column and the phone sheet, so filter rows no longer show through around it, and its disabled state is a flat
+  muted colour instead of a see-through one.
+- An empty cart no longer shows the order path (Cart > Address > Shipping > Payment > Review) under its heading,
+  and the loading cart does not flash it: `@theme/cart/cart-page` draws the steps only for a cart with lines.
+- The home page no longer scrolls sideways: a full-bleed CMS section is `100vw` wide, which counts the vertical
+  scrollbar, so the page was half a scrollbar (about 8 px) wider than the window and showed a horizontal scrollbar at
+  the bottom. The page frame (`@theme/layout/page-shell`) clips what sticks out sideways (`overflow-x: clip`, so the
+  header stays sticky). Opening a sheet no longer moves the page either: the horizontal scrollbar going away used to
+  shift it by that scrollbar's height (15 px at the bottom of a page) and reset a sideways offset.
+- A product opened from the wishlist sheet closes the sheet. It used to stay open over the new page while the page
+  jumped to its top behind the overlay.
