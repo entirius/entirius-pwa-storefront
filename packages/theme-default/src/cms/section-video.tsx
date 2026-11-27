@@ -6,11 +6,11 @@ import type { CmsSectionVideoProps } from "@entirius/storefront-sdk/cms";
 import { SectionShell } from "@theme/cms/section-shell";
 import { YoutubePlayer } from "@theme/cms/youtube-player";
 
-// A YouTube video by its ID, played on click.
-export function SectionVideo({ t, id, width }: CmsSectionVideoProps) {
+// A YouTube video by its ID, played on click, over the editor's cover or the video's thumbnail.
+export function SectionVideo({ t, id, width, cover }: CmsSectionVideoProps) {
   return (
     <SectionShell t={t} width={width}>
-      <YoutubePlayer id={id} />
+      <YoutubePlayer id={id} cover={cover} />
     </SectionShell>
   );
 }

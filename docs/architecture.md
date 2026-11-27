@@ -119,6 +119,16 @@ HydrationBoundary (client)
   `CSP` of `app.config.json` (analytics, a payment widget, a CDN, `https://www.youtube-nocookie.com` in `frame-src`
   for the video section).
 
+## Video section cover
+
+`section-video` shows a cover before the click and makes no request to YouTube or Google: the editor's picture
+(`images_set`, through `cms_picture()` and `<Media>`, the backend's media) or, without one, `/video-cover/<id>.jpg`
+(`app/video-cover/[file]/route.ts`). That route accepts only `<11-character ID>.jpg`, fetches
+`https://i.ytimg.com/vi/<id>/maxresdefault.jpg` then `hqdefault.jpg` on the server (fixed host, 4 s timeout, JPEG up to
+1 MB, redirects refused, nothing of the visitor's request forwarded) and answers with `Cache-Control: public,
+max-age=86400, s-maxage=604800`; a miss is a 404 cached for five minutes and the player keeps its dark box. The path
+has a dot, so `proxy.ts` leaves it alone. The iframe still loads from `youtube-nocookie.com` only after the click.
+
 ## Geo Routing
 
 All pages live under `app/[customer_country]/`. The `ct` cookie (set by middleware from `cf-ipcountry` or existing cookie) determines the country segment. `countries.config.json` lists valid country keys. Unknown countries fall through to `default`.

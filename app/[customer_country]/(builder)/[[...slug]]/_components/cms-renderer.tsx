@@ -166,10 +166,10 @@ export const cms_blocks: Record<string, (block: Block) => ReactNode> = {
     });
     return <SectionFaq t={cms.t} title={text(data.title)} items={items} anchor={FAQ_ANCHOR} />;
   },
-  // `video_field` holds the editor's YouTube link; nothing when it is not one.
+  // `video_field` holds the editor's YouTube link; nothing when it is not one. `images_set` is the cover.
   "section-video": ({ data, cms, width }) => {
     const id = youtube_id(text(data.video_field));
-    return id ? <SectionVideo t={cms.t} id={id} width={width} /> : null;
+    return id ? <SectionVideo t={cms.t} id={id} width={width} cover={cms_picture(data.images_set)} /> : null;
   },
   "section-blog": ({ data, cms, width }) => (
     <SectionBlog

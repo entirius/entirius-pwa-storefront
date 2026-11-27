@@ -257,7 +257,15 @@ export const CHECKS: { part: string; render: () => ReactElement }[] = [
   },
   { part: "cms/section-faq", render: () => <SectionFaq t={t} title="FAQ" items={[{ question: "Why?", answer: "<p>Because.</p>" }]} anchor="faq" /> },
   { part: "cms/section-blog", render: () => <SectionBlog t={t} title="From the blog" links={mock_links} width="container" posts={[mock_post_card]} /> },
-  { part: "cms/section-video, youtube-player", render: () => <SectionVideo t={t} id="dQw4w9WgXcQ" width="container" /> },
+  {
+    part: "cms/section-video, youtube-player",
+    render: () => (
+      <>
+        <SectionVideo t={t} id="dQw4w9WgXcQ" width="container" cover={mock_picture} />
+        <SectionVideo t={t} id="dQw4w9WgXcQ" width="container" />
+      </>
+    ),
+  },
   {
     part: "cms/section-type-a, tile-type-a, tile-type-b",
     render: () => (

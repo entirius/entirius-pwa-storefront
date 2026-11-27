@@ -7,6 +7,8 @@ const YOUTUBE_HOSTS = new Set(["youtube.com", "www.youtube.com", "m.youtube.com"
 const PLAYLIST_EMBED = "videoseries";
 const ID_PATH_PREFIXES = new Set(["embed", "shorts", "live"]);
 
+export const is_youtube_id = (value: string): boolean => YOUTUBE_ID.test(value);
+
 // The video ID of a YouTube link (watch, youtu.be, embed, shorts, live; the protocol may be missing), or null. Only an 11-character ID is returned.
 export function youtube_id(link: string | null | undefined): string | null {
   if (!link) return null;
@@ -27,5 +29,5 @@ export function youtube_id(link: string | null | undefined): string | null {
         : parts[0] === "watch"
           ? url.searchParams.get("v")
           : null;
-  return id && id !== PLAYLIST_EMBED && YOUTUBE_ID.test(id) ? id : null;
+  return id && id !== PLAYLIST_EMBED && is_youtube_id(id) ? id : null;
 }

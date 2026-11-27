@@ -95,7 +95,7 @@
         "cms/section-product-slider": "products: hand-picked or a category’s first",
         "cms/section-accordion": "questions that fold open",
         "cms/section-blog": "posts the editor picked",
-        "cms/section-video": "a YouTube video, played on click",
+        "cms/section-video": "a YouTube video, played on click, over a cover",
         "cms/buttons": "CMS buttons and links"
       },
       "more": {
@@ -111,7 +111,7 @@
         "cms/tile-product": "a product in a CMS product section",
         "cms/product-rail": "product cards in a row or a grid",
         "cms/hero-carousel": "the hero’s carousel",
-        "cms/youtube-player": "the video section’s click-to-play player",
+        "cms/youtube-player": "the video section’s cover and click-to-play player",
         "cms/picture": "a CMS picture in its ratio box",
         "cms/cms-page": "a CMS page’s frame and its hidden heading"
       }
