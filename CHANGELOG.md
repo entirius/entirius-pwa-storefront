@@ -151,6 +151,12 @@ All notable changes to this project are documented here. The format follows
   that uses the section adds `https://www.youtube-nocookie.com` to `CSP.frame-src` of `app.config.json`, or the browser
   blocks the player after the click. Theme parts `@theme/cms/section-video` and `youtube-player`; props
   `CmsSectionVideoProps` in the SDK (`/cms`).
+- The video section has a cover. The editor's uploaded picture (`images_set`, read like the banner's) is shown from
+  the backend's media; without one the shop serves the video's YouTube thumbnail from its own origin
+  (`/video-cover/<id>.jpg`: the server fetches `i.ytimg.com`, `maxresdefault` then `hqdefault`, 4 s timeout, only a
+  validated 11-character ID, cached for a day in the browser and a week in a CDN). The visitor's browser still makes no
+  request to a Google or YouTube host before the click, and the CSP is unchanged; a missing thumbnail leaves the dark
+  placeholder. `CmsSectionVideoProps` gets an optional `cover`.
 
 ### Fixed
 

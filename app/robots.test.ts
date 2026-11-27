@@ -3,7 +3,11 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { describe, expect, it } from "vitest";
+import countries from "@/_CONFIG/countries.config.json";
 import { disallowed } from "./robots";
+
+// Whatever profiles the loaded config holds: one that is not `default`, else `default` itself.
+const PROFILE = Object.keys(countries).find((profile) => profile !== "default") ?? "default";
 
 // Google's matching: a rule is a prefix of path + query, `*` is any run of characters, a trailing `$` ends
 // the address. With `Allow: /` as the only allow rule, any matching disallow rule closes the address.
@@ -20,12 +24,12 @@ describe("robots disallow rules", () => {
     "/default/cart",
     "/default/cart/",
     "/default/checkout/success",
-    "/uk/checkout?ref=1",
+    `/${PROFILE}/checkout?ref=1`,
     "/default/profile/orders/5",
     "/default/user-handler",
     "/default/reset-password?key=abc",
     "/search?q=chair",
-    "/uk/search?q=chair&page=2",
+    `/${PROFILE}/search?q=chair&page=2`,
     "/default/catalog/chairs?q_color=red",
     "/default/catalog/chairs?page=2&s_price=asc",
     "/default/catalog/chairs?r_price=10-20",

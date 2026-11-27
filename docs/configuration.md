@@ -174,8 +174,10 @@ types; `section-type-a` (variants 1-4) and `tile-type-a` (1-3), which the editor
 `section-video` reads the editor's `video_field`, the raw YouTube link (`watch?v=`, `youtu.be/`, `/embed/`,
 `/shorts/`, `/live/`, `m.youtube.com`, with or without `https://`; other parameters such as `t` are ignored; playlists
 are not supported). The shop takes the 11-character ID from it; a link that is not YouTube, or an empty field, renders
-nothing. The section shows a neutral placeholder with a play button and loads nothing from YouTube or Google before
-the click; the `youtube-nocookie.com` iframe loads only after the click, Enter or Space. The default CSP does not allow
+nothing. The section shows a cover with a play button and loads nothing from YouTube or Google before
+the click. The cover is the picture the editor uploaded on the section (`images_set`, from the backend's media); without
+one it is the video's thumbnail, which the shop serves itself at `/video-cover/<id>.jpg` (its server fetches
+`i.ytimg.com`, so no `img-src` entry is needed), and when YouTube has none, a dark box; the `youtube-nocookie.com` iframe loads only after the click, Enter or Space. The default CSP does not allow
 that host: a shop that uses this section adds `https://www.youtube-nocookie.com` to `CSP.frame-src` of
 `app.config.json`. Without it the browser blocks the frame after the click and the visitor sees an empty player. Texts: `cms.video_play`, `cms.video_title`.
 
