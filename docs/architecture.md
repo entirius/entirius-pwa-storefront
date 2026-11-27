@@ -114,10 +114,10 @@ HydrationBoundary (client)
   route.
 - `proxy.ts` sends every page with an enforced Content-Security-Policy (`lib/csp.ts`): scripts need the request's nonce
   ('strict-dynamic' lets the framework's own scripts load their chunks), styles keep 'unsafe-inline' (Radix and `style`
-  attributes), the API origin is allowed for data and media, and `https://www.youtube-nocookie.com` (`frame-src`) for
-  the video section. Every HTML route renders per request, as a nonce needs; in production the not-found page relays
-  the policy of its own render. A deployment adds sources per directive in `CSP` of `app.config.json` (analytics, a
-  payment widget, a CDN).
+  attributes), and the API origin is allowed for data and media. Every HTML route renders per request, as a nonce needs;
+  in production the not-found page relays the policy of its own render. A deployment adds sources per directive in
+  `CSP` of `app.config.json` (analytics, a payment widget, a CDN, `https://www.youtube-nocookie.com` in `frame-src`
+  for the video section).
 
 ## Geo Routing
 

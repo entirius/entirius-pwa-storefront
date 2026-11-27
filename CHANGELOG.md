@@ -141,6 +141,7 @@ All notable changes to this project are documented here. The format follows
   request from the mail link. Without the key the product page is unchanged.
 - CMS section `section-video`: a YouTube player that takes the video ID from the editor's link. Before the click it
   shows a neutral placeholder with a play button and makes no request to YouTube or Google; the `youtube-nocookie.com`
-  iframe loads on click, Enter or Space, so the cookie banner is unchanged. The default CSP gains
-  `https://www.youtube-nocookie.com` (`frame-src`). Theme parts `@theme/cms/section-video` and `youtube-player`; props
+  iframe loads on click, Enter or Space, so the cookie banner is unchanged. The default CSP is unchanged: a shop
+  that uses the section adds `https://www.youtube-nocookie.com` to `CSP.frame-src` of `app.config.json`, or the browser
+  blocks the player after the click. Theme parts `@theme/cms/section-video` and `youtube-player`; props
   `CmsSectionVideoProps` in the SDK (`/cms`).

@@ -31,10 +31,6 @@ describe("build_csp", () => {
     expect(directive(policy, "img-src")).toContain("https://api.shop.test");
   });
 
-  it("allows the YouTube player frame", () => {
-    expect(directive(build_csp(base), "frame-src")).toBe("frame-src 'self' https://www.youtube-nocookie.com");
-  });
-
   it("forbids plugins, framing and foreign form targets", () => {
     const policy = build_csp(base);
     expect(directive(policy, "object-src")).toBe("object-src 'none'");
@@ -59,9 +55,14 @@ describe("build_csp", () => {
       },
     });
     expect(directive(policy, "script-src")).toContain("https://www.googletagmanager.com");
-    expect(directive(policy, "frame-src")).toBe("frame-src 'self' https://www.youtube-nocookie.com https://secure.payu.com");
+    expect(directive(policy, "frame-src")).toBe("frame-src 'self' https://secure.payu.com");
     expect(directive(policy, "worker-src")).toBe("worker-src 'self' https://cdn.test");
     expect(directive(policy, "img-src")).toBe("img-src 'self' data: blob: https://api.shop.test");
+  });
+
+  it("lets a shop with the video section allow the YouTube player frame", () => {
+    const policy = build_csp({ ...base, extra: { "frame-src": ["https://www.youtube-nocookie.com"] } });
+    expect(directive(policy, "frame-src")).toBe("frame-src 'self' https://www.youtube-nocookie.com");
   });
 
   it("leaves out an API base that is not a URL", () => {
