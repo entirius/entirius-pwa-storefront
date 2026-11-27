@@ -5,15 +5,16 @@
 import { expect, test } from "@playwright/test";
 
 // Merchandising labels from the backend `badges` and the percentage off a special
-// price. Seeded: zero-g-recliner (bestseller "Crew Favorite", 829.00 → 689.00),
+// price. Seeded: umbra-sectional (bestseller "Crew Favorite", 2299.00 → 1849.00),
 // borealis-frontier-sofa (sale "Cargo Clearance", 1749.00 → 1299.00),
-// flight-deck-command-chair (neither).
+// flight-deck-command-chair (neither). Not zero-g-recliner: with pricefighter in the
+// backend the seed applies a competitor price to it, which drops its special price.
 
 test("product page shows the labels and the percentage off", async ({ page }) => {
-  await page.goto("/product/zero-g-recliner");
-  // The product's own labels; the "More chairs" cards below carry theirs.
+  await page.goto("/product/umbra-sectional");
+  // The product's own labels; the "Similar products" cards below carry theirs.
   const labels = page.getByRole("region", { name: "Product details" }).getByRole("list", { name: "Product labels" });
-  await expect(labels.getByRole("listitem")).toHaveText(["−17%", "Crew Favorite"]);
+  await expect(labels.getByRole("listitem")).toHaveText(["−20%", "Crew Favorite"]);
 });
 
 test("catalog tile carries its labels", async ({ page }) => {
