@@ -145,6 +145,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- A search with no results, and an empty category, no longer show the filter panel (Sort, Price range, a disabled
+  "Apply (0)") or the phone's Filters button beside "No results found.": `@theme/catalog/listing-page` draws only the
+  empty message when there are no products and no filter is chosen. Under a chosen filter the panel stays, so it can be
+  cleared.
 - The footer no longer jumps down when a page arrives: category, search and CMS pages stream in after a loading
   spinner, and the footer was painted under that spinner (layout shift 0.27 on a category page, 0.14 on `/privacy`).
   `@theme/layout/page-shell` hides the footer and the slot above it while a whole-page `PageLoading` is shown
