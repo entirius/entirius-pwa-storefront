@@ -145,6 +145,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- The filter panel's "Apply" button sits in a solid footer bar (panel colour, top border, full panel width) in the
+  desktop column and the phone sheet, so filter rows no longer show through around it, and its disabled state is a flat
+  muted colour instead of a see-through one.
 - An empty cart no longer shows the order path (Cart > Address > Shipping > Payment > Review) under its heading,
   and the loading cart does not flash it: `@theme/cart/cart-page` draws the steps only for a cart with lines.
 - The home page no longer scrolls sideways: a full-bleed CMS section is `100vw` wide, which counts the vertical

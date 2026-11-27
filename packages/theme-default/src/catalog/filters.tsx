@@ -25,7 +25,14 @@ export function ListingFilters({ place, on_apply }: { place: FiltersPlace; on_ap
   if (!filters.sort.length && !filters.ranges.length && !filters.filters.length) return null;
 
   return (
-    <div className="flex flex-col gap-5">
+    <div
+      className={cn(
+        "flex flex-col gap-5",
+        in_sheet
+          ? "[--panel-pad:1rem]"
+          : "[--panel-pad:var(--surface-padding)] md:[--panel-pad:var(--surface-padding-lg)]",
+      )}
+    >
       <div data-filters-header className={cn("flex items-center justify-between gap-2", in_sheet && "flex-wrap pr-8")}>
         {in_sheet ? (
           <p data-filters-heading aria-hidden className="font-brand text-xl text-heading">
@@ -59,9 +66,17 @@ export function ListingFilters({ place, on_apply }: { place: FiltersPlace; on_ap
       {filters.filters.map((filter) => (
         <FilterOptions key={filter.idx} filter={filter} />
       ))}
-      <div className="sticky bottom-0 bg-card pt-3 pb-1">
+      {/* A solid footer of the panel: it bleeds over the panel's padding so rows never show around it, and its
+          disabled state is a flat muted colour instead of the button's see-through opacity. */}
+      <div
+        data-filters-footer
+        className={cn(
+          "sticky -bottom-(--panel-pad) -mx-(--panel-pad) -mb-(--panel-pad) border-t border-border px-(--panel-pad) py-3",
+          in_sheet ? "bg-card" : "bg-(--surface-bg)",
+        )}
+      >
         <Button
-          className="w-full"
+          className="w-full disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100"
           size="lg"
           disabled={filters.chosen === 0}
           onClick={() => {
