@@ -9,6 +9,7 @@ import {
   API_CATEGORIES_ROUTE,
   API_CMS_BLOG_AUTHORS_ROUTE,
   API_CMS_BLOG_POST_ROUTE,
+  API_CMS_LEGAL_PAGE_ROUTE,
   API_CMS_STATIC_PAGE_ROUTE,
   API_PRODUCTS_ROUTE,
 } from "@/API/api.routes";
@@ -106,7 +107,10 @@ async function lookup(kind: string, key: string, ctx: RouteContext): Promise<Ans
   if (kind === "blog-author") {
     return { exists: (await ask(api, API_CMS_BLOG_AUTHORS_ROUTE, {}, "data", [key])).exists };
   }
-  return { exists: (await ask(api, API_CMS_STATIC_PAGE_ROUTE, { routes: key, limit: "1", page: "1" }, "data")).exists };
+  const page_query = { routes: key, limit: "1", page: "1" };
+  if ((await ask(api, API_CMS_STATIC_PAGE_ROUTE, page_query, "data")).exists) return { exists: true };
+  // A legal page (terms, privacy policy) is served at its route like a static page.
+  return { exists: (await ask(api, API_CMS_LEGAL_PAGE_ROUTE, page_query, "data")).exists };
 }
 
 function remember(cache_key: string, answer: Answer) {

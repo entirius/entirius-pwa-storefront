@@ -53,6 +53,21 @@ describe("route_exists", () => {
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
+  it("finds a CMS page at its route as a static page or else as a legal page", async () => {
+    const pages = (legal: unknown[]) =>
+      vi.fn<(url: string | URL) => Promise<Response>>(async (url) => {
+        const path = new URL(String(url)).pathname;
+        return Response.json({ data: path.endsWith("/legal-page/") ? legal : [] });
+      });
+    const fetch = pages([{ uid: "terms" }]);
+    vi.stubGlobal("fetch", fetch);
+    expect(await route_exists(["regulamin"], CTX)).toBe(true);
+    const paths = fetch.mock.calls.map(([url]) => new URL(String(url)).pathname);
+    expect(paths).toEqual(["/api/contentdb/v1/published/static-page/", "/api/contentdb/v1/published/legal-page/"]);
+    vi.stubGlobal("fetch", pages([]));
+    expect(await route_exists(["missing-page"], CTX)).toBe(false);
+  });
+
   it("counts API trouble as existing", async () => {
     vi.stubGlobal("fetch", answer([], 500));
     expect(await route_exists(["product", "a"], CTX)).toBe(true);
